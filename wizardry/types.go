@@ -40,7 +40,7 @@ func toUpper(b byte) byte {
 }
 
 type parsedInt struct {
-	Value    int64
+	Value    uint64
 	NewIndex int
 }
 
@@ -64,7 +64,7 @@ func parseInt(input []byte, j int) (*parsedInt, error) {
 		}
 	}
 
-	value, err := strconv.ParseInt(string(input[startJ:j]), base, 64)
+	value, err := strconv.ParseUint(string(input[startJ:j]), base, 64)
 	if err != nil {
 		return nil, err
 	}

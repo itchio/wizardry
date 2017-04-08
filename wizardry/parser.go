@@ -13,7 +13,7 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 	scanner := bufio.NewScanner(rules)
 
 	matchedLevels := make([]bool, 32)
-	globalOffset := int64(0)
+	globalOffset := uint64(0)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -44,8 +44,17 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 			i++
 		}
 
-		if matchedLevels[level] {
-			// if we've already matched at this level, we can stop processing
+		stopProcessing := false
+
+		for l := level + 1; l < len(matchedLevels); l++ {
+			// if any deeper level was already matched, we can stop processing here
+			if matchedLevels[l] {
+				stopProcessing = true
+				break
+			}
+		}
+
+		if stopProcessing {
 			break
 		}
 
@@ -111,9 +120,9 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 		extra := lineBytes[i:]
 		// fmt.Printf("level (%d/%d), offset (%s), kind (%s), test (%s), extra (%s)\n", level, currentLevel, offset, kind, test, line[i:])
 
-		localOffsetBase := int64(0)
+		localOffsetBase := uint64(0)
 		offsetBytes := []byte(offset)
-		finalOffset := int64(0)
+		finalOffset := uint64(0)
 
 		{
 			j := 0
@@ -129,9 +138,9 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 				fmt.Printf("found indirect offset\n")
 				j++
 
-				indirectAddrOffset := int64(0)
+				indirectAddrOffset := uint64(0)
 				if offsetBytes[j] == '&' {
-					indirectAddrOffset = localOffsetBase
+					indirectAddrOffset = uint64(localOffsetBase)
 					fmt.Printf("indirect offset is relative\n")
 					j++
 				}
@@ -192,22 +201,22 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 					continue
 				}
 
-				var dereferencedValue int64
-				addrBytes := targetContents[indirectAddr.Value : indirectAddr.Value+int64(indirectAddrFormatWidth)]
+				var dereferencedValue uint64
+				addrBytes := targetContents[indirectAddr.Value : indirectAddr.Value+uint64(indirectAddrFormatWidth)]
 
 				switch indirectAddrFormatWidth {
 				case 1:
-					dereferencedValue = int64(addrBytes[0])
+					dereferencedValue = uint64(addrBytes[0])
 				case 2:
-					dereferencedValue = int64(byteOrder.Uint16(addrBytes))
+					dereferencedValue = uint64(byteOrder.Uint16(addrBytes))
 				case 4:
-					dereferencedValue = int64(byteOrder.Uint32(addrBytes))
+					dereferencedValue = uint64(byteOrder.Uint32(addrBytes))
 				}
 
 				fmt.Printf("Dereferenced value: %d\n", dereferencedValue)
 
 				indirectOffsetOperator := '@'
-				indirectOffsetRhs := int64(0)
+				indirectOffsetRhs := uint64(0)
 
 				if offsetBytes[j] == '+' {
 					indirectOffsetOperator = '+'
@@ -266,7 +275,7 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 
 		lookupOffset := finalOffset + localOffsetBase
 
-		if lookupOffset < 0 || lookupOffset >= int64(len(targetContents)) {
+		if lookupOffset < 0 || lookupOffset >= uint64(len(targetContents)) {
 			fmt.Printf("we done goofed, lookupOffset %d is out of bounds, skipping %s\n", lookupOffset, line)
 			continue
 		}
@@ -291,23 +300,89 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 					simpleKind = simpleKind[2:]
 					byteOrder = binary.BigEndian
 				}
-				var rhsValue uint64
+				var targetValue uint64
 
 				switch simpleKind {
 				case "byte":
-					rhsValue = uint64(targetContents[lookupOffset])
+					targetValue = uint64(targetContents[lookupOffset])
 				case "short":
-					rhsValue = uint64(byteOrder.Uint16(targetContents[lookupOffset : lookupOffset+2]))
+					targetValue = uint64(byteOrder.Uint16(targetContents[lookupOffset : lookupOffset+2]))
 				case "long":
-					rhsValue = uint64(byteOrder.Uint32(targetContents[lookupOffset : lookupOffset+4]))
+					targetValue = uint64(byteOrder.Uint32(targetContents[lookupOffset : lookupOffset+4]))
 				case "quad":
-					rhsValue = uint64(byteOrder.Uint64(targetContents[lookupOffset : lookupOffset+8]))
+					targetValue = uint64(byteOrder.Uint64(targetContents[lookupOffset : lookupOffset+8]))
 				}
 
-				fmt.Printf("rhs value = %d aka 0x%x, test = %s\n", rhsValue, rhsValue, test)
+				fmt.Printf("target value = %d aka 0x%x, test = %s\n", targetValue, targetValue, test)
+
+				// TODO: AND-ing in kind
+				doAnd := false
+				andValue := uint64(0)
+				if j < len(kind) && kind[j] == '&' {
+					j++
+					doAnd = true
+					parsedAndValue, err := parseInt(kind, j)
+					if err != nil {
+						fmt.Printf("in integer test, couldn't parse and value %s, skipping\n", kind[j:])
+						break
+					}
+					andValue = parsedAndValue.Value
+					j = parsedAndValue.NewIndex
+				}
+
+				operator := '='
+				negate := false
+				k := 0
+				switch test[k] {
+				case '!':
+					negate = true
+					k++
+				case '<':
+					operator = '<'
+					k++
+				case '>':
+					operator = '>'
+					k++
+				}
+
+				parsedMagicValue, err := parseInt(test, k)
+				if err != nil {
+					fmt.Printf("for integer test, couldn't parse magic value %s, ignoring", string(test[k:]))
+					continue
+				}
+
+				magicValue := parsedMagicValue.Value
+				k = parsedMagicValue.NewIndex
+
+				if doAnd {
+					targetValue &= andValue
+				}
+
+				switch operator {
+				case '=':
+					success = targetValue == magicValue
+				case '<':
+					success = targetValue < magicValue
+				case '>':
+					success = targetValue > magicValue
+				default:
+					fmt.Printf("for integer test, unsupported operator (%c), skipping\n", operator)
+					continue
+				}
+
+				if negate {
+					success = !success
+				}
 
 			case "string":
-				parsedRHS, err := parseString(test, 0)
+				k := 0
+				negate := false
+				if test[k] == '!' {
+					negate = true
+					k++
+				}
+
+				parsedRHS, err := parseString(test, k)
 				if err != nil {
 					fmt.Printf("in string test, couldn't parse rhs: %s - skipping\n", err.Error())
 					continue
@@ -326,17 +401,26 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 				// 	lookupOffset, rhs, flags)
 
 				success = stringTest(targetContents, int(lookupOffset), []byte(rhs), flags)
+
+				if negate {
+					success = !success
+				}
 			default:
 				fmt.Printf("unhandled kind (%s)\n", parsedKind.Value)
 				continue
 			}
 
 			if success {
+				extraString := string(extra)
+				extraString = strings.Replace(extraString, "\\b", "", -1)
+
 				fmt.Printf("> test succeeded! matching level %d, appending %s, new offset %d\n",
-					level, string(extra), lookupOffset)
-				outStrings = append(outStrings, string(extra))
+					level, extraString, lookupOffset)
+				outStrings = append(outStrings, extraString)
 				matchedLevels[level] = true
 				globalOffset = lookupOffset
+			} else {
+				matchedLevels[level] = false
 			}
 		}
 	}
