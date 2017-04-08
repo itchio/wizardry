@@ -13,6 +13,10 @@ func isNumber(b byte) bool {
 	return '0' <= b && b <= '9'
 }
 
+func isOctalNumber(b byte) bool {
+	return '0' <= b && b <= '7'
+}
+
 func isHexNumber(b byte) bool {
 	return ('0' <= b && b <= '9') || ('a' <= b && b <= 'f')
 }
@@ -39,12 +43,12 @@ func toUpper(b byte) byte {
 	return b
 }
 
-type parsedInt struct {
+type parsedUint struct {
 	Value    uint64
 	NewIndex int
 }
 
-func parseInt(input []byte, j int) (*parsedInt, error) {
+func parseUint(input []byte, j int) (*parsedUint, error) {
 	inputSize := len(input)
 	startJ := j
 	base := 10
@@ -69,7 +73,7 @@ func parseInt(input []byte, j int) (*parsedInt, error) {
 		return nil, err
 	}
 
-	return &parsedInt{
+	return &parsedUint{
 		Value:    value,
 		NewIndex: j,
 	}, nil
@@ -110,11 +114,26 @@ func parseString(input []byte, j int) (*parsedString, error) {
 			case '\\':
 				result = append(result, '\\')
 				j++
+			case 'r':
+				result = append(result, '\r')
+				j++
+			case 'n':
+				result = append(result, '\n')
+				j++
+			case 't':
+				result = append(result, '\t')
+				j++
+			case 'v':
+				result = append(result, '\v')
+				j++
+			case 'b':
+				result = append(result, '\b')
+				j++
+			case 'a':
+				result = append(result, '\a')
+				j++
 			case ' ':
 				result = append(result, ' ')
-				j++
-			case '0':
-				result = append(result, 0)
 				j++
 			case 'x':
 				j++
@@ -131,8 +150,26 @@ func parseString(input []byte, j int) (*parsedString, error) {
 				}
 				result = append(result, byte(val))
 				j += 2
-			default: // ?
-				return nil, fmt.Errorf("unrecognized escape character %x", input[j])
+			default:
+				if isOctalNumber(input[j]) {
+					numOctal := 1
+					k := j + 1
+					for k < inputSize && numOctal < 3 && isOctalNumber(input[k]) {
+						numOctal++
+						k++
+					}
+
+					// octal escape e.g. \0, \11, \222 but no longe
+					octInput := string(input[j:k])
+					val, err := strconv.ParseUint(octInput, 8, 8)
+					if err != nil {
+						return nil, fmt.Errorf("in oct escape %s: %s", octInput, err.Error())
+					}
+					result = append(result, byte(val))
+					j = k
+				} else {
+					return nil, fmt.Errorf("unrecognized escape sequence starting with 0x%x, aka '\\%c'", input[j], input[j])
+				}
 			}
 		} else {
 			result = append(result, input[j])

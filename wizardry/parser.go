@@ -145,7 +145,7 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 					j++
 				}
 
-				indirectAddr, err := parseInt(offsetBytes, j)
+				indirectAddr, err := parseUint(offsetBytes, j)
 				if err != nil {
 					fmt.Printf("error: couldn't parse rule %s\n", line)
 					continue
@@ -230,7 +230,7 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 
 				if indirectOffsetOperator != '@' {
 					j++
-					parsedRhs, err := parseInt(offsetBytes, j)
+					parsedRhs, err := parseUint(offsetBytes, j)
 					if err != nil {
 						fmt.Printf("malformed indirect offset rhs, skipping %s\n", line)
 						continue
@@ -262,7 +262,7 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 				}
 				j++
 			} else {
-				parsedAbsolute, err := parseInt(offsetBytes, j)
+				parsedAbsolute, err := parseUint(offsetBytes, j)
 				if err != nil {
 					fmt.Printf("malformed absolute offset, expected number, got %s\n", offsetBytes[j:])
 					continue
@@ -288,12 +288,23 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 			success := false
 
 			switch parsedKind.Value {
-			case "byte", "short", "long", "quad",
+			case
+				"ubyte", "ushort", "ulong", "uquad",
+				"ubeshort", "ubelong", "ubequad",
+				"uleshort", "ulelong", "ulequad",
+				"byte", "short", "long", "quad",
 				"beshort", "belong", "bequad",
 				"leshort", "lelong", "lequad":
 
+				signed := true
+
 				var byteOrder binary.ByteOrder = binary.LittleEndian
 				simpleKind := parsedKind.Value
+				if strings.HasPrefix(simpleKind, "u") {
+					simpleKind = simpleKind[1:]
+					signed = false
+				}
+
 				if strings.HasPrefix(simpleKind, "le") {
 					simpleKind = simpleKind[2:]
 				} else if strings.HasPrefix(simpleKind, "be") {
@@ -313,15 +324,12 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 					targetValue = uint64(byteOrder.Uint64(targetContents[lookupOffset : lookupOffset+8]))
 				}
 
-				fmt.Printf("target value = %d aka 0x%x, test = %s\n", targetValue, targetValue, test)
-
-				// TODO: AND-ing in kind
 				doAnd := false
 				andValue := uint64(0)
 				if j < len(kind) && kind[j] == '&' {
 					j++
 					doAnd = true
-					parsedAndValue, err := parseInt(kind, j)
+					parsedAndValue, err := parseUint(kind, j)
 					if err != nil {
 						fmt.Printf("in integer test, couldn't parse and value %s, skipping\n", kind[j:])
 						break
@@ -345,7 +353,7 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 					k++
 				}
 
-				parsedMagicValue, err := parseInt(test, k)
+				parsedMagicValue, err := parseUint(test, k)
 				if err != nil {
 					fmt.Printf("for integer test, couldn't parse magic value %s, ignoring", string(test[k:]))
 					continue
@@ -362,9 +370,35 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 				case '=':
 					success = targetValue == magicValue
 				case '<':
-					success = targetValue < magicValue
+					if signed {
+						switch simpleKind {
+						case "byte":
+							success = int8(targetValue) < int8(magicValue)
+						case "short":
+							success = int16(targetValue) < int16(magicValue)
+						case "long":
+							success = int32(targetValue) < int32(magicValue)
+						case "quad":
+							success = int64(targetValue) < int64(magicValue)
+						}
+					} else {
+						success = targetValue < magicValue
+					}
 				case '>':
-					success = targetValue > magicValue
+					if signed {
+						switch simpleKind {
+						case "byte":
+							success = int8(targetValue) > int8(magicValue)
+						case "short":
+							success = int16(targetValue) > int16(magicValue)
+						case "long":
+							success = int32(targetValue) > int32(magicValue)
+						case "quad":
+							success = int64(targetValue) > int64(magicValue)
+						}
+					} else {
+						success = targetValue > magicValue
+					}
 				default:
 					fmt.Printf("for integer test, unsupported operator (%c), skipping\n", operator)
 					continue
