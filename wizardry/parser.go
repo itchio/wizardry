@@ -9,7 +9,13 @@ import (
 	"strings"
 )
 
-func Identify(rules io.Reader, targetContents []byte) (string, error) {
+type LogFunc func(format string, args ...interface{})
+
+type ParseContext struct {
+	Logf LogFunc
+}
+
+func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (string, error) {
 	var outStrings []string
 	scanner := bufio.NewScanner(rules)
 
@@ -35,7 +41,6 @@ func Identify(rules io.Reader, targetContents []byte) (string, error) {
 		}
 
 		if lineBytes[i] == '!' {
-			// fmt.Printf("ignoring instruction %s\n", line)
 			continue
 		}
 
@@ -64,7 +69,7 @@ func Identify(rules io.Reader, targetContents []byte) (string, error) {
 			matchedLevels[l] = false
 		}
 
-		fmt.Printf("\n| %s\n", line)
+		ctx.Logf("| %s\n", line)
 
 		// read offset
 		offsetStart := i
@@ -111,7 +116,6 @@ func Identify(rules io.Reader, targetContents []byte) (string, error) {
 		}
 
 		extra := lineBytes[i:]
-		// fmt.Printf("level (%d/%d), offset (%s), kind (%s), test (%s), extra (%s)\n", level, currentLevel, offset, kind, test, line[i:])
 
 		localOffsetBase := uint64(0)
 		offsetBytes := []byte(offset)
@@ -125,34 +129,27 @@ func Identify(rules io.Reader, targetContents []byte) (string, error) {
 				j++
 			}
 
-			// fmt.Printf("local offset base = %d\n", localOffsetBase)
-
 			if offsetBytes[j] == '(' {
-				fmt.Printf("found indirect offset\n")
 				j++
 
 				indirectAddrOffset := uint64(0)
 				if offsetBytes[j] == '&' {
 					indirectAddrOffset = uint64(localOffsetBase)
-					fmt.Printf("indirect offset is relative\n")
 					j++
 				}
 
 				indirectAddr, err := parseUint(offsetBytes, j)
 				if err != nil {
-					fmt.Printf("error: couldn't parse rule %s\n", line)
+					ctx.Logf("error: couldn't parse rule %s", line)
 					continue
 				}
 
 				j = indirectAddr.NewIndex
 
-				fmt.Printf("indirect addr = %d\n", indirectAddr.Value)
-
 				indirectAddr.Value += indirectAddrOffset
-				fmt.Printf("indirect addr after offset = %d\n", indirectAddr.Value)
 
 				if offsetBytes[j] != '.' {
-					fmt.Printf("malformed indirect offset in %s, expected '.', got '%c'\n", string(offsetBytes), offsetBytes[j])
+					ctx.Logf("malformed indirect offset in %s, expected '.', got '%c'\n", string(offsetBytes), offsetBytes[j])
 					continue
 				}
 				j++

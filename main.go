@@ -39,7 +39,13 @@ func main() {
 		}
 	}
 
-	result, err := wizardry.Identify(ruleReader, targetSlice[:n])
+	ctx := &wizardry.ParseContext{
+		Logf: func(format string, args ...interface{}) {
+			fmt.Println(fmt.Sprintf(format, args...))
+		},
+	}
+
+	result, err := ctx.Identify(ruleReader, targetSlice[:n])
 	if err != nil {
 		panic(err)
 	}
