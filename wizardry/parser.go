@@ -5,14 +5,16 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 )
 
-func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
+func Identify(rules io.Reader, targetContents []byte) (string, error) {
 	var outStrings []string
 	scanner := bufio.NewScanner(rules)
 
 	matchedLevels := make([]bool, 32)
+	everMatchedLevels := make([]bool, 32)
 	globalOffset := uint64(0)
 
 	for scanner.Scan() {
@@ -44,20 +46,6 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 			i++
 		}
 
-		stopProcessing := false
-
-		for l := level + 1; l < len(matchedLevels); l++ {
-			// if any deeper level was already matched, we can stop processing here
-			if matchedLevels[l] {
-				stopProcessing = true
-				break
-			}
-		}
-
-		if stopProcessing {
-			break
-		}
-
 		skipRule := false
 		for l := 0; l < level; l++ {
 			if !matchedLevels[l] {
@@ -69,6 +57,11 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 
 		if skipRule {
 			continue
+		}
+
+		// clear all deeper levels
+		for l := level; l < len(matchedLevels); l++ {
+			matchedLevels[l] = false
 		}
 
 		fmt.Printf("\n| %s\n", line)
@@ -439,9 +432,35 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 				if negate {
 					success = !success
 				}
+			case "search":
+				maxLen := 8192
+				if j < len(kind) && kind[j] == '/' {
+					j++
+					parsedLen, err := parseUint(kind, j)
+					if err != nil {
+						fmt.Printf("in search test, couldn't parse max len in %s: %s - skipping\n", kind[j:], err.Error())
+					}
+
+					j = parsedLen.NewIndex
+					maxLen = int(parsedLen.Value)
+				}
+
+				k := 0
+
+				parsedRHS, err := parseString(test, k)
+				if err != nil {
+					fmt.Printf("in string test, couldn't parse rhs: %s - skipping\n", err.Error())
+					continue
+				}
+				k = parsedRHS.NewIndex
+				rhs := parsedRHS.Value
+
+				success = stringSearch(targetContents, int(lookupOffset), maxLen, string(rhs))
 			case "default":
-				// default tests always match
-				success = true
+				// default tests match if nothing has matched before
+				if !everMatchedLevels[level] {
+					success = true
+				}
 			default:
 				fmt.Printf("unhandled kind (%s)\n", parsedKind.Value)
 				continue
@@ -449,12 +468,14 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 
 			if success {
 				extraString := string(extra)
-				extraString = strings.Replace(extraString, "\\b", "", -1)
 
-				fmt.Printf("> test succeeded! matching level %d, appending %s, new offset %d\n",
+				fmt.Printf("> test succeeded! matching level %d, appending (%s), new offset %d\n",
 					level, extraString, lookupOffset)
-				outStrings = append(outStrings, extraString)
+				if extraString != "" {
+					outStrings = append(outStrings, extraString)
+				}
 				matchedLevels[level] = true
+				everMatchedLevels[level] = true
 				globalOffset = lookupOffset
 			} else {
 				matchedLevels[level] = false
@@ -462,5 +483,11 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 		}
 	}
 
-	return outStrings, nil
+	outString := strings.Join(outStrings, " ")
+
+	re := regexp.MustCompile(`.\\b`)
+	outString = re.ReplaceAllString(outString, "")
+	outString = strings.TrimSpace(outString)
+
+	return outString, nil
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strings"
 
 	"github.com/fasterthanlime/wizardry/wizardry"
 )
@@ -45,5 +44,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(target, strings.Join(result, " "))
+	fmt.Printf("%s: %s\n", target, result)
 }

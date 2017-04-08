@@ -282,3 +282,13 @@ func stringTest(target []byte, targetIndex int, magic []byte, flags stringTestFl
 	// reached the end of target without matching magic, hence not a match
 	return false
 }
+
+func stringSearch(target []byte, targetIndex int, maxLen int, pattern string) bool {
+	sf := makeStringFinder(pattern)
+	targetMaxIndex := targetIndex + maxLen
+	if targetMaxIndex > len(target) {
+		targetMaxIndex = len(target)
+	}
+	text := string(target[targetIndex:targetMaxIndex])
+	return sf.next(text) != -1
+}
