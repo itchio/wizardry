@@ -5,85 +5,14 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"strconv"
 )
-
-func isWhitespace(b byte) bool {
-	return b == ' ' || b == '\t'
-}
-
-func isNumber(b byte) bool {
-	return '0' <= b && b <= '9'
-}
-
-func isHexNumber(b byte) bool {
-	return ('0' <= b && b <= '9') || ('a' <= b && b <= 'f')
-}
-
-func isLowerLetter(b byte) bool {
-	return 'a' <= b && b <= 'z'
-}
-
-type ParsedInt struct {
-	Value    int64
-	NewIndex int
-}
-
-func parseInt(input []byte, j int) (*ParsedInt, error) {
-	inputSize := len(input)
-	startJ := j
-	base := 10
-
-	if (j+1 < inputSize) && input[j] == '0' && input[j+1] == 'x' {
-		// hexadecimal
-		base = 16
-		j += 2
-		startJ = j
-		for j < inputSize && isHexNumber(input[j]) {
-			j++
-		}
-	} else {
-		// decimal
-		for j < inputSize && isNumber(input[j]) {
-			j++
-		}
-	}
-
-	value, err := strconv.ParseInt(string(input[startJ:j]), base, 64)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ParsedInt{
-		Value:    value,
-		NewIndex: j,
-	}, nil
-}
-
-type ParsedKind struct {
-	Value    string
-	NewIndex int
-}
-
-func parseKind(input []byte, j int) *ParsedKind {
-	inputSize := len(input)
-	startJ := j
-
-	for j < inputSize && (isNumber(input[j]) || isLowerLetter(input[j])) {
-		j++
-	}
-
-	return &ParsedKind{
-		Value:    string(input[startJ:j]),
-		NewIndex: j,
-	}
-}
 
 func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 	var outStrings []string
 	scanner := bufio.NewScanner(rules)
 
 	currentLevel := 0
+	matchedLevels := make([]bool, 32)
 	globalOffset := int64(0)
 
 	for scanner.Scan() {
@@ -115,6 +44,19 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 		for i < numBytes && lineBytes[i] == '>' {
 			level++
 			i++
+		}
+
+		skipRule := false
+		for l := 0; l < level; l++ {
+			if !matchedLevels[l] {
+				fmt.Printf("level %d isn't matched, ignoring level %d rule\n", l, level)
+				skipRule = true
+				break
+			}
+		}
+
+		if skipRule {
+			continue
 		}
 
 		// read offset
@@ -153,13 +95,14 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 			}
 		}
 		testEnd := i
-		test := line[testStart:testEnd]
+		test := lineBytes[testStart:testEnd]
 
 		// skip whitespace
 		for i < numBytes && isWhitespace(lineBytes[i]) {
 			i++
 		}
 
+		extra := lineBytes[i:]
 		fmt.Printf("level (%d/%d), offset (%s), kind (%s), test (%s), extra (%s)\n", level, currentLevel, offset, kind, test, line[i:])
 
 		localOffsetBase := int64(0)
@@ -318,10 +261,45 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 		lookupOffset := finalOffset + localOffsetBase
 		fmt.Printf("lookup offset = %d\n", lookupOffset)
 
+		if lookupOffset < 0 || lookupOffset >= int64(len(targetContents)) {
+			fmt.Printf("we done goofed, lookupOffset is out of bounds, skipping %s\n", line)
+			continue
+		}
+
 		{
 			j := 0
 			parsedKind := parseKind(kind, j)
 			fmt.Printf("parsed kind = %s\n", parsedKind.Value)
+			j += parsedKind.NewIndex
+
+			switch parsedKind.Value {
+			case "string":
+				parsedRHS, err := parseString(test, 0)
+				if err != nil {
+					fmt.Printf("in string test, couldn't parse rhs: %s - skipping\n", err.Error())
+					continue
+				}
+				rhs := parsedRHS.Value
+
+				var flags stringTestFlags
+				if j < len(kind) && kind[j] == '/' {
+					j++
+					parsedFlags := parseStringTestFlags(kind, j)
+					j = parsedFlags.NewIndex
+					flags = parsedFlags.Flags
+				}
+
+				fmt.Printf("should perform string test at (%d) with test (%s), flags %+v\n",
+					lookupOffset, rhs, flags)
+
+				success := stringTest(targetContents, int(lookupOffset), []byte(rhs), flags)
+				if success {
+					fmt.Printf(">>>>> STRING TEST MATCHED <<<<<< %s\n", extra)
+					outStrings = append(outStrings, string(extra))
+					matchedLevels[level] = true
+					currentLevel = level
+				}
+			}
 		}
 	}
 
