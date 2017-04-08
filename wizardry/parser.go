@@ -439,6 +439,9 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 				if negate {
 					success = !success
 				}
+			case "default":
+				// default tests always match
+				success = true
 			default:
 				fmt.Printf("unhandled kind (%s)\n", parsedKind.Value)
 				continue
