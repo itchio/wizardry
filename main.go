@@ -30,7 +30,7 @@ func main() {
 
 	defer targetReader.Close()
 
-	targetSlice := make([]byte, 1024)
+	targetSlice := make([]byte, 2048)
 	n, err := io.ReadFull(targetReader, targetSlice)
 	if err != nil {
 		if err == io.ErrUnexpectedEOF {

@@ -37,8 +37,6 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 			continue
 		}
 
-		fmt.Printf("\nline %s\n", line)
-
 		// read level
 		level := 0
 		for i < numBytes && lineBytes[i] == '>' {
@@ -46,10 +44,15 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 			i++
 		}
 
+		if matchedLevels[level] {
+			// if we've already matched at this level, we can stop processing
+			break
+		}
+
 		skipRule := false
 		for l := 0; l < level; l++ {
 			if !matchedLevels[l] {
-				fmt.Printf("level %d isn't matched, ignoring level %d rule\n", l, level)
+				// if any of the parent levels aren't matched, skip the rule entirely
 				skipRule = true
 				break
 			}
@@ -58,6 +61,8 @@ func Identify(rules io.Reader, targetContents []byte) ([]string, error) {
 		if skipRule {
 			continue
 		}
+
+		fmt.Printf("\nline %s\n", line)
 
 		// read offset
 		offsetStart := i
