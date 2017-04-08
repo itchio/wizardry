@@ -69,7 +69,7 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 			matchedLevels[l] = false
 		}
 
-		ctx.Logf("| %s\n", line)
+		ctx.Logf("| %s", line)
 
 		// read offset
 		offsetStart := i
@@ -155,39 +155,31 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 				j++
 
 				indirectAddrFormat := offsetBytes[j]
-				fmt.Printf("format: %c\n", indirectAddrFormat)
 				j++
 
 				indirectAddrFormatWidth := 0
 				var byteOrder binary.ByteOrder = binary.LittleEndian
 
+				if isUpperLetter(indirectAddrFormat) {
+					byteOrder = binary.BigEndian
+					indirectAddrFormat = toLower(indirectAddrFormat)
+				}
+
 				switch indirectAddrFormat {
 				case 'b':
 					indirectAddrFormatWidth = 1
 				case 'i':
-					fmt.Printf("id3 format not supported, skipping %s\n", line)
+					ctx.Logf("id3 format not supported, skipping %s", line)
 					continue
 				case 's':
 					indirectAddrFormatWidth = 2
 				case 'l':
 					indirectAddrFormatWidth = 4
-				case 'B':
-					indirectAddrFormatWidth = 1
-					byteOrder = binary.BigEndian
-				case 'I':
-					fmt.Printf("id3 format not supported, skipping %s\n", line)
-					continue
-				case 'S':
-					indirectAddrFormatWidth = 2
-					byteOrder = binary.BigEndian
-				case 'L':
-					indirectAddrFormatWidth = 4
-					byteOrder = binary.BigEndian
 				case 'm':
-					fmt.Printf("middle-endian format not supported, skipping %s\n", line)
+					ctx.Logf("middle-endian format not supported, skipping %s", line)
 					continue
 				default:
-					fmt.Printf("unsupported indirect addr format %c, skipping %s\n", indirectAddrFormat, line)
+					ctx.Logf("unsupported indirect addr format %c, skipping %s", indirectAddrFormat, line)
 					continue
 				}
 
@@ -203,10 +195,8 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 					dereferencedValue = uint64(byteOrder.Uint32(addrBytes))
 				}
 
-				fmt.Printf("Dereferenced value: %d\n", dereferencedValue)
-
 				indirectOffsetOperator := '@'
-				indirectOffsetRhs := uint64(0)
+				indirectOffsetRHS := uint64(0)
 
 				if offsetBytes[j] == '+' {
 					indirectOffsetOperator = '+'
@@ -220,41 +210,37 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 
 				if indirectOffsetOperator != '@' {
 					j++
-					parsedRhs, err := parseUint(offsetBytes, j)
+					parsedRHS, err := parseUint(offsetBytes, j)
 					if err != nil {
-						fmt.Printf("malformed indirect offset rhs, skipping %s\n", line)
+						ctx.Logf("malformed indirect offset rhs, skipping %s", line)
 						continue
 					}
 
-					indirectOffsetRhs = parsedRhs.Value
-					j = parsedRhs.NewIndex
+					indirectOffsetRHS = parsedRHS.Value
+					j = parsedRHS.NewIndex
 				}
-
-				fmt.Printf("indirectOffset operator = %c, rhs = %d\n", indirectOffsetOperator, indirectOffsetRhs)
 
 				finalOffset = dereferencedValue
 				switch indirectOffsetOperator {
 				case '+':
-					finalOffset += indirectOffsetRhs
+					finalOffset += indirectOffsetRHS
 				case '-':
-					finalOffset -= indirectOffsetRhs
+					finalOffset -= indirectOffsetRHS
 				case '*':
-					finalOffset *= indirectOffsetRhs
+					finalOffset *= indirectOffsetRHS
 				case '/':
-					finalOffset /= indirectOffsetRhs
+					finalOffset /= indirectOffsetRHS
 				}
 
-				fmt.Printf("final offset = %d\n", finalOffset)
-
 				if offsetBytes[j] != ')' {
-					fmt.Printf("malformed indirect offset in %s, expected ')', got '%c'\n", string(offsetBytes), offsetBytes[j])
+					ctx.Logf("malformed indirect offset in %s, expected ')', got '%c', skipping", string(offsetBytes), offsetBytes[j])
 					continue
 				}
 				j++
 			} else {
 				parsedAbsolute, err := parseUint(offsetBytes, j)
 				if err != nil {
-					fmt.Printf("malformed absolute offset, expected number, got %s\n", offsetBytes[j:])
+					ctx.Logf("malformed absolute offset, expected number, got (%s), skipping", offsetBytes[j:])
 					continue
 				}
 
@@ -266,7 +252,7 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 		lookupOffset := finalOffset + localOffsetBase
 
 		if lookupOffset < 0 || lookupOffset >= uint64(len(targetContents)) {
-			fmt.Printf("we done goofed, lookupOffset %d is out of bounds, skipping %s\n", lookupOffset, line)
+			ctx.Logf("we done goofed, lookupOffset %d is out of bounds, skipping %s", lookupOffset, line)
 			continue
 		}
 
@@ -458,6 +444,8 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 				if !everMatchedLevels[level] {
 					success = true
 				}
+			case "clear":
+				everMatchedLevels[level] = false
 			default:
 				fmt.Printf("unhandled kind (%s)\n", parsedKind.Value)
 				continue

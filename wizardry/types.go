@@ -26,7 +26,7 @@ func isLowerLetter(b byte) bool {
 }
 
 func isUpperLetter(b byte) bool {
-	return 'a' <= b && b <= 'z'
+	return 'A' <= b && b <= 'Z'
 }
 
 func toLower(b byte) byte {
