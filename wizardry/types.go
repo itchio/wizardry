@@ -1,7 +1,6 @@
 package wizardry
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -117,8 +116,23 @@ func parseString(input []byte, j int) (*parsedString, error) {
 			case '0':
 				result = append(result, 0)
 				j++
+			case 'x':
+				j++
+				if j+2 > inputSize {
+					return nil, fmt.Errorf("unfinished hexadecimal escape: %s", string(input[j:]))
+				}
+
+				// hexadecimal escape, e.g. "\xeb"
+				hexInput := string(input[j : j+2])
+
+				val, err := strconv.ParseUint(hexInput, 16, 8)
+				if err != nil {
+					return nil, fmt.Errorf("in hex escape %s: %s", hexInput, err.Error())
+				}
+				result = append(result, byte(val))
+				j += 2
 			default: // ?
-				return nil, errors.New(fmt.Sprintf("unrecognized escape character %x", input[j]))
+				return nil, fmt.Errorf("unrecognized escape character %x", input[j])
 			}
 		} else {
 			result = append(result, input[j])
