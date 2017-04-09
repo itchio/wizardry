@@ -263,11 +263,11 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 				case "byte":
 					ik.ByteWidth = 1
 				case "short":
-					ik.ByteWidth = 1
+					ik.ByteWidth = 2
 				case "long":
-					ik.ByteWidth = 1
+					ik.ByteWidth = 4
 				case "quad":
-					ik.ByteWidth = 1
+					ik.ByteWidth = 8
 				default:
 					ctx.Logf("unrecognized integer kind %s, skipping rule %s", simpleKind, line)
 					continue
@@ -378,7 +378,7 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 			case "clear":
 				rule.Kind.Family = KindFamilyClear
 			default:
-				fmt.Printf("unhandled kind (%s)\n", parsedKind.Value)
+				ctx.Logf("unhandled kind (%s)\n", parsedKind.Value)
 				continue
 			}
 

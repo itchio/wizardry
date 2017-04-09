@@ -7,5 +7,9 @@ func searchTest(target []byte, targetIndex int, maxLen int, pattern string) int 
 		targetMaxIndex = len(target)
 	}
 	text := string(target[targetIndex:targetMaxIndex])
-	return sf.next(text)
+	index := sf.next(text)
+	if index == -1 {
+		return -1
+	}
+	return index + targetIndex
 }

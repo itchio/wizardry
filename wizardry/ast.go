@@ -2,6 +2,9 @@ package wizardry
 
 import (
 	"encoding/binary"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 // Spellbook contains a set of rules - at least one "" page, potentially others
@@ -18,6 +21,118 @@ type Rule struct {
 	Offset      Offset
 	Kind        Kind
 	Description []byte
+}
+
+func (r Rule) String() string {
+	return fmt.Sprintf("%s%s    %s    %s",
+		strings.Repeat(">", r.Level),
+		r.Offset, r.Kind, r.Description)
+}
+
+func (o Offset) String() string {
+	s := ""
+
+	switch o.OffsetType {
+	case OffsetTypeDirect:
+		s = fmt.Sprintf("0x%x", o.Direct)
+	case OffsetTypeIndirect:
+		s = "("
+		indirect := o.Indirect
+		if indirect.IsRelative {
+			s += "&"
+		}
+
+		s += fmt.Sprintf("0x%x", indirect.OffsetAddress)
+		s += "."
+
+		switch indirect.ByteWidth {
+		case 1:
+			s += "byte"
+		case 2:
+			s += "short"
+		case 4:
+			s += "long"
+		case 8:
+			s += "quad"
+		}
+		if indirect.Endianness == LittleEndian {
+			s += "le"
+		} else {
+			s += "be"
+		}
+
+		switch indirect.OffsetAdjustmentType {
+		case OffsetAdjustmentAdd:
+			s += "+"
+		case OffsetAdjustmentSub:
+			s += "-"
+		case OffsetAdjustmentMul:
+			s += "*"
+		case OffsetAdjustmentDiv:
+			s += "/"
+		}
+
+		if indirect.OffsetAdjustmentType != OffsetAdjustmentNone {
+			if indirect.OffsetAdjustmentIsRelative {
+				s += "("
+			}
+			s += fmt.Sprintf("%d", indirect.OffsetAdjustmentValue)
+			if indirect.OffsetAdjustmentIsRelative {
+				s += ")"
+			}
+		}
+
+		s += ")"
+	}
+
+	if o.IsRelative {
+		s = "&" + s
+	}
+	return s
+}
+
+func (k Kind) String() string {
+	switch k.Family {
+	case KindFamilyInteger:
+		ik, _ := k.Data.(*IntegerKind)
+		s := ""
+		if !ik.Signed {
+			s += "u"
+		}
+		switch ik.ByteWidth {
+		case 1:
+			s += "byte"
+		case 2:
+			s += "short"
+		case 4:
+			s += "long"
+		case 8:
+			s += "quad"
+		}
+		if ik.Endianness == LittleEndian {
+			s += "le"
+		} else {
+			s += "be"
+		}
+		s += "    "
+		s += fmt.Sprintf("%x", ik.Value)
+		if ik.DoAnd {
+			s += fmt.Sprintf("&0x%x", ik.AndValue)
+		}
+		return s
+	case KindFamilyString:
+		sk, _ := k.Data.(*StringKind)
+		return fmt.Sprintf("string    %s", strconv.Quote(string(sk.Value)))
+	case KindFamilySearch:
+		sk, _ := k.Data.(*SearchKind)
+		return fmt.Sprintf("search/0x%x    %s", sk.MaxLen, strconv.Quote(string(sk.Value)))
+	case KindFamilyDefault:
+		return "default"
+	case KindFamilyClear:
+		return "clear"
+	default:
+		return fmt.Sprintf("kind family %d", k.Family)
+	}
 }
 
 // Endianness describes the order in which a multi-byte number is stored

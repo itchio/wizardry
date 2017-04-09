@@ -39,6 +39,20 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 	globalOffset := int64(0)
 
 	for _, rule := range ctx.Book[page] {
+		stopProcessing := false
+
+		// if any of the deeper levels have ever matched, stop working
+		for l := rule.Level + 1; l < len(matchedLevels); l++ {
+			if everMatchedLevels[l] {
+				stopProcessing = true
+				break
+			}
+		}
+
+		if stopProcessing {
+			break
+		}
+
 		skipRule := false
 		for l := 0; l < rule.Level; l++ {
 			if !matchedLevels[l] {
@@ -52,25 +66,24 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			continue
 		}
 
-		// clear all deeper levels
-		for l := rule.Level; l < len(matchedLevels); l++ {
-			matchedLevels[l] = false
-		}
-
-		ctx.Logf("| %#v", rule)
-
 		lookupOffset := int64(0)
+
+		ctx.Logf("| %s", rule)
 
 		switch rule.Offset.OffsetType {
 		case OffsetTypeIndirect:
 			indirect := rule.Offset.Indirect
 			offsetAddress := indirect.OffsetAddress
 
+			ctx.Logf("indirect! globalOffset is 0x%x", globalOffset)
+
 			if indirect.IsRelative {
 				offsetAddress += int64(globalOffset)
 			}
 
-			readAddress, err := readAnyUint(target, int(lookupOffset), indirect.ByteWidth, indirect.Endianness.MaybeSwapped(swapEndian))
+			ctx.Logf("indirect, first read is %d bytes at 0x%x", indirect.ByteWidth, offsetAddress)
+
+			readAddress, err := readAnyUint(target, int(offsetAddress), indirect.ByteWidth, indirect.Endianness.MaybeSwapped(swapEndian))
 			if err != nil {
 				ctx.Logf("Error while dereferencing: %s - skipping rule", err.Error())
 				continue
@@ -79,12 +92,15 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 
 			offsetAdjustValue := indirect.OffsetAdjustmentValue
 			if indirect.OffsetAdjustmentIsRelative {
-				readAdjustAddress, err := readAnyUint(target, int(int64(lookupOffset)+offsetAdjustValue), indirect.ByteWidth, indirect.Endianness)
+				offsetAdjustAddress := int64(offsetAddress) + offsetAdjustValue
+				ctx.Logf("reading offsetAdjustValue at 0x%x + 0x%x = 0x%x", offsetAddress, offsetAdjustValue, offsetAdjustAddress)
+				readAdjustAddress, err := readAnyUint(target, int(offsetAdjustAddress), indirect.ByteWidth, indirect.Endianness)
 				if err != nil {
 					ctx.Logf("Error while dereferencing: %s - skipping rule", err.Error())
 					continue
 				}
 				offsetAdjustValue = int64(readAdjustAddress)
+				ctx.Logf("offsetAdjustValue (presumably, length?) is 0x%x", offsetAdjustValue)
 			}
 
 			switch indirect.OffsetAdjustmentType {
@@ -102,7 +118,9 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			lookupOffset = rule.Offset.Direct
 		}
 
+		ctx.Logf("offset is 0x%x", lookupOffset)
 		if rule.Offset.IsRelative {
+			ctx.Logf("wait, offset is relative, so 0x%x + 0x%x = 0x%x", lookupOffset, globalOffset, lookupOffset+globalOffset)
 			lookupOffset += globalOffset
 		}
 
@@ -193,7 +211,9 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			success = matchPos >= 0
 
 			if success {
+				ctx.Logf("search succeeded, it's at 0x%x, length is %d", matchPos, len(sk.Value))
 				globalOffset = int64(matchPos + len(sk.Value))
+				ctx.Logf("new globalOffset = 0x%x", globalOffset)
 			}
 
 		case KindFamilyDefault:
@@ -209,8 +229,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 		if success {
 			descString := string(rule.Description)
 
-			fmt.Printf("> test succeeded! matching level %d, appending (%s), new offset %d\n",
-				rule.Level, descString, lookupOffset)
+			ctx.Logf("|==========> rule matched!")
 
 			if descString != "" {
 				outStrings = append(outStrings, descString)
@@ -227,7 +246,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 
 func readAnyUint(input []byte, j int, byteWidth int, endianness Endianness) (uint64, error) {
 	if j+byteWidth >= len(input) {
-		return 0, fmt.Errorf("not enough bytes in input to read uint")
+		return 0, fmt.Errorf("not enough bytes in input to read uint (we'd have to read at %d, only got %d)", j+byteWidth, len(input))
 	}
 
 	var ret uint64
