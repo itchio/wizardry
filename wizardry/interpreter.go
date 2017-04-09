@@ -75,13 +75,9 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			indirect := rule.Offset.Indirect
 			offsetAddress := indirect.OffsetAddress
 
-			ctx.Logf("indirect! globalOffset is 0x%x", globalOffset)
-
 			if indirect.IsRelative {
 				offsetAddress += int64(globalOffset)
 			}
-
-			ctx.Logf("indirect, first read is %d bytes at 0x%x", indirect.ByteWidth, offsetAddress)
 
 			readAddress, err := readAnyUint(target, int(offsetAddress), indirect.ByteWidth, indirect.Endianness.MaybeSwapped(swapEndian))
 			if err != nil {
@@ -93,14 +89,12 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			offsetAdjustValue := indirect.OffsetAdjustmentValue
 			if indirect.OffsetAdjustmentIsRelative {
 				offsetAdjustAddress := int64(offsetAddress) + offsetAdjustValue
-				ctx.Logf("reading offsetAdjustValue at 0x%x + 0x%x = 0x%x", offsetAddress, offsetAdjustValue, offsetAdjustAddress)
 				readAdjustAddress, err := readAnyUint(target, int(offsetAdjustAddress), indirect.ByteWidth, indirect.Endianness)
 				if err != nil {
 					ctx.Logf("Error while dereferencing: %s - skipping rule", err.Error())
 					continue
 				}
 				offsetAdjustValue = int64(readAdjustAddress)
-				ctx.Logf("offsetAdjustValue (presumably, length?) is 0x%x", offsetAdjustValue)
 			}
 
 			switch indirect.OffsetAdjustmentType {
@@ -118,9 +112,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			lookupOffset = rule.Offset.Direct
 		}
 
-		ctx.Logf("offset is 0x%x", lookupOffset)
 		if rule.Offset.IsRelative {
-			ctx.Logf("wait, offset is relative, so 0x%x + 0x%x = 0x%x", lookupOffset, globalOffset, lookupOffset+globalOffset)
 			lookupOffset += globalOffset
 		}
 

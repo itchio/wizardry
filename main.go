@@ -29,9 +29,15 @@ func main() {
 
 	defer targetReader.Close()
 
-	// targetSlice := make([]byte, 2048)
-	stat, _ := targetReader.Stat()
-	targetSlice := make([]byte, stat.Size())
+	readAll := os.Getenv("WIZARDRY_FULL_FILE") != "0"
+
+	var targetSlice []byte
+	if readAll {
+		stat, _ := targetReader.Stat()
+		targetSlice = make([]byte, stat.Size())
+	} else {
+		targetSlice = make([]byte, 2048)
+	}
 	n, err := io.ReadFull(targetReader, targetSlice)
 	if err != nil {
 		if err == io.ErrUnexpectedEOF {
@@ -47,6 +53,11 @@ func main() {
 
 	pctx := &wizardry.ParseContext{
 		Logf: func(format string, args ...interface{}) {},
+	}
+
+	debugParser := os.Getenv("WIZARDRY_DEBUG_PARSER") == "1"
+	if debugParser {
+		pctx.Logf = Logf
 	}
 
 	book := make(wizardry.Spellbook)
