@@ -2,26 +2,24 @@ package wizardry
 
 import (
 	"bufio"
-	"encoding/binary"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 )
 
+// LogFunc prints a debug message
 type LogFunc func(format string, args ...interface{})
 
+// ParseContext holds state for the parser
 type ParseContext struct {
 	Logf LogFunc
 }
 
-func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (string, error) {
-	var outStrings []string
-	scanner := bufio.NewScanner(rules)
+// Parse reads a magic rule file and puts it into a spell book
+func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
+	scanner := bufio.NewScanner(magicReader)
 
-	matchedLevels := make([]bool, 32)
-	everMatchedLevels := make([]bool, 32)
-	globalOffset := uint64(0)
+	page := ""
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -44,29 +42,17 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 			continue
 		}
 
+		rule := Rule{}
+
 		// read level
-		level := 0
 		for i < numBytes && lineBytes[i] == '>' {
-			level++
+			rule.Level++
 			i++
 		}
 
-		skipRule := false
-		for l := 0; l < level; l++ {
-			if !matchedLevels[l] {
-				// if any of the parent levels aren't matched, skip the rule entirely
-				skipRule = true
-				break
-			}
-		}
-
-		if skipRule {
-			continue
-		}
-
-		// clear all deeper levels
-		for l := level; l < len(matchedLevels); l++ {
-			matchedLevels[l] = false
+		if rule.Level < 1 {
+			// end of the page, if any
+			page = ""
 		}
 
 		ctx.Logf("| %s", line)
@@ -115,41 +101,42 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 			i++
 		}
 
-		extra := lineBytes[i:]
+		descriptionBytes := lineBytes[i:]
 
-		localOffsetBase := uint64(0)
-		offsetBytes := []byte(offset)
-		finalOffset := uint64(0)
-
+		// parse offset
 		{
+			offsetBytes := []byte(offset)
 			j := 0
 			if offsetBytes[j] == '&' {
 				// offset is relative to globalOffset
-				localOffsetBase = globalOffset
+				rule.Offset.IsRelative = true
 				j++
 			}
 
 			if offsetBytes[j] == '(' {
 				j++
+				rule.Offset.OffsetType = OffsetTypeIndirect
 
-				indirectAddrOffset := uint64(0)
+				indirect := &IndirectOffset{}
+				rule.Offset.Indirect = indirect
+
 				if offsetBytes[j] == '&' {
-					indirectAddrOffset = uint64(localOffsetBase)
+					indirect.IsRelative = true
 					j++
 				}
 
-				indirectAddr, err := parseUint(offsetBytes, j)
+				indirectAddr, err := parseInt(offsetBytes, j)
 				if err != nil {
-					ctx.Logf("error: couldn't parse rule %s", line)
+					ctx.Logf("error: couldn't parse indirect offset in part \"%s\" of rule %s", offsetBytes[j:], line)
 					continue
 				}
 
 				j = indirectAddr.NewIndex
 
-				indirectAddr.Value += indirectAddrOffset
+				indirect.OffsetAddress = indirectAddr.Value
 
-				if offsetBytes[j] != '.' {
-					ctx.Logf("malformed indirect offset in %s, expected '.', got '%c'\n", string(offsetBytes), offsetBytes[j])
+				if offsetBytes[j] != '.' && offsetBytes[j] != ',' {
+					ctx.Logf("malformed indirect offset in %s, expected [.,], got '%c'\n", string(offsetBytes), offsetBytes[j])
 					continue
 				}
 				j++
@@ -157,24 +144,23 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 				indirectAddrFormat := offsetBytes[j]
 				j++
 
-				indirectAddrFormatWidth := 0
-				var byteOrder binary.ByteOrder = binary.LittleEndian
+				indirect.Endianness = LittleEndian
 
 				if isUpperLetter(indirectAddrFormat) {
-					byteOrder = binary.BigEndian
+					indirect.Endianness = BigEndian
 					indirectAddrFormat = toLower(indirectAddrFormat)
 				}
 
 				switch indirectAddrFormat {
 				case 'b':
-					indirectAddrFormatWidth = 1
+					indirect.ByteWidth = 1
 				case 'i':
 					ctx.Logf("id3 format not supported, skipping %s", line)
 					continue
 				case 's':
-					indirectAddrFormatWidth = 2
+					indirect.ByteWidth = 2
 				case 'l':
-					indirectAddrFormatWidth = 4
+					indirect.ByteWidth = 4
 				case 'm':
 					ctx.Logf("middle-endian format not supported, skipping %s", line)
 					continue
@@ -183,53 +169,40 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 					continue
 				}
 
-				var dereferencedValue uint64
-				addrBytes := targetContents[indirectAddr.Value : indirectAddr.Value+uint64(indirectAddrFormatWidth)]
-
-				switch indirectAddrFormatWidth {
-				case 1:
-					dereferencedValue = uint64(addrBytes[0])
-				case 2:
-					dereferencedValue = uint64(byteOrder.Uint16(addrBytes))
-				case 4:
-					dereferencedValue = uint64(byteOrder.Uint32(addrBytes))
-				}
-
-				indirectOffsetOperator := '@'
-				indirectOffsetRHS := uint64(0)
-
 				if offsetBytes[j] == '+' {
-					indirectOffsetOperator = '+'
+					indirect.OffsetAdjustmentType = OffsetAdjustmentAdd
 				} else if offsetBytes[j] == '-' {
-					indirectOffsetOperator = '-'
+					indirect.OffsetAdjustmentType = OffsetAdjustmentSub
 				} else if offsetBytes[j] == '*' {
-					indirectOffsetOperator = '*'
+					indirect.OffsetAdjustmentType = OffsetAdjustmentMul
 				} else if offsetBytes[j] == '/' {
-					indirectOffsetOperator = '/'
+					indirect.OffsetAdjustmentType = OffsetAdjustmentDiv
 				}
 
-				if indirectOffsetOperator != '@' {
+				if indirect.OffsetAdjustmentType != OffsetAdjustmentNone {
 					j++
-					parsedRHS, err := parseUint(offsetBytes, j)
+					// it's a relative pair
+					if offsetBytes[j] == '(' {
+						indirect.OffsetAdjustmentIsRelative = true
+						j++
+					}
+
+					parsedRHS, err := parseInt(offsetBytes, j)
 					if err != nil {
 						ctx.Logf("malformed indirect offset rhs, skipping %s", line)
 						continue
 					}
 
-					indirectOffsetRHS = parsedRHS.Value
+					indirect.OffsetAdjustmentValue = parsedRHS.Value
 					j = parsedRHS.NewIndex
-				}
 
-				finalOffset = dereferencedValue
-				switch indirectOffsetOperator {
-				case '+':
-					finalOffset += indirectOffsetRHS
-				case '-':
-					finalOffset -= indirectOffsetRHS
-				case '*':
-					finalOffset *= indirectOffsetRHS
-				case '/':
-					finalOffset /= indirectOffsetRHS
+					if indirect.OffsetAdjustmentIsRelative {
+						if offsetBytes[j] != ')' {
+							ctx.Logf("malformed relative offset adjustment, missing closing ')' - in %s", line)
+							continue
+						}
+						j++
+					}
 				}
 
 				if offsetBytes[j] != ')' {
@@ -238,30 +211,24 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 				}
 				j++
 			} else {
-				parsedAbsolute, err := parseUint(offsetBytes, j)
+				rule.Offset.OffsetType = OffsetTypeDirect
+
+				parsedAbsolute, err := parseInt(offsetBytes, j)
 				if err != nil {
 					ctx.Logf("malformed absolute offset, expected number, got (%s), skipping", offsetBytes[j:])
 					continue
 				}
 
-				finalOffset = parsedAbsolute.Value
+				rule.Offset.Direct = parsedAbsolute.Value
 				j = parsedAbsolute.NewIndex
 			}
 		}
 
-		lookupOffset := finalOffset + localOffsetBase
-
-		if lookupOffset < 0 || lookupOffset >= uint64(len(targetContents)) {
-			ctx.Logf("we done goofed, lookupOffset %d is out of bounds, skipping %s", lookupOffset, line)
-			continue
-		}
-
+		// parse kind
 		{
 			j := 0
 			parsedKind := parseKind(kind, j)
 			j += parsedKind.NewIndex
-
-			success := false
 
 			switch parsedKind.Value {
 			case
@@ -272,207 +239,153 @@ func (ctx *ParseContext) Identify(rules io.Reader, targetContents []byte) (strin
 				"beshort", "belong", "bequad",
 				"leshort", "lelong", "lequad":
 
-				signed := true
+				ik := &IntegerKind{}
+				rule.Kind.Family = KindFamilyInteger
+				rule.Kind.Data = ik
 
-				var byteOrder binary.ByteOrder = binary.LittleEndian
+				ik.Signed = true
+				ik.Endianness = LittleEndian
+
 				simpleKind := parsedKind.Value
 				if strings.HasPrefix(simpleKind, "u") {
 					simpleKind = simpleKind[1:]
-					signed = false
+					ik.Signed = false
 				}
 
 				if strings.HasPrefix(simpleKind, "le") {
 					simpleKind = simpleKind[2:]
 				} else if strings.HasPrefix(simpleKind, "be") {
 					simpleKind = simpleKind[2:]
-					byteOrder = binary.BigEndian
+					ik.Endianness = BigEndian
 				}
-				var targetValue uint64
 
 				switch simpleKind {
 				case "byte":
-					targetValue = uint64(targetContents[lookupOffset])
+					ik.ByteWidth = 1
 				case "short":
-					targetValue = uint64(byteOrder.Uint16(targetContents[lookupOffset : lookupOffset+2]))
+					ik.ByteWidth = 1
 				case "long":
-					targetValue = uint64(byteOrder.Uint32(targetContents[lookupOffset : lookupOffset+4]))
+					ik.ByteWidth = 1
 				case "quad":
-					targetValue = uint64(byteOrder.Uint64(targetContents[lookupOffset : lookupOffset+8]))
+					ik.ByteWidth = 1
+				default:
+					ctx.Logf("unrecognized integer kind %s, skipping rule %s", simpleKind, line)
+					continue
 				}
 
-				doAnd := false
-				andValue := uint64(0)
+				ik.DoAnd = false
+
 				if j < len(kind) && kind[j] == '&' {
 					j++
-					doAnd = true
 					parsedAndValue, err := parseUint(kind, j)
 					if err != nil {
-						fmt.Printf("in integer test, couldn't parse and value %s, skipping\n", kind[j:])
-						break
+						ctx.Logf("in integer test, couldn't parse and value %s, skipping\n", kind[j:])
+						continue
 					}
-					andValue = parsedAndValue.Value
+					ik.DoAnd = true
+					ik.AndValue = parsedAndValue.Value
 					j = parsedAndValue.NewIndex
 				}
 
-				operator := '='
-				negate := false
+				ik.IntegerTest = IntegerTestEqual
+
 				k := 0
 				switch test[k] {
-				case '!':
-					negate = true
+				case 'x':
+					ik.MatchAny = true
 					k++
-				case '<':
-					operator = '<'
-					k++
-				case '>':
-					operator = '>'
-					k++
-				}
-
-				parsedMagicValue, err := parseUint(test, k)
-				if err != nil {
-					fmt.Printf("for integer test, couldn't parse magic value %s, ignoring", string(test[k:]))
-					continue
-				}
-
-				magicValue := parsedMagicValue.Value
-				k = parsedMagicValue.NewIndex
-
-				if doAnd {
-					targetValue &= andValue
-				}
-
-				switch operator {
 				case '=':
-					success = targetValue == magicValue
+					ik.IntegerTest = IntegerTestEqual
+					k++
+				case '!':
+					ik.IntegerTest = IntegerTestNotEqual
+					k++
 				case '<':
-					if signed {
-						switch simpleKind {
-						case "byte":
-							success = int8(targetValue) < int8(magicValue)
-						case "short":
-							success = int16(targetValue) < int16(magicValue)
-						case "long":
-							success = int32(targetValue) < int32(magicValue)
-						case "quad":
-							success = int64(targetValue) < int64(magicValue)
-						}
-					} else {
-						success = targetValue < magicValue
-					}
+					ik.IntegerTest = IntegerTestLessThan
+					k++
 				case '>':
-					if signed {
-						switch simpleKind {
-						case "byte":
-							success = int8(targetValue) > int8(magicValue)
-						case "short":
-							success = int16(targetValue) > int16(magicValue)
-						case "long":
-							success = int32(targetValue) > int32(magicValue)
-						case "quad":
-							success = int64(targetValue) > int64(magicValue)
-						}
-					} else {
-						success = targetValue > magicValue
-					}
-				default:
-					fmt.Printf("for integer test, unsupported operator (%c), skipping\n", operator)
-					continue
+					ik.IntegerTest = IntegerTestGreaterThan
+					k++
 				}
 
-				if negate {
-					success = !success
+				if !ik.MatchAny {
+					parsedMagicValue, err := parseInt(test, k)
+					if err != nil {
+						ctx.Logf("for integer test, couldn't parse magic value %s, ignoring", string(test[k:]))
+						continue
+					}
+
+					ik.Value = parsedMagicValue.Value
+					k = parsedMagicValue.NewIndex
 				}
 
 			case "string":
+				sk := &StringKind{}
+				rule.Kind.Family = KindFamilyString
+				rule.Kind.Data = sk
+
 				k := 0
-				negate := false
+				sk.Negate = false
 				if test[k] == '!' {
-					negate = true
+					sk.Negate = true
 					k++
 				}
 
 				parsedRHS, err := parseString(test, k)
 				if err != nil {
-					fmt.Printf("in string test, couldn't parse rhs: %s - skipping\n", err.Error())
+					ctx.Logf("in string test, couldn't parse rhs: %s - skipping", err.Error())
 					continue
 				}
-				rhs := parsedRHS.Value
+				sk.Value = parsedRHS.Value
 
-				var flags stringTestFlags
 				if j < len(kind) && kind[j] == '/' {
 					j++
 					parsedFlags := parseStringTestFlags(kind, j)
 					j = parsedFlags.NewIndex
-					flags = parsedFlags.Flags
+					sk.Flags = parsedFlags.Flags
 				}
 
-				// fmt.Printf("> performing string test at (%d) with test (%s), flags %+v\n",
-				// 	lookupOffset, rhs, flags)
-
-				success = stringTest(targetContents, int(lookupOffset), []byte(rhs), flags)
-
-				if negate {
-					success = !success
-				}
 			case "search":
-				maxLen := 8192
+				sk := &SearchKind{}
+				rule.Kind.Family = KindFamilySearch
+				rule.Kind.Data = sk
+
+				sk.MaxLen = 8192
 				if j < len(kind) && kind[j] == '/' {
 					j++
 					parsedLen, err := parseUint(kind, j)
 					if err != nil {
-						fmt.Printf("in search test, couldn't parse max len in %s: %s - skipping\n", kind[j:], err.Error())
+						ctx.Logf("in search test, couldn't parse max len in %s: %s - skipping\n", kind[j:], err.Error())
+						continue
 					}
 
 					j = parsedLen.NewIndex
-					maxLen = int(parsedLen.Value)
+					sk.MaxLen = int(parsedLen.Value)
 				}
 
 				k := 0
 
 				parsedRHS, err := parseString(test, k)
 				if err != nil {
-					fmt.Printf("in string test, couldn't parse rhs: %s - skipping\n", err.Error())
+					fmt.Printf("in search test, couldn't parse rhs: %s - skipping", err.Error())
 					continue
 				}
 				k = parsedRHS.NewIndex
-				rhs := parsedRHS.Value
+				sk.Value = parsedRHS.Value
 
-				success = stringSearch(targetContents, int(lookupOffset), maxLen, string(rhs))
 			case "default":
-				// default tests match if nothing has matched before
-				if !everMatchedLevels[level] {
-					success = true
-				}
+				rule.Kind.Family = KindFamilyDefault
 			case "clear":
-				everMatchedLevels[level] = false
+				rule.Kind.Family = KindFamilyClear
 			default:
 				fmt.Printf("unhandled kind (%s)\n", parsedKind.Value)
 				continue
 			}
 
-			if success {
-				extraString := string(extra)
-
-				fmt.Printf("> test succeeded! matching level %d, appending (%s), new offset %d\n",
-					level, extraString, lookupOffset)
-				if extraString != "" {
-					outStrings = append(outStrings, extraString)
-				}
-				matchedLevels[level] = true
-				everMatchedLevels[level] = true
-				globalOffset = lookupOffset
-			} else {
-				matchedLevels[level] = false
-			}
+			rule.Description = descriptionBytes
+			book.AddRule(page, rule)
 		}
 	}
 
-	outString := strings.Join(outStrings, " ")
-
-	re := regexp.MustCompile(`.\\b`)
-	outString = re.ReplaceAllString(outString, "")
-	outString = strings.TrimSpace(outString)
-
-	return outString, nil
+	return nil
 }

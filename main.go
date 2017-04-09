@@ -39,13 +39,24 @@ func main() {
 		}
 	}
 
-	ctx := &wizardry.ParseContext{
+	pctx := &wizardry.ParseContext{
 		Logf: func(format string, args ...interface{}) {
 			fmt.Println(fmt.Sprintf(format, args...))
 		},
 	}
 
-	result, err := ctx.Identify(ruleReader, targetSlice[:n])
+	book := make(wizardry.Spellbook)
+	err = pctx.Parse(ruleReader, book)
+	if err != nil {
+		panic(err)
+	}
+
+	ictx := &wizardry.InterpretContext{
+		Logf: pctx.Logf,
+		Book: book,
+	}
+
+	result, err := ictx.Identify(targetSlice[:n])
 	if err != nil {
 		panic(err)
 	}
