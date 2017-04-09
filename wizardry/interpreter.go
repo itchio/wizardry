@@ -38,6 +38,13 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 	everMatchedLevels := make([]bool, MaxLevels)
 	globalOffset := int64(0)
 
+	ctx.Logf("|====> identifying at %d using page %s (%d rules)", pageOffset, page, len(ctx.Book[page]))
+
+	if page != "" {
+		matchedLevels[0] = true
+		everMatchedLevels[0] = true
+	}
+
 	for _, rule := range ctx.Book[page] {
 		stopProcessing := false
 
@@ -217,7 +224,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 
 			ctx.Logf("|====> using %s", uk.Page)
 
-			subStrings, err := ctx.identifyInternal(target, globalOffset, uk.Page, uk.SwapEndian)
+			subStrings, err := ctx.identifyInternal(target, lookupOffset, uk.Page, uk.SwapEndian)
 			if err != nil {
 				return nil, err
 			}
@@ -241,6 +248,8 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 			matchedLevels[rule.Level] = false
 		}
 	}
+
+	ctx.Logf("|====> done identifying at %d using page %s (%d rules)", pageOffset, page, len(ctx.Book[page]))
 
 	return outStrings, nil
 }
