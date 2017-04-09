@@ -31,7 +31,7 @@ func (ctx *InterpretContext) Identify(target []byte) (string, error) {
 	return outString, nil
 }
 
-func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, page string, swapEndian bool) ([]string, error) {
+func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, page string, swapEndian bool) ([]string, error) {
 	var outStrings []string
 
 	matchedLevels := make([]bool, MaxLevels)
@@ -109,7 +109,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			}
 
 		case OffsetTypeDirect:
-			lookupOffset = rule.Offset.Direct
+			lookupOffset = rule.Offset.Direct + pageOffset
 		}
 
 		if rule.Offset.IsRelative {
@@ -203,9 +203,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			success = matchPos >= 0
 
 			if success {
-				ctx.Logf("search succeeded, it's at 0x%x, length is %d", matchPos, len(sk.Value))
 				globalOffset = int64(matchPos + len(sk.Value))
-				ctx.Logf("new globalOffset = 0x%x", globalOffset)
 			}
 
 		case KindFamilyDefault:
@@ -213,6 +211,17 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int, pag
 			if !everMatchedLevels[rule.Level] {
 				success = true
 			}
+
+		case KindFamilyUse:
+			uk, _ := rule.Kind.Data.(*UseKind)
+
+			ctx.Logf("|====> using %s", uk.Page)
+
+			subStrings, err := ctx.identifyInternal(target, globalOffset, uk.Page, uk.SwapEndian)
+			if err != nil {
+				return nil, err
+			}
+			outStrings = append(outStrings, subStrings...)
 
 		case KindFamilyClear:
 			everMatchedLevels[rule.Level] = false

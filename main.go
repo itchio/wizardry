@@ -47,12 +47,14 @@ func main() {
 		}
 	}
 
+	NoLogf := func(format string, args ...interface{}) {}
+
 	Logf := func(format string, args ...interface{}) {
 		fmt.Println(fmt.Sprintf(format, args...))
 	}
 
 	pctx := &wizardry.ParseContext{
-		Logf: func(format string, args ...interface{}) {},
+		Logf: NoLogf,
 	}
 
 	debugParser := os.Getenv("WIZARDRY_DEBUG_PARSER") == "1"
@@ -69,6 +71,11 @@ func main() {
 	ictx := &wizardry.InterpretContext{
 		Logf: Logf,
 		Book: book,
+	}
+
+	silentInterpreter := os.Getenv("WIZARDRY_SILENT_INTERPRETER") == "1"
+	if silentInterpreter {
+		ictx.Logf = NoLogf
 	}
 
 	result, err := ictx.Identify(targetSlice[:n])

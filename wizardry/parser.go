@@ -52,7 +52,10 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 
 		if rule.Level < 1 {
 			// end of the page, if any
-			page = ""
+			if page != "" {
+				ctx.Logf("end of page %s", page)
+				page = ""
+			}
 		}
 
 		ctx.Logf("| %s", line)
@@ -377,6 +380,23 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 				rule.Kind.Family = KindFamilyDefault
 			case "clear":
 				rule.Kind.Family = KindFamilyClear
+			case "name":
+				// eyy, new page
+				page = string(test)
+				ctx.Logf("now storing in page %s", page)
+				continue // do not add name rules to rulebook
+			case "use":
+				uk := &UseKind{}
+				rule.Kind.Family = KindFamilyUse
+				rule.Kind.Data = uk
+
+				k := 0
+				if k+2 < len(test) && test[k] == '\\' && test[k+1] == '^' {
+					k += 2
+					uk.SwapEndian = true
+				}
+
+				uk.Page = string(test[k:])
 			default:
 				ctx.Logf("unhandled kind (%s)\n", parsedKind.Value)
 				continue

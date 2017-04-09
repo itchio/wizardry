@@ -130,6 +130,14 @@ func (k Kind) String() string {
 		return "default"
 	case KindFamilyClear:
 		return "clear"
+	case KindFamilyUse:
+		uk, _ := k.Data.(*UseKind)
+		s := "use   "
+		if uk.SwapEndian {
+			s += "\\^"
+		}
+		s += uk.Page
+		return s
 	default:
 		return fmt.Sprintf("kind family %d", k.Family)
 	}
@@ -228,6 +236,8 @@ const (
 	KindFamilyDefault = iota
 	// KindFamilyClear resets the matched flag for that level
 	KindFamilyClear = iota
+	// KindFamilyUse acts like a subroutine call, to peruse another page of rules
+	KindFamilyUse = iota
 )
 
 // Offset describes where to look to compare something
@@ -274,3 +284,9 @@ const (
 	// OffsetAdjustmentDiv divides by a value
 	OffsetAdjustmentDiv = iota
 )
+
+// UseKind describes which page of the spellbook to use, and whether or not to swap endianness
+type UseKind struct {
+	SwapEndian bool
+	Page       string
+}
