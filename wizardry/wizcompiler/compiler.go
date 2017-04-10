@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -112,8 +113,14 @@ func Compile(book wizparser.Spellbook) error {
 
 	currentLevel := 0
 
+	var pages []string
+	for page := range book {
+		pages = append(pages, page)
+	}
+	sort.Strings(pages)
+
 	for _, swapEndian := range []bool{false, true} {
-		for page := range book {
+		for _, page := range pages {
 			rules := book[page]
 
 			emit("func Identify%s(tb []byte, pageOff i64) ([]string, error) {", pageSymbol(page, swapEndian))
@@ -186,6 +193,10 @@ func Compile(book wizparser.Spellbook) error {
 						emit("{")
 						withIndent(func() {
 							offsetAddress := quoteNumber(indirect.OffsetAddress)
+							if indirect.IsRelative {
+								offsetAddress = fmt.Sprintf("(gof + %s)", offsetAddress)
+							}
+
 							emit("ra, ok := readU%d%s(tb, %s)",
 								indirect.ByteWidth*8,
 								endiannessString(indirect.Endianness, swapEndian),
@@ -289,6 +300,13 @@ func Compile(book wizparser.Spellbook) error {
 						} else {
 							emit("m%d = ml >= 0", rule.Level)
 						}
+
+					case wizparser.KindFamilySearch:
+						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
+						emit("ml = i64(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
+						// little trick for gof to be updated correctly
+						emit("if ml >= 0 { ml = ml + %s; m%d = true }",
+							quoteNumber(int64(len(sk.Value))), rule.Level)
 
 					default:
 						emit("// uh oh unhandled kind")

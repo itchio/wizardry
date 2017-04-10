@@ -219,7 +219,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 			success = matchPos >= 0
 
 			if success {
-				globalOffset = int64(matchPos + len(sk.Value))
+				globalOffset = lookupOffset + int64(matchPos+len(sk.Value))
 			}
 
 		case wizparser.KindFamilyDefault:

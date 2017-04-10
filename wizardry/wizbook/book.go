@@ -87,90 +87,6 @@ func readU64be(tb []byte, off i64) (u64, bool) {
   return u64(pi), true
 }
 
-func IdentifyCurEntry(tb []byte, pageOff i64) ([]string, error) {
-  var out []string
-  var gof i64
-  gof &= gof
-  var off i64
-  var ml i64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0	use		cur-ico-entry
-    off = pageOff + 0x0
-    // uh oh unhandled kind
-
-    // >4	uleshort	x	\b, hotspot @%dx
-    off = pageOff + 0x4
-    ml = 2
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort\tx\t\\b, hotspot @%dx")
-      gof = off + ml
-      out = append(out, "\\b, hotspot @%dx")
-    }
-
-    // >6	uleshort	x	\b%d
-    off = pageOff + 0x6
-    ml = 2
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">6\tuleshort\tx\t\\b%d")
-      gof = off + ml
-      out = append(out, "\\b%d")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyIcoEntry(tb []byte, pageOff i64) ([]string, error) {
-  var out []string
-  var gof i64
-  gof &= gof
-  var off i64
-  var ml i64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0			use	cur-ico-entry
-    off = pageOff + 0x0
-    // uh oh unhandled kind
-
-    // >4	uleshort	>1	\b, %d planes
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (i64(i16(iv)) > 0x1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort\t>1\t\\b, %d planes")
-      gof = off + ml
-      out = append(out, "\\b, %d planes")
-    }
-
-    // >6	uleshort	>1	\b, %d bits/pixel
-    off = pageOff + 0x6
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (i64(i16(iv)) > 0x1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">6\tuleshort\t>1\t\\b, %d bits/pixel")
-      gof = off + ml
-      out = append(out, "\\b, %d bits/pixel")
-    }
-
-  }
-  return out, nil
-}
-
 func Identify(tb []byte, pageOff i64) ([]string, error) {
   var out []string
   var gof i64
@@ -608,11 +524,21 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
   m0 = false
   // 100	search/0xffff   rxfuncadd
   off = pageOff + 0x64
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "rxfuncadd"))
+  if ml >= 0 { ml = ml + 0x9; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   rxfuncadd")
+    gof = off + ml
+  }
 
   // 100	search/0xffff   say
   off = pageOff + 0x64
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "say"))
+  if ml >= 0 { ml = ml + 0x3; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   say")
+    gof = off + ml
+  }
 
   // 0	leshort		0x166	MS Windows COFF MIPS R4000 object file
   off = pageOff + 0x0
@@ -1711,7 +1637,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "PEC2"))
+          if ml >= 0 { ml = ml + 0x4; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
+            gof = off + ml
+            out = append(out, "\\b, PECompact2 compressed")
+          }
           break
         }
 
@@ -1723,7 +1655,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "UPX2"))
+          if ml >= 0 { ml = ml + 0x4; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tUPX2")
+            gof = off + ml
+          }
           break
         }
 
@@ -1731,9 +1668,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x10.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
           for {
             {
-              ra, ok := readU32le(tb, 0x10)
+              ra, ok := readU32le(tb, (gof + 0x10))
               if !ok { break }
-              rb, ok := readU32le(tb, 0x10 + -4)
+              rb, ok := readU32le(tb, (gof + 0x10) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -1757,7 +1694,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".idata"))
+          if ml >= 0 { ml = ml + 0x6; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.idata")
+            gof = off + ml
+          }
           break
         }
 
@@ -1765,9 +1707,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0xe.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
           for {
             {
-              ra, ok := readU32le(tb, 0xe)
+              ra, ok := readU32le(tb, (gof + 0xe))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xe + -4)
+              rb, ok := readU32le(tb, (gof + 0xe) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -1784,9 +1726,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0xe.l+(-4))	string		ZZ0 \b, ZZip self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xe)
+              ra, ok := readU32le(tb, (gof + 0xe))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xe + -4)
+              rb, ok := readU32le(tb, (gof + 0xe) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -1803,9 +1745,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0xe.l+(-4))	string		ZZ1 \b, ZZip self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xe)
+              ra, ok := readU32le(tb, (gof + 0xe))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xe + -4)
+              rb, ok := readU32le(tb, (gof + 0xe) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -1829,7 +1771,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".rsrc"))
+          if ml >= 0 { ml = ml + 0x5; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.rsrc")
+            gof = off + ml
+          }
           break
         }
 
@@ -1837,9 +1784,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l+(-4))	string		a\\\4\5 \b, WinHKI self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xf)
+              ra, ok := readU32le(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xf + -4)
+              rb, ok := readU32le(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -1856,9 +1803,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l+(-4))	string		Rar! \b, RAR self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xf)
+              ra, ok := readU32le(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xf + -4)
+              rb, ok := readU32le(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -1875,26 +1822,38 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l+(-4))	search/0x3000	MSCF \b, InstallShield self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xf)
+              ra, ok := readU32le(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xf + -4)
+              rb, ok := readU32le(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x3000, "MSCF"))
+            if ml >= 0 { ml = ml + 0x4; m4 = true }
+            if m4 {
+              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, InstallShield self-extracting archive")
+            }
             break
           }
 
           // >>>>(&0x0f.l+(-4))	search/32	Nullsoft \b, Nullsoft Installer self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xf)
+              ra, ok := readU32le(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32le(tb, 0xf + -4)
+              rb, ok := readU32le(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "Nullsoft"))
+            if ml >= 0 { ml = ml + 0x8; m4 = true }
+            if m4 {
+              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+            }
             break
           }
 
@@ -1908,7 +1867,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".data"))
+          if ml >= 0 { ml = ml + 0x5; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.data")
+            gof = off + ml
+          }
           break
         }
 
@@ -1916,7 +1880,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l)		string		WEXTRACT \b, MS CAB-Installer self-extracting archive
           for {
             {
-              ra, ok := readU32le(tb, 0xf)
+              ra, ok := readU32le(tb, (gof + 0xf))
               if !ok { break }
               off = i64(ra)
             }
@@ -1940,7 +1904,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".petite\x00"))
+          if ml >= 0 { ml = ml + 0x8; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
+            gof = off + ml
+            out = append(out, "\\b, Petite compressed")
+          }
           break
         }
 
@@ -1965,9 +1935,9 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             // >>>>>(&0x104.l+(-4))	string		=!sfx! \b, ACE self-extracting archive
             for {
               {
-                ra, ok := readU32le(tb, 0x104)
+                ra, ok := readU32le(tb, (gof + 0x104))
                 if !ok { break }
-                rb, ok := readU32le(tb, 0x104 + -4)
+                rb, ok := readU32le(tb, (gof + 0x104) + -4)
                 off = i64(ra)
                 off = off + i64(rb)
               }
@@ -1993,7 +1963,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".WISE"))
+          if ml >= 0 { ml = ml + 0x5; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
+            gof = off + ml
+            out = append(out, "\\b, WISE installer self-extracting archive")
+          }
           break
         }
 
@@ -2005,7 +1981,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".dz\x00\x00\x00"))
+          if ml >= 0 { ml = ml + 0x6; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
+            gof = off + ml
+            out = append(out, "\\b, Dzip self-extracting archive")
+          }
           break
         }
 
@@ -2018,7 +2000,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = off + 0xf8
             off += gof
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "_winzip_"))
+          if ml >= 0 { ml = ml + 0x8; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
+            gof = off + ml
+            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+          }
           break
         }
 
@@ -2031,7 +2019,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = off + 0xf8
             off += gof
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "SharedD"))
+          if ml >= 0 { ml = ml + 0x7; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
+            gof = off + ml
+            out = append(out, "\\b, Microsoft Installer self-extracting archive")
+          }
           break
         }
 
@@ -2285,7 +2279,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // >>>&(&0x24.s-1)		string		ARJSFX \b, ARJ self-extracting archive
         for {
           {
-            ra, ok := readU16le(tb, 0x24)
+            ra, ok := readU16le(tb, (gof + 0x24))
             if !ok { break }
             off = i64(ra)
             off = off * 0x1
@@ -2309,7 +2303,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0x70
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "WinZip(R) Self-Extractor"))
+          if ml >= 0 { ml = ml + 0x18; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
+            gof = off + ml
+            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+          }
           break
         }
 
@@ -2619,7 +2619,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // >>>&(&0x54.l-3)		string		arjsfx \b, ARJ self-extracting archive
         for {
           {
-            ra, ok := readU32le(tb, 0x54)
+            ra, ok := readU32le(tb, (gof + 0x54))
             if !ok { break }
             off = i64(ra)
             off = off * 0x3
@@ -2695,31 +2695,73 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         if m3 {
           // >>>>0x240		search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
+          if ml >= 0 { ml = ml + 0x6; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x240		search/0x200	WATCOM\ C/C++ for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x200, "WATCOM C/C++"))
+          if ml >= 0 { ml = ml + 0xc; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x200\tWATCOM\\ C/C++ for MS-DOS, DOS4GW DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x440		search/0x100	CauseWay\ DOS\ Extender for MS-DOS, CauseWay DOS extender
           off = pageOff + 0x440
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "CauseWay DOS Extender"))
+          if ml >= 0 { ml = ml + 0x15; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x440\t\tsearch/0x100\tCauseWay\\ DOS\\ Extender for MS-DOS, CauseWay DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, CauseWay DOS extender")
+          }
 
           // >>>>0x40		search/0x40	PMODE/W for MS-DOS, PMODE/W DOS extender
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "PMODE/W"))
+          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tPMODE/W for MS-DOS, PMODE/W DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, PMODE/W DOS extender")
+          }
 
           // >>>>0x40		search/0x40	STUB/32A for MS-DOS, DOS/32A DOS extender (stub)
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "STUB/32A"))
+          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tSTUB/32A for MS-DOS, DOS/32A DOS extender (stub)")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (stub)")
+          }
 
           // >>>>0x40		search/0x80	STUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "STUB/32C"))
+          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tSTUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (configurable stub)")
+          }
 
           // >>>>0x40		search/0x80	DOS/32A for MS-DOS, DOS/32A DOS extender (embedded)
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "DOS/32A"))
+          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tDOS/32A for MS-DOS, DOS/32A DOS extender (embedded)")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (embedded)")
+          }
 
           // >>>>&0x24		lelong		<0x50
           off = pageOff + gof + 0x24
@@ -2737,7 +2779,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             // >>>>>(&0x4c.l)		string		\xfc\xb8WATCOM
             for {
               {
-                ra, ok := readU32le(tb, 0x4c)
+                ra, ok := readU32le(tb, (gof + 0x4c))
                 if !ok { break }
                 off = i64(ra)
               }
@@ -2753,7 +2795,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             if m5 {
               // >>>>>>&0		search/8	3\xdbf\xb9 \b, 32Lite compressed
               off = pageOff + gof + 0x0
-              // uh oh unhandled kind
+              ml = i64(wizardry.SearchTest(tb, int(off), 0x8, "3\xdbf\xb9"))
+              if ml >= 0 { ml = ml + 0x4; m6 = true }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>&0\t\tsearch/8\t3\\xdbf\\xb9 \\b, 32Lite compressed")
+                gof = off + ml
+                out = append(out, "\\b, 32Lite compressed")
+              }
 
             }
             m5 = false
@@ -2827,7 +2875,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // >>>(&0x7c.l+0x26)	string		UPX \b, UPX compressed
         for {
           {
-            ra, ok := readU32le(tb, 0x7c)
+            ra, ok := readU32le(tb, (gof + 0x7c))
             if !ok { break }
             off = i64(ra)
             off = off + 0x26
@@ -2845,7 +2893,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // >>>&(&0x54.l-3)		string		UNACE \b, ACE self-extracting archive
         for {
           {
-            ra, ok := readU32le(tb, 0x54)
+            ra, ok := readU32le(tb, (gof + 0x54))
             if !ok { break }
             off = i64(ra)
             off = off * 0x3
@@ -3001,7 +3049,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
             off = pageOff + 0x240
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
+            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
+              gof = off + ml
+              out = append(out, "for MS-DOS, DOS4GW DOS extender")
+            }
 
           }
           m4 = false
@@ -3026,11 +3080,23 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G	\b, LE for MS-DOS, DOS4GW DOS extender (embedded)
             off = pageOff + 0x240
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
+            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G\t\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+              gof = off + ml
+              out = append(out, "\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+            }
 
             // >>>>>0x240	search/0x100	!DOS/4G	\b, BW collection for MS-DOS
             off = pageOff + 0x240
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "!DOS/4G"))
+            if ml >= 0 { ml = ml + 0x7; m5 = true }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\t!DOS/4G\t\\b, BW collection for MS-DOS")
+              gof = off + ml
+              out = append(out, "\\b, BW collection for MS-DOS")
+            }
 
           }
           m4 = false
@@ -3113,7 +3179,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       // >>&(&0x42.l-3)	byte		x
       for {
         {
-          ra, ok := readU32le(tb, 0x42)
+          ra, ok := readU32le(tb, (gof + 0x42))
           if !ok { break }
           off = i64(ra)
           off = off * 0x3
@@ -3142,7 +3208,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       m2 = false
       // >>&0x2c		search/0xa0	.text
       off = pageOff + gof + 0x2c
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0xa0, ".text"))
+      if ml >= 0 { ml = ml + 0x5; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>&0x2c\t\tsearch/0xa0\t.text")
+        gof = off + ml
+      }
 
       if m2 {
         // >>>&0x0b	lelong		<0x2000
@@ -3307,7 +3378,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
     // >0x20	search/0xe0	aRJsfX \b, ARJ self-extracting archive
     off = pageOff + 0x20
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xe0, "aRJsfX"))
+    if ml >= 0 { ml = ml + 0x6; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x20\tsearch/0xe0\taRJsfX \\b, ARJ self-extracting archive")
+      gof = off + ml
+      out = append(out, "\\b, ARJ self-extracting archive")
+    }
 
     // >0x20	string AIN
     off = pageOff + 0x20
@@ -3434,15 +3511,20 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     if m1 {
       // >>&0xf4 search/0x140 \x0\x40\x1\x0
       off = pageOff + gof + 0xf4
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "\x00@\x01\x00"))
+      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>&0xf4 search/0x140 \\x0\\x40\\x1\\x0")
+        gof = off + ml
+      }
 
       if m2 {
         // >>>(&0.l+(4)) string MSCF \b, WinHKI CAB self-extracting archive
         for {
           {
-            ra, ok := readU32le(tb, 0x0)
+            ra, ok := readU32le(tb, (gof + 0x0))
             if !ok { break }
-            rb, ok := readU32le(tb, 0x0 + 0x4)
+            rb, ok := readU32le(tb, (gof + 0x0) + 0x4)
             off = i64(ra)
             off = off + i64(rb)
           }
@@ -3577,11 +3659,23 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
         // >>>&7	search/400	**ACE** \b, ACE self-extracting archive
         off = pageOff + gof + 0x7
-        // uh oh unhandled kind
+        ml = i64(wizardry.SearchTest(tb, int(off), 0x190, "**ACE**"))
+        if ml >= 0 { ml = ml + 0x7; m3 = true }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>&7\tsearch/400\t**ACE** \\b, ACE self-extracting archive")
+          gof = off + ml
+          out = append(out, "\\b, ACE self-extracting archive")
+        }
 
         // >>>&0	search/0x480	UC2SFX\ Header \b, UC2 self-extracting archive
         off = pageOff + gof + 0x0
-        // uh oh unhandled kind
+        ml = i64(wizardry.SearchTest(tb, int(off), 0x480, "UC2SFX Header"))
+        if ml >= 0 { ml = ml + 0xd; m3 = true }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>&0\tsearch/0x480\tUC2SFX\\ Header \\b, UC2 self-extracting archive")
+          gof = off + ml
+          out = append(out, "\\b, UC2 self-extracting archive")
+        }
 
       }
       m2 = false
@@ -3595,7 +3689,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         off = i64(ra)
         off = off * 0x10
       }
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "PKSFX"))
+      if ml >= 0 { ml = ml + 0x5; m1 = true }
+      if m1 {
+        fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
+        gof = off + ml
+        out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+      }
       break
     }
 
@@ -3685,7 +3785,13 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
       // >>7	search/254	\xff		\b, info=
       off = pageOff + 0x7
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0xfe, "\xff"))
+      if ml >= 0 { ml = ml + 0x1; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>7\tsearch/254\t\\xff\t\t\\b, info=")
+        gof = off + ml
+        out = append(out, "\\b, info=")
+      }
 
       if m2 {
         // >>>&0	string		x		\b%-.15s
@@ -4393,16 +4499,34 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
   // 0x6	search/0xa	\xfc\x57\xf3\xa5\xc3	COM executable for MS-DOS
   off = pageOff + 0x6
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa5\xc3"))
+  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa5\\xc3\tCOM executable for MS-DOS")
+    gof = off + ml
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x6	search/0xa	\xfc\x57\xf3\xa4\xc3	COM executable for DOS
   off = pageOff + 0x6
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa4\xc3"))
+  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa4\\xc3\tCOM executable for DOS")
+    gof = off + ml
+    out = append(out, "COM executable for DOS")
+  }
 
   if m0 {
     // >0x18	search/0x10	\x50\xa4\xff\xd5\x73	\b, aPack compressed
     off = pageOff + 0x18
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0x10, "P\xa4\xff\xd5s"))
+    if ml >= 0 { ml = ml + 0x5; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x18\tsearch/0x10\t\\x50\\xa4\\xff\\xd5\\x73\t\\b, aPack compressed")
+      gof = off + ml
+      out = append(out, "\\b, aPack compressed")
+    }
 
   }
   m0 = false
@@ -5004,7 +5128,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         if m3 {
           // >>>>30	search/29	\0\xAE
           off = pageOff + 0x1e
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x1d, "\x00\xae"))
+          if ml >= 0 { ml = ml + 0x2; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>30\tsearch/29\t\\0\\xAE")
+            gof = off + ml
+          }
 
           if m4 {
             // >>>>>&4	string		>\0	\b, 1st font "%s"
@@ -5951,7 +6080,12 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
     // >0x187	search/0xB55	WINDOWS\ VMM\ 4.0\0
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS VMM 4.0\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ VMM\\ 4.0\\0")
+      gof = off + ml
+    }
 
     if m1 {
       // >>&0x5e		ubyte	>0
@@ -6063,15 +6197,33 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     m1 = false
     // >0x187	search/0xB55	WINDOWS\ NT\ \ 3.1\0	\b, Windows NT-style
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS NT  3.1\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ NT\\ \\ 3.1\\0\t\\b, Windows NT-style")
+      gof = off + ml
+      out = append(out, "\\b, Windows NT-style")
+    }
 
     // >0x187	search/0xB55	CONFIG\ \ SYS\ 4.0\0	\b +CONFIG.SYS
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "CONFIG  SYS 4.0\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tCONFIG\\ \\ SYS\\ 4.0\\0\t\\b +CONFIG.SYS")
+      gof = off + ml
+      out = append(out, "\\b +CONFIG.SYS")
+    }
 
     // >0x187	search/0xB55	AUTOEXECBAT\ 4.0\0	\b +AUTOEXEC.BAT
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "AUTOEXECBAT 4.0\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tAUTOEXECBAT\\ 4.0\\0\t\\b +AUTOEXEC.BAT")
+      gof = off + ml
+      out = append(out, "\\b +AUTOEXEC.BAT")
+    }
 
   }
   m0 = false
@@ -7137,7 +7289,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosDriver(tb []byte, pageOff i64) ([]string, error) {
+func IdentifyCurEntry(tb []byte, pageOff i64) ([]string, error) {
   var out []string
   var gof i64
   gof &= gof
@@ -7147,738 +7299,30 @@ func IdentifyMsdosDriver(tb []byte, pageOff i64) ([]string, error) {
   m0 = !!m0
   m1 := false
   m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-  m4 := false
-  m4 = !!m4
-  m5 := false
-  m5 = !!m5
-  m6 := false
-  m6 = !!m6
 
   if m0 {
-    // >40	search/7			UPX!			\bUPX compressed
-    off = pageOff + 0x28
+    // >0	use		cur-ico-entry
+    off = pageOff + 0x0
     // uh oh unhandled kind
 
-    // >4	uleshort&0x8000			0x0000			\bblock device driver
+    // >4	uleshort	x	\b, hotspot @%dx
     off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x0)
-      ml = 2
-    }
+    ml = 2
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000\t\t\t\\bblock device driver")
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort\tx\t\\b, hotspot @%dx")
       gof = off + ml
-      out = append(out, "\\bblock device driver")
+      out = append(out, "\\b, hotspot @%dx")
     }
 
-    // >4	uleshort&0x8000			0x8000			\b
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x8000)
-      ml = 2
-    }
+    // >6	uleshort	x	\b%d
+    off = pageOff + 0x6
+    ml = 2
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\b")
+      fmt.Printf("matched rule: %s\n", ">6\tuleshort\tx\t\\b%d")
       gof = off + ml
-      out = append(out, "\\b")
+      out = append(out, "\\b%d")
     }
 
-    if m1 {
-      // >>4	uleshort&0x0008			0x0008			\bclock
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (u64(iv)&0x8 == 0x8)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0008\t\t\t0x0008\t\t\t\\bclock")
-        gof = off + ml
-        out = append(out, "\\bclock")
-      }
-
-      // >>4	uleshort&0x0010			0x0010			\bfast
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (u64(iv)&0x10 == 0x10)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0010\t\t\t0x0010\t\t\t\\bfast")
-        gof = off + ml
-        out = append(out, "\\bfast")
-      }
-
-      // >>4	uleshort&0x0003			>0			\bstandard
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (i64(i16(iv))&0x3 > 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0003\t\t\t>0\t\t\t\\bstandard")
-        gof = off + ml
-        out = append(out, "\\bstandard")
-      }
-
-      if m2 {
-        // >>>4	uleshort&0x0001			0x0001			\binput
-        off = pageOff + 0x4
-        {
-          iv, ok := readU16le(tb, off)
-          m3 = ok && (u64(iv)&0x1 == 0x1)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0001\t\t\t0x0001\t\t\t\\binput")
-          gof = off + ml
-          out = append(out, "\\binput")
-        }
-
-        // >>>4	uleshort&0x0003			0x0003			\b/
-        off = pageOff + 0x4
-        {
-          iv, ok := readU16le(tb, off)
-          m3 = ok && (u64(iv)&0x3 == 0x3)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0003\t\t\t0x0003\t\t\t\\b/")
-          gof = off + ml
-          out = append(out, "\\b/")
-        }
-
-        // >>>4	uleshort&0x0002			0x0002			\boutput
-        off = pageOff + 0x4
-        {
-          iv, ok := readU16le(tb, off)
-          m3 = ok && (u64(iv)&0x2 == 0x2)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\boutput")
-          gof = off + ml
-          out = append(out, "\\boutput")
-        }
-
-      }
-      m2 = false
-      // >>4	uleshort&0x8000			0x8000			\bcharacter device driver
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (u64(iv)&0x8000 == 0x8000)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\bcharacter device driver")
-        gof = off + ml
-        out = append(out, "\\bcharacter device driver")
-      }
-
-    }
-    m1 = false
-    // >0	ubyte				x
-    off = pageOff + 0x0
-    ml = 1
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>40	search/7			UPX!
-      off = pageOff + 0x28
-      // uh oh unhandled kind
-
-      // >>40	default				x
-      off = pageOff + 0x28
-      // uh oh unhandled kind
-
-      if m2 {
-        // >>>12		ubyte			>0x2E			\b
-        off = pageOff + 0xc
-        {
-          iv, ok := readU8le(tb, off)
-          m3 = ok && (i64(i8(iv)) > 0x2e)
-          ml = 1
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t>0x2E\t\t\t\\b")
-          gof = off + ml
-          out = append(out, "\\b")
-        }
-
-        if m3 {
-          // >>>>10		ubyte			>0x20
-          off = pageOff + 0xa
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>10\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>10		ubyte			!0x2E
-            off = pageOff + 0xa
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>10\t\tubyte\t\t\t!0x2E")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>10	ubyte			!0x2A			\b%c
-              off = pageOff + 0xa
-              {
-                iv, ok := readU8le(tb, off)
-                m6 = ok && (u64(iv) != 0x2a)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>10\tubyte\t\t\t!0x2A\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-          // >>>>11		ubyte			>0x20
-          off = pageOff + 0xb
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>11\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>11		ubyte			!0x2E			\b%c
-            off = pageOff + 0xb
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>11\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-              gof = off + ml
-              out = append(out, "\\b%c")
-            }
-
-          }
-          m4 = false
-          // >>>>12		ubyte			>0x20
-          off = pageOff + 0xc
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>12\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>12		ubyte			!0x39
-            off = pageOff + 0xc
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x39)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>12\t\tubyte\t\t\t!0x39")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>12	ubyte			!0x2E			\b%c
-              off = pageOff + 0xc
-              {
-                iv, ok := readU8le(tb, off)
-                m6 = ok && (u64(iv) != 0x2e)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>12\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-        }
-        m3 = false
-        // >>>13		ubyte			>0x20
-        off = pageOff + 0xd
-        {
-          iv, ok := readU8le(tb, off)
-          m3 = ok && (i64(i8(iv)) > 0x20)
-          ml = 1
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>13\t\tubyte\t\t\t>0x20")
-          gof = off + ml
-        }
-
-        if m3 {
-          // >>>>13		ubyte			!0x2E			\b%c
-          off = pageOff + 0xd
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (u64(iv) != 0x2e)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>13\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-            gof = off + ml
-            out = append(out, "\\b%c")
-          }
-
-          // >>>>14		ubyte			>0x20
-          off = pageOff + 0xe
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>14\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>14		ubyte			!0x2E			\b%c
-            off = pageOff + 0xe
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>14\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-              gof = off + ml
-              out = append(out, "\\b%c")
-            }
-
-          }
-          m4 = false
-          // >>>>15		ubyte			>0x20
-          off = pageOff + 0xf
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>15\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>15		ubyte			!0x2E			\b%c
-            off = pageOff + 0xf
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>15\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-              gof = off + ml
-              out = append(out, "\\b%c")
-            }
-
-          }
-          m4 = false
-          // >>>>16		ubyte			>0x20
-          off = pageOff + 0x10
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>16\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>16		ubyte			!0x2E
-            off = pageOff + 0x10
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>16\t\tubyte\t\t\t!0x2E")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>16	ubyte			<0xCB			\b%c
-              off = pageOff + 0x10
-              {
-                iv, ok := readU8le(tb, off)
-                m6 = ok && (i64(i8(iv)) < 0xcb)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>16\tubyte\t\t\t<0xCB\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-          // >>>>17		ubyte			>0x20
-          off = pageOff + 0x11
-          {
-            iv, ok := readU8le(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>17\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>17		ubyte			!0x2E
-            off = pageOff + 0x11
-            {
-              iv, ok := readU8le(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>17\t\tubyte\t\t\t!0x2E")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>17	ubyte			<0x90			\b%c
-              off = pageOff + 0x11
-              {
-                iv, ok := readU8le(tb, off)
-                m6 = ok && (i64(i8(iv)) < 0x90)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>17\tubyte\t\t\t<0x90\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-        }
-        m3 = false
-        // >>>12		ubyte			<0x2F
-        off = pageOff + 0xc
-        {
-          iv, ok := readU8le(tb, off)
-          m3 = ok && (i64(i8(iv)) < 0x2f)
-          ml = 1
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t<0x2F")
-          gof = off + ml
-        }
-
-        if m3 {
-          // >>>>22		string			>\056			%-.6s
-          off = pageOff + 0x16
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m4 = ml >= 0
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>22\t\tstring\t\t\t>\\056\t\t\t%-.6s")
-            gof = off + ml
-            out = append(out, "%-.6s")
-          }
-
-        }
-        m3 = false
-      }
-      m2 = false
-    }
-    m1 = false
-    // >4	uleshort&0x8000			0x0000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x0002			0x0002			\b,32-bit sector-
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (u64(iv)&0x2 == 0x2)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\b,32-bit sector-")
-        gof = off + ml
-        out = append(out, "\\b,32-bit sector-")
-      }
-
-    }
-    m1 = false
-    // >4	uleshort&0x0040			0x0040			\b,IOCTL-
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x40 == 0x40)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0040\t\t\t0x0040\t\t\t\\b,IOCTL-")
-      gof = off + ml
-      out = append(out, "\\b,IOCTL-")
-    }
-
-    // >4	uleshort&0x0800			0x0800			\b,close media-
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x800 == 0x800)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0800\t\t\t0x0800\t\t\t\\b,close media-")
-      gof = off + ml
-      out = append(out, "\\b,close media-")
-    }
-
-    // >4	uleshort&0x8000			0x8000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x8000)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x2000			0x2000			\b,until busy-
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (u64(iv)&0x2000 == 0x2000)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x2000\t\t\t0x2000\t\t\t\\b,until busy-")
-        gof = off + ml
-        out = append(out, "\\b,until busy-")
-      }
-
-    }
-    m1 = false
-    // >4	uleshort&0x4000			0x4000			\b,control strings-
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x4000 == 0x4000)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x4000\t\t\t0x4000\t\t\t\\b,control strings-")
-      gof = off + ml
-      out = append(out, "\\b,control strings-")
-    }
-
-    // >4	uleshort&0x8000			0x8000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x8000)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x6840			>0			\bsupport
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (i64(i16(iv))&0x6840 > 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x6840\t\t\t>0\t\t\t\\bsupport")
-        gof = off + ml
-        out = append(out, "\\bsupport")
-      }
-
-    }
-    m1 = false
-    // >4	uleshort&0x8000			0x0000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16le(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x4842			>0			\bsupport
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16le(tb, off)
-        m2 = ok && (i64(i16(iv))&0x4842 > 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x4842\t\t\t>0\t\t\t\\bsupport")
-        gof = off + ml
-        out = append(out, "\\bsupport")
-      }
-
-    }
-    m1 = false
-    // >0	ubyte				x			\b)
-    off = pageOff + 0x0
-    ml = 1
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx\t\t\t\\b)")
-      gof = off + ml
-      out = append(out, "\\b)")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyLotusCells(tb []byte, pageOff i64) ([]string, error) {
-  var out []string
-  var gof i64
-  gof &= gof
-  var off i64
-  var ml i64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-
-  if m0 {
-    // >0	ubelong	0x06000800	\b, cell range
-    off = pageOff + 0x0
-    {
-      iv, ok := readU32be(tb, off)
-      m1 = ok && (u64(iv) == 0x6000800)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0\tubelong\t0x06000800\t\\b, cell range")
-      gof = off + ml
-      out = append(out, "\\b, cell range")
-    }
-
-    if m1 {
-      // >>4	ulong		!0
-      off = pageOff + 0x4
-      {
-        iv, ok := readU32le(tb, off)
-        m2 = ok && (u64(iv) != 0x0)
-        ml = 4
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tulong\t\t!0")
-        gof = off + ml
-      }
-
-      if m2 {
-        // >>>4	uleshort	x	\b%d,
-        off = pageOff + 0x4
-        ml = 2
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\tx\t\\b%d,")
-          gof = off + ml
-          out = append(out, "\\b%d,")
-        }
-
-        // >>>6	uleshort	x	\b%d-
-        off = pageOff + 0x6
-        ml = 2
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\tx\t\\b%d-")
-          gof = off + ml
-          out = append(out, "\\b%d-")
-        }
-
-      }
-      m2 = false
-      // >>8	uleshort	x	\b%d,
-      off = pageOff + 0x8
-      ml = 2
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>8\tuleshort\tx\t\\b%d,")
-        gof = off + ml
-        out = append(out, "\\b%d,")
-      }
-
-      // >>10	uleshort	x	\b%d
-      off = pageOff + 0xa
-      ml = 2
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>10\tuleshort\tx\t\\b%d")
-        gof = off + ml
-        out = append(out, "\\b%d")
-      }
-
-    }
   }
   return out, nil
 }
@@ -11226,6 +10670,138 @@ func IdentifyElfLe(tb []byte, pageOff i64) ([]string, error) {
   return out, nil
 }
 
+func IdentifyIcoEntry(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var gof i64
+  gof &= gof
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0			use	cur-ico-entry
+    off = pageOff + 0x0
+    // uh oh unhandled kind
+
+    // >4	uleshort	>1	\b, %d planes
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (i64(i16(iv)) > 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort\t>1\t\\b, %d planes")
+      gof = off + ml
+      out = append(out, "\\b, %d planes")
+    }
+
+    // >6	uleshort	>1	\b, %d bits/pixel
+    off = pageOff + 0x6
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (i64(i16(iv)) > 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">6\tuleshort\t>1\t\\b, %d bits/pixel")
+      gof = off + ml
+      out = append(out, "\\b, %d bits/pixel")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyLotusCells(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var gof i64
+  gof &= gof
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+
+  if m0 {
+    // >0	ubelong	0x06000800	\b, cell range
+    off = pageOff + 0x0
+    {
+      iv, ok := readU32be(tb, off)
+      m1 = ok && (u64(iv) == 0x6000800)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0\tubelong\t0x06000800\t\\b, cell range")
+      gof = off + ml
+      out = append(out, "\\b, cell range")
+    }
+
+    if m1 {
+      // >>4	ulong		!0
+      off = pageOff + 0x4
+      {
+        iv, ok := readU32le(tb, off)
+        m2 = ok && (u64(iv) != 0x0)
+        ml = 4
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tulong\t\t!0")
+        gof = off + ml
+      }
+
+      if m2 {
+        // >>>4	uleshort	x	\b%d,
+        off = pageOff + 0x4
+        ml = 2
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\tx\t\\b%d,")
+          gof = off + ml
+          out = append(out, "\\b%d,")
+        }
+
+        // >>>6	uleshort	x	\b%d-
+        off = pageOff + 0x6
+        ml = 2
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\tx\t\\b%d-")
+          gof = off + ml
+          out = append(out, "\\b%d-")
+        }
+
+      }
+      m2 = false
+      // >>8	uleshort	x	\b%d,
+      off = pageOff + 0x8
+      ml = 2
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>8\tuleshort\tx\t\\b%d,")
+        gof = off + ml
+        out = append(out, "\\b%d,")
+      }
+
+      // >>10	uleshort	x	\b%d
+      off = pageOff + 0xa
+      ml = 2
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>10\tuleshort\tx\t\\b%d")
+        gof = off + ml
+        out = append(out, "\\b%d")
+      }
+
+    }
+  }
+  return out, nil
+}
+
 func IdentifyMsdosCom(tb []byte, pageOff i64) ([]string, error) {
   var out []string
   var gof i64
@@ -11314,7 +10890,7 @@ func IdentifyMsdosCom(tb []byte, pageOff i64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyCurEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
+func IdentifyMsdosDriver(tb []byte, pageOff i64) ([]string, error) {
   var out []string
   var gof i64
   gof &= gof
@@ -11324,74 +10900,661 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
   m0 = !!m0
   m1 := false
   m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+  m4 := false
+  m4 = !!m4
+  m5 := false
+  m5 = !!m5
+  m6 := false
+  m6 = !!m6
 
   if m0 {
-    // >0	use		cur-ico-entry
-    off = pageOff + 0x0
-    // uh oh unhandled kind
-
-    // >4	uleshort	x	\b, hotspot @%dx
-    off = pageOff + 0x4
-    ml = 2
+    // >40	search/7			UPX!			\bUPX compressed
+    off = pageOff + 0x28
+    ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
+    if ml >= 0 { ml = ml + 0x4; m1 = true }
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort\tx\t\\b, hotspot @%dx")
+      fmt.Printf("matched rule: %s\n", ">40\tsearch/7\t\t\tUPX!\t\t\t\\bUPX compressed")
       gof = off + ml
-      out = append(out, "\\b, hotspot @%dx")
+      out = append(out, "\\bUPX compressed")
     }
 
-    // >6	uleshort	x	\b%d
-    off = pageOff + 0x6
-    ml = 2
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">6\tuleshort\tx\t\\b%d")
-      gof = off + ml
-      out = append(out, "\\b%d")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyIcoEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
-  var out []string
-  var gof i64
-  gof &= gof
-  var off i64
-  var ml i64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0			use	cur-ico-entry
-    off = pageOff + 0x0
-    // uh oh unhandled kind
-
-    // >4	uleshort	>1	\b, %d planes
+    // >4	uleshort&0x8000			0x0000			\bblock device driver
     off = pageOff + 0x4
     {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (i64(i16(iv)) > 0x1)
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x0)
       ml = 2
     }
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort\t>1\t\\b, %d planes")
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000\t\t\t\\bblock device driver")
       gof = off + ml
-      out = append(out, "\\b, %d planes")
+      out = append(out, "\\bblock device driver")
     }
 
-    // >6	uleshort	>1	\b, %d bits/pixel
-    off = pageOff + 0x6
+    // >4	uleshort&0x8000			0x8000			\b
+    off = pageOff + 0x4
     {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (i64(i16(iv)) > 0x1)
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x8000)
       ml = 2
     }
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">6\tuleshort\t>1\t\\b, %d bits/pixel")
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\b")
       gof = off + ml
-      out = append(out, "\\b, %d bits/pixel")
+      out = append(out, "\\b")
+    }
+
+    if m1 {
+      // >>4	uleshort&0x0008			0x0008			\bclock
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (u64(iv)&0x8 == 0x8)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0008\t\t\t0x0008\t\t\t\\bclock")
+        gof = off + ml
+        out = append(out, "\\bclock")
+      }
+
+      // >>4	uleshort&0x0010			0x0010			\bfast
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (u64(iv)&0x10 == 0x10)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0010\t\t\t0x0010\t\t\t\\bfast")
+        gof = off + ml
+        out = append(out, "\\bfast")
+      }
+
+      // >>4	uleshort&0x0003			>0			\bstandard
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (i64(i16(iv))&0x3 > 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0003\t\t\t>0\t\t\t\\bstandard")
+        gof = off + ml
+        out = append(out, "\\bstandard")
+      }
+
+      if m2 {
+        // >>>4	uleshort&0x0001			0x0001			\binput
+        off = pageOff + 0x4
+        {
+          iv, ok := readU16le(tb, off)
+          m3 = ok && (u64(iv)&0x1 == 0x1)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0001\t\t\t0x0001\t\t\t\\binput")
+          gof = off + ml
+          out = append(out, "\\binput")
+        }
+
+        // >>>4	uleshort&0x0003			0x0003			\b/
+        off = pageOff + 0x4
+        {
+          iv, ok := readU16le(tb, off)
+          m3 = ok && (u64(iv)&0x3 == 0x3)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0003\t\t\t0x0003\t\t\t\\b/")
+          gof = off + ml
+          out = append(out, "\\b/")
+        }
+
+        // >>>4	uleshort&0x0002			0x0002			\boutput
+        off = pageOff + 0x4
+        {
+          iv, ok := readU16le(tb, off)
+          m3 = ok && (u64(iv)&0x2 == 0x2)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\boutput")
+          gof = off + ml
+          out = append(out, "\\boutput")
+        }
+
+      }
+      m2 = false
+      // >>4	uleshort&0x8000			0x8000			\bcharacter device driver
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (u64(iv)&0x8000 == 0x8000)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\bcharacter device driver")
+        gof = off + ml
+        out = append(out, "\\bcharacter device driver")
+      }
+
+    }
+    m1 = false
+    // >0	ubyte				x
+    off = pageOff + 0x0
+    ml = 1
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>40	search/7			UPX!
+      off = pageOff + 0x28
+      ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
+      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>40\tsearch/7\t\t\tUPX!")
+        gof = off + ml
+      }
+
+      // >>40	default				x
+      off = pageOff + 0x28
+      // uh oh unhandled kind
+
+      if m2 {
+        // >>>12		ubyte			>0x2E			\b
+        off = pageOff + 0xc
+        {
+          iv, ok := readU8le(tb, off)
+          m3 = ok && (i64(i8(iv)) > 0x2e)
+          ml = 1
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t>0x2E\t\t\t\\b")
+          gof = off + ml
+          out = append(out, "\\b")
+        }
+
+        if m3 {
+          // >>>>10		ubyte			>0x20
+          off = pageOff + 0xa
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>10\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>10		ubyte			!0x2E
+            off = pageOff + 0xa
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>10\t\tubyte\t\t\t!0x2E")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>10	ubyte			!0x2A			\b%c
+              off = pageOff + 0xa
+              {
+                iv, ok := readU8le(tb, off)
+                m6 = ok && (u64(iv) != 0x2a)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>10\tubyte\t\t\t!0x2A\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+          // >>>>11		ubyte			>0x20
+          off = pageOff + 0xb
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>11\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>11		ubyte			!0x2E			\b%c
+            off = pageOff + 0xb
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>11\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+              gof = off + ml
+              out = append(out, "\\b%c")
+            }
+
+          }
+          m4 = false
+          // >>>>12		ubyte			>0x20
+          off = pageOff + 0xc
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>12\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>12		ubyte			!0x39
+            off = pageOff + 0xc
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x39)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>12\t\tubyte\t\t\t!0x39")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>12	ubyte			!0x2E			\b%c
+              off = pageOff + 0xc
+              {
+                iv, ok := readU8le(tb, off)
+                m6 = ok && (u64(iv) != 0x2e)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>12\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+        }
+        m3 = false
+        // >>>13		ubyte			>0x20
+        off = pageOff + 0xd
+        {
+          iv, ok := readU8le(tb, off)
+          m3 = ok && (i64(i8(iv)) > 0x20)
+          ml = 1
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>13\t\tubyte\t\t\t>0x20")
+          gof = off + ml
+        }
+
+        if m3 {
+          // >>>>13		ubyte			!0x2E			\b%c
+          off = pageOff + 0xd
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (u64(iv) != 0x2e)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>13\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+            gof = off + ml
+            out = append(out, "\\b%c")
+          }
+
+          // >>>>14		ubyte			>0x20
+          off = pageOff + 0xe
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>14\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>14		ubyte			!0x2E			\b%c
+            off = pageOff + 0xe
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>14\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+              gof = off + ml
+              out = append(out, "\\b%c")
+            }
+
+          }
+          m4 = false
+          // >>>>15		ubyte			>0x20
+          off = pageOff + 0xf
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>15\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>15		ubyte			!0x2E			\b%c
+            off = pageOff + 0xf
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>15\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+              gof = off + ml
+              out = append(out, "\\b%c")
+            }
+
+          }
+          m4 = false
+          // >>>>16		ubyte			>0x20
+          off = pageOff + 0x10
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>16\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>16		ubyte			!0x2E
+            off = pageOff + 0x10
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>16\t\tubyte\t\t\t!0x2E")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>16	ubyte			<0xCB			\b%c
+              off = pageOff + 0x10
+              {
+                iv, ok := readU8le(tb, off)
+                m6 = ok && (i64(i8(iv)) < 0xcb)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>16\tubyte\t\t\t<0xCB\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+          // >>>>17		ubyte			>0x20
+          off = pageOff + 0x11
+          {
+            iv, ok := readU8le(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>17\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>17		ubyte			!0x2E
+            off = pageOff + 0x11
+            {
+              iv, ok := readU8le(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>17\t\tubyte\t\t\t!0x2E")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>17	ubyte			<0x90			\b%c
+              off = pageOff + 0x11
+              {
+                iv, ok := readU8le(tb, off)
+                m6 = ok && (i64(i8(iv)) < 0x90)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>17\tubyte\t\t\t<0x90\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+        }
+        m3 = false
+        // >>>12		ubyte			<0x2F
+        off = pageOff + 0xc
+        {
+          iv, ok := readU8le(tb, off)
+          m3 = ok && (i64(i8(iv)) < 0x2f)
+          ml = 1
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t<0x2F")
+          gof = off + ml
+        }
+
+        if m3 {
+          // >>>>22		string			>\056			%-.6s
+          off = pageOff + 0x16
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m4 = ml >= 0
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>22\t\tstring\t\t\t>\\056\t\t\t%-.6s")
+            gof = off + ml
+            out = append(out, "%-.6s")
+          }
+
+        }
+        m3 = false
+      }
+      m2 = false
+    }
+    m1 = false
+    // >4	uleshort&0x8000			0x0000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x0002			0x0002			\b,32-bit sector-
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (u64(iv)&0x2 == 0x2)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\b,32-bit sector-")
+        gof = off + ml
+        out = append(out, "\\b,32-bit sector-")
+      }
+
+    }
+    m1 = false
+    // >4	uleshort&0x0040			0x0040			\b,IOCTL-
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x40 == 0x40)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0040\t\t\t0x0040\t\t\t\\b,IOCTL-")
+      gof = off + ml
+      out = append(out, "\\b,IOCTL-")
+    }
+
+    // >4	uleshort&0x0800			0x0800			\b,close media-
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x800 == 0x800)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0800\t\t\t0x0800\t\t\t\\b,close media-")
+      gof = off + ml
+      out = append(out, "\\b,close media-")
+    }
+
+    // >4	uleshort&0x8000			0x8000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x8000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x2000			0x2000			\b,until busy-
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (u64(iv)&0x2000 == 0x2000)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x2000\t\t\t0x2000\t\t\t\\b,until busy-")
+        gof = off + ml
+        out = append(out, "\\b,until busy-")
+      }
+
+    }
+    m1 = false
+    // >4	uleshort&0x4000			0x4000			\b,control strings-
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x4000 == 0x4000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x4000\t\t\t0x4000\t\t\t\\b,control strings-")
+      gof = off + ml
+      out = append(out, "\\b,control strings-")
+    }
+
+    // >4	uleshort&0x8000			0x8000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x8000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x6840			>0			\bsupport
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (i64(i16(iv))&0x6840 > 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x6840\t\t\t>0\t\t\t\\bsupport")
+        gof = off + ml
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    m1 = false
+    // >4	uleshort&0x8000			0x0000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16le(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x4842			>0			\bsupport
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16le(tb, off)
+        m2 = ok && (i64(i16(iv))&0x4842 > 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x4842\t\t\t>0\t\t\t\\bsupport")
+        gof = off + ml
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    m1 = false
+    // >0	ubyte				x			\b)
+    off = pageOff + 0x0
+    ml = 1
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx\t\t\t\\b)")
+      gof = off + ml
+      out = append(out, "\\b)")
     }
 
   }
@@ -11835,11 +11998,21 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
   m0 = false
   // 100	search/0xffff   rxfuncadd
   off = pageOff + 0x64
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "rxfuncadd"))
+  if ml >= 0 { ml = ml + 0x9; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   rxfuncadd")
+    gof = off + ml
+  }
 
   // 100	search/0xffff   say
   off = pageOff + 0x64
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "say"))
+  if ml >= 0 { ml = ml + 0x3; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   say")
+    gof = off + ml
+  }
 
   // 0	leshort		0x166	MS Windows COFF MIPS R4000 object file
   off = pageOff + 0x0
@@ -12938,7 +13111,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "PEC2"))
+          if ml >= 0 { ml = ml + 0x4; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
+            gof = off + ml
+            out = append(out, "\\b, PECompact2 compressed")
+          }
           break
         }
 
@@ -12950,7 +13129,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "UPX2"))
+          if ml >= 0 { ml = ml + 0x4; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tUPX2")
+            gof = off + ml
+          }
           break
         }
 
@@ -12958,9 +13142,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x10.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
           for {
             {
-              ra, ok := readU32be(tb, 0x10)
+              ra, ok := readU32be(tb, (gof + 0x10))
               if !ok { break }
-              rb, ok := readU32be(tb, 0x10 + -4)
+              rb, ok := readU32be(tb, (gof + 0x10) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -12984,7 +13168,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".idata"))
+          if ml >= 0 { ml = ml + 0x6; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.idata")
+            gof = off + ml
+          }
           break
         }
 
@@ -12992,9 +13181,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0xe.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
           for {
             {
-              ra, ok := readU32be(tb, 0xe)
+              ra, ok := readU32be(tb, (gof + 0xe))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xe + -4)
+              rb, ok := readU32be(tb, (gof + 0xe) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -13011,9 +13200,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0xe.l+(-4))	string		ZZ0 \b, ZZip self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xe)
+              ra, ok := readU32be(tb, (gof + 0xe))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xe + -4)
+              rb, ok := readU32be(tb, (gof + 0xe) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -13030,9 +13219,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0xe.l+(-4))	string		ZZ1 \b, ZZip self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xe)
+              ra, ok := readU32be(tb, (gof + 0xe))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xe + -4)
+              rb, ok := readU32be(tb, (gof + 0xe) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -13056,7 +13245,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".rsrc"))
+          if ml >= 0 { ml = ml + 0x5; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.rsrc")
+            gof = off + ml
+          }
           break
         }
 
@@ -13064,9 +13258,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l+(-4))	string		a\\\4\5 \b, WinHKI self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xf)
+              ra, ok := readU32be(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xf + -4)
+              rb, ok := readU32be(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -13083,9 +13277,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l+(-4))	string		Rar! \b, RAR self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xf)
+              ra, ok := readU32be(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xf + -4)
+              rb, ok := readU32be(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
@@ -13102,26 +13296,38 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l+(-4))	search/0x3000	MSCF \b, InstallShield self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xf)
+              ra, ok := readU32be(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xf + -4)
+              rb, ok := readU32be(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x3000, "MSCF"))
+            if ml >= 0 { ml = ml + 0x4; m4 = true }
+            if m4 {
+              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, InstallShield self-extracting archive")
+            }
             break
           }
 
           // >>>>(&0x0f.l+(-4))	search/32	Nullsoft \b, Nullsoft Installer self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xf)
+              ra, ok := readU32be(tb, (gof + 0xf))
               if !ok { break }
-              rb, ok := readU32be(tb, 0xf + -4)
+              rb, ok := readU32be(tb, (gof + 0xf) + -4)
               off = i64(ra)
               off = off + i64(rb)
             }
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "Nullsoft"))
+            if ml >= 0 { ml = ml + 0x8; m4 = true }
+            if m4 {
+              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+            }
             break
           }
 
@@ -13135,7 +13341,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".data"))
+          if ml >= 0 { ml = ml + 0x5; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.data")
+            gof = off + ml
+          }
           break
         }
 
@@ -13143,7 +13354,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>(&0x0f.l)		string		WEXTRACT \b, MS CAB-Installer self-extracting archive
           for {
             {
-              ra, ok := readU32be(tb, 0xf)
+              ra, ok := readU32be(tb, (gof + 0xf))
               if !ok { break }
               off = i64(ra)
             }
@@ -13167,7 +13378,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".petite\x00"))
+          if ml >= 0 { ml = ml + 0x8; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
+            gof = off + ml
+            out = append(out, "\\b, Petite compressed")
+          }
           break
         }
 
@@ -13192,9 +13409,9 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             // >>>>>(&0x104.l+(-4))	string		=!sfx! \b, ACE self-extracting archive
             for {
               {
-                ra, ok := readU32be(tb, 0x104)
+                ra, ok := readU32be(tb, (gof + 0x104))
                 if !ok { break }
-                rb, ok := readU32be(tb, 0x104 + -4)
+                rb, ok := readU32be(tb, (gof + 0x104) + -4)
                 off = i64(ra)
                 off = off + i64(rb)
               }
@@ -13220,7 +13437,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".WISE"))
+          if ml >= 0 { ml = ml + 0x5; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
+            gof = off + ml
+            out = append(out, "\\b, WISE installer self-extracting archive")
+          }
           break
         }
 
@@ -13232,7 +13455,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0xf8
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".dz\x00\x00\x00"))
+          if ml >= 0 { ml = ml + 0x6; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
+            gof = off + ml
+            out = append(out, "\\b, Dzip self-extracting archive")
+          }
           break
         }
 
@@ -13245,7 +13474,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = off + 0xf8
             off += gof
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "_winzip_"))
+          if ml >= 0 { ml = ml + 0x8; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
+            gof = off + ml
+            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+          }
           break
         }
 
@@ -13258,7 +13493,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = off + 0xf8
             off += gof
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "SharedD"))
+          if ml >= 0 { ml = ml + 0x7; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
+            gof = off + ml
+            out = append(out, "\\b, Microsoft Installer self-extracting archive")
+          }
           break
         }
 
@@ -13512,7 +13753,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // >>>&(&0x24.s-1)		string		ARJSFX \b, ARJ self-extracting archive
         for {
           {
-            ra, ok := readU16be(tb, 0x24)
+            ra, ok := readU16be(tb, (gof + 0x24))
             if !ok { break }
             off = i64(ra)
             off = off * 0x1
@@ -13536,7 +13777,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             off = i64(ra)
             off = off + 0x70
           }
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "WinZip(R) Self-Extractor"))
+          if ml >= 0 { ml = ml + 0x18; m3 = true }
+          if m3 {
+            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
+            gof = off + ml
+            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+          }
           break
         }
 
@@ -13846,7 +14093,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // >>>&(&0x54.l-3)		string		arjsfx \b, ARJ self-extracting archive
         for {
           {
-            ra, ok := readU32be(tb, 0x54)
+            ra, ok := readU32be(tb, (gof + 0x54))
             if !ok { break }
             off = i64(ra)
             off = off * 0x3
@@ -13922,31 +14169,73 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         if m3 {
           // >>>>0x240		search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
+          if ml >= 0 { ml = ml + 0x6; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x240		search/0x200	WATCOM\ C/C++ for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x200, "WATCOM C/C++"))
+          if ml >= 0 { ml = ml + 0xc; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x200\tWATCOM\\ C/C++ for MS-DOS, DOS4GW DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x440		search/0x100	CauseWay\ DOS\ Extender for MS-DOS, CauseWay DOS extender
           off = pageOff + 0x440
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "CauseWay DOS Extender"))
+          if ml >= 0 { ml = ml + 0x15; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x440\t\tsearch/0x100\tCauseWay\\ DOS\\ Extender for MS-DOS, CauseWay DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, CauseWay DOS extender")
+          }
 
           // >>>>0x40		search/0x40	PMODE/W for MS-DOS, PMODE/W DOS extender
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "PMODE/W"))
+          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tPMODE/W for MS-DOS, PMODE/W DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, PMODE/W DOS extender")
+          }
 
           // >>>>0x40		search/0x40	STUB/32A for MS-DOS, DOS/32A DOS extender (stub)
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "STUB/32A"))
+          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tSTUB/32A for MS-DOS, DOS/32A DOS extender (stub)")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (stub)")
+          }
 
           // >>>>0x40		search/0x80	STUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "STUB/32C"))
+          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tSTUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (configurable stub)")
+          }
 
           // >>>>0x40		search/0x80	DOS/32A for MS-DOS, DOS/32A DOS extender (embedded)
           off = pageOff + 0x40
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "DOS/32A"))
+          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tDOS/32A for MS-DOS, DOS/32A DOS extender (embedded)")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (embedded)")
+          }
 
           // >>>>&0x24		lelong		<0x50
           off = pageOff + gof + 0x24
@@ -13964,7 +14253,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             // >>>>>(&0x4c.l)		string		\xfc\xb8WATCOM
             for {
               {
-                ra, ok := readU32be(tb, 0x4c)
+                ra, ok := readU32be(tb, (gof + 0x4c))
                 if !ok { break }
                 off = i64(ra)
               }
@@ -13980,7 +14269,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             if m5 {
               // >>>>>>&0		search/8	3\xdbf\xb9 \b, 32Lite compressed
               off = pageOff + gof + 0x0
-              // uh oh unhandled kind
+              ml = i64(wizardry.SearchTest(tb, int(off), 0x8, "3\xdbf\xb9"))
+              if ml >= 0 { ml = ml + 0x4; m6 = true }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>&0\t\tsearch/8\t3\\xdbf\\xb9 \\b, 32Lite compressed")
+                gof = off + ml
+                out = append(out, "\\b, 32Lite compressed")
+              }
 
             }
             m5 = false
@@ -14054,7 +14349,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // >>>(&0x7c.l+0x26)	string		UPX \b, UPX compressed
         for {
           {
-            ra, ok := readU32be(tb, 0x7c)
+            ra, ok := readU32be(tb, (gof + 0x7c))
             if !ok { break }
             off = i64(ra)
             off = off + 0x26
@@ -14072,7 +14367,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // >>>&(&0x54.l-3)		string		UNACE \b, ACE self-extracting archive
         for {
           {
-            ra, ok := readU32be(tb, 0x54)
+            ra, ok := readU32be(tb, (gof + 0x54))
             if !ok { break }
             off = i64(ra)
             off = off * 0x3
@@ -14228,7 +14523,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
             off = pageOff + 0x240
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
+            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
+              gof = off + ml
+              out = append(out, "for MS-DOS, DOS4GW DOS extender")
+            }
 
           }
           m4 = false
@@ -14253,11 +14554,23 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G	\b, LE for MS-DOS, DOS4GW DOS extender (embedded)
             off = pageOff + 0x240
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
+            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G\t\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+              gof = off + ml
+              out = append(out, "\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+            }
 
             // >>>>>0x240	search/0x100	!DOS/4G	\b, BW collection for MS-DOS
             off = pageOff + 0x240
-            // uh oh unhandled kind
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "!DOS/4G"))
+            if ml >= 0 { ml = ml + 0x7; m5 = true }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\t!DOS/4G\t\\b, BW collection for MS-DOS")
+              gof = off + ml
+              out = append(out, "\\b, BW collection for MS-DOS")
+            }
 
           }
           m4 = false
@@ -14340,7 +14653,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       // >>&(&0x42.l-3)	byte		x
       for {
         {
-          ra, ok := readU32be(tb, 0x42)
+          ra, ok := readU32be(tb, (gof + 0x42))
           if !ok { break }
           off = i64(ra)
           off = off * 0x3
@@ -14369,7 +14682,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       m2 = false
       // >>&0x2c		search/0xa0	.text
       off = pageOff + gof + 0x2c
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0xa0, ".text"))
+      if ml >= 0 { ml = ml + 0x5; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>&0x2c\t\tsearch/0xa0\t.text")
+        gof = off + ml
+      }
 
       if m2 {
         // >>>&0x0b	lelong		<0x2000
@@ -14534,7 +14852,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
     // >0x20	search/0xe0	aRJsfX \b, ARJ self-extracting archive
     off = pageOff + 0x20
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xe0, "aRJsfX"))
+    if ml >= 0 { ml = ml + 0x6; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x20\tsearch/0xe0\taRJsfX \\b, ARJ self-extracting archive")
+      gof = off + ml
+      out = append(out, "\\b, ARJ self-extracting archive")
+    }
 
     // >0x20	string AIN
     off = pageOff + 0x20
@@ -14661,15 +14985,20 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     if m1 {
       // >>&0xf4 search/0x140 \x0\x40\x1\x0
       off = pageOff + gof + 0xf4
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "\x00@\x01\x00"))
+      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>&0xf4 search/0x140 \\x0\\x40\\x1\\x0")
+        gof = off + ml
+      }
 
       if m2 {
         // >>>(&0.l+(4)) string MSCF \b, WinHKI CAB self-extracting archive
         for {
           {
-            ra, ok := readU32be(tb, 0x0)
+            ra, ok := readU32be(tb, (gof + 0x0))
             if !ok { break }
-            rb, ok := readU32be(tb, 0x0 + 0x4)
+            rb, ok := readU32be(tb, (gof + 0x0) + 0x4)
             off = i64(ra)
             off = off + i64(rb)
           }
@@ -14804,11 +15133,23 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
         // >>>&7	search/400	**ACE** \b, ACE self-extracting archive
         off = pageOff + gof + 0x7
-        // uh oh unhandled kind
+        ml = i64(wizardry.SearchTest(tb, int(off), 0x190, "**ACE**"))
+        if ml >= 0 { ml = ml + 0x7; m3 = true }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>&7\tsearch/400\t**ACE** \\b, ACE self-extracting archive")
+          gof = off + ml
+          out = append(out, "\\b, ACE self-extracting archive")
+        }
 
         // >>>&0	search/0x480	UC2SFX\ Header \b, UC2 self-extracting archive
         off = pageOff + gof + 0x0
-        // uh oh unhandled kind
+        ml = i64(wizardry.SearchTest(tb, int(off), 0x480, "UC2SFX Header"))
+        if ml >= 0 { ml = ml + 0xd; m3 = true }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>&0\tsearch/0x480\tUC2SFX\\ Header \\b, UC2 self-extracting archive")
+          gof = off + ml
+          out = append(out, "\\b, UC2 self-extracting archive")
+        }
 
       }
       m2 = false
@@ -14822,7 +15163,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         off = i64(ra)
         off = off * 0x10
       }
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "PKSFX"))
+      if ml >= 0 { ml = ml + 0x5; m1 = true }
+      if m1 {
+        fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
+        gof = off + ml
+        out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+      }
       break
     }
 
@@ -14912,7 +15259,13 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
       // >>7	search/254	\xff		\b, info=
       off = pageOff + 0x7
-      // uh oh unhandled kind
+      ml = i64(wizardry.SearchTest(tb, int(off), 0xfe, "\xff"))
+      if ml >= 0 { ml = ml + 0x1; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>7\tsearch/254\t\\xff\t\t\\b, info=")
+        gof = off + ml
+        out = append(out, "\\b, info=")
+      }
 
       if m2 {
         // >>>&0	string		x		\b%-.15s
@@ -15620,16 +15973,34 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
   // 0x6	search/0xa	\xfc\x57\xf3\xa5\xc3	COM executable for MS-DOS
   off = pageOff + 0x6
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa5\xc3"))
+  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa5\\xc3\tCOM executable for MS-DOS")
+    gof = off + ml
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x6	search/0xa	\xfc\x57\xf3\xa4\xc3	COM executable for DOS
   off = pageOff + 0x6
-  // uh oh unhandled kind
+  ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa4\xc3"))
+  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if m0 {
+    fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa4\\xc3\tCOM executable for DOS")
+    gof = off + ml
+    out = append(out, "COM executable for DOS")
+  }
 
   if m0 {
     // >0x18	search/0x10	\x50\xa4\xff\xd5\x73	\b, aPack compressed
     off = pageOff + 0x18
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0x10, "P\xa4\xff\xd5s"))
+    if ml >= 0 { ml = ml + 0x5; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x18\tsearch/0x10\t\\x50\\xa4\\xff\\xd5\\x73\t\\b, aPack compressed")
+      gof = off + ml
+      out = append(out, "\\b, aPack compressed")
+    }
 
   }
   m0 = false
@@ -16231,7 +16602,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         if m3 {
           // >>>>30	search/29	\0\xAE
           off = pageOff + 0x1e
-          // uh oh unhandled kind
+          ml = i64(wizardry.SearchTest(tb, int(off), 0x1d, "\x00\xae"))
+          if ml >= 0 { ml = ml + 0x2; m4 = true }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>30\tsearch/29\t\\0\\xAE")
+            gof = off + ml
+          }
 
           if m4 {
             // >>>>>&4	string		>\0	\b, 1st font "%s"
@@ -17178,7 +17554,12 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
     // >0x187	search/0xB55	WINDOWS\ VMM\ 4.0\0
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS VMM 4.0\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ VMM\\ 4.0\\0")
+      gof = off + ml
+    }
 
     if m1 {
       // >>&0x5e		ubyte	>0
@@ -17290,15 +17671,33 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     m1 = false
     // >0x187	search/0xB55	WINDOWS\ NT\ \ 3.1\0	\b, Windows NT-style
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS NT  3.1\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ NT\\ \\ 3.1\\0\t\\b, Windows NT-style")
+      gof = off + ml
+      out = append(out, "\\b, Windows NT-style")
+    }
 
     // >0x187	search/0xB55	CONFIG\ \ SYS\ 4.0\0	\b +CONFIG.SYS
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "CONFIG  SYS 4.0\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tCONFIG\\ \\ SYS\\ 4.0\\0\t\\b +CONFIG.SYS")
+      gof = off + ml
+      out = append(out, "\\b +CONFIG.SYS")
+    }
 
     // >0x187	search/0xB55	AUTOEXECBAT\ 4.0\0	\b +AUTOEXEC.BAT
     off = pageOff + 0x187
-    // uh oh unhandled kind
+    ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "AUTOEXECBAT 4.0\x00"))
+    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tAUTOEXECBAT\\ 4.0\\0\t\\b +AUTOEXEC.BAT")
+      gof = off + ml
+      out = append(out, "\\b +AUTOEXEC.BAT")
+    }
 
   }
   m0 = false
@@ -18364,7 +18763,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosDriver__Swapped(tb []byte, pageOff i64) ([]string, error) {
+func IdentifyCurEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
   var out []string
   var gof i64
   gof &= gof
@@ -18374,738 +18773,30 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff i64) ([]string, error) {
   m0 = !!m0
   m1 := false
   m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-  m4 := false
-  m4 = !!m4
-  m5 := false
-  m5 = !!m5
-  m6 := false
-  m6 = !!m6
 
   if m0 {
-    // >40	search/7			UPX!			\bUPX compressed
-    off = pageOff + 0x28
+    // >0	use		cur-ico-entry
+    off = pageOff + 0x0
     // uh oh unhandled kind
 
-    // >4	uleshort&0x8000			0x0000			\bblock device driver
+    // >4	uleshort	x	\b, hotspot @%dx
     off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x0)
-      ml = 2
-    }
+    ml = 2
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000\t\t\t\\bblock device driver")
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort\tx\t\\b, hotspot @%dx")
       gof = off + ml
-      out = append(out, "\\bblock device driver")
+      out = append(out, "\\b, hotspot @%dx")
     }
 
-    // >4	uleshort&0x8000			0x8000			\b
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x8000)
-      ml = 2
-    }
+    // >6	uleshort	x	\b%d
+    off = pageOff + 0x6
+    ml = 2
     if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\b")
+      fmt.Printf("matched rule: %s\n", ">6\tuleshort\tx\t\\b%d")
       gof = off + ml
-      out = append(out, "\\b")
+      out = append(out, "\\b%d")
     }
 
-    if m1 {
-      // >>4	uleshort&0x0008			0x0008			\bclock
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (u64(iv)&0x8 == 0x8)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0008\t\t\t0x0008\t\t\t\\bclock")
-        gof = off + ml
-        out = append(out, "\\bclock")
-      }
-
-      // >>4	uleshort&0x0010			0x0010			\bfast
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (u64(iv)&0x10 == 0x10)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0010\t\t\t0x0010\t\t\t\\bfast")
-        gof = off + ml
-        out = append(out, "\\bfast")
-      }
-
-      // >>4	uleshort&0x0003			>0			\bstandard
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (i64(i16(iv))&0x3 > 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0003\t\t\t>0\t\t\t\\bstandard")
-        gof = off + ml
-        out = append(out, "\\bstandard")
-      }
-
-      if m2 {
-        // >>>4	uleshort&0x0001			0x0001			\binput
-        off = pageOff + 0x4
-        {
-          iv, ok := readU16be(tb, off)
-          m3 = ok && (u64(iv)&0x1 == 0x1)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0001\t\t\t0x0001\t\t\t\\binput")
-          gof = off + ml
-          out = append(out, "\\binput")
-        }
-
-        // >>>4	uleshort&0x0003			0x0003			\b/
-        off = pageOff + 0x4
-        {
-          iv, ok := readU16be(tb, off)
-          m3 = ok && (u64(iv)&0x3 == 0x3)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0003\t\t\t0x0003\t\t\t\\b/")
-          gof = off + ml
-          out = append(out, "\\b/")
-        }
-
-        // >>>4	uleshort&0x0002			0x0002			\boutput
-        off = pageOff + 0x4
-        {
-          iv, ok := readU16be(tb, off)
-          m3 = ok && (u64(iv)&0x2 == 0x2)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\boutput")
-          gof = off + ml
-          out = append(out, "\\boutput")
-        }
-
-      }
-      m2 = false
-      // >>4	uleshort&0x8000			0x8000			\bcharacter device driver
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (u64(iv)&0x8000 == 0x8000)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\bcharacter device driver")
-        gof = off + ml
-        out = append(out, "\\bcharacter device driver")
-      }
-
-    }
-    m1 = false
-    // >0	ubyte				x
-    off = pageOff + 0x0
-    ml = 1
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>40	search/7			UPX!
-      off = pageOff + 0x28
-      // uh oh unhandled kind
-
-      // >>40	default				x
-      off = pageOff + 0x28
-      // uh oh unhandled kind
-
-      if m2 {
-        // >>>12		ubyte			>0x2E			\b
-        off = pageOff + 0xc
-        {
-          iv, ok := readU8be(tb, off)
-          m3 = ok && (i64(i8(iv)) > 0x2e)
-          ml = 1
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t>0x2E\t\t\t\\b")
-          gof = off + ml
-          out = append(out, "\\b")
-        }
-
-        if m3 {
-          // >>>>10		ubyte			>0x20
-          off = pageOff + 0xa
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>10\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>10		ubyte			!0x2E
-            off = pageOff + 0xa
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>10\t\tubyte\t\t\t!0x2E")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>10	ubyte			!0x2A			\b%c
-              off = pageOff + 0xa
-              {
-                iv, ok := readU8be(tb, off)
-                m6 = ok && (u64(iv) != 0x2a)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>10\tubyte\t\t\t!0x2A\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-          // >>>>11		ubyte			>0x20
-          off = pageOff + 0xb
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>11\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>11		ubyte			!0x2E			\b%c
-            off = pageOff + 0xb
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>11\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-              gof = off + ml
-              out = append(out, "\\b%c")
-            }
-
-          }
-          m4 = false
-          // >>>>12		ubyte			>0x20
-          off = pageOff + 0xc
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>12\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>12		ubyte			!0x39
-            off = pageOff + 0xc
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x39)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>12\t\tubyte\t\t\t!0x39")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>12	ubyte			!0x2E			\b%c
-              off = pageOff + 0xc
-              {
-                iv, ok := readU8be(tb, off)
-                m6 = ok && (u64(iv) != 0x2e)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>12\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-        }
-        m3 = false
-        // >>>13		ubyte			>0x20
-        off = pageOff + 0xd
-        {
-          iv, ok := readU8be(tb, off)
-          m3 = ok && (i64(i8(iv)) > 0x20)
-          ml = 1
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>13\t\tubyte\t\t\t>0x20")
-          gof = off + ml
-        }
-
-        if m3 {
-          // >>>>13		ubyte			!0x2E			\b%c
-          off = pageOff + 0xd
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (u64(iv) != 0x2e)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>13\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-            gof = off + ml
-            out = append(out, "\\b%c")
-          }
-
-          // >>>>14		ubyte			>0x20
-          off = pageOff + 0xe
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>14\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>14		ubyte			!0x2E			\b%c
-            off = pageOff + 0xe
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>14\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-              gof = off + ml
-              out = append(out, "\\b%c")
-            }
-
-          }
-          m4 = false
-          // >>>>15		ubyte			>0x20
-          off = pageOff + 0xf
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>15\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>15		ubyte			!0x2E			\b%c
-            off = pageOff + 0xf
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>15\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-              gof = off + ml
-              out = append(out, "\\b%c")
-            }
-
-          }
-          m4 = false
-          // >>>>16		ubyte			>0x20
-          off = pageOff + 0x10
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>16\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>16		ubyte			!0x2E
-            off = pageOff + 0x10
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>16\t\tubyte\t\t\t!0x2E")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>16	ubyte			<0xCB			\b%c
-              off = pageOff + 0x10
-              {
-                iv, ok := readU8be(tb, off)
-                m6 = ok && (i64(i8(iv)) < 0xcb)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>16\tubyte\t\t\t<0xCB\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-          // >>>>17		ubyte			>0x20
-          off = pageOff + 0x11
-          {
-            iv, ok := readU8be(tb, off)
-            m4 = ok && (i64(i8(iv)) > 0x20)
-            ml = 1
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>17\t\tubyte\t\t\t>0x20")
-            gof = off + ml
-          }
-
-          if m4 {
-            // >>>>>17		ubyte			!0x2E
-            off = pageOff + 0x11
-            {
-              iv, ok := readU8be(tb, off)
-              m5 = ok && (u64(iv) != 0x2e)
-              ml = 1
-            }
-            if m5 {
-              fmt.Printf("matched rule: %s\n", ">>>>>17\t\tubyte\t\t\t!0x2E")
-              gof = off + ml
-            }
-
-            if m5 {
-              // >>>>>>17	ubyte			<0x90			\b%c
-              off = pageOff + 0x11
-              {
-                iv, ok := readU8be(tb, off)
-                m6 = ok && (i64(i8(iv)) < 0x90)
-                ml = 1
-              }
-              if m6 {
-                fmt.Printf("matched rule: %s\n", ">>>>>>17\tubyte\t\t\t<0x90\t\t\t\\b%c")
-                gof = off + ml
-                out = append(out, "\\b%c")
-              }
-
-            }
-            m5 = false
-          }
-          m4 = false
-        }
-        m3 = false
-        // >>>12		ubyte			<0x2F
-        off = pageOff + 0xc
-        {
-          iv, ok := readU8be(tb, off)
-          m3 = ok && (i64(i8(iv)) < 0x2f)
-          ml = 1
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t<0x2F")
-          gof = off + ml
-        }
-
-        if m3 {
-          // >>>>22		string			>\056			%-.6s
-          off = pageOff + 0x16
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m4 = ml >= 0
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>22\t\tstring\t\t\t>\\056\t\t\t%-.6s")
-            gof = off + ml
-            out = append(out, "%-.6s")
-          }
-
-        }
-        m3 = false
-      }
-      m2 = false
-    }
-    m1 = false
-    // >4	uleshort&0x8000			0x0000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x0002			0x0002			\b,32-bit sector-
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (u64(iv)&0x2 == 0x2)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\b,32-bit sector-")
-        gof = off + ml
-        out = append(out, "\\b,32-bit sector-")
-      }
-
-    }
-    m1 = false
-    // >4	uleshort&0x0040			0x0040			\b,IOCTL-
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x40 == 0x40)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0040\t\t\t0x0040\t\t\t\\b,IOCTL-")
-      gof = off + ml
-      out = append(out, "\\b,IOCTL-")
-    }
-
-    // >4	uleshort&0x0800			0x0800			\b,close media-
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x800 == 0x800)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0800\t\t\t0x0800\t\t\t\\b,close media-")
-      gof = off + ml
-      out = append(out, "\\b,close media-")
-    }
-
-    // >4	uleshort&0x8000			0x8000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x8000)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x2000			0x2000			\b,until busy-
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (u64(iv)&0x2000 == 0x2000)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x2000\t\t\t0x2000\t\t\t\\b,until busy-")
-        gof = off + ml
-        out = append(out, "\\b,until busy-")
-      }
-
-    }
-    m1 = false
-    // >4	uleshort&0x4000			0x4000			\b,control strings-
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x4000 == 0x4000)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x4000\t\t\t0x4000\t\t\t\\b,control strings-")
-      gof = off + ml
-      out = append(out, "\\b,control strings-")
-    }
-
-    // >4	uleshort&0x8000			0x8000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x8000)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x6840			>0			\bsupport
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (i64(i16(iv))&0x6840 > 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x6840\t\t\t>0\t\t\t\\bsupport")
-        gof = off + ml
-        out = append(out, "\\bsupport")
-      }
-
-    }
-    m1 = false
-    // >4	uleshort&0x8000			0x0000
-    off = pageOff + 0x4
-    {
-      iv, ok := readU16be(tb, off)
-      m1 = ok && (u64(iv)&0x8000 == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
-      gof = off + ml
-    }
-
-    if m1 {
-      // >>4	uleshort&0x4842			>0			\bsupport
-      off = pageOff + 0x4
-      {
-        iv, ok := readU16be(tb, off)
-        m2 = ok && (i64(i16(iv))&0x4842 > 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x4842\t\t\t>0\t\t\t\\bsupport")
-        gof = off + ml
-        out = append(out, "\\bsupport")
-      }
-
-    }
-    m1 = false
-    // >0	ubyte				x			\b)
-    off = pageOff + 0x0
-    ml = 1
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx\t\t\t\\b)")
-      gof = off + ml
-      out = append(out, "\\b)")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyLotusCells__Swapped(tb []byte, pageOff i64) ([]string, error) {
-  var out []string
-  var gof i64
-  gof &= gof
-  var off i64
-  var ml i64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-
-  if m0 {
-    // >0	ubelong	0x06000800	\b, cell range
-    off = pageOff + 0x0
-    {
-      iv, ok := readU32le(tb, off)
-      m1 = ok && (u64(iv) == 0x6000800)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0\tubelong\t0x06000800\t\\b, cell range")
-      gof = off + ml
-      out = append(out, "\\b, cell range")
-    }
-
-    if m1 {
-      // >>4	ulong		!0
-      off = pageOff + 0x4
-      {
-        iv, ok := readU32be(tb, off)
-        m2 = ok && (u64(iv) != 0x0)
-        ml = 4
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>4\tulong\t\t!0")
-        gof = off + ml
-      }
-
-      if m2 {
-        // >>>4	uleshort	x	\b%d,
-        off = pageOff + 0x4
-        ml = 2
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\tx\t\\b%d,")
-          gof = off + ml
-          out = append(out, "\\b%d,")
-        }
-
-        // >>>6	uleshort	x	\b%d-
-        off = pageOff + 0x6
-        ml = 2
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\tx\t\\b%d-")
-          gof = off + ml
-          out = append(out, "\\b%d-")
-        }
-
-      }
-      m2 = false
-      // >>8	uleshort	x	\b%d,
-      off = pageOff + 0x8
-      ml = 2
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>8\tuleshort\tx\t\\b%d,")
-        gof = off + ml
-        out = append(out, "\\b%d,")
-      }
-
-      // >>10	uleshort	x	\b%d
-      off = pageOff + 0xa
-      ml = 2
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>10\tuleshort\tx\t\\b%d")
-        gof = off + ml
-        out = append(out, "\\b%d")
-      }
-
-    }
   }
   return out, nil
 }
@@ -22453,6 +22144,138 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff i64) ([]string, error) {
   return out, nil
 }
 
+func IdentifyIcoEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var gof i64
+  gof &= gof
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0			use	cur-ico-entry
+    off = pageOff + 0x0
+    // uh oh unhandled kind
+
+    // >4	uleshort	>1	\b, %d planes
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (i64(i16(iv)) > 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort\t>1\t\\b, %d planes")
+      gof = off + ml
+      out = append(out, "\\b, %d planes")
+    }
+
+    // >6	uleshort	>1	\b, %d bits/pixel
+    off = pageOff + 0x6
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (i64(i16(iv)) > 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">6\tuleshort\t>1\t\\b, %d bits/pixel")
+      gof = off + ml
+      out = append(out, "\\b, %d bits/pixel")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyLotusCells__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var gof i64
+  gof &= gof
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+
+  if m0 {
+    // >0	ubelong	0x06000800	\b, cell range
+    off = pageOff + 0x0
+    {
+      iv, ok := readU32le(tb, off)
+      m1 = ok && (u64(iv) == 0x6000800)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0\tubelong\t0x06000800\t\\b, cell range")
+      gof = off + ml
+      out = append(out, "\\b, cell range")
+    }
+
+    if m1 {
+      // >>4	ulong		!0
+      off = pageOff + 0x4
+      {
+        iv, ok := readU32be(tb, off)
+        m2 = ok && (u64(iv) != 0x0)
+        ml = 4
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tulong\t\t!0")
+        gof = off + ml
+      }
+
+      if m2 {
+        // >>>4	uleshort	x	\b%d,
+        off = pageOff + 0x4
+        ml = 2
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\tx\t\\b%d,")
+          gof = off + ml
+          out = append(out, "\\b%d,")
+        }
+
+        // >>>6	uleshort	x	\b%d-
+        off = pageOff + 0x6
+        ml = 2
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\tx\t\\b%d-")
+          gof = off + ml
+          out = append(out, "\\b%d-")
+        }
+
+      }
+      m2 = false
+      // >>8	uleshort	x	\b%d,
+      off = pageOff + 0x8
+      ml = 2
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>8\tuleshort\tx\t\\b%d,")
+        gof = off + ml
+        out = append(out, "\\b%d,")
+      }
+
+      // >>10	uleshort	x	\b%d
+      off = pageOff + 0xa
+      ml = 2
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>10\tuleshort\tx\t\\b%d")
+        gof = off + ml
+        out = append(out, "\\b%d")
+      }
+
+    }
+  }
+  return out, nil
+}
+
 func IdentifyMsdosCom__Swapped(tb []byte, pageOff i64) ([]string, error) {
   var out []string
   var gof i64
@@ -22535,6 +22358,677 @@ func IdentifyMsdosCom__Swapped(tb []byte, pageOff i64) ([]string, error) {
       fmt.Printf("matched rule: %s\n", ">0x20e string\tSFX\\ by\\ LARC\t\\b, LARC self-extracting archive")
       gof = off + ml
       out = append(out, "\\b, LARC self-extracting archive")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyMsdosDriver__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var gof i64
+  gof &= gof
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+  m4 := false
+  m4 = !!m4
+  m5 := false
+  m5 = !!m5
+  m6 := false
+  m6 = !!m6
+
+  if m0 {
+    // >40	search/7			UPX!			\bUPX compressed
+    off = pageOff + 0x28
+    ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
+    if ml >= 0 { ml = ml + 0x4; m1 = true }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">40\tsearch/7\t\t\tUPX!\t\t\t\\bUPX compressed")
+      gof = off + ml
+      out = append(out, "\\bUPX compressed")
+    }
+
+    // >4	uleshort&0x8000			0x0000			\bblock device driver
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000\t\t\t\\bblock device driver")
+      gof = off + ml
+      out = append(out, "\\bblock device driver")
+    }
+
+    // >4	uleshort&0x8000			0x8000			\b
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x8000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\b")
+      gof = off + ml
+      out = append(out, "\\b")
+    }
+
+    if m1 {
+      // >>4	uleshort&0x0008			0x0008			\bclock
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (u64(iv)&0x8 == 0x8)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0008\t\t\t0x0008\t\t\t\\bclock")
+        gof = off + ml
+        out = append(out, "\\bclock")
+      }
+
+      // >>4	uleshort&0x0010			0x0010			\bfast
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (u64(iv)&0x10 == 0x10)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0010\t\t\t0x0010\t\t\t\\bfast")
+        gof = off + ml
+        out = append(out, "\\bfast")
+      }
+
+      // >>4	uleshort&0x0003			>0			\bstandard
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (i64(i16(iv))&0x3 > 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0003\t\t\t>0\t\t\t\\bstandard")
+        gof = off + ml
+        out = append(out, "\\bstandard")
+      }
+
+      if m2 {
+        // >>>4	uleshort&0x0001			0x0001			\binput
+        off = pageOff + 0x4
+        {
+          iv, ok := readU16be(tb, off)
+          m3 = ok && (u64(iv)&0x1 == 0x1)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0001\t\t\t0x0001\t\t\t\\binput")
+          gof = off + ml
+          out = append(out, "\\binput")
+        }
+
+        // >>>4	uleshort&0x0003			0x0003			\b/
+        off = pageOff + 0x4
+        {
+          iv, ok := readU16be(tb, off)
+          m3 = ok && (u64(iv)&0x3 == 0x3)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0003\t\t\t0x0003\t\t\t\\b/")
+          gof = off + ml
+          out = append(out, "\\b/")
+        }
+
+        // >>>4	uleshort&0x0002			0x0002			\boutput
+        off = pageOff + 0x4
+        {
+          iv, ok := readU16be(tb, off)
+          m3 = ok && (u64(iv)&0x2 == 0x2)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\boutput")
+          gof = off + ml
+          out = append(out, "\\boutput")
+        }
+
+      }
+      m2 = false
+      // >>4	uleshort&0x8000			0x8000			\bcharacter device driver
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (u64(iv)&0x8000 == 0x8000)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\bcharacter device driver")
+        gof = off + ml
+        out = append(out, "\\bcharacter device driver")
+      }
+
+    }
+    m1 = false
+    // >0	ubyte				x
+    off = pageOff + 0x0
+    ml = 1
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>40	search/7			UPX!
+      off = pageOff + 0x28
+      ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
+      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>40\tsearch/7\t\t\tUPX!")
+        gof = off + ml
+      }
+
+      // >>40	default				x
+      off = pageOff + 0x28
+      // uh oh unhandled kind
+
+      if m2 {
+        // >>>12		ubyte			>0x2E			\b
+        off = pageOff + 0xc
+        {
+          iv, ok := readU8be(tb, off)
+          m3 = ok && (i64(i8(iv)) > 0x2e)
+          ml = 1
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t>0x2E\t\t\t\\b")
+          gof = off + ml
+          out = append(out, "\\b")
+        }
+
+        if m3 {
+          // >>>>10		ubyte			>0x20
+          off = pageOff + 0xa
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>10\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>10		ubyte			!0x2E
+            off = pageOff + 0xa
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>10\t\tubyte\t\t\t!0x2E")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>10	ubyte			!0x2A			\b%c
+              off = pageOff + 0xa
+              {
+                iv, ok := readU8be(tb, off)
+                m6 = ok && (u64(iv) != 0x2a)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>10\tubyte\t\t\t!0x2A\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+          // >>>>11		ubyte			>0x20
+          off = pageOff + 0xb
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>11\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>11		ubyte			!0x2E			\b%c
+            off = pageOff + 0xb
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>11\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+              gof = off + ml
+              out = append(out, "\\b%c")
+            }
+
+          }
+          m4 = false
+          // >>>>12		ubyte			>0x20
+          off = pageOff + 0xc
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>12\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>12		ubyte			!0x39
+            off = pageOff + 0xc
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x39)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>12\t\tubyte\t\t\t!0x39")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>12	ubyte			!0x2E			\b%c
+              off = pageOff + 0xc
+              {
+                iv, ok := readU8be(tb, off)
+                m6 = ok && (u64(iv) != 0x2e)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>12\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+        }
+        m3 = false
+        // >>>13		ubyte			>0x20
+        off = pageOff + 0xd
+        {
+          iv, ok := readU8be(tb, off)
+          m3 = ok && (i64(i8(iv)) > 0x20)
+          ml = 1
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>13\t\tubyte\t\t\t>0x20")
+          gof = off + ml
+        }
+
+        if m3 {
+          // >>>>13		ubyte			!0x2E			\b%c
+          off = pageOff + 0xd
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (u64(iv) != 0x2e)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>13\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+            gof = off + ml
+            out = append(out, "\\b%c")
+          }
+
+          // >>>>14		ubyte			>0x20
+          off = pageOff + 0xe
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>14\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>14		ubyte			!0x2E			\b%c
+            off = pageOff + 0xe
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>14\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+              gof = off + ml
+              out = append(out, "\\b%c")
+            }
+
+          }
+          m4 = false
+          // >>>>15		ubyte			>0x20
+          off = pageOff + 0xf
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>15\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>15		ubyte			!0x2E			\b%c
+            off = pageOff + 0xf
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>15\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
+              gof = off + ml
+              out = append(out, "\\b%c")
+            }
+
+          }
+          m4 = false
+          // >>>>16		ubyte			>0x20
+          off = pageOff + 0x10
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>16\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>16		ubyte			!0x2E
+            off = pageOff + 0x10
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>16\t\tubyte\t\t\t!0x2E")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>16	ubyte			<0xCB			\b%c
+              off = pageOff + 0x10
+              {
+                iv, ok := readU8be(tb, off)
+                m6 = ok && (i64(i8(iv)) < 0xcb)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>16\tubyte\t\t\t<0xCB\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+          // >>>>17		ubyte			>0x20
+          off = pageOff + 0x11
+          {
+            iv, ok := readU8be(tb, off)
+            m4 = ok && (i64(i8(iv)) > 0x20)
+            ml = 1
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>17\t\tubyte\t\t\t>0x20")
+            gof = off + ml
+          }
+
+          if m4 {
+            // >>>>>17		ubyte			!0x2E
+            off = pageOff + 0x11
+            {
+              iv, ok := readU8be(tb, off)
+              m5 = ok && (u64(iv) != 0x2e)
+              ml = 1
+            }
+            if m5 {
+              fmt.Printf("matched rule: %s\n", ">>>>>17\t\tubyte\t\t\t!0x2E")
+              gof = off + ml
+            }
+
+            if m5 {
+              // >>>>>>17	ubyte			<0x90			\b%c
+              off = pageOff + 0x11
+              {
+                iv, ok := readU8be(tb, off)
+                m6 = ok && (i64(i8(iv)) < 0x90)
+                ml = 1
+              }
+              if m6 {
+                fmt.Printf("matched rule: %s\n", ">>>>>>17\tubyte\t\t\t<0x90\t\t\t\\b%c")
+                gof = off + ml
+                out = append(out, "\\b%c")
+              }
+
+            }
+            m5 = false
+          }
+          m4 = false
+        }
+        m3 = false
+        // >>>12		ubyte			<0x2F
+        off = pageOff + 0xc
+        {
+          iv, ok := readU8be(tb, off)
+          m3 = ok && (i64(i8(iv)) < 0x2f)
+          ml = 1
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t<0x2F")
+          gof = off + ml
+        }
+
+        if m3 {
+          // >>>>22		string			>\056			%-.6s
+          off = pageOff + 0x16
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m4 = ml >= 0
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>22\t\tstring\t\t\t>\\056\t\t\t%-.6s")
+            gof = off + ml
+            out = append(out, "%-.6s")
+          }
+
+        }
+        m3 = false
+      }
+      m2 = false
+    }
+    m1 = false
+    // >4	uleshort&0x8000			0x0000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x0002			0x0002			\b,32-bit sector-
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (u64(iv)&0x2 == 0x2)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\b,32-bit sector-")
+        gof = off + ml
+        out = append(out, "\\b,32-bit sector-")
+      }
+
+    }
+    m1 = false
+    // >4	uleshort&0x0040			0x0040			\b,IOCTL-
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x40 == 0x40)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0040\t\t\t0x0040\t\t\t\\b,IOCTL-")
+      gof = off + ml
+      out = append(out, "\\b,IOCTL-")
+    }
+
+    // >4	uleshort&0x0800			0x0800			\b,close media-
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x800 == 0x800)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0800\t\t\t0x0800\t\t\t\\b,close media-")
+      gof = off + ml
+      out = append(out, "\\b,close media-")
+    }
+
+    // >4	uleshort&0x8000			0x8000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x8000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x2000			0x2000			\b,until busy-
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (u64(iv)&0x2000 == 0x2000)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x2000\t\t\t0x2000\t\t\t\\b,until busy-")
+        gof = off + ml
+        out = append(out, "\\b,until busy-")
+      }
+
+    }
+    m1 = false
+    // >4	uleshort&0x4000			0x4000			\b,control strings-
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x4000 == 0x4000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x4000\t\t\t0x4000\t\t\t\\b,control strings-")
+      gof = off + ml
+      out = append(out, "\\b,control strings-")
+    }
+
+    // >4	uleshort&0x8000			0x8000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x8000)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x6840			>0			\bsupport
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (i64(i16(iv))&0x6840 > 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x6840\t\t\t>0\t\t\t\\bsupport")
+        gof = off + ml
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    m1 = false
+    // >4	uleshort&0x8000			0x0000
+    off = pageOff + 0x4
+    {
+      iv, ok := readU16be(tb, off)
+      m1 = ok && (u64(iv)&0x8000 == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000")
+      gof = off + ml
+    }
+
+    if m1 {
+      // >>4	uleshort&0x4842			>0			\bsupport
+      off = pageOff + 0x4
+      {
+        iv, ok := readU16be(tb, off)
+        m2 = ok && (i64(i16(iv))&0x4842 > 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x4842\t\t\t>0\t\t\t\\bsupport")
+        gof = off + ml
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    m1 = false
+    // >0	ubyte				x			\b)
+    off = pageOff + 0x0
+    ml = 1
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx\t\t\t\\b)")
+      gof = off + ml
+      out = append(out, "\\b)")
     }
 
   }
