@@ -14,3488 +14,83 @@ var _ wizardry.StringTestFlags
 var _ fmt.State
 var le binary.ByteOrder = binary.LittleEndian
 var be binary.ByteOrder = binary.BigEndian
+type i8 int8
+type u8 uint8
+type i16 int16
+type u16 uint16
+type i32 int32
+type u32 uint32
+type i64 int64
+type u64 uint64
 
-func readUint8be(tb []byte, off int64) (uint8, bool) {
-  if int64(len(tb)) < off+1 {
+func readUint8be(tb []byte, off i64) (u8, bool) {
+  if i64(len(tb)) < off+1 {
     return 0, false
   }
-  pi := uint8(tb[off])
-  return pi, true
+  pi := u8(tb[off])
+  return u8(pi), true
 }
 
-func readUint8le(tb []byte, off int64) (uint8, bool) {
-  if int64(len(tb)) < off+1 {
+func readUint8le(tb []byte, off i64) (u8, bool) {
+  if i64(len(tb)) < off+1 {
     return 0, false
   }
-  pi := uint8(tb[off])
-  return pi, true
+  pi := u8(tb[off])
+  return u8(pi), true
 }
 
-func readUint16be(tb []byte, off int64) (uint16, bool) {
-  if int64(len(tb)) < off+2 {
+func readUint16be(tb []byte, off i64) (u16, bool) {
+  if i64(len(tb)) < off+2 {
     return 0, false
   }
   pi := be.Uint16(tb[off:])
-  return pi, true
+  return u16(pi), true
 }
 
-func readUint16le(tb []byte, off int64) (uint16, bool) {
-  if int64(len(tb)) < off+2 {
+func readUint16le(tb []byte, off i64) (u16, bool) {
+  if i64(len(tb)) < off+2 {
     return 0, false
   }
   pi := le.Uint16(tb[off:])
-  return pi, true
+  return u16(pi), true
 }
 
-func readUint32be(tb []byte, off int64) (uint32, bool) {
-  if int64(len(tb)) < off+4 {
+func readUint32be(tb []byte, off i64) (u32, bool) {
+  if i64(len(tb)) < off+4 {
     return 0, false
   }
   pi := be.Uint32(tb[off:])
-  return pi, true
+  return u32(pi), true
 }
 
-func readUint32le(tb []byte, off int64) (uint32, bool) {
-  if int64(len(tb)) < off+4 {
+func readUint32le(tb []byte, off i64) (u32, bool) {
+  if i64(len(tb)) < off+4 {
     return 0, false
   }
   pi := le.Uint32(tb[off:])
-  return pi, true
+  return u32(pi), true
 }
 
-func readUint64be(tb []byte, off int64) (uint64, bool) {
-  if int64(len(tb)) < off+8 {
+func readUint64be(tb []byte, off i64) (u64, bool) {
+  if i64(len(tb)) < off+8 {
     return 0, false
   }
   pi := be.Uint64(tb[off:])
-  return pi, true
+  return u64(pi), true
 }
 
-func readUint64le(tb []byte, off int64) (uint64, bool) {
-  if int64(len(tb)) < off+8 {
+func readUint64le(tb []byte, off i64) (u64, bool) {
+  if i64(len(tb)) < off+8 {
     return 0, false
   }
   pi := le.Uint64(tb[off:])
-  return pi, true
+  return u64(pi), true
 }
 
-func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
+func Identify(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-
-  if m0 {
-    // >0x10    shortle    0    no file type,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x10    shortle    0    no file type,")
-      off += ml
-      out = append(out, "no file type,")
-    }
-
-    // >0x10    shortle    1    relocatable,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x10    shortle    1    relocatable,")
-      off += ml
-      out = append(out, "relocatable,")
-    }
-
-    // >0x10    shortle    2    executable,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x10    shortle    2    executable,")
-      off += ml
-      out = append(out, "executable,")
-    }
-
-    // >0x10    shortle    3    shared object,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x10    shortle    3    shared object,")
-      off += ml
-      out = append(out, "shared object,")
-    }
-
-    // >0x10    shortle    4    core file
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x10    shortle    4    core file")
-      off += ml
-      out = append(out, "core file")
-    }
-
-    // >0x12    clear    
-    off = pageOff + 18
-    // uh oh unhandled kind
-    // >0x12    shortle    0    no machine,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    0    no machine,")
-      off += ml
-      out = append(out, "no machine,")
-    }
-
-    // >0x12    shortle    1    AT&T WE32100,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1    AT&T WE32100,")
-      off += ml
-      out = append(out, "AT&T WE32100,")
-    }
-
-    // >0x12    shortle    2    SPARC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2    SPARC,")
-      off += ml
-      out = append(out, "SPARC,")
-    }
-
-    // >0x12    shortle    3    Intel 80386,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3    Intel 80386,")
-      off += ml
-      out = append(out, "Intel 80386,")
-    }
-
-    // >0x12    shortle    4    Motorola m68k,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4    Motorola m68k,")
-      off += ml
-      out = append(out, "Motorola m68k,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x24    longle    0    68020,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    0    68020,")
-          off += ml
-          out = append(out, "68020,")
-        }
-
-      }
-      m2 = false
-    }
-    m1 = false
-    // >0x12    shortle    5    Motorola m88k,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5    Motorola m88k,")
-      off += ml
-      out = append(out, "Motorola m88k,")
-    }
-
-    // >0x12    shortle    6    Intel 80486,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6    Intel 80486,")
-      off += ml
-      out = append(out, "Intel 80486,")
-    }
-
-    // >0x12    shortle    7    Intel 80860,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x7)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    7    Intel 80860,")
-      off += ml
-      out = append(out, "Intel 80860,")
-    }
-
-    // >0x12    shortle    8    MIPS,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8    MIPS,")
-      off += ml
-      out = append(out, "MIPS,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-    }
-    m1 = false
-    // >0x12    shortle    a    MIPS,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a    MIPS,")
-      off += ml
-      out = append(out, "MIPS,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-    }
-    m1 = false
-    // >0x12    shortle    8    
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8    ")
-      off += ml
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x24    longle    0&0xf0000000    MIPS-I
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    0&0xf0000000    MIPS-I")
-          off += ml
-          out = append(out, "MIPS-I")
-        }
-
-        // >>>0x24    longle    10000000&0xf0000000    MIPS-II
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x10000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    10000000&0xf0000000    MIPS-II")
-          off += ml
-          out = append(out, "MIPS-II")
-        }
-
-        // >>>0x24    longle    20000000&0xf0000000    MIPS-III
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x20000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    20000000&0xf0000000    MIPS-III")
-          off += ml
-          out = append(out, "MIPS-III")
-        }
-
-        // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x30000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    30000000&0xf0000000    MIPS-IV")
-          off += ml
-          out = append(out, "MIPS-IV")
-        }
-
-        // >>>0x24    longle    40000000&0xf0000000    MIPS-V
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x40000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    40000000&0xf0000000    MIPS-V")
-          off += ml
-          out = append(out, "MIPS-V")
-        }
-
-        // >>>0x24    longle    50000000&0xf0000000    MIPS32
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x50000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    50000000&0xf0000000    MIPS32")
-          off += ml
-          out = append(out, "MIPS32")
-        }
-
-        // >>>0x24    longle    60000000&0xf0000000    MIPS64
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x60000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    60000000&0xf0000000    MIPS64")
-          off += ml
-          out = append(out, "MIPS64")
-        }
-
-        // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x70000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    70000000&0xf0000000    MIPS32 rel2")
-          off += ml
-          out = append(out, "MIPS32 rel2")
-        }
-
-        // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x80000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    80000000&0xf0000000    MIPS64 rel2")
-          off += ml
-          out = append(out, "MIPS64 rel2")
-        }
-
-      }
-      m2 = false
-      // >>0x4    bytele    2    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    2    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x30    longle    0&0xf0000000    MIPS-I
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    0&0xf0000000    MIPS-I")
-          off += ml
-          out = append(out, "MIPS-I")
-        }
-
-        // >>>0x30    longle    10000000&0xf0000000    MIPS-II
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x10000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    10000000&0xf0000000    MIPS-II")
-          off += ml
-          out = append(out, "MIPS-II")
-        }
-
-        // >>>0x30    longle    20000000&0xf0000000    MIPS-III
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x20000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    20000000&0xf0000000    MIPS-III")
-          off += ml
-          out = append(out, "MIPS-III")
-        }
-
-        // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x30000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    30000000&0xf0000000    MIPS-IV")
-          off += ml
-          out = append(out, "MIPS-IV")
-        }
-
-        // >>>0x30    longle    40000000&0xf0000000    MIPS-V
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x40000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    40000000&0xf0000000    MIPS-V")
-          off += ml
-          out = append(out, "MIPS-V")
-        }
-
-        // >>>0x30    longle    50000000&0xf0000000    MIPS32
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x50000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    50000000&0xf0000000    MIPS32")
-          off += ml
-          out = append(out, "MIPS32")
-        }
-
-        // >>>0x30    longle    60000000&0xf0000000    MIPS64
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x60000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    60000000&0xf0000000    MIPS64")
-          off += ml
-          out = append(out, "MIPS64")
-        }
-
-        // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x70000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    70000000&0xf0000000    MIPS32 rel2")
-          off += ml
-          out = append(out, "MIPS32 rel2")
-        }
-
-        // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x80000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    80000000&0xf0000000    MIPS64 rel2")
-          off += ml
-          out = append(out, "MIPS64 rel2")
-        }
-
-      }
-      m2 = false
-    }
-    m1 = false
-    // >0x12    shortle    9    Amdahl,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9    Amdahl,")
-      off += ml
-      out = append(out, "Amdahl,")
-    }
-
-    // >0x12    shortle    a    MIPS (deprecated),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a    MIPS (deprecated),")
-      off += ml
-      out = append(out, "MIPS (deprecated),")
-    }
-
-    // >0x12    shortle    b    RS6000,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b    RS6000,")
-      off += ml
-      out = append(out, "RS6000,")
-    }
-
-    // >0x12    shortle    f    PA-RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xf)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    f    PA-RISC,")
-      off += ml
-      out = append(out, "PA-RISC,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x26    shortle    214    2.0
-        off = pageOff + 38
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x214)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x26    shortle    214    2.0")
-          off += ml
-          out = append(out, "2.0")
-        }
-
-      }
-      m2 = false
-      // >>0x4    bytele    2    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    2    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x32    shortle    214    2.0
-        off = pageOff + 50
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x214)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x32    shortle    214    2.0")
-          off += ml
-          out = append(out, "2.0")
-        }
-
-      }
-      m2 = false
-    }
-    m1 = false
-    // >0x12    shortle    10    nCUBE,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x10)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    10    nCUBE,")
-      off += ml
-      out = append(out, "nCUBE,")
-    }
-
-    // >0x12    shortle    11    Fujitsu VPP500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x11)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    11    Fujitsu VPP500,")
-      off += ml
-      out = append(out, "Fujitsu VPP500,")
-    }
-
-    // >0x12    shortle    12    SPARC32PLUS,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x12)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    12    SPARC32PLUS,")
-      off += ml
-      out = append(out, "SPARC32PLUS,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x24    longle    100&0xffff00    V8+ Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x100)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    100&0xffff00    V8+ Required,")
-          off += ml
-          out = append(out, "V8+ Required,")
-        }
-
-        // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,")
-          off += ml
-          out = append(out, "Sun UltraSPARC1 Extensions Required,")
-        }
-
-        // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x400)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,")
-          off += ml
-          out = append(out, "HaL R1 Extensions Required,")
-        }
-
-        // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x800)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,")
-          off += ml
-          out = append(out, "Sun UltraSPARC3 Extensions Required,")
-        }
-
-      }
-      m2 = false
-    }
-    m1 = false
-    // >0x12    shortle    13    Intel 80960,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x13)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    13    Intel 80960,")
-      off += ml
-      out = append(out, "Intel 80960,")
-    }
-
-    // >0x12    shortle    14    PowerPC or cisco 4500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x14)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    14    PowerPC or cisco 4500,")
-      off += ml
-      out = append(out, "PowerPC or cisco 4500,")
-    }
-
-    // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x15)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    15    64-bit PowerPC or cisco 7500,")
-      off += ml
-      out = append(out, "64-bit PowerPC or cisco 7500,")
-    }
-
-    // >0x12    shortle    16    IBM S/390,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x16)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    16    IBM S/390,")
-      off += ml
-      out = append(out, "IBM S/390,")
-    }
-
-    // >0x12    shortle    17    Cell SPU,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x17)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    17    Cell SPU,")
-      off += ml
-      out = append(out, "Cell SPU,")
-    }
-
-    // >0x12    shortle    18    cisco SVIP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x18)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    18    cisco SVIP,")
-      off += ml
-      out = append(out, "cisco SVIP,")
-    }
-
-    // >0x12    shortle    19    cisco 7200,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x19)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    19    cisco 7200,")
-      off += ml
-      out = append(out, "cisco 7200,")
-    }
-
-    // >0x12    shortle    24    NEC V800 or cisco 12000,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x24)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    24    NEC V800 or cisco 12000,")
-      off += ml
-      out = append(out, "NEC V800 or cisco 12000,")
-    }
-
-    // >0x12    shortle    25    Fujitsu FR20,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x25)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    25    Fujitsu FR20,")
-      off += ml
-      out = append(out, "Fujitsu FR20,")
-    }
-
-    // >0x12    shortle    26    TRW RH-32,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x26)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    26    TRW RH-32,")
-      off += ml
-      out = append(out, "TRW RH-32,")
-    }
-
-    // >0x12    shortle    27    Motorola RCE,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x27)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    27    Motorola RCE,")
-      off += ml
-      out = append(out, "Motorola RCE,")
-    }
-
-    // >0x12    shortle    28    ARM,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x28)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    28    ARM,")
-      off += ml
-      out = append(out, "ARM,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x24    longle    4000000&0xff000000    EABI4
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x4000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    4000000&0xff000000    EABI4")
-          off += ml
-          out = append(out, "EABI4")
-        }
-
-        // >>>0x24    longle    5000000&0xff000000    EABI5
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x5000000)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    5000000&0xff000000    EABI5")
-          off += ml
-          out = append(out, "EABI5")
-        }
-
-      }
-      m2 = false
-    }
-    m1 = false
-    // >0x12    shortle    29    Alpha,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x29)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    29    Alpha,")
-      off += ml
-      out = append(out, "Alpha,")
-    }
-
-    // >0x12    shortle    2a    Renesas SH,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2a)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2a    Renesas SH,")
-      off += ml
-      out = append(out, "Renesas SH,")
-    }
-
-    // >0x12    shortle    2b    SPARC V9,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2b)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2b    SPARC V9,")
-      off += ml
-      out = append(out, "SPARC V9,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    2    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-        ml = 1
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    2    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,")
-          off += ml
-          out = append(out, "Sun UltraSPARC1 Extensions Required,")
-        }
-
-        // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x400)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,")
-          off += ml
-          out = append(out, "HaL R1 Extensions Required,")
-        }
-
-        // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x800)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,")
-          off += ml
-          out = append(out, "Sun UltraSPARC3 Extensions Required,")
-        }
-
-        // >>>0x30    longle    0&0x3    total store ordering,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    0&0x3    total store ordering,")
-          off += ml
-          out = append(out, "total store ordering,")
-        }
-
-        // >>>0x30    longle    1&0x3    partial store ordering,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    1&0x3    partial store ordering,")
-          off += ml
-          out = append(out, "partial store ordering,")
-        }
-
-        // >>>0x30    longle    2&0x3    relaxed memory ordering,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    2&0x3    relaxed memory ordering,")
-          off += ml
-          out = append(out, "relaxed memory ordering,")
-        }
-
-      }
-      m2 = false
-    }
-    m1 = false
-    // >0x12    shortle    2c    Siemens Tricore Embedded Processor,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2c)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2c    Siemens Tricore Embedded Processor,")
-      off += ml
-      out = append(out, "Siemens Tricore Embedded Processor,")
-    }
-
-    // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,")
-      off += ml
-      out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
-    }
-
-    // >0x12    shortle    2e    Renesas H8/300,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2e)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2e    Renesas H8/300,")
-      off += ml
-      out = append(out, "Renesas H8/300,")
-    }
-
-    // >0x12    shortle    2f    Renesas H8/300H,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2f)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2f    Renesas H8/300H,")
-      off += ml
-      out = append(out, "Renesas H8/300H,")
-    }
-
-    // >0x12    shortle    30    Renesas H8S,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x30)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    30    Renesas H8S,")
-      off += ml
-      out = append(out, "Renesas H8S,")
-    }
-
-    // >0x12    shortle    31    Renesas H8/500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x31)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    31    Renesas H8/500,")
-      off += ml
-      out = append(out, "Renesas H8/500,")
-    }
-
-    // >0x12    shortle    32    IA-64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x32)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    32    IA-64,")
-      off += ml
-      out = append(out, "IA-64,")
-    }
-
-    // >0x12    shortle    33    Stanford MIPS-X,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x33)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    33    Stanford MIPS-X,")
-      off += ml
-      out = append(out, "Stanford MIPS-X,")
-    }
-
-    // >0x12    shortle    34    Motorola Coldfire,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x34)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    34    Motorola Coldfire,")
-      off += ml
-      out = append(out, "Motorola Coldfire,")
-    }
-
-    // >0x12    shortle    35    Motorola M68HC12,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x35)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    35    Motorola M68HC12,")
-      off += ml
-      out = append(out, "Motorola M68HC12,")
-    }
-
-    // >0x12    shortle    36    Fujitsu MMA,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x36)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    36    Fujitsu MMA,")
-      off += ml
-      out = append(out, "Fujitsu MMA,")
-    }
-
-    // >0x12    shortle    37    Siemens PCP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x37)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    37    Siemens PCP,")
-      off += ml
-      out = append(out, "Siemens PCP,")
-    }
-
-    // >0x12    shortle    38    Sony nCPU,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x38)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    38    Sony nCPU,")
-      off += ml
-      out = append(out, "Sony nCPU,")
-    }
-
-    // >0x12    shortle    39    Denso NDR1,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x39)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    39    Denso NDR1,")
-      off += ml
-      out = append(out, "Denso NDR1,")
-    }
-
-    // >0x12    shortle    3a    Start*Core,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3a)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3a    Start*Core,")
-      off += ml
-      out = append(out, "Start*Core,")
-    }
-
-    // >0x12    shortle    3b    Toyota ME16,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3b)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3b    Toyota ME16,")
-      off += ml
-      out = append(out, "Toyota ME16,")
-    }
-
-    // >0x12    shortle    3c    ST100,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3c)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3c    ST100,")
-      off += ml
-      out = append(out, "ST100,")
-    }
-
-    // >0x12    shortle    3d    Tinyj emb.,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3d    Tinyj emb.,")
-      off += ml
-      out = append(out, "Tinyj emb.,")
-    }
-
-    // >0x12    shortle    3e    x86-64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3e)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3e    x86-64,")
-      off += ml
-      out = append(out, "x86-64,")
-    }
-
-    // >0x12    shortle    3f    Sony DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3f)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3f    Sony DSP,")
-      off += ml
-      out = append(out, "Sony DSP,")
-    }
-
-    // >0x12    shortle    40    DEC PDP-10,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    40    DEC PDP-10,")
-      off += ml
-      out = append(out, "DEC PDP-10,")
-    }
-
-    // >0x12    shortle    41    DEC PDP-11,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x41)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    41    DEC PDP-11,")
-      off += ml
-      out = append(out, "DEC PDP-11,")
-    }
-
-    // >0x12    shortle    42    FX66,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x42)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    42    FX66,")
-      off += ml
-      out = append(out, "FX66,")
-    }
-
-    // >0x12    shortle    43    ST9+ 8/16 bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x43)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    43    ST9+ 8/16 bit,")
-      off += ml
-      out = append(out, "ST9+ 8/16 bit,")
-    }
-
-    // >0x12    shortle    44    ST7 8 bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x44)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    44    ST7 8 bit,")
-      off += ml
-      out = append(out, "ST7 8 bit,")
-    }
-
-    // >0x12    shortle    45    MC68HC16,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x45)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    45    MC68HC16,")
-      off += ml
-      out = append(out, "MC68HC16,")
-    }
-
-    // >0x12    shortle    46    MC68HC11,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x46)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    46    MC68HC11,")
-      off += ml
-      out = append(out, "MC68HC11,")
-    }
-
-    // >0x12    shortle    47    MC68HC08,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x47)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    47    MC68HC08,")
-      off += ml
-      out = append(out, "MC68HC08,")
-    }
-
-    // >0x12    shortle    48    MC68HC05,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x48)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    48    MC68HC05,")
-      off += ml
-      out = append(out, "MC68HC05,")
-    }
-
-    // >0x12    shortle    49    SGI SVx or Cray NV1,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x49)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    49    SGI SVx or Cray NV1,")
-      off += ml
-      out = append(out, "SGI SVx or Cray NV1,")
-    }
-
-    // >0x12    shortle    4a    ST19 8 bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4a)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4a    ST19 8 bit,")
-      off += ml
-      out = append(out, "ST19 8 bit,")
-    }
-
-    // >0x12    shortle    4b    Digital VAX,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4b)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4b    Digital VAX,")
-      off += ml
-      out = append(out, "Digital VAX,")
-    }
-
-    // >0x12    shortle    4c    Axis cris,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4c)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4c    Axis cris,")
-      off += ml
-      out = append(out, "Axis cris,")
-    }
-
-    // >0x12    shortle    4d    Infineon 32-bit embedded,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4d    Infineon 32-bit embedded,")
-      off += ml
-      out = append(out, "Infineon 32-bit embedded,")
-    }
-
-    // >0x12    shortle    4e    Element 14 64-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4e)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4e    Element 14 64-bit DSP,")
-      off += ml
-      out = append(out, "Element 14 64-bit DSP,")
-    }
-
-    // >0x12    shortle    4f    LSI Logic 16-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4f)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4f    LSI Logic 16-bit DSP,")
-      off += ml
-      out = append(out, "LSI Logic 16-bit DSP,")
-    }
-
-    // >0x12    shortle    50    MMIX,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x50)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    50    MMIX,")
-      off += ml
-      out = append(out, "MMIX,")
-    }
-
-    // >0x12    shortle    51    Harvard machine-independent,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x51)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    51    Harvard machine-independent,")
-      off += ml
-      out = append(out, "Harvard machine-independent,")
-    }
-
-    // >0x12    shortle    52    SiTera Prism,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x52)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    52    SiTera Prism,")
-      off += ml
-      out = append(out, "SiTera Prism,")
-    }
-
-    // >0x12    shortle    53    Atmel AVR 8-bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x53)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    53    Atmel AVR 8-bit,")
-      off += ml
-      out = append(out, "Atmel AVR 8-bit,")
-    }
-
-    // >0x12    shortle    54    Fujitsu FR30,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x54)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    54    Fujitsu FR30,")
-      off += ml
-      out = append(out, "Fujitsu FR30,")
-    }
-
-    // >0x12    shortle    55    Mitsubishi D10V,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x55)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    55    Mitsubishi D10V,")
-      off += ml
-      out = append(out, "Mitsubishi D10V,")
-    }
-
-    // >0x12    shortle    56    Mitsubishi D30V,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x56)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    56    Mitsubishi D30V,")
-      off += ml
-      out = append(out, "Mitsubishi D30V,")
-    }
-
-    // >0x12    shortle    57    NEC v850,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x57)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    57    NEC v850,")
-      off += ml
-      out = append(out, "NEC v850,")
-    }
-
-    // >0x12    shortle    58    Renesas M32R,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x58)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    58    Renesas M32R,")
-      off += ml
-      out = append(out, "Renesas M32R,")
-    }
-
-    // >0x12    shortle    59    Matsushita MN10300,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x59)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    59    Matsushita MN10300,")
-      off += ml
-      out = append(out, "Matsushita MN10300,")
-    }
-
-    // >0x12    shortle    5a    Matsushita MN10200,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5a)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5a    Matsushita MN10200,")
-      off += ml
-      out = append(out, "Matsushita MN10200,")
-    }
-
-    // >0x12    shortle    5b    picoJava,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5b)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5b    picoJava,")
-      off += ml
-      out = append(out, "picoJava,")
-    }
-
-    // >0x12    shortle    5c    OpenRISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5c)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5c    OpenRISC,")
-      off += ml
-      out = append(out, "OpenRISC,")
-    }
-
-    // >0x12    shortle    5d    ARC Cores Tangent-A5,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5d    ARC Cores Tangent-A5,")
-      off += ml
-      out = append(out, "ARC Cores Tangent-A5,")
-    }
-
-    // >0x12    shortle    5e    Tensilica Xtensa,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5e)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5e    Tensilica Xtensa,")
-      off += ml
-      out = append(out, "Tensilica Xtensa,")
-    }
-
-    // >0x12    shortle    5f    Alphamosaic VideoCore,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5f)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5f    Alphamosaic VideoCore,")
-      off += ml
-      out = append(out, "Alphamosaic VideoCore,")
-    }
-
-    // >0x12    shortle    60    Thompson Multimedia,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x60)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    60    Thompson Multimedia,")
-      off += ml
-      out = append(out, "Thompson Multimedia,")
-    }
-
-    // >0x12    shortle    61    NatSemi 32k,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x61)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    61    NatSemi 32k,")
-      off += ml
-      out = append(out, "NatSemi 32k,")
-    }
-
-    // >0x12    shortle    62    Tenor Network TPC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x62)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    62    Tenor Network TPC,")
-      off += ml
-      out = append(out, "Tenor Network TPC,")
-    }
-
-    // >0x12    shortle    63    Trebia SNP 1000,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x63)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    63    Trebia SNP 1000,")
-      off += ml
-      out = append(out, "Trebia SNP 1000,")
-    }
-
-    // >0x12    shortle    64    STMicroelectronics ST200,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x64)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    64    STMicroelectronics ST200,")
-      off += ml
-      out = append(out, "STMicroelectronics ST200,")
-    }
-
-    // >0x12    shortle    65    Ubicom IP2022,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x65)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    65    Ubicom IP2022,")
-      off += ml
-      out = append(out, "Ubicom IP2022,")
-    }
-
-    // >0x12    shortle    66    MAX Processor,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x66)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    66    MAX Processor,")
-      off += ml
-      out = append(out, "MAX Processor,")
-    }
-
-    // >0x12    shortle    67    NatSemi CompactRISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x67)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    67    NatSemi CompactRISC,")
-      off += ml
-      out = append(out, "NatSemi CompactRISC,")
-    }
-
-    // >0x12    shortle    68    Fujitsu F2MC16,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x68)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    68    Fujitsu F2MC16,")
-      off += ml
-      out = append(out, "Fujitsu F2MC16,")
-    }
-
-    // >0x12    shortle    69    TI msp430,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x69)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    69    TI msp430,")
-      off += ml
-      out = append(out, "TI msp430,")
-    }
-
-    // >0x12    shortle    6a    Analog Devices Blackfin,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6a)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6a    Analog Devices Blackfin,")
-      off += ml
-      out = append(out, "Analog Devices Blackfin,")
-    }
-
-    // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6b)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6b    S1C33 Family of Seiko Epson,")
-      off += ml
-      out = append(out, "S1C33 Family of Seiko Epson,")
-    }
-
-    // >0x12    shortle    6c    Sharp embedded,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6c)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6c    Sharp embedded,")
-      off += ml
-      out = append(out, "Sharp embedded,")
-    }
-
-    // >0x12    shortle    6d    Arca RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6d    Arca RISC,")
-      off += ml
-      out = append(out, "Arca RISC,")
-    }
-
-    // >0x12    shortle    6e    PKU-Unity Ltd.,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6e)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6e    PKU-Unity Ltd.,")
-      off += ml
-      out = append(out, "PKU-Unity Ltd.,")
-    }
-
-    // >0x12    shortle    6f    eXcess: 16/32/64-bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6f)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6f    eXcess: 16/32/64-bit,")
-      off += ml
-      out = append(out, "eXcess: 16/32/64-bit,")
-    }
-
-    // >0x12    shortle    70    Icera Deep Execution Processor,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x70)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    70    Icera Deep Execution Processor,")
-      off += ml
-      out = append(out, "Icera Deep Execution Processor,")
-    }
-
-    // >0x12    shortle    71    Altera Nios II,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x71)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    71    Altera Nios II,")
-      off += ml
-      out = append(out, "Altera Nios II,")
-    }
-
-    // >0x12    shortle    72    NatSemi CRX,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x72)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    72    NatSemi CRX,")
-      off += ml
-      out = append(out, "NatSemi CRX,")
-    }
-
-    // >0x12    shortle    73    Motorola XGATE,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x73)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    73    Motorola XGATE,")
-      off += ml
-      out = append(out, "Motorola XGATE,")
-    }
-
-    // >0x12    shortle    74    Infineon C16x/XC16x,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x74)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    74    Infineon C16x/XC16x,")
-      off += ml
-      out = append(out, "Infineon C16x/XC16x,")
-    }
-
-    // >0x12    shortle    75    Renesas M16C series,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x75)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    75    Renesas M16C series,")
-      off += ml
-      out = append(out, "Renesas M16C series,")
-    }
-
-    // >0x12    shortle    76    Microchip dsPIC30F,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x76)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    76    Microchip dsPIC30F,")
-      off += ml
-      out = append(out, "Microchip dsPIC30F,")
-    }
-
-    // >0x12    shortle    77    Freescale RISC core,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x77)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    77    Freescale RISC core,")
-      off += ml
-      out = append(out, "Freescale RISC core,")
-    }
-
-    // >0x12    shortle    78    Renesas M32C series,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x78)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    78    Renesas M32C series,")
-      off += ml
-      out = append(out, "Renesas M32C series,")
-    }
-
-    // >0x12    shortle    83    Altium TSK3000 core,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x83)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    83    Altium TSK3000 core,")
-      off += ml
-      out = append(out, "Altium TSK3000 core,")
-    }
-
-    // >0x12    shortle    84    Freescale RS08,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x84)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    84    Freescale RS08,")
-      off += ml
-      out = append(out, "Freescale RS08,")
-    }
-
-    // >0x12    shortle    86    Cyan Technology eCOG2,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x86)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    86    Cyan Technology eCOG2,")
-      off += ml
-      out = append(out, "Cyan Technology eCOG2,")
-    }
-
-    // >0x12    shortle    87    Sunplus S+core7 RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x87)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    87    Sunplus S+core7 RISC,")
-      off += ml
-      out = append(out, "Sunplus S+core7 RISC,")
-    }
-
-    // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x88)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,")
-      off += ml
-      out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
-    }
-
-    // >0x12    shortle    89    Broadcom VideoCore III,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x89)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    89    Broadcom VideoCore III,")
-      off += ml
-      out = append(out, "Broadcom VideoCore III,")
-    }
-
-    // >0x12    shortle    8a    LatticeMico32,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8a)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8a    LatticeMico32,")
-      off += ml
-      out = append(out, "LatticeMico32,")
-    }
-
-    // >0x12    shortle    8b    Seiko Epson C17 family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8b)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8b    Seiko Epson C17 family,")
-      off += ml
-      out = append(out, "Seiko Epson C17 family,")
-    }
-
-    // >0x12    shortle    8c    TI TMS320C6000 DSP family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8c)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8c    TI TMS320C6000 DSP family,")
-      off += ml
-      out = append(out, "TI TMS320C6000 DSP family,")
-    }
-
-    // >0x12    shortle    8d    TI TMS320C2000 DSP family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8d    TI TMS320C2000 DSP family,")
-      off += ml
-      out = append(out, "TI TMS320C2000 DSP family,")
-    }
-
-    // >0x12    shortle    8e    TI TMS320C55x DSP family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8e)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8e    TI TMS320C55x DSP family,")
-      off += ml
-      out = append(out, "TI TMS320C55x DSP family,")
-    }
-
-    // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,")
-      off += ml
-      out = append(out, "STMicroelectronics 64bit VLIW DSP,")
-    }
-
-    // >0x12    shortle    a1    Cypress M8C,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a1    Cypress M8C,")
-      off += ml
-      out = append(out, "Cypress M8C,")
-    }
-
-    // >0x12    shortle    a2    Renesas R32C series,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa2)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a2    Renesas R32C series,")
-      off += ml
-      out = append(out, "Renesas R32C series,")
-    }
-
-    // >0x12    shortle    a3    NXP TriMedia family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa3)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a3    NXP TriMedia family,")
-      off += ml
-      out = append(out, "NXP TriMedia family,")
-    }
-
-    // >0x12    shortle    a4    QUALCOMM DSP6,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa4)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a4    QUALCOMM DSP6,")
-      off += ml
-      out = append(out, "QUALCOMM DSP6,")
-    }
-
-    // >0x12    shortle    a5    Intel 8051 and variants,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa5)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a5    Intel 8051 and variants,")
-      off += ml
-      out = append(out, "Intel 8051 and variants,")
-    }
-
-    // >0x12    shortle    a6    STMicroelectronics STxP7x family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa6)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a6    STMicroelectronics STxP7x family,")
-      off += ml
-      out = append(out, "STMicroelectronics STxP7x family,")
-    }
-
-    // >0x12    shortle    a7    Andes embedded RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa7)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a7    Andes embedded RISC,")
-      off += ml
-      out = append(out, "Andes embedded RISC,")
-    }
-
-    // >0x12    shortle    a8    Cyan eCOG1X family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa8)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a8    Cyan eCOG1X family,")
-      off += ml
-      out = append(out, "Cyan eCOG1X family,")
-    }
-
-    // >0x12    shortle    a9    Dallas MAXQ30,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa9)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a9    Dallas MAXQ30,")
-      off += ml
-      out = append(out, "Dallas MAXQ30,")
-    }
-
-    // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,")
-      off += ml
-      out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
-    }
-
-    // >0x12    shortle    ab    M2000 Reconfigurable RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xab)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ab    M2000 Reconfigurable RISC,")
-      off += ml
-      out = append(out, "M2000 Reconfigurable RISC,")
-    }
-
-    // >0x12    shortle    ac    Cray NV2 vector architecture,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xac)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ac    Cray NV2 vector architecture,")
-      off += ml
-      out = append(out, "Cray NV2 vector architecture,")
-    }
-
-    // >0x12    shortle    ad    Renesas RX family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xad)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ad    Renesas RX family,")
-      off += ml
-      out = append(out, "Renesas RX family,")
-    }
-
-    // >0x12    shortle    ae    META,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xae)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ae    META,")
-      off += ml
-      out = append(out, "META,")
-    }
-
-    // >0x12    shortle    af    MCST Elbrus,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xaf)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    af    MCST Elbrus,")
-      off += ml
-      out = append(out, "MCST Elbrus,")
-    }
-
-    // >0x12    shortle    b0    Cyan Technology eCOG16 family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b0    Cyan Technology eCOG16 family,")
-      off += ml
-      out = append(out, "Cyan Technology eCOG16 family,")
-    }
-
-    // >0x12    shortle    b1    NatSemi CompactRISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b1    NatSemi CompactRISC,")
-      off += ml
-      out = append(out, "NatSemi CompactRISC,")
-    }
-
-    // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb2)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b2    Freescale Extended Time Processing Unit,")
-      off += ml
-      out = append(out, "Freescale Extended Time Processing Unit,")
-    }
-
-    // >0x12    shortle    b3    Infineon SLE9X,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb3)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b3    Infineon SLE9X,")
-      off += ml
-      out = append(out, "Infineon SLE9X,")
-    }
-
-    // >0x12    shortle    b4    Intel L1OM,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb4)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b4    Intel L1OM,")
-      off += ml
-      out = append(out, "Intel L1OM,")
-    }
-
-    // >0x12    shortle    b5    Intel K1OM,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb5)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b5    Intel K1OM,")
-      off += ml
-      out = append(out, "Intel K1OM,")
-    }
-
-    // >0x12    shortle    b7    ARM aarch64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb7)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b7    ARM aarch64,")
-      off += ml
-      out = append(out, "ARM aarch64,")
-    }
-
-    // >0x12    shortle    b9    Atmel 32-bit family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb9)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b9    Atmel 32-bit family,")
-      off += ml
-      out = append(out, "Atmel 32-bit family,")
-    }
-
-    // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xba)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ba    STMicroeletronics STM8 8-bit,")
-      off += ml
-      out = append(out, "STMicroeletronics STM8 8-bit,")
-    }
-
-    // >0x12    shortle    bb    Tilera TILE64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbb)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bb    Tilera TILE64,")
-      off += ml
-      out = append(out, "Tilera TILE64,")
-    }
-
-    // >0x12    shortle    bc    Tilera TILEPro,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbc)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bc    Tilera TILEPro,")
-      off += ml
-      out = append(out, "Tilera TILEPro,")
-    }
-
-    // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbd)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,")
-      off += ml
-      out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
-    }
-
-    // >0x12    shortle    be    NVIDIA CUDA architecture,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbe)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    be    NVIDIA CUDA architecture,")
-      off += ml
-      out = append(out, "NVIDIA CUDA architecture,")
-    }
-
-    // >0x12    shortle    bf    Tilera TILE-Gx,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbf)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bf    Tilera TILE-Gx,")
-      off += ml
-      out = append(out, "Tilera TILE-Gx,")
-    }
-
-    // >0x12    shortle    c5    Renesas RL78 family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xc5)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    c5    Renesas RL78 family,")
-      off += ml
-      out = append(out, "Renesas RL78 family,")
-    }
-
-    // >0x12    shortle    c7    Renesas 78K0R,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xc7)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    c7    Renesas 78K0R,")
-      off += ml
-      out = append(out, "Renesas 78K0R,")
-    }
-
-    // >0x12    shortle    1057    AVR (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1057)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1057    AVR (unofficial),")
-      off += ml
-      out = append(out, "AVR (unofficial),")
-    }
-
-    // >0x12    shortle    1059    MSP430 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1059)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1059    MSP430 (unofficial),")
-      off += ml
-      out = append(out, "MSP430 (unofficial),")
-    }
-
-    // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1223)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1223    Adapteva Epiphany (unofficial),")
-      off += ml
-      out = append(out, "Adapteva Epiphany (unofficial),")
-    }
-
-    // >0x12    shortle    2530    Morpho MT (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2530)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2530    Morpho MT (unofficial),")
-      off += ml
-      out = append(out, "Morpho MT (unofficial),")
-    }
-
-    // >0x12    shortle    3330    FR30 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3330)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3330    FR30 (unofficial),")
-      off += ml
-      out = append(out, "FR30 (unofficial),")
-    }
-
-    // >0x12    shortle    3426    OpenRISC (obsolete),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3426)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3426    OpenRISC (obsolete),")
-      off += ml
-      out = append(out, "OpenRISC (obsolete),")
-    }
-
-    // >0x12    shortle    4688    Infineon C166 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4688)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4688    Infineon C166 (unofficial),")
-      off += ml
-      out = append(out, "Infineon C166 (unofficial),")
-    }
-
-    // >0x12    shortle    5441    Cygnus FRV (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5441)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5441    Cygnus FRV (unofficial),")
-      off += ml
-      out = append(out, "Cygnus FRV (unofficial),")
-    }
-
-    // >0x12    shortle    5aa5    DLX (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5aa5)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5aa5    DLX (unofficial),")
-      off += ml
-      out = append(out, "DLX (unofficial),")
-    }
-
-    // >0x12    shortle    7650    Cygnus D10V (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x7650)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    7650    Cygnus D10V (unofficial),")
-      off += ml
-      out = append(out, "Cygnus D10V (unofficial),")
-    }
-
-    // >0x12    shortle    7676    Cygnus D30V (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x7676)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    7676    Cygnus D30V (unofficial),")
-      off += ml
-      out = append(out, "Cygnus D30V (unofficial),")
-    }
-
-    // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8217)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8217    Ubicom IP2xxx (unofficial),")
-      off += ml
-      out = append(out, "Ubicom IP2xxx (unofficial),")
-    }
-
-    // >0x12    shortle    8472    OpenRISC (obsolete),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8472)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8472    OpenRISC (obsolete),")
-      off += ml
-      out = append(out, "OpenRISC (obsolete),")
-    }
-
-    // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9025)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9025    Cygnus PowerPC (unofficial),")
-      off += ml
-      out = append(out, "Cygnus PowerPC (unofficial),")
-    }
-
-    // >0x12    shortle    9026    Alpha (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9026)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9026    Alpha (unofficial),")
-      off += ml
-      out = append(out, "Alpha (unofficial),")
-    }
-
-    // >0x12    shortle    9041    Cygnus M32R (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9041)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9041    Cygnus M32R (unofficial),")
-      off += ml
-      out = append(out, "Cygnus M32R (unofficial),")
-    }
-
-    // >0x12    shortle    9080    Cygnus V850 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9080)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9080    Cygnus V850 (unofficial),")
-      off += ml
-      out = append(out, "Cygnus V850 (unofficial),")
-    }
-
-    // >0x12    shortle    a390    IBM S/390 (obsolete),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa390)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a390    IBM S/390 (obsolete),")
-      off += ml
-      out = append(out, "IBM S/390 (obsolete),")
-    }
-
-    // >0x12    shortle    abc7    Old Xtensa (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xabc7)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    abc7    Old Xtensa (unofficial),")
-      off += ml
-      out = append(out, "Old Xtensa (unofficial),")
-    }
-
-    // >0x12    shortle    ad45    xstormy16 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xad45)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ad45    xstormy16 (unofficial),")
-      off += ml
-      out = append(out, "xstormy16 (unofficial),")
-    }
-
-    // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbaab)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    baab    Old MicroBlaze (unofficial),,")
-      off += ml
-      out = append(out, "Old MicroBlaze (unofficial),,")
-    }
-
-    // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbeef)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    beef    Cygnus MN10300 (unofficial),")
-      off += ml
-      out = append(out, "Cygnus MN10300 (unofficial),")
-    }
-
-    // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xdead)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    dead    Cygnus MN10200 (unofficial),")
-      off += ml
-      out = append(out, "Cygnus MN10200 (unofficial),")
-    }
-
-    // >0x12    shortle    f00d    Toshiba MeP (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xf00d)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    f00d    Toshiba MeP (unofficial),")
-      off += ml
-      out = append(out, "Toshiba MeP (unofficial),")
-    }
-
-    // >0x12    shortle    feb0    Renesas M32C (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeb0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    feb0    Renesas M32C (unofficial),")
-      off += ml
-      out = append(out, "Renesas M32C (unofficial),")
-    }
-
-    // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeba)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    feba    Vitesse IQ2000 (unofficial),")
-      off += ml
-      out = append(out, "Vitesse IQ2000 (unofficial),")
-    }
-
-    // >0x12    shortle    febb    NIOS (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfebb)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    febb    NIOS (unofficial),")
-      off += ml
-      out = append(out, "NIOS (unofficial),")
-    }
-
-    // >0x12    shortle    feed    Moxie (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeed)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x12    shortle    feed    Moxie (unofficial),")
-      off += ml
-      out = append(out, "Moxie (unofficial),")
-    }
-
-    // >0x12    default    
-    off = pageOff + 18
-    // uh oh unhandled kind
-    if m1 {
-      // >>0x12    shortle    0    *unknown arch 0x%x*
-      off = pageOff + 18
-      {
-        iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x12    shortle    0    *unknown arch 0x%x*")
-        off += ml
-        out = append(out, "*unknown arch 0x%x*")
-      }
-
-    }
-    m1 = false
-    // >0x14    longle    0    invalid version
-    off = pageOff + 20
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x14    longle    0    invalid version")
-      off += ml
-      out = append(out, "invalid version")
-    }
-
-    // >0x14    longle    1    version 1
-    off = pageOff + 20
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x14    longle    1    version 1")
-      off += ml
-      out = append(out, "version 1")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-  m4 := false
-  m4 = !!m4
-
-  if m0 {
-    if m1 {
-      // >>(0x12.longle)    ulongle    0    MS Windows
-      // uh oh indirect offset
-      {
-        iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-        ml = 4
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>(0x12.longle)    ulongle    0    MS Windows")
-        off += ml
-        out = append(out, "MS Windows")
-      }
-
-      if m2 {
-        // >>>0x0    ulongbe    100    icon resource
-        off = pageOff + 0
-        {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x100)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x0    ulongbe    100    icon resource")
-          off += ml
-          out = append(out, "icon resource")
-        }
-
-        if m3 {
-          // >>>>0x4    ushortle    0    - %d icon
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
-            ml = 2
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    0    - %d icon")
-            off += ml
-            out = append(out, "- %d icon")
-          }
-
-          // >>>>0x4    ushortle    1    \bs
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
-            ml = 2
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    1    \\bs")
-            off += ml
-            out = append(out, "\\bs")
-          }
-
-          // >>>>0x6    use   ico-entry    
-          off = pageOff + 6
-          // uh oh unhandled kind
-          // >>>>0x4    ushortle    1    
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
-            ml = 2
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    1    ")
-            off += ml
-          }
-
-          if m4 {
-            // >>>>>0x16    use   ico-entry    
-            off = pageOff + 22
-            // uh oh unhandled kind
-          }
-          m4 = false
-        }
-        m3 = false
-        // >>>0x0    ulongbe    200    cursor resource
-        off = pageOff + 0
-        {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
-          ml = 4
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x0    ulongbe    200    cursor resource")
-          off += ml
-          out = append(out, "cursor resource")
-        }
-
-        if m3 {
-          // >>>>0x4    ushortle    0    - %d icon
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
-            ml = 2
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    0    - %d icon")
-            off += ml
-            out = append(out, "- %d icon")
-          }
-
-          // >>>>0x4    ushortle    1    \bs
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
-            ml = 2
-          }
-          if m4 {
-            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    1    \\bs")
-            off += ml
-            out = append(out, "\\bs")
-          }
-
-          // >>>>0x6    use   cur-entry    
-          off = pageOff + 6
-          // uh oh unhandled kind
-        }
-      }
-    }
-  }
-  return out, nil
-}
-
-func IdentifyCurEntry(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0x0    use   cur-ico-entry    
-    off = pageOff + 0
-    // uh oh unhandled kind
-    // >0x4    ushortle    0    \b, hotspot @%dx
-    off = pageOff + 4
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x4    ushortle    0    \\b, hotspot @%dx")
-      off += ml
-      out = append(out, "\\b, hotspot @%dx")
-    }
-
-    // >0x6    ushortle    0    \b%d
-    off = pageOff + 6
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x6    ushortle    0    \\b%d")
-      off += ml
-      out = append(out, "\\b%d")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyIcoEntry(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0x0    use   cur-ico-entry    
-    off = pageOff + 0
-    // uh oh unhandled kind
-    // >0x4    ushortle    1    \b, %d planes
-    off = pageOff + 4
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x4    ushortle    1    \\b, %d planes")
-      off += ml
-      out = append(out, "\\b, %d planes")
-    }
-
-    // >0x6    ushortle    1    \b, %d bits/pixel
-    off = pageOff + 6
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x6    ushortle    1    \\b, %d bits/pixel")
-      off += ml
-      out = append(out, "\\b, %d bits/pixel")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyCurIcoEntry(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0x0    bytele    0    \b, 256x
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, 256x")
-      off += ml
-      out = append(out, "\\b, 256x")
-    }
-
-    // >0x0    bytele    0    \b, %dx
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, %dx")
-      off += ml
-      out = append(out, "\\b, %dx")
-    }
-
-    // >0x1    bytele    0    \b256
-    off = pageOff + 1
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b256")
-      off += ml
-      out = append(out, "\\b256")
-    }
-
-    // >0x1    bytele    0    \b%d
-    off = pageOff + 1
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b%d")
-      off += ml
-      out = append(out, "\\b%d")
-    }
-
-    // >0x2    ubytele    0    \b, %d colors
-    off = pageOff + 2
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x2    ubytele    0    \\b, %d colors")
-      off += ml
-      out = append(out, "\\b, %d colors")
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x89504e47)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
-      off += ml
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) != 0x89504e47)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
-      off += ml
-    }
-
-  }
-  return out, nil
-}
-
-func Identify(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -3513,7 +108,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\u007fELF"    ELF
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x7f, 0x45, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x7f, 0x45, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\u007fELF\"    ELF")
@@ -3526,7 +121,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -3539,7 +134,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 1
     }
     if m1 {
@@ -3552,7 +147,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 1
     }
     if m1 {
@@ -3565,7 +160,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -3578,7 +173,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 1
     }
     if m1 {
@@ -3597,7 +192,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 1
     }
     if m1 {
@@ -3616,7 +211,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) < 0x80)
+      m1 = ok && (i64(i8(iv)) < 0x80)
       ml = 1
     }
     if m1 {
@@ -3627,7 +222,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x8    string    ">\x00"    (%s)
       off = pageOff + 8
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x8    string    \">\\x00\"    (%s)")
@@ -3639,7 +234,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x8    string    "\x00"    
     off = pageOff + 8
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x8    string    \"\\x00\"    ")
@@ -3651,7 +246,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -3664,7 +259,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -3677,7 +272,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 1
       }
       if m2 {
@@ -3690,7 +285,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x3)
+        m2 = ok && (u64(iv) == 0x3)
         ml = 1
       }
       if m2 {
@@ -3703,7 +298,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x4)
+        m2 = ok && (u64(iv) == 0x4)
         ml = 1
       }
       if m2 {
@@ -3716,7 +311,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x5)
+        m2 = ok && (u64(iv) == 0x5)
         ml = 1
       }
       if m2 {
@@ -3729,7 +324,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x6)
+        m2 = ok && (u64(iv) == 0x6)
         ml = 1
       }
       if m2 {
@@ -3742,7 +337,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x7)
+        m2 = ok && (u64(iv) == 0x7)
         ml = 1
       }
       if m2 {
@@ -3755,7 +350,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x8)
+        m2 = ok && (u64(iv) == 0x8)
         ml = 1
       }
       if m2 {
@@ -3768,7 +363,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x9)
+        m2 = ok && (u64(iv) == 0x9)
         ml = 1
       }
       if m2 {
@@ -3781,7 +376,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xa)
+        m2 = ok && (u64(iv) == 0xa)
         ml = 1
       }
       if m2 {
@@ -3794,7 +389,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xb)
+        m2 = ok && (u64(iv) == 0xb)
         ml = 1
       }
       if m2 {
@@ -3807,7 +402,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xc)
+        m2 = ok && (u64(iv) == 0xc)
         ml = 1
       }
       if m2 {
@@ -3820,7 +415,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x8    string    "\x02"    
     off = pageOff + 8
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x8    string    \"\\x02\"    ")
@@ -3832,7 +427,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xd)
+        m2 = ok && (u64(iv) == 0xd)
         ml = 1
       }
       if m2 {
@@ -3845,7 +440,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x61)
+        m2 = ok && (u64(iv) == 0x61)
         ml = 1
       }
       if m2 {
@@ -3858,7 +453,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xff)
+        m2 = ok && (u64(iv) == 0xff)
         ml = 1
       }
       if m2 {
@@ -3873,7 +468,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "@"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x40}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:true, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x40}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:true, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"@\"    ")
@@ -3883,7 +478,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x1    string    " echo off"    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \" echo off\"    DOS batch file text")
@@ -3893,7 +488,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1    string    "echo off"    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \"echo off\"    DOS batch file text")
@@ -3903,7 +498,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1    string    "rem"    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x72, 0x65, 0x6d}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x72, 0x65, 0x6d}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \"rem\"    DOS batch file text")
@@ -3913,7 +508,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1    string    "set "    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \"set \"    DOS batch file text")
@@ -3933,7 +528,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (uint64(iv) == 0x166)
+    m0 = ok && (u64(iv) == 0x166)
     ml = 2
   }
   if m0 {
@@ -3946,7 +541,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (uint64(iv) == 0x184)
+    m0 = ok && (u64(iv) == 0x184)
     ml = 2
   }
   if m0 {
@@ -3959,7 +554,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (uint64(iv) == 0x268)
+    m0 = ok && (u64(iv) == 0x268)
     ml = 2
   }
   if m0 {
@@ -3972,7 +567,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (uint64(iv) == 0x1f0)
+    m0 = ok && (u64(iv) == 0x1f0)
     ml = 2
   }
   if m0 {
@@ -3985,7 +580,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (uint64(iv) == 0x290)
+    m0 = ok && (u64(iv) == 0x290)
     ml = 2
   }
   if m0 {
@@ -3996,7 +591,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MZ"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MZ\"    ")
@@ -4008,7 +603,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 24
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) < 0x40)
+      m1 = ok && (i64(i16(iv)) < 0x40)
       ml = 2
     }
     if m1 {
@@ -4021,7 +616,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 24
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x3f)
+      m1 = ok && (i64(i16(iv)) > 0x3f)
       ml = 2
     }
     if m1 {
@@ -4032,7 +627,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>(0x3c.longle)    string    "PE\x00\x00"    PE
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"PE\\x00\\x00\"    PE")
@@ -4045,7 +640,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x10b)
+          m3 = ok && (u64(iv) == 0x10b)
           ml = 2
         }
         if m3 {
@@ -4058,7 +653,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x20b)
+          m3 = ok && (u64(iv) == 0x20b)
           ml = 2
         }
         if m3 {
@@ -4071,7 +666,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x107)
+          m3 = ok && (u64(iv) == 0x107)
           ml = 2
         }
         if m3 {
@@ -4088,7 +683,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -4103,7 +698,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x0)
+          m3 = ok && (i64(i16(iv)) > 0x0)
           ml = 2
         }
         if m3 {
@@ -4116,7 +711,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -4129,7 +724,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -4142,7 +737,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -4155,7 +750,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x7)
+          m3 = ok && (u64(iv) == 0x7)
           ml = 2
         }
         if m3 {
@@ -4168,7 +763,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x9)
+          m3 = ok && (u64(iv) == 0x9)
           ml = 2
         }
         if m3 {
@@ -4181,7 +776,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xa)
+          m3 = ok && (u64(iv) == 0xa)
           ml = 2
         }
         if m3 {
@@ -4194,7 +789,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xb)
+          m3 = ok && (u64(iv) == 0xb)
           ml = 2
         }
         if m3 {
@@ -4207,7 +802,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xc)
+          m3 = ok && (u64(iv) == 0xc)
           ml = 2
         }
         if m3 {
@@ -4220,7 +815,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xd)
+          m3 = ok && (u64(iv) == 0xd)
           ml = 2
         }
         if m3 {
@@ -4233,7 +828,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xe)
+          m3 = ok && (u64(iv) == 0xe)
           ml = 2
         }
         if m3 {
@@ -4246,7 +841,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xf)
+          m3 = ok && (u64(iv) == 0xf)
           ml = 2
         }
         if m3 {
@@ -4263,7 +858,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -4278,7 +873,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x14c)
+          m3 = ok && (u64(iv) == 0x14c)
           ml = 2
         }
         if m3 {
@@ -4291,7 +886,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x166)
+          m3 = ok && (u64(iv) == 0x166)
           ml = 2
         }
         if m3 {
@@ -4304,7 +899,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x168)
+          m3 = ok && (u64(iv) == 0x168)
           ml = 2
         }
         if m3 {
@@ -4317,7 +912,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x184)
+          m3 = ok && (u64(iv) == 0x184)
           ml = 2
         }
         if m3 {
@@ -4330,7 +925,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1a2)
+          m3 = ok && (u64(iv) == 0x1a2)
           ml = 2
         }
         if m3 {
@@ -4343,7 +938,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1a6)
+          m3 = ok && (u64(iv) == 0x1a6)
           ml = 2
         }
         if m3 {
@@ -4356,7 +951,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1c0)
+          m3 = ok && (u64(iv) == 0x1c0)
           ml = 2
         }
         if m3 {
@@ -4369,7 +964,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1c2)
+          m3 = ok && (u64(iv) == 0x1c2)
           ml = 2
         }
         if m3 {
@@ -4382,7 +977,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1c4)
+          m3 = ok && (u64(iv) == 0x1c4)
           ml = 2
         }
         if m3 {
@@ -4395,7 +990,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1f0)
+          m3 = ok && (u64(iv) == 0x1f0)
           ml = 2
         }
         if m3 {
@@ -4408,7 +1003,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
+          m3 = ok && (u64(iv) == 0x200)
           ml = 2
         }
         if m3 {
@@ -4421,7 +1016,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x266)
+          m3 = ok && (u64(iv) == 0x266)
           ml = 2
         }
         if m3 {
@@ -4434,7 +1029,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x268)
+          m3 = ok && (u64(iv) == 0x268)
           ml = 2
         }
         if m3 {
@@ -4447,7 +1042,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x290)
+          m3 = ok && (u64(iv) == 0x290)
           ml = 2
         }
         if m3 {
@@ -4460,7 +1055,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x366)
+          m3 = ok && (u64(iv) == 0x366)
           ml = 2
         }
         if m3 {
@@ -4473,7 +1068,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x466)
+          m3 = ok && (u64(iv) == 0x466)
           ml = 2
         }
         if m3 {
@@ -4486,7 +1081,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xebc)
+          m3 = ok && (u64(iv) == 0xebc)
           ml = 2
         }
         if m3 {
@@ -4499,7 +1094,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8664)
+          m3 = ok && (u64(iv) == 0x8664)
           ml = 2
         }
         if m3 {
@@ -4512,7 +1107,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xc0ee)
+          m3 = ok && (u64(iv) == 0xc0ee)
           ml = 2
         }
         if m3 {
@@ -4529,7 +1124,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -4544,7 +1139,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x0)
+          m3 = ok && (i64(i16(iv)) > 0x0)
           ml = 2
         }
         if m3 {
@@ -4557,7 +1152,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x0)
+          m3 = ok && (i64(i16(iv)) > 0x0)
           ml = 2
         }
         if m3 {
@@ -4570,7 +1165,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x10b)
+          m3 = ok && (u64(iv) == 0x10b)
           ml = 2
         }
         if m3 {
@@ -4583,7 +1178,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -4598,7 +1193,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x20b)
+          m3 = ok && (u64(iv) == 0x20b)
           ml = 2
         }
         if m3 {
@@ -4611,7 +1206,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -4624,7 +1219,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m3 = false
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, 32rtm DOS extender
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x8.shortle*16)    string    \"32STUB\"    \\b, 32rtm DOS extender")
@@ -4634,7 +1229,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, for MS Windows
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x8.shortle*16)    string    \"32STUB\"    \\b, for MS Windows")
@@ -4644,7 +1239,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(0x3c.longle+248)    string    "UPX0"    \b, UPX compressed
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x3c.longle+248)    string    \"UPX0\"    \\b, UPX compressed")
@@ -4661,7 +1256,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0x10.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0x10.longle+(-4))    string    \"PK\\x03\\x04\"    \\b, ZIP self-extracting archive (Info-Zip)")
@@ -4677,7 +1272,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0xe.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xe.longle+(-4))    string    \"PK\\x03\\x04\"    \\b, ZIP self-extracting archive (Info-Zip)")
@@ -4687,7 +1282,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ0"    \b, ZZip self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xe.longle+(-4))    string    \"ZZ0\"    \\b, ZZip self-extracting archive")
@@ -4697,7 +1292,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ1"    \b, ZZip self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xe.longle+(-4))    string    \"ZZ1\"    \\b, ZZip self-extracting archive")
@@ -4713,7 +1308,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0xf.longle+(-4))    string    "a\\\x04\x05"    \b, WinHKI self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xf.longle+(-4))    string    \"a\\\\\\x04\\x05\"    \\b, WinHKI self-extracting archive")
@@ -4723,7 +1318,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
           // >>>>(&0xf.longle+(-4))    string    "Rar!"    \b, RAR self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xf.longle+(-4))    string    \"Rar!\"    \\b, RAR self-extracting archive")
@@ -4745,7 +1340,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0xf.longle)    string    "WEXTRACT"    \b, MS CAB-Installer self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xf.longle)    string    \"WEXTRACT\"    \\b, MS CAB-Installer self-extracting archive")
@@ -4763,7 +1358,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -4774,7 +1369,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>(&0x104.longle+(-4))    string    "=!sfx!"    \b, ACE self-extracting archive
             // uh oh indirect offset
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.longle+(-4))    string    \"=!sfx!\"    \\b, ACE self-extracting archive")
@@ -4800,7 +1395,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh unhandled kind
         // >>>0x30    string    "Inno"    \b, InnoSetup self-extracting archive
         off = pageOff + 48
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x6e, 0x6e, 0x6f}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x6e, 0x6e, 0x6f}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>0x30    string    \"Inno\"    \\b, InnoSetup self-extracting archive")
@@ -4812,7 +1407,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m2 = false
       // >>(0x3c.longle)    string    "PE\x00\x00"    MS-DOS executable
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"PE\\x00\\x00\"    MS-DOS executable")
@@ -4822,7 +1417,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>(0x3c.longle)    string    "NE"    \b, NE
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"NE\"    \\b, NE")
@@ -4835,7 +1430,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 1
         }
         if m3 {
@@ -4848,7 +1443,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 1
         }
         if m3 {
@@ -4861,7 +1456,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 1
         }
         if m3 {
@@ -4874,7 +1469,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (uint64(iv) == 0x4)
+          m3 = ok && (u64(iv) == 0x4)
           ml = 1
         }
         if m3 {
@@ -4887,7 +1482,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (uint64(iv) == 0x5)
+          m3 = ok && (u64(iv) == 0x5)
           ml = 1
         }
         if m3 {
@@ -4904,7 +1499,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -4919,7 +1514,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (uint64(iv) == 0x81)
+          m3 = ok && (u64(iv) == 0x81)
           ml = 1
         }
         if m3 {
@@ -4932,7 +1527,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8002)
+          m3 = ok && (u64(iv) == 0x8002)
           ml = 2
         }
         if m3 {
@@ -4945,7 +1540,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8001)
+          m3 = ok && (u64(iv) == 0x8001)
           ml = 2
         }
         if m3 {
@@ -4956,7 +1551,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&(&0x24.shortle-1)    string    "ARJSFX"    \b, ARJ self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&(&0x24.shortle-1)    string    \"ARJSFX\"    \\b, ARJ self-extracting archive")
@@ -4971,7 +1566,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m2 = false
       // >>(0x3c.longle)    string    "LX\x00\x00"    \b, LX
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"LX\\x00\\x00\"    \\b, LX")
@@ -4984,7 +1579,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (int64(int16(iv)) < 0x1)
+          m3 = ok && (i64(i16(iv)) < 0x1)
           ml = 2
         }
         if m3 {
@@ -4997,7 +1592,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -5010,7 +1605,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -5023,7 +1618,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -5036,7 +1631,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x3)
+          m3 = ok && (i64(i16(iv)) > 0x3)
           ml = 2
         }
         if m3 {
@@ -5049,7 +1644,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8000)
+          m3 = ok && (u64(iv) == 0x8000)
           ml = 4
         }
         if m3 {
@@ -5062,7 +1657,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (int64(int32(iv)) > 0x0)
+          m3 = ok && (i64(i32(iv)) > 0x0)
           ml = 4
         }
         if m3 {
@@ -5075,7 +1670,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x300)
+          m3 = ok && (u64(iv) == 0x300)
           ml = 4
         }
         if m3 {
@@ -5088,7 +1683,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (int64(int32(iv)) < 0x300)
+          m3 = ok && (i64(i32(iv)) < 0x300)
           ml = 4
         }
         if m3 {
@@ -5101,7 +1696,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -5114,7 +1709,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -5127,7 +1722,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -5138,7 +1733,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(0x8.shortle*16)    string    "emx"    \b, emx
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x8.shortle*16)    string    \"emx\"    \\b, emx")
@@ -5149,7 +1744,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>&0x1    string    "x"    %s
           off = pageOff + 1
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&0x1    string    \"x\"    %s")
@@ -5161,7 +1756,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m3 = false
         // >>>&(&0x54.longle-3)    string    "arjsfx"    \b, ARJ self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&(&0x54.longle-3)    string    \"arjsfx\"    \\b, ARJ self-extracting archive")
@@ -5173,7 +1768,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m2 = false
       // >>(0x3c.longle)    string    "W3"    \b, W3 for MS Windows
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"W3\"    \\b, W3 for MS Windows")
@@ -5183,7 +1778,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>(0x3c.longle)    string    "LE\x00\x00"    \b, LE executable
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"LE\\x00\\x00\"    \\b, LE executable")
@@ -5196,7 +1791,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -5230,7 +1825,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 36
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (int64(int32(iv)) < 0x50)
+            m4 = ok && (i64(i32(iv)) < 0x50)
             ml = 4
           }
           if m4 {
@@ -5241,7 +1836,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>(&0x4c.longle)    string    "\xfc\xb8WATCOM"    
             // uh oh indirect offset
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>(&0x4c.longle)    string    \"\\xfc\\xb8WATCOM\"    ")
@@ -5262,7 +1857,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -5275,7 +1870,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -5288,7 +1883,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x4)
+          m3 = ok && (u64(iv) == 0x4)
           ml = 2
         }
         if m3 {
@@ -5299,7 +1894,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(&0x7c.longle+38)    string    "UPX"    \b, UPX compressed
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(&0x7c.longle+38)    string    \"UPX\"    \\b, UPX compressed")
@@ -5309,7 +1904,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&(&0x54.longle-3)    string    "UNACE"    \b, ACE self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&(&0x54.longle-3)    string    \"UNACE\"    \\b, ACE self-extracting archive")
@@ -5323,7 +1918,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 60
       {
         iv, ok := readUint32be(tb, off)
-        m2 = ok && (int64(int32(iv)) > 0x20000000)
+        m2 = ok && (i64(i32(iv)) > 0x20000000)
         ml = 4
       }
       if m2 {
@@ -5336,7 +1931,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) != 0x14c)
+          m3 = ok && (u64(iv) != 0x14c)
           ml = 2
         }
         if m3 {
@@ -5353,7 +1948,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 2
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
+      m1 = ok && (u64(iv) != 0x0)
       ml = 4
     }
     if m1 {
@@ -5366,7 +1961,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 24
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (int64(int16(iv)) < 0x40)
+        m2 = ok && (i64(i16(iv)) < 0x40)
         ml = 2
       }
       if m2 {
@@ -5379,7 +1974,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) != 0x14c)
+          m3 = ok && (u64(iv) != 0x14c)
           ml = 2
         }
         if m3 {
@@ -5390,7 +1985,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>&(0x2.shortle-514)    string    "LE"    
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&(0x2.shortle-514)    string    \"LE\"    ")
@@ -5400,7 +1995,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>&0x-2    string    "BW"    \b, MZ for MS-DOS
             off = pageOff + -2
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>&0x-2    string    \"BW\"    \\b, MZ for MS-DOS")
@@ -5412,7 +2007,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m4 = false
           // >>>>&(0x2.shortle-514)    string    "LE"    \b, LE
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&(0x2.shortle-514)    string    \"LE\"    \\b, LE")
@@ -5428,7 +2023,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m4 = false
           // >>>>&(0x2.shortle-514)    string    "BW"    
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&(0x2.shortle-514)    string    \"BW\"    ")
@@ -5454,7 +2049,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // uh oh indirect offset
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x14c)
+      m1 = ok && (u64(iv) == 0x14c)
       ml = 2
     }
     if m1 {
@@ -5466,7 +2061,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>(0x8.shortle*16)    string    "go32stub"    for MS-DOS, DJGPP go32 DOS extender
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x8.shortle*16)    string    \"go32stub\"    for MS-DOS, DJGPP go32 DOS extender")
@@ -5476,7 +2071,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>(0x8.shortle*16)    string    "emx"    
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x8.shortle*16)    string    \"emx\"    ")
@@ -5486,7 +2081,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x1    string    "x"    for DOS, Win or OS/2, emx %s
         off = pageOff + 1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x1    string    \"x\"    for DOS, Win or OS/2, emx %s")
@@ -5500,7 +2095,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -5511,7 +2106,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x26    string    "UPX"    \b, UPX compressed
         off = pageOff + 38
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x26    string    \"UPX\"    \\b, UPX compressed")
@@ -5529,7 +2124,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 11
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (int64(int32(iv)) < 0x2000)
+          m3 = ok && (i64(i32(iv)) < 0x2000)
           ml = 4
         }
         if m3 {
@@ -5542,7 +2137,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x6000)
+            m4 = ok && (i64(i32(iv)) > 0x6000)
             ml = 4
           }
           if m4 {
@@ -5559,7 +2154,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >(0x8.shortle*16)    string    "$WdX"    \b, WDos/X DOS extender
     // uh oh indirect offset
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">(0x8.shortle*16)    string    \"$WdX\"    \\b, WDos/X DOS extender")
@@ -5569,7 +2164,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x35    string    "\x8e\xc0\xb9\b\x00\xf3\xa5Ju\xeb\x8eÎ\xd83\xff\xbe0\x00\x05"    \b, aPack compressed
     off = pageOff + 53
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x8e, 0xc0, 0xb9, 0x8, 0x0, 0xf3, 0xa5, 0x4a, 0x75, 0xeb, 0x8e, 0xc3, 0x8e, 0xd8, 0x33, 0xff, 0xbe, 0x30, 0x0, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x8e, 0xc0, 0xb9, 0x8, 0x0, 0xf3, 0xa5, 0x4a, 0x75, 0xeb, 0x8e, 0xc3, 0x8e, 0xd8, 0x33, 0xff, 0xbe, 0x30, 0x0, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x35    string    \"\\x8e\\xc0\\xb9\\b\\x00\\xf3\\xa5Ju\\xeb\\x8eÎ\\xd83\\xff\\xbe0\\x00\\x05\"    \\b, aPack compressed")
@@ -5579,7 +2174,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0xe7    string    "LH/2 "    Self-Extract \b, %s
     off = pageOff + 231
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x2f, 0x32, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x2f, 0x32, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xe7    string    \"LH/2 \"    Self-Extract \\b, %s")
@@ -5589,7 +2184,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "UC2X"    \b, UCEXE compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x43, 0x32, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x43, 0x32, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"UC2X\"    \\b, UCEXE compressed")
@@ -5599,7 +2194,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "WWP "    \b, WWPACK compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x57, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x57, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"WWP \"    \\b, WWPACK compressed")
@@ -5609,7 +2204,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "RJSX"    \b, ARJ self-extracting archive
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x4a, 0x53, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x4a, 0x53, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"RJSX\"    \\b, ARJ self-extracting archive")
@@ -5619,7 +2214,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "diet"    \b, diet compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x64, 0x69, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x64, 0x69, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"diet\"    \\b, diet compressed")
@@ -5629,7 +2224,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "LZ09"    \b, LZEXE v0.90 compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x30, 0x39}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x30, 0x39}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"LZ09\"    \\b, LZEXE v0.90 compressed")
@@ -5639,7 +2234,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "LZ91"    \b, LZEXE v0.91 compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x39, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x39, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"LZ91\"    \\b, LZEXE v0.91 compressed")
@@ -5649,7 +2244,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "tz"    \b, TinyProg compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x74, 0x7a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x74, 0x7a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"tz\"    \\b, TinyProg compressed")
@@ -5659,7 +2254,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1e    string    "Copyright 1989-1990 PKWARE Inc."    Self-extracting PKZIP archive
     off = pageOff + 30
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x31, 0x39, 0x38, 0x39, 0x2d, 0x31, 0x39, 0x39, 0x30, 0x20, 0x50, 0x4b, 0x57, 0x41, 0x52, 0x45, 0x20, 0x49, 0x6e, 0x63, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x31, 0x39, 0x38, 0x39, 0x2d, 0x31, 0x39, 0x39, 0x30, 0x20, 0x50, 0x4b, 0x57, 0x41, 0x52, 0x45, 0x20, 0x49, 0x6e, 0x63, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1e    string    \"Copyright 1989-1990 PKWARE Inc.\"    Self-extracting PKZIP archive")
@@ -5669,7 +2264,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1e    string    "PKLITE Copr."    Self-extracting PKZIP archive
     off = pageOff + 30
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x4c, 0x49, 0x54, 0x45, 0x20, 0x43, 0x6f, 0x70, 0x72, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x4c, 0x49, 0x54, 0x45, 0x20, 0x43, 0x6f, 0x70, 0x72, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1e    string    \"PKLITE Copr.\"    Self-extracting PKZIP archive")
@@ -5682,7 +2277,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // uh oh unhandled kind
     // >0x20    string    "AIN"    
     off = pageOff + 32
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x20    string    \"AIN\"    ")
@@ -5692,7 +2287,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x23    string    "2"    \b, AIN 2.x compressed
       off = pageOff + 35
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x23    string    \"2\"    \\b, AIN 2.x compressed")
@@ -5702,7 +2297,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x23    string    "<2"    \b, AIN 1.x compressed
       off = pageOff + 35
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x23    string    \"<2\"    \\b, AIN 1.x compressed")
@@ -5712,7 +2307,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x23    string    ">2"    \b, AIN 1.x compressed
       off = pageOff + 35
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x23    string    \">2\"    \\b, AIN 1.x compressed")
@@ -5724,7 +2319,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x24    string    "LHa's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x61, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x61, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \"LHa's SFX\"    \\b, LHa self-extracting archive")
@@ -5734,7 +2329,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x24    string    "LHA's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x41, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x41, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \"LHA's SFX\"    \\b, LHa self-extracting archive")
@@ -5744,7 +2339,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x24    string    " $ARX"    \b, ARX self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \" $ARX\"    \\b, ARX self-extracting archive")
@@ -5754,7 +2349,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x24    string    " $LHarc"    \b, LHarc self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \" $LHarc\"    \\b, LHarc self-extracting archive")
@@ -5764,7 +2359,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x20    string    "SFX by LARC"    \b, LARC self-extracting archive
     off = pageOff + 32
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x20    string    \"SFX by LARC\"    \\b, LARC self-extracting archive")
@@ -5774,7 +2369,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x40    string    "aPKG"    \b, aPackage self-extracting archive
     off = pageOff + 64
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x50, 0x4b, 0x47}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x50, 0x4b, 0x47}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x40    string    \"aPKG\"    \\b, aPackage self-extracting archive")
@@ -5784,7 +2379,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x64    string    "W Collis\x00\x00"    \b, Compack compressed
     off = pageOff + 100
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x64    string    \"W Collis\\x00\\x00\"    \\b, Compack compressed")
@@ -5794,7 +2389,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x7a    string    "Windows self-extracting ZIP"    \b, ZIP self-extracting archive
     off = pageOff + 122
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x69, 0x6e, 0x64, 0x6f, 0x77, 0x73, 0x20, 0x73, 0x65, 0x6c, 0x66, 0x2d, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x69, 0x6e, 0x67, 0x20, 0x5a, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x69, 0x6e, 0x64, 0x6f, 0x77, 0x73, 0x20, 0x73, 0x65, 0x6c, 0x66, 0x2d, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x69, 0x6e, 0x67, 0x20, 0x5a, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x7a    string    \"Windows self-extracting ZIP\"    \\b, ZIP self-extracting archive")
@@ -5809,7 +2404,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>(&0x0.longle+(4))    string    "MSCF"    \b, WinHKI CAB self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(&0x0.longle+(4))    string    \"MSCF\"    \\b, WinHKI CAB self-extracting archive")
@@ -5823,7 +2418,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x666    string    "-lh5-"    \b, LHa self-extracting archive v2.13S
     off = pageOff + 1638
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x2d, 0x6c, 0x68, 0x35, 0x2d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x2d, 0x6c, 0x68, 0x35, 0x2d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x666    string    \"-lh5-\"    \\b, LHa self-extracting archive v2.13S")
@@ -5833,7 +2428,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x17888    string    "Rar!"    \b, RAR self-extracting archive
     off = pageOff + 96392
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x17888    string    \"Rar!\"    \\b, RAR self-extracting archive")
@@ -5845,7 +2440,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // uh oh indirect offset
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -5858,7 +2453,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -5869,7 +2464,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x0    string    "PK\x03\x04"    \b, ZIP self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"PK\\x03\\x04\"    \\b, ZIP self-extracting archive")
@@ -5879,7 +2474,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "Rar!"    \b, RAR self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"Rar!\"    \\b, RAR self-extracting archive")
@@ -5889,7 +2484,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x11"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x11}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x11}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x11\"    \\b, AIN 2.x self-extracting archive")
@@ -5899,7 +2494,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x12"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x12}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x12}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x12\"    \\b, AIN 2.x self-extracting archive")
@@ -5909,7 +2504,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x17"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x17}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x17}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x17\"    \\b, AIN 1.x self-extracting archive")
@@ -5919,7 +2514,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x18"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x18}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x18}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x18\"    \\b, AIN 1.x self-extracting archive")
@@ -5942,7 +2537,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // uh oh unhandled kind
     // >0xc289    string    "y\xff\x80\xffv\xff"    \b, CODEC archive v3.21
     off = pageOff + 49801
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x79, 0xff, 0x80, 0xff, 0x76, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x79, 0xff, 0x80, 0xff, 0x76, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xc289    string    \"y\\xff\\x80\\xffv\\xff\"    \\b, CODEC archive v3.21")
@@ -5955,7 +2550,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 49824
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 2
       }
       if m2 {
@@ -5968,7 +2563,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 49824
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x1)
+        m2 = ok && (i64(i16(iv)) > 0x1)
         ml = 2
       }
       if m2 {
@@ -5983,7 +2578,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "KCF"    FreeDOS KEYBoard Layout collection
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"KCF\"    FreeDOS KEYBoard Layout collection")
@@ -5996,7 +2591,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 3
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -6009,7 +2604,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 6
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x0)
+      m1 = ok && (i64(i8(iv)) > 0x0)
       ml = 1
     }
     if m1 {
@@ -6020,7 +2615,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x7    string    ">\x00"    \b, author=%-.14s
       off = pageOff + 7
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x7    string    \">\\x00\"    \\b, author=%-.14s")
@@ -6034,7 +2629,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x0    string    "x"    \b%-.15s
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"x\"    \\b%-.15s")
@@ -6050,7 +2645,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "KLF"    FreeDOS KEYBoard Layout file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"KLF\"    FreeDOS KEYBoard Layout file")
@@ -6063,7 +2658,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 3
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -6076,7 +2671,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x0)
+      m1 = ok && (i64(i8(iv)) > 0x0)
       ml = 1
     }
     if m1 {
@@ -6087,7 +2682,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x8    string    "x"    \b, name=%-.2s
       off = pageOff + 8
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x8    string    \"x\"    \\b, name=%-.2s")
@@ -6101,7 +2696,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\xffKEYB   \x00\x00\x00\x00"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xff, 0x4b, 0x45, 0x59, 0x42, 0x20, 0x20, 0x20, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xff, 0x4b, 0x45, 0x59, 0x42, 0x20, 0x20, 0x20, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xffKEYB   \\x00\\x00\\x00\\x00\"    ")
@@ -6111,7 +2706,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0xc    string    "\x00\x00\x00\x00`\x04\xf0"    MS-DOS KEYBoard Layout file
     off = pageOff + 12
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x60, 0x4, 0xf0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x60, 0x4, 0xf0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xc    string    \"\\x00\\x00\\x00\\x00`\\x04\\xf0\"    MS-DOS KEYBoard Layout file")
@@ -6125,7 +2720,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0xffffffff)
+    m0 = ok && (u64(iv) == 0xffffffff)
     ml = 8
   }
   if m0 {
@@ -6143,7 +2738,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0x513c00000000012)
+    m0 = ok && (u64(iv) == 0x513c00000000012)
     ml = 8
   }
   if m0 {
@@ -6161,7 +2756,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0x32f28000ffff0016)
+    m0 = ok && (u64(iv) == 0x32f28000ffff0016)
     ml = 8
   }
   if m0 {
@@ -6179,7 +2774,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0x7f00000000ffff)
+    m0 = ok && (u64(iv) == 0x7f00000000ffff)
     ml = 8
   }
   if m0 {
@@ -6197,7 +2792,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0x1600000000ffff)
+    m0 = ok && (u64(iv) == 0x1600000000ffff)
     ml = 8
   }
   if m0 {
@@ -6215,7 +2810,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0xbf708c2ffffffff)
+    m0 = ok && (u64(iv) == 0xbf708c2ffffffff)
     ml = 8
   }
   if m0 {
@@ -6233,7 +2828,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0x7bd08c2ffffffff)
+    m0 = ok && (u64(iv) == 0x7bd08c2ffffffff)
     ml = 8
   }
   if m0 {
@@ -6251,7 +2846,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8be(tb, off)
-    m0 = ok && (uint64(iv) == 0x8c)
+    m0 = ok && (u64(iv) == 0x8c)
     ml = 1
   }
   if m0 {
@@ -6262,7 +2857,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    "O===="    
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4f, 0x3d, 0x3d, 0x3d, 0x3d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4f, 0x3d, 0x3d, 0x3d, 0x3d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \"O====\"    ")
@@ -6272,7 +2867,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x5    string    "MAIN"    
       off = pageOff + 5
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x5    string    \"MAIN\"    ")
@@ -6284,7 +2879,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0xd)
+          m3 = ok && (i64(i8(iv)) > 0xd)
           ml = 1
         }
         if m3 {
@@ -6303,7 +2898,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0xffff10eb)
+    m0 = ok && (u64(iv) == 0xffff10eb)
     ml = 4
   }
   if m0 {
@@ -6316,7 +2911,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (int64(int16(iv)) > 0xeb00)
+    m0 = ok && (i64(i16(iv)) > 0xeb00)
     ml = 2
   }
   if m0 {
@@ -6328,7 +2923,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8be(tb, off)
-    m0 = ok && (uint64(iv) == 0xeb)
+    m0 = ok && (u64(iv) == 0xeb)
     ml = 1
   }
   if m0 {
@@ -6341,7 +2936,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 1
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) > -1)
+      m1 = ok && (i64(i8(iv)) > -1)
       ml = 1
     }
     if m1 {
@@ -6354,7 +2949,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -6376,7 +2971,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8be(tb, off)
-    m0 = ok && (uint64(iv) == 0xe9)
+    m0 = ok && (u64(iv) == 0xe9)
     ml = 1
   }
   if m0 {
@@ -6389,7 +2984,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 1
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > -1)
+      m1 = ok && (i64(i16(iv)) > -1)
       ml = 2
     }
     if m1 {
@@ -6402,7 +2997,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -6422,7 +3017,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 1
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) < -259)
+      m1 = ok && (i64(i16(iv)) < -259)
       ml = 2
     }
     if m1 {
@@ -6435,7 +3030,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -6457,7 +3052,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8be(tb, off)
-    m0 = ok && (uint64(iv) == 0xb8)
+    m0 = ok && (u64(iv) == 0xb8)
     ml = 1
   }
   if m0 {
@@ -6468,7 +3063,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x0    string    "\xb8\xc0\a\x8e"    
     off = pageOff + 0
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0xb8, 0xc0, 0x7, 0x8e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0xb8, 0xc0, 0x7, 0x8e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x0    string    \"\\xb8\\xc0\\a\\x8e\"    ")
@@ -6480,7 +3075,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 1
       {
         iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) == 0x21cd4cfe)
+        m2 = ok && (u64(iv) == 0x21cd4cfe)
         ml = 4
       }
       if m2 {
@@ -6494,7 +3089,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 1
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x21cd4cff)
+          m3 = ok && (u64(iv) == 0x21cd4cff)
           ml = 4
         }
         if m3 {
@@ -6507,7 +3102,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 1
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x21cd4cfe)
+          m3 = ok && (u64(iv) == 0x21cd4cfe)
           ml = 4
         }
         if m3 {
@@ -6527,7 +3122,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\x81\xfc"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x81, 0xfc}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x81, 0xfc}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x81\\xfc\"    ")
@@ -6537,7 +3132,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    "w\x02\xcd \xb9"    
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x77, 0x2, 0xcd, 0x20, 0xb9}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x77, 0x2, 0xcd, 0x20, 0xb9}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \"w\\x02\\xcd \\xb9\"    ")
@@ -6547,7 +3142,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x24    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
       off = pageOff + 36
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x24    string    \"UPX!\"    FREE-DOS executable (COM), UPX compressed")
@@ -6561,7 +3156,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0xfc    string    "Must have DOS version"    DR-DOS executable (COM)
   off = pageOff + 252
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x75, 0x73, 0x74, 0x20, 0x68, 0x61, 0x76, 0x65, 0x20, 0x44, 0x4f, 0x53, 0x20, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x75, 0x73, 0x74, 0x20, 0x68, 0x61, 0x76, 0x65, 0x20, 0x44, 0x4f, 0x53, 0x20, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0xfc    string    \"Must have DOS version\"    DR-DOS executable (COM)")
@@ -6571,7 +3166,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x22    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 34
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x22    string    \"UPX!\"    FREE-DOS executable (COM), UPX compressed")
@@ -6581,7 +3176,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x23    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 35
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x23    string    \"UPX!\"    FREE-DOS executable (COM), UPX compressed")
@@ -6591,7 +3186,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x2    string    "\xcd!"    COM executable for DOS
   off = pageOff + 2
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x2    string    \"\\xcd!\"    COM executable for DOS")
@@ -6601,7 +3196,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x4    string    "\xcd!"    COM executable for DOS
   off = pageOff + 4
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x4    string    \"\\xcd!\"    COM executable for DOS")
@@ -6611,7 +3206,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x5    string    "\xcd!"    COM executable for DOS
   off = pageOff + 5
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x5    string    \"\\xcd!\"    COM executable for DOS")
@@ -6621,7 +3216,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x7    string    "\xcd!"    
   off = pageOff + 7
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x7    string    \"\\xcd!\"    ")
@@ -6633,7 +3228,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0xb8)
+      m1 = ok && (u64(iv) != 0xb8)
       ml = 1
     }
     if m1 {
@@ -6646,7 +3241,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0xa    string    "\xcd!"    
   off = pageOff + 10
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0xa    string    \"\\xcd!\"    ")
@@ -6656,7 +3251,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x5    string    "\xcd!"    COM executable for DOS
     off = pageOff + 5
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x5    string    \"\\xcd!\"    COM executable for DOS")
@@ -6668,7 +3263,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0xd    string    "\xcd!"    COM executable for DOS
   off = pageOff + 13
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0xd    string    \"\\xcd!\"    COM executable for DOS")
@@ -6678,7 +3273,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x12    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 18
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x12    string    \"\\xcd!\"    COM executable for MS-DOS")
@@ -6688,7 +3283,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x17    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 23
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x17    string    \"\\xcd!\"    COM executable for MS-DOS")
@@ -6698,7 +3293,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x1e    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 30
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x1e    string    \"\\xcd!\"    COM executable for MS-DOS")
@@ -6708,7 +3303,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x46    string    "\xcd!"    COM executable for DOS
   off = pageOff + 70
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x46    string    \"\\xcd!\"    COM executable for DOS")
@@ -6730,7 +3325,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x3c    string    "W Collis\x00\x00"    COM executable for MS-DOS, Compack compressed
   off = pageOff + 60
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x3c    string    \"W Collis\\x00\\x00\"    COM executable for MS-DOS, Compack compressed")
@@ -6740,7 +3335,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "LZ"    MS-DOS executable (built-in)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"LZ\"    MS-DOS executable (built-in)")
@@ -6750,7 +3345,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1AAFB\r\x00OM\x06\x0e+4\x01\x01\x01\xff"    AAF legacy file using MS Structured Storage
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x41, 0x41, 0x46, 0x42, 0xd, 0x0, 0x4f, 0x4d, 0x6, 0xe, 0x2b, 0x34, 0x1, 0x1, 0x1, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x41, 0x41, 0x46, 0x42, 0xd, 0x0, 0x4f, 0x4d, 0x6, 0xe, 0x2b, 0x34, 0x1, 0x1, 0x1, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd0\\xcf\\x11\\u0871\\x1a\\xe1AAFB\\r\\x00OM\\x06\\x0e+4\\x01\\x01\\x01\\xff\"    AAF legacy file using MS Structured Storage")
@@ -6763,7 +3358,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
+      m1 = ok && (u64(iv) == 0x9)
       ml = 1
     }
     if m1 {
@@ -6776,7 +3371,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0xc)
+      m1 = ok && (u64(iv) == 0xc)
       ml = 1
     }
     if m1 {
@@ -6789,7 +3384,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1\x01\x02\x01\r\x00\x02\x00\x00\x06\x0e+4\x03\x02\x01\x01"    AAF file using MS Structured Storage
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x1, 0x2, 0x1, 0xd, 0x0, 0x2, 0x0, 0x0, 0x6, 0xe, 0x2b, 0x34, 0x3, 0x2, 0x1, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x1, 0x2, 0x1, 0xd, 0x0, 0x2, 0x0, 0x0, 0x6, 0xe, 0x2b, 0x34, 0x3, 0x2, 0x1, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd0\\xcf\\x11\\u0871\\x1a\\xe1\\x01\\x02\\x01\\r\\x00\\x02\\x00\\x00\\x06\\x0e+4\\x03\\x02\\x01\\x01\"    AAF file using MS Structured Storage")
@@ -6802,7 +3397,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
+      m1 = ok && (u64(iv) == 0x9)
       ml = 1
     }
     if m1 {
@@ -6815,7 +3410,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0xc)
+      m1 = ok && (u64(iv) == 0xc)
       ml = 1
     }
     if m1 {
@@ -6828,7 +3423,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x820    string    "Microsoft Word 6.0 Document"    %s
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36, 0x2e, 0x30, 0x20, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36, 0x2e, 0x30, 0x20, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Microsoft Word 6.0 Document\"    %s")
@@ -6838,7 +3433,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x820    string    "Documento Microsoft Word 6"    Spanish Microsoft Word 6 document data
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Documento Microsoft Word 6\"    Spanish Microsoft Word 6 document data")
@@ -6848,7 +3443,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x840    string    "MSWordDoc"    Microsoft Word document data
   off = pageOff + 2112
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x6f, 0x72, 0x64, 0x44, 0x6f, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x6f, 0x72, 0x64, 0x44, 0x6f, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x840    string    \"MSWordDoc\"    Microsoft Word document data")
@@ -6860,7 +3455,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x31be0000)
+    m0 = ok && (u64(iv) == 0x31be0000)
     ml = 4
   }
   if m0 {
@@ -6871,7 +3466,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "PO^Q`"    Microsoft Word 6.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4f, 0x5e, 0x51, 0x60}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4f, 0x5e, 0x51, 0x60}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"PO^Q`\"    Microsoft Word 6.0 Document")
@@ -6883,7 +3478,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 4
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x0)
+    m0 = ok && (u64(iv) == 0x0)
     ml = 4
   }
   if m0 {
@@ -6896,7 +3491,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe320000)
+      m1 = ok && (u64(iv) == 0xfe320000)
       ml = 4
     }
     if m1 {
@@ -6909,7 +3504,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe340000)
+      m1 = ok && (u64(iv) == 0xfe340000)
       ml = 4
     }
     if m1 {
@@ -6922,7 +3517,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe37001c)
+      m1 = ok && (u64(iv) == 0xfe37001c)
       ml = 4
     }
     if m1 {
@@ -6935,7 +3530,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe370023)
+      m1 = ok && (u64(iv) == 0xfe370023)
       ml = 4
     }
     if m1 {
@@ -6948,7 +3543,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "ۥ-\x00\x00\x00"    Microsoft Word 2.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ۥ-\\x00\\x00\\x00\"    Microsoft Word 2.0 Document")
@@ -6958,7 +3553,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x200    string    "\xec\xa5\xc1"    Microsoft Word Document
   off = pageOff + 512
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xec, 0xa5, 0xc1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xec, 0xa5, 0xc1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x200    string    \"\\xec\\xa5\\xc1\"    Microsoft Word Document")
@@ -6968,7 +3563,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ۥ-\\x00\"    Microsoft WinWord 2.0 Document")
@@ -6978,7 +3573,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x820    string    "Microsoft Excel 5.0 Worksheet"    %s
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65, 0x6c, 0x20, 0x35, 0x2e, 0x30, 0x20, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x68, 0x65, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65, 0x6c, 0x20, 0x35, 0x2e, 0x30, 0x20, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x68, 0x65, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Microsoft Excel 5.0 Worksheet\"    %s")
@@ -6988,7 +3583,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ۥ-\\x00\"    Microsoft WinWord 2.0 Document")
@@ -6998,7 +3593,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x820    string    "Foglio di lavoro Microsoft Exce"    %s
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x46, 0x6f, 0x67, 0x6c, 0x69, 0x6f, 0x20, 0x64, 0x69, 0x20, 0x6c, 0x61, 0x76, 0x6f, 0x72, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x46, 0x6f, 0x67, 0x6c, 0x69, 0x6f, 0x20, 0x64, 0x69, 0x20, 0x6c, 0x61, 0x76, 0x6f, 0x72, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Foglio di lavoro Microsoft Exce\"    %s")
@@ -7008,7 +3603,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x842    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2114
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x842    string    \"Biff5\"    Microsoft Excel 5.0 Worksheet")
@@ -7018,7 +3613,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x849    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2121
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x849    string    \"Biff5\"    Microsoft Excel 5.0 Worksheet")
@@ -7028,7 +3623,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\t\x04\x06\x00\x00\x00\x10\x00"    Microsoft Excel Worksheet
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x9, 0x4, 0x6, 0x0, 0x0, 0x0, 0x10, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x9, 0x4, 0x6, 0x0, 0x0, 0x0, 0x10, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\t\\x04\\x06\\x00\\x00\\x00\\x10\\x00\"    Microsoft Excel Worksheet")
@@ -7040,7 +3635,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x1a00)
+    m0 = ok && (u64(iv) == 0x1a00)
     ml = 4
   }
   if m0 {
@@ -7053,7 +3648,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x0)
+      m1 = ok && (i64(i8(iv)) > 0x0)
       ml = 1
     }
     if m1 {
@@ -7066,7 +3661,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 20
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (int64(int8(iv)) < 0x20)
+        m2 = ok && (i64(i8(iv)) < 0x20)
         ml = 1
       }
       if m2 {
@@ -7080,7 +3675,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1000)
+          m3 = ok && (u64(iv) == 0x1000)
           ml = 2
         }
         if m3 {
@@ -7093,7 +3688,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1002)
+          m3 = ok && (u64(iv) == 0x1002)
           ml = 2
         }
         if m3 {
@@ -7106,7 +3701,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1003)
+          m3 = ok && (u64(iv) == 0x1003)
           ml = 2
         }
         if m3 {
@@ -7119,7 +3714,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1005)
+          m3 = ok && (u64(iv) == 0x1005)
           ml = 2
         }
         if m3 {
@@ -7132,7 +3727,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8001)
+          m3 = ok && (u64(iv) == 0x8001)
           ml = 2
         }
         if m3 {
@@ -7145,7 +3740,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8007)
+          m3 = ok && (u64(iv) == 0x8007)
           ml = 2
         }
         if m3 {
@@ -7162,7 +3757,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 6
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x4)
+            m4 = ok && (u64(iv) == 0x4)
             ml = 2
           }
           if m4 {
@@ -7175,7 +3770,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 6
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) != 0x4)
+            m4 = ok && (u64(iv) != 0x4)
             ml = 2
           }
           if m4 {
@@ -7188,7 +3783,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -7203,7 +3798,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 6
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x4)
+          m3 = ok && (u64(iv) == 0x4)
           ml = 2
         }
         if m3 {
@@ -7217,7 +3812,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 8
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (uint64(iv) != 0x0)
+            m4 = ok && (u64(iv) != 0x0)
             ml = 4
           }
           if m4 {
@@ -7230,7 +3825,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 10
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (int64(int8(iv)) > 0x0)
+              m5 = ok && (i64(i8(iv)) > 0x0)
               ml = 1
             }
             if m5 {
@@ -7243,7 +3838,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 8
             {
               iv, ok := readUint16be(tb, off)
-              m5 = ok && (uint64(iv) == 0x0)
+              m5 = ok && (u64(iv) == 0x0)
               ml = 2
             }
             if m5 {
@@ -7256,7 +3851,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 11
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) == 0x0)
+              m5 = ok && (u64(iv) == 0x0)
               ml = 1
             }
             if m5 {
@@ -7271,7 +3866,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 14
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x0)
+            m4 = ok && (i64(i8(iv)) > 0x0)
             ml = 1
           }
           if m4 {
@@ -7284,7 +3879,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 12
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -7297,7 +3892,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 15
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -7310,7 +3905,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 20
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x1)
+            m4 = ok && (i64(i8(iv)) > 0x1)
             ml = 1
           }
           if m4 {
@@ -7323,7 +3918,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 21
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -7338,7 +3933,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 6
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) != 0x4)
+          m3 = ok && (u64(iv) != 0x4)
           ml = 2
         }
         if m3 {
@@ -7353,7 +3948,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>&0x4    string    ">\x00"    \b, 1st font "%s"
             off = pageOff + 4
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>&0x4    string    \">\\x00\"    \\b, 1st font \"%s\"")
@@ -7375,7 +3970,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x200)
+    m0 = ok && (u64(iv) == 0x200)
     ml = 4
   }
   if m0 {
@@ -7388,7 +3983,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 7
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -7401,7 +3996,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 6
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -7415,7 +4010,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x7)
+          m3 = ok && (u64(iv) == 0x7)
           ml = 2
         }
         if m3 {
@@ -7428,7 +4023,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0xc05)
+          m3 = ok && (u64(iv) == 0xc05)
           ml = 2
         }
         if m3 {
@@ -7441,7 +4036,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x801)
+          m3 = ok && (u64(iv) == 0x801)
           ml = 2
         }
         if m3 {
@@ -7454,7 +4049,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x802)
+          m3 = ok && (u64(iv) == 0x802)
           ml = 2
         }
         if m3 {
@@ -7467,7 +4062,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x804)
+          m3 = ok && (u64(iv) == 0x804)
           ml = 2
         }
         if m3 {
@@ -7480,7 +4075,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x80a)
+          m3 = ok && (u64(iv) == 0x80a)
           ml = 2
         }
         if m3 {
@@ -7493,7 +4088,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1402)
+          m3 = ok && (u64(iv) == 0x1402)
           ml = 2
         }
         if m3 {
@@ -7506,7 +4101,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1450)
+          m3 = ok && (u64(iv) == 0x1450)
           ml = 2
         }
         if m3 {
@@ -7519,7 +4114,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x404)
+          m3 = ok && (u64(iv) == 0x404)
           ml = 2
         }
         if m3 {
@@ -7532,7 +4127,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x405)
+          m3 = ok && (u64(iv) == 0x405)
           ml = 2
         }
         if m3 {
@@ -7545,7 +4140,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x406)
+          m3 = ok && (u64(iv) == 0x406)
           ml = 2
         }
         if m3 {
@@ -7558,7 +4153,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x600)
+          m3 = ok && (u64(iv) == 0x600)
           ml = 2
         }
         if m3 {
@@ -7571,7 +4166,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x602)
+          m3 = ok && (u64(iv) == 0x602)
           ml = 2
         }
         if m3 {
@@ -7584,7 +4179,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8006)
+          m3 = ok && (u64(iv) == 0x8006)
           ml = 2
         }
         if m3 {
@@ -7597,7 +4192,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x8007)
+          m3 = ok && (u64(iv) == 0x8007)
           ml = 2
         }
         if m3 {
@@ -7614,7 +4209,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -7639,7 +4234,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "WordPro\x00"    Lotus WordPro
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"WordPro\\x00\"    Lotus WordPro")
@@ -7649,7 +4244,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "WordPro\r\xfb"    Lotus WordPro
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0xd, 0xfb}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0xd, 0xfb}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"WordPro\\r\\xfb\"    Lotus WordPro")
@@ -7659,7 +4254,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "q\xa8\x00\x00\x01\x02"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x71, 0xa8, 0x0, 0x0, 0x1, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x71, 0xa8, 0x0, 0x0, 0x1, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"q\\xa8\\x00\\x00\\x01\\x02\"    ")
@@ -7669,7 +4264,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0xc    string    "Stirling Technologies,"    InstallShield Uninstall Script
     off = pageOff + 12
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x74, 0x69, 0x72, 0x6c, 0x69, 0x6e, 0x67, 0x20, 0x54, 0x65, 0x63, 0x68, 0x6e, 0x6f, 0x6c, 0x6f, 0x67, 0x69, 0x65, 0x73, 0x2c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x74, 0x69, 0x72, 0x6c, 0x69, 0x6e, 0x67, 0x20, 0x54, 0x65, 0x63, 0x68, 0x6e, 0x6f, 0x6c, 0x6f, 0x67, 0x69, 0x65, 0x73, 0x2c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xc    string    \"Stirling Technologies,\"    InstallShield Uninstall Script")
@@ -7681,7 +4276,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "Nullsoft AVS Preset "    Winamp plug in
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x75, 0x6c, 0x6c, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x41, 0x56, 0x53, 0x20, 0x50, 0x72, 0x65, 0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x75, 0x6c, 0x6c, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x41, 0x56, 0x53, 0x20, 0x50, 0x72, 0x65, 0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"Nullsoft AVS Preset \"    Winamp plug in")
@@ -7691,7 +4286,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xd7\xcdƚ"    ms-windows metafont .wmf
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd7, 0xcd, 0xc6, 0x9a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd7, 0xcd, 0xc6, 0x9a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd7\\xcdƚ\"    ms-windows metafont .wmf")
@@ -7701,7 +4296,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x02\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x2, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x2, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x02\\x00\\t\\x00\"    ms-windows metafont .wmf")
@@ -7711,7 +4306,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x01\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x1, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x1, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x01\\x00\\t\\x00\"    ms-windows metafont .wmf")
@@ -7721,7 +4316,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x03\x01\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x1, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x1, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x03\\x01\\x01\\x048\\x01\\x00\\x00\"    tz3 ms-works file")
@@ -7731,7 +4326,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x03\x02\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x2, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x2, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x03\\x02\\x01\\x048\\x01\\x00\\x00\"    tz3 ms-works file")
@@ -7741,7 +4336,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x03\x03\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x3, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x3, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x03\\x03\\x01\\x048\\x01\\x00\\x00\"    tz3 ms-works file")
@@ -7751,7 +4346,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW5\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x35, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x35, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW5\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -7761,7 +4356,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW6\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x36, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x36, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW6\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -7771,7 +4366,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW7\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x37, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x37, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW7\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -7781,7 +4376,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW8\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x38, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x38, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW8\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -7791,7 +4386,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW9\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x39, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x39, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW9\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -7801,7 +4396,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00\x95\x03\x05\x002R\x87\xc4@\xe5\""    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x95, 0x3, 0x5, 0x0, 0x32, 0x52, 0x87, 0xc4, 0x40, 0xe5, 0x22}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x95, 0x3, 0x5, 0x0, 0x32, 0x52, 0x87, 0xc4, 0x40, 0xe5, 0x22}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00\\x95\\x03\\x05\\x002R\\x87\\xc4@\\xe5\\\"\"    PGP sig")
@@ -7811,7 +4406,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MDIF\x1a\x00\b\x00\x00\x00\xfa&@}\x01\x00\x01\x1e\x01\x00"    MS Windows special zipped file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x44, 0x49, 0x46, 0x1a, 0x0, 0x8, 0x0, 0x0, 0x0, 0xfa, 0x26, 0x40, 0x7d, 0x1, 0x0, 0x1, 0x1e, 0x1, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x44, 0x49, 0x46, 0x1a, 0x0, 0x8, 0x0, 0x0, 0x0, 0xfa, 0x26, 0x40, 0x7d, 0x1, 0x0, 0x1, 0x1e, 0x1, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MDIF\\x1a\\x00\\b\\x00\\x00\\x00\\xfa&@}\\x01\\x00\\x01\\x1e\\x01\\x00\"    MS Windows special zipped file")
@@ -7821,7 +4416,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "BA(\x00\x00\x00.\x00\x00\x00\x00\x00\x00\x00"    Icon for MS Windows
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x41, 0x28, 0x0, 0x0, 0x0, 0x2e, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x41, 0x28, 0x0, 0x0, 0x0, 0x2e, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"BA(\\x00\\x00\\x00.\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    Icon for MS Windows")
@@ -7833,7 +4428,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x100)
+    m0 = ok && (u64(iv) == 0x100)
     ml = 4
   }
   if m0 {
@@ -7846,7 +4441,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -7859,7 +4454,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -7876,7 +4471,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0xff)
+      m1 = ok && (u64(iv) == 0xff)
       ml = 1
     }
     if m1 {
@@ -7889,7 +4484,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -7908,7 +4503,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x200)
+    m0 = ok && (u64(iv) == 0x200)
     ml = 4
   }
   if m0 {
@@ -7921,7 +4516,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -7939,7 +4534,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0xff)
+      m1 = ok && (u64(iv) == 0xff)
       ml = 1
     }
     if m1 {
@@ -7957,7 +4552,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "PK\b\bBGI"    Borland font
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"PK\\b\\bBGI\"    Borland font")
@@ -7968,7 +4563,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \">\\x00\"    %s")
@@ -7980,7 +4575,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "pk\b\bBGI"    Borland device
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x70, 0x6b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x70, 0x6b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"pk\\b\\bBGI\"    Borland device")
@@ -7991,7 +4586,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \">\\x00\"    %s")
@@ -8005,7 +4600,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x4)
+    m0 = ok && (u64(iv) == 0x4)
     ml = 4
   }
   if m0 {
@@ -8018,7 +4613,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 12
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x118)
+      m1 = ok && (u64(iv) == 0x118)
       ml = 4
     }
     if m1 {
@@ -8033,7 +4628,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x5)
+    m0 = ok && (u64(iv) == 0x5)
     ml = 4
   }
   if m0 {
@@ -8046,7 +4641,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 12
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x320)
+      m1 = ok && (u64(iv) == 0x320)
       ml = 4
     }
     if m1 {
@@ -8059,7 +4654,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x9    string    "GERBILDOC"    First Choice document
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x4f, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x4f, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"GERBILDOC\"    First Choice document")
@@ -8069,7 +4664,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x9    string    "GERBILDB"    First Choice database
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"GERBILDB\"    First Choice database")
@@ -8079,7 +4674,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x9    string    "GERBILCLIP"    First Choice database
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x43, 0x4c, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x43, 0x4c, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"GERBILCLIP\"    First Choice database")
@@ -8089,7 +4684,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "GERBIL"    First Choice device file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"GERBIL\"    First Choice device file")
@@ -8099,7 +4694,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x9    string    "RABBITGRAPH"    RabbitGraph file
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x41, 0x42, 0x42, 0x49, 0x54, 0x47, 0x52, 0x41, 0x50, 0x48}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x41, 0x42, 0x42, 0x49, 0x54, 0x47, 0x52, 0x41, 0x50, 0x48}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"RABBITGRAPH\"    RabbitGraph file")
@@ -8109,7 +4704,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "DCU1"    Borland Delphi .DCU file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x43, 0x55, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x43, 0x55, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"DCU1\"    Borland Delphi .DCU file")
@@ -8119,7 +4714,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "=!<spell>"    MKS Spell hash list (old format)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"=!<spell>\"    MKS Spell hash list (old format)")
@@ -8129,7 +4724,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "=!<spell2>"    MKS Spell hash list
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x32, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x32, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"=!<spell2>\"    MKS Spell hash list")
@@ -8141,7 +4736,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x8086b70)
+    m0 = ok && (u64(iv) == 0x8086b70)
     ml = 4
   }
   if m0 {
@@ -8154,7 +4749,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x8084b50)
+    m0 = ok && (u64(iv) == 0x8084b50)
     ml = 4
   }
   if m0 {
@@ -8165,7 +4760,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "TPF0"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x54, 0x50, 0x46, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x54, 0x50, 0x46, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"TPF0\"    ")
@@ -8174,7 +4769,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "PMCC"    Windows 3.x .GRP file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4d, 0x43, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4d, 0x43, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"PMCC\"    Windows 3.x .GRP file")
@@ -8184,7 +4779,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x1    string    "RDC-meg"    MegaDots
   off = pageOff + 1
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x44, 0x43, 0x2d, 0x6d, 0x65, 0x67}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x44, 0x43, 0x2d, 0x6d, 0x65, 0x67}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x1    string    \"RDC-meg\"    MegaDots")
@@ -8197,7 +4792,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 8
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x2f)
+      m1 = ok && (i64(i8(iv)) > 0x2f)
       ml = 1
     }
     if m1 {
@@ -8210,7 +4805,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x2f)
+      m1 = ok && (i64(i8(iv)) > 0x2f)
       ml = 1
     }
     if m1 {
@@ -8225,7 +4820,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x4c)
+    m0 = ok && (u64(iv) == 0x4c)
     ml = 4
   }
   if m0 {
@@ -8238,7 +4833,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x21401)
+      m1 = ok && (u64(iv) == 0x21401)
       ml = 4
     }
     if m1 {
@@ -8251,7 +4846,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x171    string    "MICROSOFT PIFEX\x00"    Windows Program Information File
   off = pageOff + 369
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x50, 0x49, 0x46, 0x45, 0x58, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x50, 0x49, 0x46, 0x45, 0x58, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x171    string    \"MICROSOFT PIFEX\\x00\"    Windows Program Information File")
@@ -8262,7 +4857,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x24    string    ">\x00"    \b for %.63s
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \">\\x00\"    \\b for %.63s")
@@ -8272,7 +4867,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x65    string    ">\x00"    \b, directory=%.64s
     off = pageOff + 101
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x65    string    \">\\x00\"    \\b, directory=%.64s")
@@ -8282,7 +4877,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0xa5    string    ">\x00"    \b, parameters=%.64s
     off = pageOff + 165
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xa5    string    \">\\x00\"    \\b, parameters=%.64s")
@@ -8298,7 +4893,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 94
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -8309,7 +4904,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x-1    string    "<PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \"<PIFMGR.DLL\"    \\b, icon=%s")
@@ -8319,7 +4914,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x-1    string    ">PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \">PIFMGR.DLL\"    \\b, icon=%s")
@@ -8333,7 +4928,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 240
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -8344,7 +4939,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x-1    string    "<Terminal"    \b, font=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \"<Terminal\"    \\b, font=%.32s")
@@ -8354,7 +4949,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x-1    string    ">Terminal"    \b, font=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \">Terminal\"    \\b, font=%.32s")
@@ -8368,7 +4963,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 272
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -8379,7 +4974,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x-1    string    "<Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \"<Lucida Console\"    \\b, TrueTypeFont=%.32s")
@@ -8389,7 +4984,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x-1    string    ">Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \">Lucida Console\"    \\b, TrueTypeFont=%.32s")
@@ -8416,7 +5011,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0xc5d0d3c6)
+    m0 = ok && (u64(iv) == 0xc5d0d3c6)
     ml = 4
   }
   if m0 {
@@ -8430,7 +5025,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (int64(int32(iv)) > 0x0)
+      m1 = ok && (i64(i32(iv)) > 0x0)
       ml = 4
     }
     if m1 {
@@ -8444,7 +5039,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 8
       {
         iv, ok := readUint32be(tb, off)
-        m2 = ok && (int64(int32(iv)) > 0x0)
+        m2 = ok && (i64(i32(iv)) > 0x0)
         ml = 4
       }
       if m2 {
@@ -8458,7 +5053,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 12
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (int64(int32(iv)) > 0x0)
+          m3 = ok && (i64(i32(iv)) > 0x0)
           ml = 4
         }
         if m3 {
@@ -8472,7 +5067,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 16
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -8487,7 +5082,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 20
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (int64(int32(iv)) > 0x0)
+          m3 = ok && (i64(i32(iv)) > 0x0)
           ml = 4
         }
         if m3 {
@@ -8501,7 +5096,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 24
           {
             iv, ok := readUint32be(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -8522,7 +5117,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (uint64(iv) == 0x223e9f78)
+    m0 = ok && (u64(iv) == 0x223e9f78)
     ml = 2
   }
   if m0 {
@@ -8533,7 +5128,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "NG\x00\x01"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x47, 0x0, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x47, 0x0, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"NG\\x00\\x01\"    ")
@@ -8545,7 +5140,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 2
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x100)
+      m1 = ok && (u64(iv) == 0x100)
       ml = 4
     }
     if m1 {
@@ -8557,7 +5152,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x8    string    ">\x00"    "%-.40s"
       off = pageOff + 8
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x8    string    \">\\x00\"    \"%-.40s\"")
@@ -8567,7 +5162,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x30    string    ">\x00"    \b, %-.66s
       off = pageOff + 48
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x30    string    \">\\x00\"    \\b, %-.66s")
@@ -8577,7 +5172,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x72    string    ">\x00"    %-.66s
       off = pageOff + 114
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x72    string    \">\\x00\"    %-.66s")
@@ -8593,7 +5188,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x48443408)
+    m0 = ok && (u64(iv) == 0x48443408)
     ml = 4
   }
   if m0 {
@@ -8605,7 +5200,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    "x"    \b, version %-4.4s
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \"x\"    \\b, version %-4.4s")
@@ -8619,7 +5214,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64be(tb, off)
-    m0 = ok && (uint64(iv) == 0x3a000000024e4c)
+    m0 = ok && (u64(iv) == 0x3a000000024e4c)
     ml = 8
   }
   if m0 {
@@ -8630,7 +5225,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "ITSF\x03\x00\x00\x00`\x00\x00\x00"    MS Windows HtmlHelp Data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x53, 0x46, 0x3, 0x0, 0x0, 0x0, 0x60, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x53, 0x46, 0x3, 0x0, 0x0, 0x0, 0x60, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ITSF\\x03\\x00\\x00\\x00`\\x00\\x00\\x00\"    MS Windows HtmlHelp Data")
@@ -8640,7 +5235,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x2    string    "GFA-BASIC3"    GFA-BASIC 3 data
   off = pageOff + 2
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x46, 0x41, 0x2d, 0x42, 0x41, 0x53, 0x49, 0x43, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x46, 0x41, 0x2d, 0x42, 0x41, 0x53, 0x49, 0x43, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x2    string    \"GFA-BASIC3\"    GFA-BASIC 3 data")
@@ -8650,7 +5245,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MSCF\x00\x00\x00\x00"    Microsoft Cabinet archive data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MSCF\\x00\\x00\\x00\\x00\"    Microsoft Cabinet archive data")
@@ -8663,7 +5258,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 8
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -8676,7 +5271,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 28
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -8689,7 +5284,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 28
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -8702,7 +5297,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "ISc("    InstallShield Cabinet archive data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x53, 0x63, 0x28}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x53, 0x63, 0x28}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ISc(\"    InstallShield Cabinet archive data")
@@ -8715,7 +5310,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x60)
+      m1 = ok && (u64(iv) == 0x60)
       ml = 1
     }
     if m1 {
@@ -8728,7 +5323,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x60)
+      m1 = ok && (u64(iv) != 0x60)
       ml = 1
     }
     if m1 {
@@ -8741,7 +5336,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // uh oh indirect offset
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -8754,7 +5349,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "MSCE\x00\x00\x00\x00"    Microsoft WinCE install header
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x45, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x45, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MSCE\\x00\\x00\\x00\\x00\"    Microsoft WinCE install header")
@@ -8767,7 +5362,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -8780,7 +5375,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x67)
+      m1 = ok && (u64(iv) == 0x67)
       ml = 4
     }
     if m1 {
@@ -8793,7 +5388,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x68)
+      m1 = ok && (u64(iv) == 0x68)
       ml = 4
     }
     if m1 {
@@ -8806,7 +5401,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa11)
+      m1 = ok && (u64(iv) == 0xa11)
       ml = 4
     }
     if m1 {
@@ -8819,7 +5414,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfa0)
+      m1 = ok && (u64(iv) == 0xfa0)
       ml = 4
     }
     if m1 {
@@ -8832,7 +5427,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2713)
+      m1 = ok && (u64(iv) == 0x2713)
       ml = 4
     }
     if m1 {
@@ -8845,7 +5440,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2714)
+      m1 = ok && (u64(iv) == 0x2714)
       ml = 4
     }
     if m1 {
@@ -8858,7 +5453,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2715)
+      m1 = ok && (u64(iv) == 0x2715)
       ml = 4
     }
     if m1 {
@@ -8871,7 +5466,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x11171)
+      m1 = ok && (u64(iv) == 0x11171)
       ml = 4
     }
     if m1 {
@@ -8884,7 +5479,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 52
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -8897,7 +5492,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 52
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -8910,7 +5505,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 56
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -8923,7 +5518,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 56
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -8938,7 +5533,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x1)
+    m0 = ok && (u64(iv) == 0x1)
     ml = 4
   }
   if m0 {
@@ -8949,7 +5544,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x28    string    " EMF"    Windows Enhanced Metafile (EMF) image data
     off = pageOff + 40
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x45, 0x4d, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x45, 0x4d, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x28    string    \" EMF\"    Windows Enhanced Metafile (EMF) image data")
@@ -8962,7 +5557,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 44
       {
         iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 4
       }
       if m2 {
@@ -8977,7 +5572,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1"    Microsoft Office Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd0\\xcf\\x11\\u0871\\x1a\\xe1\"    Microsoft Office Document")
@@ -8988,7 +5583,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x222    string    "bjbj"    Microsoft Word Document
     off = pageOff + 546
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x62, 0x6a, 0x62, 0x6a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x62, 0x6a, 0x62, 0x6a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x222    string    \"bjbj\"    Microsoft Word Document")
@@ -8998,7 +5593,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x222    string    "jbjb"    Microsoft Word Document
     off = pageOff + 546
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x6a, 0x62, 0x6a, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x6a, 0x62, 0x6a, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x222    string    \"jbjb\"    Microsoft Word Document")
@@ -9010,7 +5605,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\x94\xa6."    Microsoft Word Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x94, 0xa6, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x94, 0xa6, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x94\\xa6.\"    Microsoft Word Document")
@@ -9020,7 +5615,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x200    string    "R\x00o\x00o\x00t\x00 \x00E\x00n\x00t\x00r\x00y"    Microsoft Word Document
   off = pageOff + 512
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x0, 0x6f, 0x0, 0x6f, 0x0, 0x74, 0x0, 0x20, 0x0, 0x45, 0x0, 0x6e, 0x0, 0x74, 0x0, 0x72, 0x0, 0x79}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x0, 0x6f, 0x0, 0x6f, 0x0, 0x74, 0x0, 0x20, 0x0, 0x45, 0x0, 0x6e, 0x0, 0x74, 0x0, 0x72, 0x0, 0x79}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x200    string    \"R\\x00o\\x00o\\x00t\\x00 \\x00E\\x00n\\x00t\\x00r\\x00y\"    Microsoft Word Document")
@@ -9030,7 +5625,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "$RBU"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x52, 0x42, 0x55}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x52, 0x42, 0x55}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"$RBU\"    ")
@@ -9040,7 +5635,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x17    string    "Dell"    %s system BIOS
     off = pageOff + 23
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x65, 0x6c, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x65, 0x6c, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x17    string    \"Dell\"    %s system BIOS")
@@ -9052,7 +5647,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 1
     }
     if m1 {
@@ -9065,7 +5660,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 48
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -9078,7 +5673,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 49
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -9091,7 +5686,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 50
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -9106,7 +5701,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) < 0x2)
+      m1 = ok && (i64(i8(iv)) < 0x2)
       ml = 1
     }
     if m1 {
@@ -9117,7 +5712,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x30    string    "x"    version %.3s
       off = pageOff + 48
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x30    string    \"x\"    version %.3s")
@@ -9131,7 +5726,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "DDS |\x00\x00\x00"    Microsoft DirectDraw Surface (DDS),
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x44, 0x53, 0x20, 0x7c, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x44, 0x53, 0x20, 0x7c, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"DDS |\\x00\\x00\\x00\"    Microsoft DirectDraw Surface (DDS),")
@@ -9144,7 +5739,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 16
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (int64(int32(iv)) > 0x0)
+      m1 = ok && (i64(i32(iv)) > 0x0)
       ml = 4
     }
     if m1 {
@@ -9157,7 +5752,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 12
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (int64(int32(iv)) > 0x0)
+      m1 = ok && (i64(i32(iv)) > 0x0)
       ml = 4
     }
     if m1 {
@@ -9168,7 +5763,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x54    string    "x"    %.4s
     off = pageOff + 84
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x54    string    \"x\"    %.4s")
@@ -9180,7 +5775,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "ITOLITLS"    Microsoft Reader eBook Data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x4f, 0x4c, 0x49, 0x54, 0x4c, 0x53}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x4f, 0x4c, 0x49, 0x54, 0x4c, 0x53}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ITOLITLS\"    Microsoft Reader eBook Data")
@@ -9193,7 +5788,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 8
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -9206,7 +5801,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "B000FF\n"    Windows Embedded CE binary image
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x30, 0x30, 0x30, 0x46, 0x46, 0xa}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x30, 0x30, 0x30, 0x46, 0x46, 0xa}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"B000FF\\n\"    Windows Embedded CE binary image")
@@ -9216,7 +5811,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MSWIM\x00\x00\x00"    Windows imaging (WIM) image
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x49, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x49, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MSWIM\\x00\\x00\\x00\"    Windows imaging (WIM) image")
@@ -9226,7 +5821,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "WLPWM\x00\x00\x00"    Windows imaging (WIM) image, wimlib pipable format
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x4c, 0x50, 0x57, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x4c, 0x50, 0x57, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"WLPWM\\x00\\x00\\x00\"    Windows imaging (WIM) image, wimlib pipable format")
@@ -9236,7 +5831,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x03\x00"    Mallard BASIC program data (v1.11)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x03\\x00\"    Mallard BASIC program data (v1.11)")
@@ -9246,7 +5841,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x04\x00"    Mallard BASIC program data (v1.29+)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x04\\x00\"    Mallard BASIC program data (v1.29+)")
@@ -9256,7 +5851,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x03\x01"    Mallard BASIC protected program data (v1.11)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x03\\x01\"    Mallard BASIC protected program data (v1.11)")
@@ -9266,7 +5861,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x04\x01"    Mallard BASIC protected program data (v1.29+)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x04\\x01\"    Mallard BASIC protected program data (v1.29+)")
@@ -9276,7 +5871,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MIOPEN"    Mallard BASIC Jetsam data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x4f, 0x50, 0x45, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x4f, 0x50, 0x45, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MIOPEN\"    Mallard BASIC Jetsam data")
@@ -9286,7 +5881,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "Jetsam0"    Mallard BASIC Jetsam index data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4a, 0x65, 0x74, 0x73, 0x61, 0x6d, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4a, 0x65, 0x74, 0x73, 0x61, 0x6d, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"Jetsam0\"    Mallard BASIC Jetsam index data")
@@ -9298,7 +5893,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 3
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (int64(int16(iv)) > 0x7bb)
+    m0 = ok && (i64(i16(iv)) > 0x7bb)
     ml = 2
   }
   if m0 {
@@ -9311,7 +5906,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (int64(int8(iv)) < 0x1f)
+      m1 = ok && (i64(i8(iv)) < 0x1f)
       ml = 1
     }
     if m1 {
@@ -9324,7 +5919,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 6
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (int64(int8(iv)) < 0xc)
+        m2 = ok && (i64(i8(iv)) < 0xc)
         ml = 1
       }
       if m2 {
@@ -9335,7 +5930,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>0x7    string    "\x00\x00\x00\x00\x00\x00\x00\x00"    
         off = pageOff + 7
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>0x7    string    \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    ")
@@ -9347,7 +5942,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 1
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -9360,7 +5955,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) == 0xff)
+            m4 = ok && (u64(iv) == 0xff)
             ml = 1
           }
           if m4 {
@@ -9381,7 +5976,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 83
   {
     iv, ok := readUint8be(tb, off)
-    m0 = ok && (int64(int8(iv)) < 0x50)
+    m0 = ok && (i64(i8(iv)) < 0x50)
     ml = 1
   }
   if m0 {
@@ -9392,7 +5987,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x54    string    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"    
     off = pageOff + 84
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x54    string    \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    ")
@@ -9402,7 +5997,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x5    string    "x"    DOS 2.0 backed up file %s,
       off = pageOff + 5
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x5    string    \"x\"    DOS 2.0 backed up file %s,")
@@ -9414,7 +6009,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xff)
+        m2 = ok && (u64(iv) == 0xff)
         ml = 1
       }
       if m2 {
@@ -9427,7 +6022,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) != 0xff)
+        m2 = ok && (u64(iv) != 0xff)
         ml = 1
       }
       if m2 {
@@ -9440,7 +6035,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 1
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 2
         }
         if m3 {
@@ -9457,7 +6052,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\x8bBACKUP "    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x8b, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x8b, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x8bBACKUP \"    ")
@@ -9467,7 +6062,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0xa    string    "\x00\x00\x00\x00\x00\x00\x00\x00"    
     off = pageOff + 10
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xa    string    \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    ")
@@ -9479,7 +6074,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 9
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -9492,7 +6087,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 138
       {
         iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0xff)
+        m2 = ok && (u64(iv) == 0xff)
         ml = 1
       }
       if m2 {
@@ -9506,10 +6101,10 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyMsdosDriver(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -9533,7 +6128,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -9546,7 +6141,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
+      m1 = ok && (u64(iv) == 0x8000)
       ml = 2
     }
     if m1 {
@@ -9560,7 +6155,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x8)
+        m2 = ok && (u64(iv) == 0x8)
         ml = 2
       }
       if m2 {
@@ -9573,7 +6168,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x10)
+        m2 = ok && (u64(iv) == 0x10)
         ml = 2
       }
       if m2 {
@@ -9586,7 +6181,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
+        m2 = ok && (i64(i16(iv)) > 0x0)
         ml = 2
       }
       if m2 {
@@ -9600,7 +6195,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -9613,7 +6208,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -9626,7 +6221,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -9641,7 +6236,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x8000)
+        m2 = ok && (u64(iv) == 0x8000)
         ml = 2
       }
       if m2 {
@@ -9656,7 +6251,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -9676,7 +6271,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 12
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x2e)
+          m3 = ok && (i64(i8(iv)) > 0x2e)
           ml = 1
         }
         if m3 {
@@ -9690,7 +6285,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 10
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9703,7 +6298,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 10
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -9716,7 +6311,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 10
               {
                 iv, ok := readUint8be(tb, off)
-                m6 = ok && (uint64(iv) != 0x2a)
+                m6 = ok && (u64(iv) != 0x2a)
                 ml = 1
               }
               if m6 {
@@ -9733,7 +6328,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 11
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9746,7 +6341,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 11
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -9761,7 +6356,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 12
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9774,7 +6369,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 12
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x39)
+              m5 = ok && (u64(iv) != 0x39)
               ml = 1
             }
             if m5 {
@@ -9787,7 +6382,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 12
               {
                 iv, ok := readUint8be(tb, off)
-                m6 = ok && (uint64(iv) != 0x2e)
+                m6 = ok && (u64(iv) != 0x2e)
                 ml = 1
               }
               if m6 {
@@ -9806,7 +6401,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 13
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x20)
+          m3 = ok && (i64(i8(iv)) > 0x20)
           ml = 1
         }
         if m3 {
@@ -9819,7 +6414,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 13
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (uint64(iv) != 0x2e)
+            m4 = ok && (u64(iv) != 0x2e)
             ml = 1
           }
           if m4 {
@@ -9832,7 +6427,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 14
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9845,7 +6440,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 14
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -9860,7 +6455,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 15
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9873,7 +6468,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 15
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -9888,7 +6483,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 16
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9901,7 +6496,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 16
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -9914,7 +6509,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 16
               {
                 iv, ok := readUint8be(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0xcb)
+                m6 = ok && (i64(i8(iv)) < 0xcb)
                 ml = 1
               }
               if m6 {
@@ -9931,7 +6526,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 17
           {
             iv, ok := readUint8be(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -9944,7 +6539,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 17
             {
               iv, ok := readUint8be(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -9957,7 +6552,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 17
               {
                 iv, ok := readUint8be(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0x90)
+                m6 = ok && (i64(i8(iv)) < 0x90)
                 ml = 1
               }
               if m6 {
@@ -9976,7 +6571,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 12
         {
           iv, ok := readUint8be(tb, off)
-          m3 = ok && (int64(int8(iv)) < 0x2f)
+          m3 = ok && (i64(i8(iv)) < 0x2f)
           ml = 1
         }
         if m3 {
@@ -9987,7 +6582,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>0x16    string    ">."    %-.6s
           off = pageOff + 22
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x16    string    \">.\"    %-.6s")
@@ -10005,7 +6600,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -10018,7 +6613,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 2
       }
       if m2 {
@@ -10033,7 +6628,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
+      m1 = ok && (u64(iv) == 0x40)
       ml = 2
     }
     if m1 {
@@ -10046,7 +6641,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x800)
+      m1 = ok && (u64(iv) == 0x800)
       ml = 2
     }
     if m1 {
@@ -10059,7 +6654,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
+      m1 = ok && (u64(iv) == 0x8000)
       ml = 2
     }
     if m1 {
@@ -10072,7 +6667,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2000)
+        m2 = ok && (u64(iv) == 0x2000)
         ml = 2
       }
       if m2 {
@@ -10087,7 +6682,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4000)
+      m1 = ok && (u64(iv) == 0x4000)
       ml = 2
     }
     if m1 {
@@ -10100,7 +6695,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
+      m1 = ok && (u64(iv) == 0x8000)
       ml = 2
     }
     if m1 {
@@ -10113,7 +6708,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
+        m2 = ok && (i64(i16(iv)) > 0x0)
         ml = 2
       }
       if m2 {
@@ -10128,7 +6723,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -10141,7 +6736,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
+        m2 = ok && (i64(i16(iv)) > 0x0)
         ml = 2
       }
       if m2 {
@@ -10156,7 +6751,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -10169,100 +6764,10 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosCom(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyLotusCells(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0x0    bytele    0    DOS executable (COM)
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    DOS executable (COM)")
-      off += ml
-      out = append(out, "DOS executable (COM)")
-    }
-
-    // >0x6    string    "SFX of LHarc"    \b, %s
-    off = pageOff + 6
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x6f, 0x66, 0x20, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x6    string    \"SFX of LHarc\"    \\b, %s")
-      off += ml
-      out = append(out, "\\b, %s")
-    }
-
-    // >0x1fe    shortle    aa55    \b, boot code
-    off = pageOff + 510
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa55)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x1fe    shortle    aa55    \\b, boot code")
-      off += ml
-      out = append(out, "\\b, boot code")
-    }
-
-    // >0x55    string    "UPX"    \b, UPX compressed
-    off = pageOff + 85
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x55    string    \"UPX\"    \\b, UPX compressed")
-      off += ml
-      out = append(out, "\\b, UPX compressed")
-    }
-
-    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
-    off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $ARX\"    \\b, ARX self-extracting archive")
-      off += ml
-      out = append(out, "\\b, ARX self-extracting archive")
-    }
-
-    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
-    off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $LHarc\"    \\b, LHarc self-extracting archive")
-      off += ml
-      out = append(out, "\\b, LHarc self-extracting archive")
-    }
-
-    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
-    off = pageOff + 526
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x20e    string    \"SFX by LARC\"    \\b, LARC self-extracting archive")
-      off += ml
-      out = append(out, "\\b, LARC self-extracting archive")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -10277,7 +6782,7 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6000800)
+      m1 = ok && (u64(iv) == 0x6000800)
       ml = 4
     }
     if m1 {
@@ -10291,7 +6796,7 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) != 0x0)
+        m2 = ok && (u64(iv) != 0x0)
         ml = 4
       }
       if m2 {
@@ -10304,7 +6809,7 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 2
         }
         if m3 {
@@ -10317,7 +6822,7 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 6
         {
           iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 2
         }
         if m3 {
@@ -10332,7 +6837,7 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 8
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 2
       }
       if m2 {
@@ -10345,7 +6850,7 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 10
       {
         iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 2
       }
       if m2 {
@@ -10359,10 +6864,53 @@ func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyIcoEntry(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0x0    use   cur-ico-entry    
+    off = pageOff + 0
+    // uh oh unhandled kind
+    // >0x4    ushortle    1    \b, %d planes
+    off = pageOff + 4
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (i64(i16(iv)) > 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x4    ushortle    1    \\b, %d planes")
+      off += ml
+      out = append(out, "\\b, %d planes")
+    }
+
+    // >0x6    ushortle    1    \b, %d bits/pixel
+    off = pageOff + 6
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (i64(i16(iv)) > 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x6    ushortle    1    \\b, %d bits/pixel")
+      off += ml
+      out = append(out, "\\b, %d bits/pixel")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyElfLe(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -10376,8 +6924,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x10    shortle    0    no file type,
     off = pageOff + 16
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -10389,8 +6937,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x10    shortle    1    relocatable,
     off = pageOff + 16
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -10402,8 +6950,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x10    shortle    2    executable,
     off = pageOff + 16
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 2
     }
     if m1 {
@@ -10415,8 +6963,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x10    shortle    3    shared object,
     off = pageOff + 16
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3)
       ml = 2
     }
     if m1 {
@@ -10428,8 +6976,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x10    shortle    4    core file
     off = pageOff + 16
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4)
       ml = 2
     }
     if m1 {
@@ -10444,8 +6992,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    0    no machine,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -10457,8 +7005,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    1    AT&T WE32100,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -10470,8 +7018,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2    SPARC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 2
     }
     if m1 {
@@ -10483,8 +7031,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3    Intel 80386,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3)
       ml = 2
     }
     if m1 {
@@ -10496,8 +7044,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4    Motorola m68k,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4)
       ml = 2
     }
     if m1 {
@@ -10510,8 +7058,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -10523,8 +7071,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    0    68020,
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 4
         }
         if m3 {
@@ -10540,8 +7088,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5    Motorola m88k,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5)
       ml = 2
     }
     if m1 {
@@ -10553,8 +7101,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6    Intel 80486,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6)
       ml = 2
     }
     if m1 {
@@ -10566,8 +7114,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    7    Intel 80860,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x7)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x7)
       ml = 2
     }
     if m1 {
@@ -10579,8 +7127,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8    MIPS,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8)
       ml = 2
     }
     if m1 {
@@ -10593,8 +7141,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -10607,8 +7155,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a    MIPS,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa)
       ml = 2
     }
     if m1 {
@@ -10621,8 +7169,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -10635,8 +7183,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8    
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8)
       ml = 2
     }
     if m1 {
@@ -10648,8 +7196,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -10661,8 +7209,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    0&0xf0000000    MIPS-I
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 4
         }
         if m3 {
@@ -10674,8 +7222,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    10000000&0xf0000000    MIPS-II
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x10000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x10000000)
           ml = 4
         }
         if m3 {
@@ -10687,8 +7235,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    20000000&0xf0000000    MIPS-III
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x20000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x20000000)
           ml = 4
         }
         if m3 {
@@ -10700,8 +7248,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x30000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x30000000)
           ml = 4
         }
         if m3 {
@@ -10713,8 +7261,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    40000000&0xf0000000    MIPS-V
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x40000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x40000000)
           ml = 4
         }
         if m3 {
@@ -10726,8 +7274,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    50000000&0xf0000000    MIPS32
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x50000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x50000000)
           ml = 4
         }
         if m3 {
@@ -10739,8 +7287,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    60000000&0xf0000000    MIPS64
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x60000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x60000000)
           ml = 4
         }
         if m3 {
@@ -10752,8 +7300,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x70000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x70000000)
           ml = 4
         }
         if m3 {
@@ -10765,8 +7313,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x80000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x80000000)
           ml = 4
         }
         if m3 {
@@ -10780,8 +7328,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    2    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 1
       }
       if m2 {
@@ -10793,8 +7341,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    0&0xf0000000    MIPS-I
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 4
         }
         if m3 {
@@ -10806,8 +7354,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    10000000&0xf0000000    MIPS-II
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x10000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x10000000)
           ml = 4
         }
         if m3 {
@@ -10819,8 +7367,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    20000000&0xf0000000    MIPS-III
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x20000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x20000000)
           ml = 4
         }
         if m3 {
@@ -10832,8 +7380,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x30000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x30000000)
           ml = 4
         }
         if m3 {
@@ -10845,8 +7393,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    40000000&0xf0000000    MIPS-V
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x40000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x40000000)
           ml = 4
         }
         if m3 {
@@ -10858,8 +7406,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    50000000&0xf0000000    MIPS32
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x50000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x50000000)
           ml = 4
         }
         if m3 {
@@ -10871,8 +7419,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    60000000&0xf0000000    MIPS64
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x60000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x60000000)
           ml = 4
         }
         if m3 {
@@ -10884,8 +7432,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x70000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x70000000)
           ml = 4
         }
         if m3 {
@@ -10897,8 +7445,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x80000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x80000000)
           ml = 4
         }
         if m3 {
@@ -10914,8 +7462,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    9    Amdahl,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x9)
       ml = 2
     }
     if m1 {
@@ -10927,8 +7475,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a    MIPS (deprecated),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa)
       ml = 2
     }
     if m1 {
@@ -10940,8 +7488,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b    RS6000,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb)
       ml = 2
     }
     if m1 {
@@ -10953,8 +7501,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    f    PA-RISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xf)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xf)
       ml = 2
     }
     if m1 {
@@ -10967,8 +7515,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -10980,8 +7528,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x26    shortle    214    2.0
         off = pageOff + 38
         {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x214)
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (u64(iv) == 0x214)
           ml = 2
         }
         if m3 {
@@ -10995,8 +7543,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    2    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 1
       }
       if m2 {
@@ -11008,8 +7556,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x32    shortle    214    2.0
         off = pageOff + 50
         {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x214)
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (u64(iv) == 0x214)
           ml = 2
         }
         if m3 {
@@ -11025,8 +7573,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    10    nCUBE,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x10)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x10)
       ml = 2
     }
     if m1 {
@@ -11038,8 +7586,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    11    Fujitsu VPP500,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x11)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x11)
       ml = 2
     }
     if m1 {
@@ -11051,8 +7599,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    12    SPARC32PLUS,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x12)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x12)
       ml = 2
     }
     if m1 {
@@ -11065,8 +7613,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -11078,8 +7626,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    100&0xffff00    V8+ Required,
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x100)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x100)
           ml = 4
         }
         if m3 {
@@ -11091,8 +7639,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x200)
           ml = 4
         }
         if m3 {
@@ -11104,8 +7652,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x400)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x400)
           ml = 4
         }
         if m3 {
@@ -11117,8 +7665,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x800)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x800)
           ml = 4
         }
         if m3 {
@@ -11134,8 +7682,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    13    Intel 80960,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x13)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x13)
       ml = 2
     }
     if m1 {
@@ -11147,8 +7695,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    14    PowerPC or cisco 4500,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x14)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x14)
       ml = 2
     }
     if m1 {
@@ -11160,8 +7708,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x15)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x15)
       ml = 2
     }
     if m1 {
@@ -11173,8 +7721,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    16    IBM S/390,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x16)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x16)
       ml = 2
     }
     if m1 {
@@ -11186,8 +7734,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    17    Cell SPU,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x17)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x17)
       ml = 2
     }
     if m1 {
@@ -11199,8 +7747,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    18    cisco SVIP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x18)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x18)
       ml = 2
     }
     if m1 {
@@ -11212,8 +7760,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    19    cisco 7200,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x19)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x19)
       ml = 2
     }
     if m1 {
@@ -11225,8 +7773,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    24    NEC V800 or cisco 12000,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x24)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x24)
       ml = 2
     }
     if m1 {
@@ -11238,8 +7786,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    25    Fujitsu FR20,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x25)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x25)
       ml = 2
     }
     if m1 {
@@ -11251,8 +7799,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    26    TRW RH-32,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x26)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x26)
       ml = 2
     }
     if m1 {
@@ -11264,8 +7812,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    27    Motorola RCE,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x27)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x27)
       ml = 2
     }
     if m1 {
@@ -11277,8 +7825,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    28    ARM,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x28)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x28)
       ml = 2
     }
     if m1 {
@@ -11291,8 +7839,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    1    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -11304,8 +7852,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    4000000&0xff000000    EABI4
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x4000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x4000000)
           ml = 4
         }
         if m3 {
@@ -11317,8 +7865,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x24    longle    5000000&0xff000000    EABI5
         off = pageOff + 36
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x5000000)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x5000000)
           ml = 4
         }
         if m3 {
@@ -11334,8 +7882,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    29    Alpha,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x29)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x29)
       ml = 2
     }
     if m1 {
@@ -11347,8 +7895,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2a    Renesas SH,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2a)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2a)
       ml = 2
     }
     if m1 {
@@ -11360,8 +7908,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2b    SPARC V9,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2b)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2b)
       ml = 2
     }
     if m1 {
@@ -11374,8 +7922,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x4    bytele    2    
       off = pageOff + 4
       {
-        iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 1
       }
       if m2 {
@@ -11387,8 +7935,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x200)
           ml = 4
         }
         if m3 {
@@ -11400,8 +7948,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x400)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x400)
           ml = 4
         }
         if m3 {
@@ -11413,8 +7961,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x800)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x800)
           ml = 4
         }
         if m3 {
@@ -11426,8 +7974,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    0&0x3    total store ordering,
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 4
         }
         if m3 {
@@ -11439,8 +7987,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    1&0x3    partial store ordering,
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 4
         }
         if m3 {
@@ -11452,8 +8000,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>0x30    longle    2&0x3    relaxed memory ordering,
         off = pageOff + 48
         {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 4
         }
         if m3 {
@@ -11469,8 +8017,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2c    Siemens Tricore Embedded Processor,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2c)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2c)
       ml = 2
     }
     if m1 {
@@ -11482,8 +8030,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2d)
       ml = 2
     }
     if m1 {
@@ -11495,8 +8043,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2e    Renesas H8/300,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2e)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2e)
       ml = 2
     }
     if m1 {
@@ -11508,8 +8056,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2f    Renesas H8/300H,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2f)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2f)
       ml = 2
     }
     if m1 {
@@ -11521,8 +8069,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    30    Renesas H8S,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x30)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x30)
       ml = 2
     }
     if m1 {
@@ -11534,8 +8082,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    31    Renesas H8/500,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x31)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x31)
       ml = 2
     }
     if m1 {
@@ -11547,8 +8095,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    32    IA-64,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x32)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x32)
       ml = 2
     }
     if m1 {
@@ -11560,8 +8108,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    33    Stanford MIPS-X,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x33)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x33)
       ml = 2
     }
     if m1 {
@@ -11573,8 +8121,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    34    Motorola Coldfire,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x34)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x34)
       ml = 2
     }
     if m1 {
@@ -11586,8 +8134,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    35    Motorola M68HC12,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x35)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x35)
       ml = 2
     }
     if m1 {
@@ -11599,8 +8147,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    36    Fujitsu MMA,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x36)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x36)
       ml = 2
     }
     if m1 {
@@ -11612,8 +8160,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    37    Siemens PCP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x37)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x37)
       ml = 2
     }
     if m1 {
@@ -11625,8 +8173,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    38    Sony nCPU,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x38)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x38)
       ml = 2
     }
     if m1 {
@@ -11638,8 +8186,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    39    Denso NDR1,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x39)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x39)
       ml = 2
     }
     if m1 {
@@ -11651,8 +8199,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3a    Start*Core,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3a)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3a)
       ml = 2
     }
     if m1 {
@@ -11664,8 +8212,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3b    Toyota ME16,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3b)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3b)
       ml = 2
     }
     if m1 {
@@ -11677,8 +8225,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3c    ST100,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3c)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3c)
       ml = 2
     }
     if m1 {
@@ -11690,8 +8238,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3d    Tinyj emb.,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3d)
       ml = 2
     }
     if m1 {
@@ -11703,8 +8251,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3e    x86-64,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3e)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3e)
       ml = 2
     }
     if m1 {
@@ -11716,8 +8264,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3f    Sony DSP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3f)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3f)
       ml = 2
     }
     if m1 {
@@ -11729,8 +8277,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    40    DEC PDP-10,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x40)
       ml = 2
     }
     if m1 {
@@ -11742,8 +8290,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    41    DEC PDP-11,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x41)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x41)
       ml = 2
     }
     if m1 {
@@ -11755,8 +8303,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    42    FX66,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x42)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x42)
       ml = 2
     }
     if m1 {
@@ -11768,8 +8316,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    43    ST9+ 8/16 bit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x43)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x43)
       ml = 2
     }
     if m1 {
@@ -11781,8 +8329,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    44    ST7 8 bit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x44)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x44)
       ml = 2
     }
     if m1 {
@@ -11794,8 +8342,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    45    MC68HC16,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x45)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x45)
       ml = 2
     }
     if m1 {
@@ -11807,8 +8355,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    46    MC68HC11,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x46)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x46)
       ml = 2
     }
     if m1 {
@@ -11820,8 +8368,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    47    MC68HC08,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x47)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x47)
       ml = 2
     }
     if m1 {
@@ -11833,8 +8381,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    48    MC68HC05,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x48)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x48)
       ml = 2
     }
     if m1 {
@@ -11846,8 +8394,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    49    SGI SVx or Cray NV1,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x49)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x49)
       ml = 2
     }
     if m1 {
@@ -11859,8 +8407,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4a    ST19 8 bit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4a)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4a)
       ml = 2
     }
     if m1 {
@@ -11872,8 +8420,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4b    Digital VAX,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4b)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4b)
       ml = 2
     }
     if m1 {
@@ -11885,8 +8433,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4c    Axis cris,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4c)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4c)
       ml = 2
     }
     if m1 {
@@ -11898,8 +8446,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4d    Infineon 32-bit embedded,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4d)
       ml = 2
     }
     if m1 {
@@ -11911,8 +8459,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4e    Element 14 64-bit DSP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4e)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4e)
       ml = 2
     }
     if m1 {
@@ -11924,8 +8472,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4f    LSI Logic 16-bit DSP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4f)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4f)
       ml = 2
     }
     if m1 {
@@ -11937,8 +8485,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    50    MMIX,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x50)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x50)
       ml = 2
     }
     if m1 {
@@ -11950,8 +8498,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    51    Harvard machine-independent,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x51)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x51)
       ml = 2
     }
     if m1 {
@@ -11963,8 +8511,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    52    SiTera Prism,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x52)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x52)
       ml = 2
     }
     if m1 {
@@ -11976,8 +8524,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    53    Atmel AVR 8-bit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x53)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x53)
       ml = 2
     }
     if m1 {
@@ -11989,8 +8537,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    54    Fujitsu FR30,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x54)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x54)
       ml = 2
     }
     if m1 {
@@ -12002,8 +8550,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    55    Mitsubishi D10V,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x55)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x55)
       ml = 2
     }
     if m1 {
@@ -12015,8 +8563,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    56    Mitsubishi D30V,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x56)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x56)
       ml = 2
     }
     if m1 {
@@ -12028,8 +8576,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    57    NEC v850,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x57)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x57)
       ml = 2
     }
     if m1 {
@@ -12041,8 +8589,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    58    Renesas M32R,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x58)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x58)
       ml = 2
     }
     if m1 {
@@ -12054,8 +8602,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    59    Matsushita MN10300,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x59)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x59)
       ml = 2
     }
     if m1 {
@@ -12067,8 +8615,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5a    Matsushita MN10200,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5a)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5a)
       ml = 2
     }
     if m1 {
@@ -12080,8 +8628,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5b    picoJava,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5b)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5b)
       ml = 2
     }
     if m1 {
@@ -12093,8 +8641,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5c    OpenRISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5c)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5c)
       ml = 2
     }
     if m1 {
@@ -12106,8 +8654,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5d    ARC Cores Tangent-A5,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5d)
       ml = 2
     }
     if m1 {
@@ -12119,8 +8667,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5e    Tensilica Xtensa,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5e)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5e)
       ml = 2
     }
     if m1 {
@@ -12132,8 +8680,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5f    Alphamosaic VideoCore,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5f)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5f)
       ml = 2
     }
     if m1 {
@@ -12145,8 +8693,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    60    Thompson Multimedia,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x60)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x60)
       ml = 2
     }
     if m1 {
@@ -12158,8 +8706,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    61    NatSemi 32k,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x61)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x61)
       ml = 2
     }
     if m1 {
@@ -12171,8 +8719,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    62    Tenor Network TPC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x62)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x62)
       ml = 2
     }
     if m1 {
@@ -12184,8 +8732,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    63    Trebia SNP 1000,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x63)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x63)
       ml = 2
     }
     if m1 {
@@ -12197,8 +8745,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    64    STMicroelectronics ST200,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x64)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x64)
       ml = 2
     }
     if m1 {
@@ -12210,8 +8758,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    65    Ubicom IP2022,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x65)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x65)
       ml = 2
     }
     if m1 {
@@ -12223,8 +8771,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    66    MAX Processor,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x66)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x66)
       ml = 2
     }
     if m1 {
@@ -12236,8 +8784,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    67    NatSemi CompactRISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x67)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x67)
       ml = 2
     }
     if m1 {
@@ -12249,8 +8797,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    68    Fujitsu F2MC16,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x68)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x68)
       ml = 2
     }
     if m1 {
@@ -12262,8 +8810,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    69    TI msp430,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x69)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x69)
       ml = 2
     }
     if m1 {
@@ -12275,8 +8823,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6a    Analog Devices Blackfin,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6a)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6a)
       ml = 2
     }
     if m1 {
@@ -12288,8 +8836,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6b)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6b)
       ml = 2
     }
     if m1 {
@@ -12301,8 +8849,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6c    Sharp embedded,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6c)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6c)
       ml = 2
     }
     if m1 {
@@ -12314,8 +8862,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6d    Arca RISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6d)
       ml = 2
     }
     if m1 {
@@ -12327,8 +8875,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6e    PKU-Unity Ltd.,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6e)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6e)
       ml = 2
     }
     if m1 {
@@ -12340,8 +8888,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    6f    eXcess: 16/32/64-bit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6f)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x6f)
       ml = 2
     }
     if m1 {
@@ -12353,8 +8901,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    70    Icera Deep Execution Processor,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x70)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x70)
       ml = 2
     }
     if m1 {
@@ -12366,8 +8914,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    71    Altera Nios II,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x71)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x71)
       ml = 2
     }
     if m1 {
@@ -12379,8 +8927,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    72    NatSemi CRX,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x72)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x72)
       ml = 2
     }
     if m1 {
@@ -12392,8 +8940,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    73    Motorola XGATE,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x73)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x73)
       ml = 2
     }
     if m1 {
@@ -12405,8 +8953,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    74    Infineon C16x/XC16x,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x74)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x74)
       ml = 2
     }
     if m1 {
@@ -12418,8 +8966,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    75    Renesas M16C series,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x75)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x75)
       ml = 2
     }
     if m1 {
@@ -12431,8 +8979,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    76    Microchip dsPIC30F,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x76)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x76)
       ml = 2
     }
     if m1 {
@@ -12444,8 +8992,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    77    Freescale RISC core,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x77)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x77)
       ml = 2
     }
     if m1 {
@@ -12457,8 +9005,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    78    Renesas M32C series,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x78)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x78)
       ml = 2
     }
     if m1 {
@@ -12470,8 +9018,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    83    Altium TSK3000 core,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x83)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x83)
       ml = 2
     }
     if m1 {
@@ -12483,8 +9031,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    84    Freescale RS08,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x84)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x84)
       ml = 2
     }
     if m1 {
@@ -12496,8 +9044,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    86    Cyan Technology eCOG2,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x86)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x86)
       ml = 2
     }
     if m1 {
@@ -12509,8 +9057,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    87    Sunplus S+core7 RISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x87)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x87)
       ml = 2
     }
     if m1 {
@@ -12522,8 +9070,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x88)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x88)
       ml = 2
     }
     if m1 {
@@ -12535,8 +9083,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    89    Broadcom VideoCore III,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x89)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x89)
       ml = 2
     }
     if m1 {
@@ -12548,8 +9096,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8a    LatticeMico32,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8a)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8a)
       ml = 2
     }
     if m1 {
@@ -12561,8 +9109,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8b    Seiko Epson C17 family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8b)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8b)
       ml = 2
     }
     if m1 {
@@ -12574,8 +9122,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8c    TI TMS320C6000 DSP family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8c)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8c)
       ml = 2
     }
     if m1 {
@@ -12587,8 +9135,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8d    TI TMS320C2000 DSP family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8d)
       ml = 2
     }
     if m1 {
@@ -12600,8 +9148,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8e    TI TMS320C55x DSP family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8e)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8e)
       ml = 2
     }
     if m1 {
@@ -12613,8 +9161,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa0)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa0)
       ml = 2
     }
     if m1 {
@@ -12626,8 +9174,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a1    Cypress M8C,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa1)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa1)
       ml = 2
     }
     if m1 {
@@ -12639,8 +9187,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a2    Renesas R32C series,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa2)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa2)
       ml = 2
     }
     if m1 {
@@ -12652,8 +9200,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a3    NXP TriMedia family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa3)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa3)
       ml = 2
     }
     if m1 {
@@ -12665,8 +9213,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a4    QUALCOMM DSP6,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa4)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa4)
       ml = 2
     }
     if m1 {
@@ -12678,8 +9226,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a5    Intel 8051 and variants,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa5)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa5)
       ml = 2
     }
     if m1 {
@@ -12691,8 +9239,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a6    STMicroelectronics STxP7x family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa6)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa6)
       ml = 2
     }
     if m1 {
@@ -12704,8 +9252,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a7    Andes embedded RISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa7)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa7)
       ml = 2
     }
     if m1 {
@@ -12717,8 +9265,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a8    Cyan eCOG1X family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa8)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa8)
       ml = 2
     }
     if m1 {
@@ -12730,8 +9278,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a9    Dallas MAXQ30,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa9)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa9)
       ml = 2
     }
     if m1 {
@@ -12743,8 +9291,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xaa)
       ml = 2
     }
     if m1 {
@@ -12756,8 +9304,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    ab    M2000 Reconfigurable RISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xab)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xab)
       ml = 2
     }
     if m1 {
@@ -12769,8 +9317,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    ac    Cray NV2 vector architecture,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xac)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xac)
       ml = 2
     }
     if m1 {
@@ -12782,8 +9330,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    ad    Renesas RX family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xad)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xad)
       ml = 2
     }
     if m1 {
@@ -12795,8 +9343,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    ae    META,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xae)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xae)
       ml = 2
     }
     if m1 {
@@ -12808,8 +9356,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    af    MCST Elbrus,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xaf)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xaf)
       ml = 2
     }
     if m1 {
@@ -12821,8 +9369,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b0    Cyan Technology eCOG16 family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb0)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb0)
       ml = 2
     }
     if m1 {
@@ -12834,8 +9382,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b1    NatSemi CompactRISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb1)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb1)
       ml = 2
     }
     if m1 {
@@ -12847,8 +9395,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb2)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb2)
       ml = 2
     }
     if m1 {
@@ -12860,8 +9408,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b3    Infineon SLE9X,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb3)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb3)
       ml = 2
     }
     if m1 {
@@ -12873,8 +9421,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b4    Intel L1OM,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb4)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb4)
       ml = 2
     }
     if m1 {
@@ -12886,8 +9434,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b5    Intel K1OM,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb5)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb5)
       ml = 2
     }
     if m1 {
@@ -12899,8 +9447,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b7    ARM aarch64,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb7)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb7)
       ml = 2
     }
     if m1 {
@@ -12912,8 +9460,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    b9    Atmel 32-bit family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xb9)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xb9)
       ml = 2
     }
     if m1 {
@@ -12925,8 +9473,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xba)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xba)
       ml = 2
     }
     if m1 {
@@ -12938,8 +9486,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    bb    Tilera TILE64,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbb)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbb)
       ml = 2
     }
     if m1 {
@@ -12951,8 +9499,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    bc    Tilera TILEPro,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbc)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbc)
       ml = 2
     }
     if m1 {
@@ -12964,8 +9512,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbd)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbd)
       ml = 2
     }
     if m1 {
@@ -12977,8 +9525,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    be    NVIDIA CUDA architecture,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbe)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbe)
       ml = 2
     }
     if m1 {
@@ -12990,8 +9538,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    bf    Tilera TILE-Gx,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbf)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbf)
       ml = 2
     }
     if m1 {
@@ -13003,8 +9551,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    c5    Renesas RL78 family,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xc5)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xc5)
       ml = 2
     }
     if m1 {
@@ -13016,8 +9564,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    c7    Renesas 78K0R,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xc7)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xc7)
       ml = 2
     }
     if m1 {
@@ -13029,8 +9577,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    1057    AVR (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1057)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x1057)
       ml = 2
     }
     if m1 {
@@ -13042,8 +9590,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    1059    MSP430 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1059)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x1059)
       ml = 2
     }
     if m1 {
@@ -13055,8 +9603,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1223)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x1223)
       ml = 2
     }
     if m1 {
@@ -13068,8 +9616,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    2530    Morpho MT (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2530)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x2530)
       ml = 2
     }
     if m1 {
@@ -13081,8 +9629,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3330    FR30 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3330)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3330)
       ml = 2
     }
     if m1 {
@@ -13094,8 +9642,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    3426    OpenRISC (obsolete),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x3426)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x3426)
       ml = 2
     }
     if m1 {
@@ -13107,8 +9655,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    4688    Infineon C166 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4688)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x4688)
       ml = 2
     }
     if m1 {
@@ -13120,8 +9668,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5441    Cygnus FRV (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5441)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5441)
       ml = 2
     }
     if m1 {
@@ -13133,8 +9681,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    5aa5    DLX (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x5aa5)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x5aa5)
       ml = 2
     }
     if m1 {
@@ -13146,8 +9694,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    7650    Cygnus D10V (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x7650)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x7650)
       ml = 2
     }
     if m1 {
@@ -13159,8 +9707,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    7676    Cygnus D30V (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x7676)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x7676)
       ml = 2
     }
     if m1 {
@@ -13172,8 +9720,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8217)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8217)
       ml = 2
     }
     if m1 {
@@ -13185,8 +9733,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    8472    OpenRISC (obsolete),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8472)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x8472)
       ml = 2
     }
     if m1 {
@@ -13198,8 +9746,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9025)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x9025)
       ml = 2
     }
     if m1 {
@@ -13211,8 +9759,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    9026    Alpha (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9026)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x9026)
       ml = 2
     }
     if m1 {
@@ -13224,8 +9772,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    9041    Cygnus M32R (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9041)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x9041)
       ml = 2
     }
     if m1 {
@@ -13237,8 +9785,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    9080    Cygnus V850 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9080)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x9080)
       ml = 2
     }
     if m1 {
@@ -13250,8 +9798,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    a390    IBM S/390 (obsolete),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa390)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xa390)
       ml = 2
     }
     if m1 {
@@ -13263,8 +9811,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    abc7    Old Xtensa (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xabc7)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xabc7)
       ml = 2
     }
     if m1 {
@@ -13276,8 +9824,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    ad45    xstormy16 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xad45)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xad45)
       ml = 2
     }
     if m1 {
@@ -13289,8 +9837,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbaab)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbaab)
       ml = 2
     }
     if m1 {
@@ -13302,8 +9850,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xbeef)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xbeef)
       ml = 2
     }
     if m1 {
@@ -13315,8 +9863,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xdead)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xdead)
       ml = 2
     }
     if m1 {
@@ -13328,8 +9876,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    f00d    Toshiba MeP (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xf00d)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xf00d)
       ml = 2
     }
     if m1 {
@@ -13341,8 +9889,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    feb0    Renesas M32C (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeb0)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xfeb0)
       ml = 2
     }
     if m1 {
@@ -13354,8 +9902,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeba)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xfeba)
       ml = 2
     }
     if m1 {
@@ -13367,8 +9915,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    febb    NIOS (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfebb)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xfebb)
       ml = 2
     }
     if m1 {
@@ -13380,8 +9928,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x12    shortle    feed    Moxie (unofficial),
     off = pageOff + 18
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeed)
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xfeed)
       ml = 2
     }
     if m1 {
@@ -13397,8 +9945,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x12    shortle    0    *unknown arch 0x%x*
       off = pageOff + 18
       {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        iv, ok := readUint16be(tb, off)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 2
       }
       if m2 {
@@ -13412,8 +9960,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x14    longle    0    invalid version
     off = pageOff + 20
     {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -13425,8 +9973,8 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x14    longle    1    version 1
     off = pageOff + 20
     {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 4
     }
     if m1 {
@@ -13439,10 +9987,583 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyCurIcoDir(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+  m4 := false
+  m4 = !!m4
+
+  if m0 {
+    if m1 {
+      // >>(0x12.longle)    ulongle    0    MS Windows
+      // uh oh indirect offset
+      {
+        iv, ok := readUint32be(tb, off)
+        m2 = ok && (u64(iv) == 0x0)
+        ml = 4
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>(0x12.longle)    ulongle    0    MS Windows")
+        off += ml
+        out = append(out, "MS Windows")
+      }
+
+      if m2 {
+        // >>>0x0    ulongbe    100    icon resource
+        off = pageOff + 0
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x100)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x0    ulongbe    100    icon resource")
+          off += ml
+          out = append(out, "icon resource")
+        }
+
+        if m3 {
+          // >>>>0x4    ushortle    0    - %d icon
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (u64(iv) == 0x0)
+            ml = 2
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    0    - %d icon")
+            off += ml
+            out = append(out, "- %d icon")
+          }
+
+          // >>>>0x4    ushortle    1    \bs
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (i64(i16(iv)) > 0x1)
+            ml = 2
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    1    \\bs")
+            off += ml
+            out = append(out, "\\bs")
+          }
+
+          // >>>>0x6    use   ico-entry    
+          off = pageOff + 6
+          // uh oh unhandled kind
+          // >>>>0x4    ushortle    1    
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (i64(i16(iv)) > 0x1)
+            ml = 2
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    1    ")
+            off += ml
+          }
+
+          if m4 {
+            // >>>>>0x16    use   ico-entry    
+            off = pageOff + 22
+            // uh oh unhandled kind
+          }
+          m4 = false
+        }
+        m3 = false
+        // >>>0x0    ulongbe    200    cursor resource
+        off = pageOff + 0
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x200)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x0    ulongbe    200    cursor resource")
+          off += ml
+          out = append(out, "cursor resource")
+        }
+
+        if m3 {
+          // >>>>0x4    ushortle    0    - %d icon
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (u64(iv) == 0x0)
+            ml = 2
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    0    - %d icon")
+            off += ml
+            out = append(out, "- %d icon")
+          }
+
+          // >>>>0x4    ushortle    1    \bs
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (i64(i16(iv)) > 0x1)
+            ml = 2
+          }
+          if m4 {
+            fmt.Printf("matched rule: %s\n", ">>>>0x4    ushortle    1    \\bs")
+            off += ml
+            out = append(out, "\\bs")
+          }
+
+          // >>>>0x6    use   cur-entry    
+          off = pageOff + 6
+          // uh oh unhandled kind
+        }
+      }
+    }
+  }
+  return out, nil
+}
+
+func IdentifyCurEntry(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0x0    use   cur-ico-entry    
+    off = pageOff + 0
+    // uh oh unhandled kind
+    // >0x4    ushortle    0    \b, hotspot @%dx
+    off = pageOff + 4
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x4    ushortle    0    \\b, hotspot @%dx")
+      off += ml
+      out = append(out, "\\b, hotspot @%dx")
+    }
+
+    // >0x6    ushortle    0    \b%d
+    off = pageOff + 6
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x6    ushortle    0    \\b%d")
+      off += ml
+      out = append(out, "\\b%d")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyCurIcoEntry(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0x0    bytele    0    \b, 256x
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, 256x")
+      off += ml
+      out = append(out, "\\b, 256x")
+    }
+
+    // >0x0    bytele    0    \b, %dx
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (u64(iv) != 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, %dx")
+      off += ml
+      out = append(out, "\\b, %dx")
+    }
+
+    // >0x1    bytele    0    \b256
+    off = pageOff + 1
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b256")
+      off += ml
+      out = append(out, "\\b256")
+    }
+
+    // >0x1    bytele    0    \b%d
+    off = pageOff + 1
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (u64(iv) != 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b%d")
+      off += ml
+      out = append(out, "\\b%d")
+    }
+
+    // >0x2    ubytele    0    \b, %d colors
+    off = pageOff + 2
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (u64(iv) != 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x2    ubytele    0    \\b, %d colors")
+      off += ml
+      out = append(out, "\\b, %d colors")
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (u64(iv) == 0x89504e47)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
+      off += ml
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (u64(iv) != 0x89504e47)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
+      off += ml
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyMsdosCom(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0x0    bytele    0    DOS executable (COM)
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    DOS executable (COM)")
+      off += ml
+      out = append(out, "DOS executable (COM)")
+    }
+
+    // >0x6    string    "SFX of LHarc"    \b, %s
+    off = pageOff + 6
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x6f, 0x66, 0x20, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x6    string    \"SFX of LHarc\"    \\b, %s")
+      off += ml
+      out = append(out, "\\b, %s")
+    }
+
+    // >0x1fe    shortle    aa55    \b, boot code
+    off = pageOff + 510
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (u64(iv) == 0xaa55)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x1fe    shortle    aa55    \\b, boot code")
+      off += ml
+      out = append(out, "\\b, boot code")
+    }
+
+    // >0x55    string    "UPX"    \b, UPX compressed
+    off = pageOff + 85
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x55    string    \"UPX\"    \\b, UPX compressed")
+      off += ml
+      out = append(out, "\\b, UPX compressed")
+    }
+
+    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
+    off = pageOff + 4
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $ARX\"    \\b, ARX self-extracting archive")
+      off += ml
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
+
+    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
+    off = pageOff + 4
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $LHarc\"    \\b, LHarc self-extracting archive")
+      off += ml
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
+
+    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
+    off = pageOff + 526
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x20e    string    \"SFX by LARC\"    \\b, LARC self-extracting archive")
+      off += ml
+      out = append(out, "\\b, LARC self-extracting archive")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0x0    bytele    0    \b, 256x
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, 256x")
+      off += ml
+      out = append(out, "\\b, 256x")
+    }
+
+    // >0x0    bytele    0    \b, %dx
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (u64(iv) != 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, %dx")
+      off += ml
+      out = append(out, "\\b, %dx")
+    }
+
+    // >0x1    bytele    0    \b256
+    off = pageOff + 1
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b256")
+      off += ml
+      out = append(out, "\\b256")
+    }
+
+    // >0x1    bytele    0    \b%d
+    off = pageOff + 1
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (u64(iv) != 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b%d")
+      off += ml
+      out = append(out, "\\b%d")
+    }
+
+    // >0x2    ubytele    0    \b, %d colors
+    off = pageOff + 2
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (u64(iv) != 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x2    ubytele    0    \\b, %d colors")
+      off += ml
+      out = append(out, "\\b, %d colors")
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (u64(iv) == 0x89504e47)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
+      off += ml
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (u64(iv) != 0x89504e47)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
+      off += ml
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyMsdosCom__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+
+  if m0 {
+    // >0x0    bytele    0    DOS executable (COM)
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 1
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    DOS executable (COM)")
+      off += ml
+      out = append(out, "DOS executable (COM)")
+    }
+
+    // >0x6    string    "SFX of LHarc"    \b, %s
+    off = pageOff + 6
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x6f, 0x66, 0x20, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x6    string    \"SFX of LHarc\"    \\b, %s")
+      off += ml
+      out = append(out, "\\b, %s")
+    }
+
+    // >0x1fe    shortle    aa55    \b, boot code
+    off = pageOff + 510
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xaa55)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x1fe    shortle    aa55    \\b, boot code")
+      off += ml
+      out = append(out, "\\b, boot code")
+    }
+
+    // >0x55    string    "UPX"    \b, UPX compressed
+    off = pageOff + 85
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x55    string    \"UPX\"    \\b, UPX compressed")
+      off += ml
+      out = append(out, "\\b, UPX compressed")
+    }
+
+    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
+    off = pageOff + 4
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $ARX\"    \\b, ARX self-extracting archive")
+      off += ml
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
+
+    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
+    off = pageOff + 4
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $LHarc\"    \\b, LHarc self-extracting archive")
+      off += ml
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
+
+    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
+    off = pageOff + 526
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    m1 = ml >= 0
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x20e    string    \"SFX by LARC\"    \\b, LARC self-extracting archive")
+      off += ml
+      out = append(out, "\\b, LARC self-extracting archive")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyCurIcoDir__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -13460,7 +10581,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint32le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 4
       }
       if m2 {
@@ -13474,7 +10595,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 0
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x100)
+          m3 = ok && (u64(iv) == 0x100)
           ml = 4
         }
         if m3 {
@@ -13488,7 +10609,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -13501,7 +10622,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
+            m4 = ok && (i64(i16(iv)) > 0x1)
             ml = 2
           }
           if m4 {
@@ -13517,7 +10638,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
+            m4 = ok && (i64(i16(iv)) > 0x1)
             ml = 2
           }
           if m4 {
@@ -13537,7 +10658,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 0
         {
           iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
+          m3 = ok && (u64(iv) == 0x200)
           ml = 4
         }
         if m3 {
@@ -13551,7 +10672,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -13564,7 +10685,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
+            m4 = ok && (i64(i16(iv)) > 0x1)
             ml = 2
           }
           if m4 {
@@ -13583,10 +10704,10 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyCurEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -13600,7 +10721,7 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -13613,7 +10734,7 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 6
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -13626,10 +10747,110 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyLotusCells__Swapped(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+
+  if m0 {
+    // >0x0    ulongbe    6000800    \b, cell range
+    off = pageOff + 0
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (u64(iv) == 0x6000800)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x0    ulongbe    6000800    \\b, cell range")
+      off += ml
+      out = append(out, "\\b, cell range")
+    }
+
+    if m1 {
+      // >>0x4    ulongle    0    
+      off = pageOff + 4
+      {
+        iv, ok := readUint32le(tb, off)
+        m2 = ok && (u64(iv) != 0x0)
+        ml = 4
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    ulongle    0    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x4    ushortle    0    \b%d,
+        off = pageOff + 4
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x4    ushortle    0    \\b%d,")
+          off += ml
+          out = append(out, "\\b%d,")
+        }
+
+        // >>>0x6    ushortle    0    \b%d-
+        off = pageOff + 6
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x6    ushortle    0    \\b%d-")
+          off += ml
+          out = append(out, "\\b%d-")
+        }
+
+      }
+      m2 = false
+      // >>0x8    ushortle    0    \b%d,
+      off = pageOff + 8
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (u64(iv) == 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x8    ushortle    0    \\b%d,")
+        off += ml
+        out = append(out, "\\b%d,")
+      }
+
+      // >>0xa    ushortle    0    \b%d
+      off = pageOff + 10
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (u64(iv) == 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0xa    ushortle    0    \\b%d")
+        off += ml
+        out = append(out, "\\b%d")
+      }
+
+    }
+  }
+  return out, nil
+}
+
+func IdentifyIcoEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -13643,7 +10864,7 @@ func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -13656,7 +10877,7 @@ func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 6
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -13669,10 +10890,3090 @@ func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyElfLe__Swapped(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
+  m0 := false
+  m0 = !!m0
+  m1 := false
+  m1 = !!m1
+  m2 := false
+  m2 = !!m2
+  m3 := false
+  m3 = !!m3
+
+  if m0 {
+    // >0x10    shortle    0    no file type,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x10    shortle    0    no file type,")
+      off += ml
+      out = append(out, "no file type,")
+    }
+
+    // >0x10    shortle    1    relocatable,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x10    shortle    1    relocatable,")
+      off += ml
+      out = append(out, "relocatable,")
+    }
+
+    // >0x10    shortle    2    executable,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x10    shortle    2    executable,")
+      off += ml
+      out = append(out, "executable,")
+    }
+
+    // >0x10    shortle    3    shared object,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x10    shortle    3    shared object,")
+      off += ml
+      out = append(out, "shared object,")
+    }
+
+    // >0x10    shortle    4    core file
+    off = pageOff + 16
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x10    shortle    4    core file")
+      off += ml
+      out = append(out, "core file")
+    }
+
+    // >0x12    clear    
+    off = pageOff + 18
+    // uh oh unhandled kind
+    // >0x12    shortle    0    no machine,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    0    no machine,")
+      off += ml
+      out = append(out, "no machine,")
+    }
+
+    // >0x12    shortle    1    AT&T WE32100,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1    AT&T WE32100,")
+      off += ml
+      out = append(out, "AT&T WE32100,")
+    }
+
+    // >0x12    shortle    2    SPARC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2    SPARC,")
+      off += ml
+      out = append(out, "SPARC,")
+    }
+
+    // >0x12    shortle    3    Intel 80386,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3    Intel 80386,")
+      off += ml
+      out = append(out, "Intel 80386,")
+    }
+
+    // >0x12    shortle    4    Motorola m68k,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4    Motorola m68k,")
+      off += ml
+      out = append(out, "Motorola m68k,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x24    longle    0    68020,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    0    68020,")
+          off += ml
+          out = append(out, "68020,")
+        }
+
+      }
+      m2 = false
+    }
+    m1 = false
+    // >0x12    shortle    5    Motorola m88k,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5    Motorola m88k,")
+      off += ml
+      out = append(out, "Motorola m88k,")
+    }
+
+    // >0x12    shortle    6    Intel 80486,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6    Intel 80486,")
+      off += ml
+      out = append(out, "Intel 80486,")
+    }
+
+    // >0x12    shortle    7    Intel 80860,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x7)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    7    Intel 80860,")
+      off += ml
+      out = append(out, "Intel 80860,")
+    }
+
+    // >0x12    shortle    8    MIPS,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8    MIPS,")
+      off += ml
+      out = append(out, "MIPS,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+    }
+    m1 = false
+    // >0x12    shortle    a    MIPS,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a    MIPS,")
+      off += ml
+      out = append(out, "MIPS,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+    }
+    m1 = false
+    // >0x12    shortle    8    
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8    ")
+      off += ml
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x24    longle    0&0xf0000000    MIPS-I
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    0&0xf0000000    MIPS-I")
+          off += ml
+          out = append(out, "MIPS-I")
+        }
+
+        // >>>0x24    longle    10000000&0xf0000000    MIPS-II
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x10000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    10000000&0xf0000000    MIPS-II")
+          off += ml
+          out = append(out, "MIPS-II")
+        }
+
+        // >>>0x24    longle    20000000&0xf0000000    MIPS-III
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x20000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    20000000&0xf0000000    MIPS-III")
+          off += ml
+          out = append(out, "MIPS-III")
+        }
+
+        // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x30000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    30000000&0xf0000000    MIPS-IV")
+          off += ml
+          out = append(out, "MIPS-IV")
+        }
+
+        // >>>0x24    longle    40000000&0xf0000000    MIPS-V
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x40000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    40000000&0xf0000000    MIPS-V")
+          off += ml
+          out = append(out, "MIPS-V")
+        }
+
+        // >>>0x24    longle    50000000&0xf0000000    MIPS32
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x50000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    50000000&0xf0000000    MIPS32")
+          off += ml
+          out = append(out, "MIPS32")
+        }
+
+        // >>>0x24    longle    60000000&0xf0000000    MIPS64
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x60000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    60000000&0xf0000000    MIPS64")
+          off += ml
+          out = append(out, "MIPS64")
+        }
+
+        // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x70000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    70000000&0xf0000000    MIPS32 rel2")
+          off += ml
+          out = append(out, "MIPS32 rel2")
+        }
+
+        // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x80000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    80000000&0xf0000000    MIPS64 rel2")
+          off += ml
+          out = append(out, "MIPS64 rel2")
+        }
+
+      }
+      m2 = false
+      // >>0x4    bytele    2    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x2)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    2    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x30    longle    0&0xf0000000    MIPS-I
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    0&0xf0000000    MIPS-I")
+          off += ml
+          out = append(out, "MIPS-I")
+        }
+
+        // >>>0x30    longle    10000000&0xf0000000    MIPS-II
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x10000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    10000000&0xf0000000    MIPS-II")
+          off += ml
+          out = append(out, "MIPS-II")
+        }
+
+        // >>>0x30    longle    20000000&0xf0000000    MIPS-III
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x20000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    20000000&0xf0000000    MIPS-III")
+          off += ml
+          out = append(out, "MIPS-III")
+        }
+
+        // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x30000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    30000000&0xf0000000    MIPS-IV")
+          off += ml
+          out = append(out, "MIPS-IV")
+        }
+
+        // >>>0x30    longle    40000000&0xf0000000    MIPS-V
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x40000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    40000000&0xf0000000    MIPS-V")
+          off += ml
+          out = append(out, "MIPS-V")
+        }
+
+        // >>>0x30    longle    50000000&0xf0000000    MIPS32
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x50000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    50000000&0xf0000000    MIPS32")
+          off += ml
+          out = append(out, "MIPS32")
+        }
+
+        // >>>0x30    longle    60000000&0xf0000000    MIPS64
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x60000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    60000000&0xf0000000    MIPS64")
+          off += ml
+          out = append(out, "MIPS64")
+        }
+
+        // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x70000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    70000000&0xf0000000    MIPS32 rel2")
+          off += ml
+          out = append(out, "MIPS32 rel2")
+        }
+
+        // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x80000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    80000000&0xf0000000    MIPS64 rel2")
+          off += ml
+          out = append(out, "MIPS64 rel2")
+        }
+
+      }
+      m2 = false
+    }
+    m1 = false
+    // >0x12    shortle    9    Amdahl,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x9)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9    Amdahl,")
+      off += ml
+      out = append(out, "Amdahl,")
+    }
+
+    // >0x12    shortle    a    MIPS (deprecated),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a    MIPS (deprecated),")
+      off += ml
+      out = append(out, "MIPS (deprecated),")
+    }
+
+    // >0x12    shortle    b    RS6000,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b    RS6000,")
+      off += ml
+      out = append(out, "RS6000,")
+    }
+
+    // >0x12    shortle    f    PA-RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xf)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    f    PA-RISC,")
+      off += ml
+      out = append(out, "PA-RISC,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x26    shortle    214    2.0
+        off = pageOff + 38
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (u64(iv) == 0x214)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x26    shortle    214    2.0")
+          off += ml
+          out = append(out, "2.0")
+        }
+
+      }
+      m2 = false
+      // >>0x4    bytele    2    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x2)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    2    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x32    shortle    214    2.0
+        off = pageOff + 50
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (u64(iv) == 0x214)
+          ml = 2
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x32    shortle    214    2.0")
+          off += ml
+          out = append(out, "2.0")
+        }
+
+      }
+      m2 = false
+    }
+    m1 = false
+    // >0x12    shortle    10    nCUBE,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x10)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    10    nCUBE,")
+      off += ml
+      out = append(out, "nCUBE,")
+    }
+
+    // >0x12    shortle    11    Fujitsu VPP500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x11)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    11    Fujitsu VPP500,")
+      off += ml
+      out = append(out, "Fujitsu VPP500,")
+    }
+
+    // >0x12    shortle    12    SPARC32PLUS,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x12)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    12    SPARC32PLUS,")
+      off += ml
+      out = append(out, "SPARC32PLUS,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x24    longle    100&0xffff00    V8+ Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x100)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    100&0xffff00    V8+ Required,")
+          off += ml
+          out = append(out, "V8+ Required,")
+        }
+
+        // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x200)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,")
+          off += ml
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
+        }
+
+        // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x400)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,")
+          off += ml
+          out = append(out, "HaL R1 Extensions Required,")
+        }
+
+        // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x800)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,")
+          off += ml
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
+        }
+
+      }
+      m2 = false
+    }
+    m1 = false
+    // >0x12    shortle    13    Intel 80960,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x13)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    13    Intel 80960,")
+      off += ml
+      out = append(out, "Intel 80960,")
+    }
+
+    // >0x12    shortle    14    PowerPC or cisco 4500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x14)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    14    PowerPC or cisco 4500,")
+      off += ml
+      out = append(out, "PowerPC or cisco 4500,")
+    }
+
+    // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x15)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    15    64-bit PowerPC or cisco 7500,")
+      off += ml
+      out = append(out, "64-bit PowerPC or cisco 7500,")
+    }
+
+    // >0x12    shortle    16    IBM S/390,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x16)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    16    IBM S/390,")
+      off += ml
+      out = append(out, "IBM S/390,")
+    }
+
+    // >0x12    shortle    17    Cell SPU,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x17)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    17    Cell SPU,")
+      off += ml
+      out = append(out, "Cell SPU,")
+    }
+
+    // >0x12    shortle    18    cisco SVIP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x18)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    18    cisco SVIP,")
+      off += ml
+      out = append(out, "cisco SVIP,")
+    }
+
+    // >0x12    shortle    19    cisco 7200,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x19)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    19    cisco 7200,")
+      off += ml
+      out = append(out, "cisco 7200,")
+    }
+
+    // >0x12    shortle    24    NEC V800 or cisco 12000,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x24)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    24    NEC V800 or cisco 12000,")
+      off += ml
+      out = append(out, "NEC V800 or cisco 12000,")
+    }
+
+    // >0x12    shortle    25    Fujitsu FR20,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x25)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    25    Fujitsu FR20,")
+      off += ml
+      out = append(out, "Fujitsu FR20,")
+    }
+
+    // >0x12    shortle    26    TRW RH-32,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x26)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    26    TRW RH-32,")
+      off += ml
+      out = append(out, "TRW RH-32,")
+    }
+
+    // >0x12    shortle    27    Motorola RCE,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x27)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    27    Motorola RCE,")
+      off += ml
+      out = append(out, "Motorola RCE,")
+    }
+
+    // >0x12    shortle    28    ARM,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x28)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    28    ARM,")
+      off += ml
+      out = append(out, "ARM,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x1)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    1    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x24    longle    4000000&0xff000000    EABI4
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x4000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    4000000&0xff000000    EABI4")
+          off += ml
+          out = append(out, "EABI4")
+        }
+
+        // >>>0x24    longle    5000000&0xff000000    EABI5
+        off = pageOff + 36
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x5000000)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x24    longle    5000000&0xff000000    EABI5")
+          off += ml
+          out = append(out, "EABI5")
+        }
+
+      }
+      m2 = false
+    }
+    m1 = false
+    // >0x12    shortle    29    Alpha,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x29)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    29    Alpha,")
+      off += ml
+      out = append(out, "Alpha,")
+    }
+
+    // >0x12    shortle    2a    Renesas SH,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2a)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2a    Renesas SH,")
+      off += ml
+      out = append(out, "Renesas SH,")
+    }
+
+    // >0x12    shortle    2b    SPARC V9,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2b)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2b    SPARC V9,")
+      off += ml
+      out = append(out, "SPARC V9,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    2    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8le(tb, off)
+        m2 = ok && (u64(iv) == 0x2)
+        ml = 1
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x4    bytele    2    ")
+        off += ml
+      }
+
+      if m2 {
+        // >>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x200)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,")
+          off += ml
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
+        }
+
+        // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x400)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,")
+          off += ml
+          out = append(out, "HaL R1 Extensions Required,")
+        }
+
+        // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x800)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,")
+          off += ml
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
+        }
+
+        // >>>0x30    longle    0&0x3    total store ordering,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x0)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    0&0x3    total store ordering,")
+          off += ml
+          out = append(out, "total store ordering,")
+        }
+
+        // >>>0x30    longle    1&0x3    partial store ordering,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x1)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    1&0x3    partial store ordering,")
+          off += ml
+          out = append(out, "partial store ordering,")
+        }
+
+        // >>>0x30    longle    2&0x3    relaxed memory ordering,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (u64(iv) == 0x2)
+          ml = 4
+        }
+        if m3 {
+          fmt.Printf("matched rule: %s\n", ">>>0x30    longle    2&0x3    relaxed memory ordering,")
+          off += ml
+          out = append(out, "relaxed memory ordering,")
+        }
+
+      }
+      m2 = false
+    }
+    m1 = false
+    // >0x12    shortle    2c    Siemens Tricore Embedded Processor,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2c)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2c    Siemens Tricore Embedded Processor,")
+      off += ml
+      out = append(out, "Siemens Tricore Embedded Processor,")
+    }
+
+    // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,")
+      off += ml
+      out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
+    }
+
+    // >0x12    shortle    2e    Renesas H8/300,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2e)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2e    Renesas H8/300,")
+      off += ml
+      out = append(out, "Renesas H8/300,")
+    }
+
+    // >0x12    shortle    2f    Renesas H8/300H,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2f)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2f    Renesas H8/300H,")
+      off += ml
+      out = append(out, "Renesas H8/300H,")
+    }
+
+    // >0x12    shortle    30    Renesas H8S,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x30)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    30    Renesas H8S,")
+      off += ml
+      out = append(out, "Renesas H8S,")
+    }
+
+    // >0x12    shortle    31    Renesas H8/500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x31)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    31    Renesas H8/500,")
+      off += ml
+      out = append(out, "Renesas H8/500,")
+    }
+
+    // >0x12    shortle    32    IA-64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x32)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    32    IA-64,")
+      off += ml
+      out = append(out, "IA-64,")
+    }
+
+    // >0x12    shortle    33    Stanford MIPS-X,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x33)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    33    Stanford MIPS-X,")
+      off += ml
+      out = append(out, "Stanford MIPS-X,")
+    }
+
+    // >0x12    shortle    34    Motorola Coldfire,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x34)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    34    Motorola Coldfire,")
+      off += ml
+      out = append(out, "Motorola Coldfire,")
+    }
+
+    // >0x12    shortle    35    Motorola M68HC12,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x35)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    35    Motorola M68HC12,")
+      off += ml
+      out = append(out, "Motorola M68HC12,")
+    }
+
+    // >0x12    shortle    36    Fujitsu MMA,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x36)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    36    Fujitsu MMA,")
+      off += ml
+      out = append(out, "Fujitsu MMA,")
+    }
+
+    // >0x12    shortle    37    Siemens PCP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x37)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    37    Siemens PCP,")
+      off += ml
+      out = append(out, "Siemens PCP,")
+    }
+
+    // >0x12    shortle    38    Sony nCPU,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x38)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    38    Sony nCPU,")
+      off += ml
+      out = append(out, "Sony nCPU,")
+    }
+
+    // >0x12    shortle    39    Denso NDR1,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x39)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    39    Denso NDR1,")
+      off += ml
+      out = append(out, "Denso NDR1,")
+    }
+
+    // >0x12    shortle    3a    Start*Core,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3a)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3a    Start*Core,")
+      off += ml
+      out = append(out, "Start*Core,")
+    }
+
+    // >0x12    shortle    3b    Toyota ME16,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3b)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3b    Toyota ME16,")
+      off += ml
+      out = append(out, "Toyota ME16,")
+    }
+
+    // >0x12    shortle    3c    ST100,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3c)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3c    ST100,")
+      off += ml
+      out = append(out, "ST100,")
+    }
+
+    // >0x12    shortle    3d    Tinyj emb.,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3d    Tinyj emb.,")
+      off += ml
+      out = append(out, "Tinyj emb.,")
+    }
+
+    // >0x12    shortle    3e    x86-64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3e)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3e    x86-64,")
+      off += ml
+      out = append(out, "x86-64,")
+    }
+
+    // >0x12    shortle    3f    Sony DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3f)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3f    Sony DSP,")
+      off += ml
+      out = append(out, "Sony DSP,")
+    }
+
+    // >0x12    shortle    40    DEC PDP-10,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x40)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    40    DEC PDP-10,")
+      off += ml
+      out = append(out, "DEC PDP-10,")
+    }
+
+    // >0x12    shortle    41    DEC PDP-11,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x41)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    41    DEC PDP-11,")
+      off += ml
+      out = append(out, "DEC PDP-11,")
+    }
+
+    // >0x12    shortle    42    FX66,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x42)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    42    FX66,")
+      off += ml
+      out = append(out, "FX66,")
+    }
+
+    // >0x12    shortle    43    ST9+ 8/16 bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x43)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    43    ST9+ 8/16 bit,")
+      off += ml
+      out = append(out, "ST9+ 8/16 bit,")
+    }
+
+    // >0x12    shortle    44    ST7 8 bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x44)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    44    ST7 8 bit,")
+      off += ml
+      out = append(out, "ST7 8 bit,")
+    }
+
+    // >0x12    shortle    45    MC68HC16,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x45)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    45    MC68HC16,")
+      off += ml
+      out = append(out, "MC68HC16,")
+    }
+
+    // >0x12    shortle    46    MC68HC11,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x46)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    46    MC68HC11,")
+      off += ml
+      out = append(out, "MC68HC11,")
+    }
+
+    // >0x12    shortle    47    MC68HC08,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x47)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    47    MC68HC08,")
+      off += ml
+      out = append(out, "MC68HC08,")
+    }
+
+    // >0x12    shortle    48    MC68HC05,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x48)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    48    MC68HC05,")
+      off += ml
+      out = append(out, "MC68HC05,")
+    }
+
+    // >0x12    shortle    49    SGI SVx or Cray NV1,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x49)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    49    SGI SVx or Cray NV1,")
+      off += ml
+      out = append(out, "SGI SVx or Cray NV1,")
+    }
+
+    // >0x12    shortle    4a    ST19 8 bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4a)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4a    ST19 8 bit,")
+      off += ml
+      out = append(out, "ST19 8 bit,")
+    }
+
+    // >0x12    shortle    4b    Digital VAX,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4b)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4b    Digital VAX,")
+      off += ml
+      out = append(out, "Digital VAX,")
+    }
+
+    // >0x12    shortle    4c    Axis cris,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4c)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4c    Axis cris,")
+      off += ml
+      out = append(out, "Axis cris,")
+    }
+
+    // >0x12    shortle    4d    Infineon 32-bit embedded,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4d    Infineon 32-bit embedded,")
+      off += ml
+      out = append(out, "Infineon 32-bit embedded,")
+    }
+
+    // >0x12    shortle    4e    Element 14 64-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4e)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4e    Element 14 64-bit DSP,")
+      off += ml
+      out = append(out, "Element 14 64-bit DSP,")
+    }
+
+    // >0x12    shortle    4f    LSI Logic 16-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4f)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4f    LSI Logic 16-bit DSP,")
+      off += ml
+      out = append(out, "LSI Logic 16-bit DSP,")
+    }
+
+    // >0x12    shortle    50    MMIX,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x50)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    50    MMIX,")
+      off += ml
+      out = append(out, "MMIX,")
+    }
+
+    // >0x12    shortle    51    Harvard machine-independent,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x51)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    51    Harvard machine-independent,")
+      off += ml
+      out = append(out, "Harvard machine-independent,")
+    }
+
+    // >0x12    shortle    52    SiTera Prism,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x52)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    52    SiTera Prism,")
+      off += ml
+      out = append(out, "SiTera Prism,")
+    }
+
+    // >0x12    shortle    53    Atmel AVR 8-bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x53)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    53    Atmel AVR 8-bit,")
+      off += ml
+      out = append(out, "Atmel AVR 8-bit,")
+    }
+
+    // >0x12    shortle    54    Fujitsu FR30,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x54)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    54    Fujitsu FR30,")
+      off += ml
+      out = append(out, "Fujitsu FR30,")
+    }
+
+    // >0x12    shortle    55    Mitsubishi D10V,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x55)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    55    Mitsubishi D10V,")
+      off += ml
+      out = append(out, "Mitsubishi D10V,")
+    }
+
+    // >0x12    shortle    56    Mitsubishi D30V,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x56)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    56    Mitsubishi D30V,")
+      off += ml
+      out = append(out, "Mitsubishi D30V,")
+    }
+
+    // >0x12    shortle    57    NEC v850,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x57)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    57    NEC v850,")
+      off += ml
+      out = append(out, "NEC v850,")
+    }
+
+    // >0x12    shortle    58    Renesas M32R,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x58)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    58    Renesas M32R,")
+      off += ml
+      out = append(out, "Renesas M32R,")
+    }
+
+    // >0x12    shortle    59    Matsushita MN10300,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x59)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    59    Matsushita MN10300,")
+      off += ml
+      out = append(out, "Matsushita MN10300,")
+    }
+
+    // >0x12    shortle    5a    Matsushita MN10200,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5a)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5a    Matsushita MN10200,")
+      off += ml
+      out = append(out, "Matsushita MN10200,")
+    }
+
+    // >0x12    shortle    5b    picoJava,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5b)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5b    picoJava,")
+      off += ml
+      out = append(out, "picoJava,")
+    }
+
+    // >0x12    shortle    5c    OpenRISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5c)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5c    OpenRISC,")
+      off += ml
+      out = append(out, "OpenRISC,")
+    }
+
+    // >0x12    shortle    5d    ARC Cores Tangent-A5,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5d    ARC Cores Tangent-A5,")
+      off += ml
+      out = append(out, "ARC Cores Tangent-A5,")
+    }
+
+    // >0x12    shortle    5e    Tensilica Xtensa,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5e)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5e    Tensilica Xtensa,")
+      off += ml
+      out = append(out, "Tensilica Xtensa,")
+    }
+
+    // >0x12    shortle    5f    Alphamosaic VideoCore,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5f)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5f    Alphamosaic VideoCore,")
+      off += ml
+      out = append(out, "Alphamosaic VideoCore,")
+    }
+
+    // >0x12    shortle    60    Thompson Multimedia,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x60)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    60    Thompson Multimedia,")
+      off += ml
+      out = append(out, "Thompson Multimedia,")
+    }
+
+    // >0x12    shortle    61    NatSemi 32k,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x61)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    61    NatSemi 32k,")
+      off += ml
+      out = append(out, "NatSemi 32k,")
+    }
+
+    // >0x12    shortle    62    Tenor Network TPC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x62)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    62    Tenor Network TPC,")
+      off += ml
+      out = append(out, "Tenor Network TPC,")
+    }
+
+    // >0x12    shortle    63    Trebia SNP 1000,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x63)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    63    Trebia SNP 1000,")
+      off += ml
+      out = append(out, "Trebia SNP 1000,")
+    }
+
+    // >0x12    shortle    64    STMicroelectronics ST200,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x64)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    64    STMicroelectronics ST200,")
+      off += ml
+      out = append(out, "STMicroelectronics ST200,")
+    }
+
+    // >0x12    shortle    65    Ubicom IP2022,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x65)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    65    Ubicom IP2022,")
+      off += ml
+      out = append(out, "Ubicom IP2022,")
+    }
+
+    // >0x12    shortle    66    MAX Processor,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x66)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    66    MAX Processor,")
+      off += ml
+      out = append(out, "MAX Processor,")
+    }
+
+    // >0x12    shortle    67    NatSemi CompactRISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x67)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    67    NatSemi CompactRISC,")
+      off += ml
+      out = append(out, "NatSemi CompactRISC,")
+    }
+
+    // >0x12    shortle    68    Fujitsu F2MC16,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x68)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    68    Fujitsu F2MC16,")
+      off += ml
+      out = append(out, "Fujitsu F2MC16,")
+    }
+
+    // >0x12    shortle    69    TI msp430,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x69)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    69    TI msp430,")
+      off += ml
+      out = append(out, "TI msp430,")
+    }
+
+    // >0x12    shortle    6a    Analog Devices Blackfin,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6a)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6a    Analog Devices Blackfin,")
+      off += ml
+      out = append(out, "Analog Devices Blackfin,")
+    }
+
+    // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6b)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6b    S1C33 Family of Seiko Epson,")
+      off += ml
+      out = append(out, "S1C33 Family of Seiko Epson,")
+    }
+
+    // >0x12    shortle    6c    Sharp embedded,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6c)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6c    Sharp embedded,")
+      off += ml
+      out = append(out, "Sharp embedded,")
+    }
+
+    // >0x12    shortle    6d    Arca RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6d    Arca RISC,")
+      off += ml
+      out = append(out, "Arca RISC,")
+    }
+
+    // >0x12    shortle    6e    PKU-Unity Ltd.,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6e)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6e    PKU-Unity Ltd.,")
+      off += ml
+      out = append(out, "PKU-Unity Ltd.,")
+    }
+
+    // >0x12    shortle    6f    eXcess: 16/32/64-bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x6f)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    6f    eXcess: 16/32/64-bit,")
+      off += ml
+      out = append(out, "eXcess: 16/32/64-bit,")
+    }
+
+    // >0x12    shortle    70    Icera Deep Execution Processor,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x70)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    70    Icera Deep Execution Processor,")
+      off += ml
+      out = append(out, "Icera Deep Execution Processor,")
+    }
+
+    // >0x12    shortle    71    Altera Nios II,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x71)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    71    Altera Nios II,")
+      off += ml
+      out = append(out, "Altera Nios II,")
+    }
+
+    // >0x12    shortle    72    NatSemi CRX,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x72)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    72    NatSemi CRX,")
+      off += ml
+      out = append(out, "NatSemi CRX,")
+    }
+
+    // >0x12    shortle    73    Motorola XGATE,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x73)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    73    Motorola XGATE,")
+      off += ml
+      out = append(out, "Motorola XGATE,")
+    }
+
+    // >0x12    shortle    74    Infineon C16x/XC16x,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x74)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    74    Infineon C16x/XC16x,")
+      off += ml
+      out = append(out, "Infineon C16x/XC16x,")
+    }
+
+    // >0x12    shortle    75    Renesas M16C series,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x75)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    75    Renesas M16C series,")
+      off += ml
+      out = append(out, "Renesas M16C series,")
+    }
+
+    // >0x12    shortle    76    Microchip dsPIC30F,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x76)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    76    Microchip dsPIC30F,")
+      off += ml
+      out = append(out, "Microchip dsPIC30F,")
+    }
+
+    // >0x12    shortle    77    Freescale RISC core,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x77)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    77    Freescale RISC core,")
+      off += ml
+      out = append(out, "Freescale RISC core,")
+    }
+
+    // >0x12    shortle    78    Renesas M32C series,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x78)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    78    Renesas M32C series,")
+      off += ml
+      out = append(out, "Renesas M32C series,")
+    }
+
+    // >0x12    shortle    83    Altium TSK3000 core,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x83)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    83    Altium TSK3000 core,")
+      off += ml
+      out = append(out, "Altium TSK3000 core,")
+    }
+
+    // >0x12    shortle    84    Freescale RS08,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x84)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    84    Freescale RS08,")
+      off += ml
+      out = append(out, "Freescale RS08,")
+    }
+
+    // >0x12    shortle    86    Cyan Technology eCOG2,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x86)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    86    Cyan Technology eCOG2,")
+      off += ml
+      out = append(out, "Cyan Technology eCOG2,")
+    }
+
+    // >0x12    shortle    87    Sunplus S+core7 RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x87)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    87    Sunplus S+core7 RISC,")
+      off += ml
+      out = append(out, "Sunplus S+core7 RISC,")
+    }
+
+    // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x88)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,")
+      off += ml
+      out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
+    }
+
+    // >0x12    shortle    89    Broadcom VideoCore III,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x89)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    89    Broadcom VideoCore III,")
+      off += ml
+      out = append(out, "Broadcom VideoCore III,")
+    }
+
+    // >0x12    shortle    8a    LatticeMico32,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8a)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8a    LatticeMico32,")
+      off += ml
+      out = append(out, "LatticeMico32,")
+    }
+
+    // >0x12    shortle    8b    Seiko Epson C17 family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8b)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8b    Seiko Epson C17 family,")
+      off += ml
+      out = append(out, "Seiko Epson C17 family,")
+    }
+
+    // >0x12    shortle    8c    TI TMS320C6000 DSP family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8c)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8c    TI TMS320C6000 DSP family,")
+      off += ml
+      out = append(out, "TI TMS320C6000 DSP family,")
+    }
+
+    // >0x12    shortle    8d    TI TMS320C2000 DSP family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8d    TI TMS320C2000 DSP family,")
+      off += ml
+      out = append(out, "TI TMS320C2000 DSP family,")
+    }
+
+    // >0x12    shortle    8e    TI TMS320C55x DSP family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8e)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8e    TI TMS320C55x DSP family,")
+      off += ml
+      out = append(out, "TI TMS320C55x DSP family,")
+    }
+
+    // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,")
+      off += ml
+      out = append(out, "STMicroelectronics 64bit VLIW DSP,")
+    }
+
+    // >0x12    shortle    a1    Cypress M8C,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a1    Cypress M8C,")
+      off += ml
+      out = append(out, "Cypress M8C,")
+    }
+
+    // >0x12    shortle    a2    Renesas R32C series,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa2)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a2    Renesas R32C series,")
+      off += ml
+      out = append(out, "Renesas R32C series,")
+    }
+
+    // >0x12    shortle    a3    NXP TriMedia family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa3)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a3    NXP TriMedia family,")
+      off += ml
+      out = append(out, "NXP TriMedia family,")
+    }
+
+    // >0x12    shortle    a4    QUALCOMM DSP6,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa4)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a4    QUALCOMM DSP6,")
+      off += ml
+      out = append(out, "QUALCOMM DSP6,")
+    }
+
+    // >0x12    shortle    a5    Intel 8051 and variants,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa5)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a5    Intel 8051 and variants,")
+      off += ml
+      out = append(out, "Intel 8051 and variants,")
+    }
+
+    // >0x12    shortle    a6    STMicroelectronics STxP7x family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa6)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a6    STMicroelectronics STxP7x family,")
+      off += ml
+      out = append(out, "STMicroelectronics STxP7x family,")
+    }
+
+    // >0x12    shortle    a7    Andes embedded RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa7)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a7    Andes embedded RISC,")
+      off += ml
+      out = append(out, "Andes embedded RISC,")
+    }
+
+    // >0x12    shortle    a8    Cyan eCOG1X family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa8)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a8    Cyan eCOG1X family,")
+      off += ml
+      out = append(out, "Cyan eCOG1X family,")
+    }
+
+    // >0x12    shortle    a9    Dallas MAXQ30,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa9)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a9    Dallas MAXQ30,")
+      off += ml
+      out = append(out, "Dallas MAXQ30,")
+    }
+
+    // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xaa)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,")
+      off += ml
+      out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
+    }
+
+    // >0x12    shortle    ab    M2000 Reconfigurable RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xab)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ab    M2000 Reconfigurable RISC,")
+      off += ml
+      out = append(out, "M2000 Reconfigurable RISC,")
+    }
+
+    // >0x12    shortle    ac    Cray NV2 vector architecture,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xac)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ac    Cray NV2 vector architecture,")
+      off += ml
+      out = append(out, "Cray NV2 vector architecture,")
+    }
+
+    // >0x12    shortle    ad    Renesas RX family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xad)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ad    Renesas RX family,")
+      off += ml
+      out = append(out, "Renesas RX family,")
+    }
+
+    // >0x12    shortle    ae    META,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xae)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ae    META,")
+      off += ml
+      out = append(out, "META,")
+    }
+
+    // >0x12    shortle    af    MCST Elbrus,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xaf)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    af    MCST Elbrus,")
+      off += ml
+      out = append(out, "MCST Elbrus,")
+    }
+
+    // >0x12    shortle    b0    Cyan Technology eCOG16 family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b0    Cyan Technology eCOG16 family,")
+      off += ml
+      out = append(out, "Cyan Technology eCOG16 family,")
+    }
+
+    // >0x12    shortle    b1    NatSemi CompactRISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb1)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b1    NatSemi CompactRISC,")
+      off += ml
+      out = append(out, "NatSemi CompactRISC,")
+    }
+
+    // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb2)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b2    Freescale Extended Time Processing Unit,")
+      off += ml
+      out = append(out, "Freescale Extended Time Processing Unit,")
+    }
+
+    // >0x12    shortle    b3    Infineon SLE9X,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb3)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b3    Infineon SLE9X,")
+      off += ml
+      out = append(out, "Infineon SLE9X,")
+    }
+
+    // >0x12    shortle    b4    Intel L1OM,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb4)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b4    Intel L1OM,")
+      off += ml
+      out = append(out, "Intel L1OM,")
+    }
+
+    // >0x12    shortle    b5    Intel K1OM,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb5)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b5    Intel K1OM,")
+      off += ml
+      out = append(out, "Intel K1OM,")
+    }
+
+    // >0x12    shortle    b7    ARM aarch64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb7)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b7    ARM aarch64,")
+      off += ml
+      out = append(out, "ARM aarch64,")
+    }
+
+    // >0x12    shortle    b9    Atmel 32-bit family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xb9)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    b9    Atmel 32-bit family,")
+      off += ml
+      out = append(out, "Atmel 32-bit family,")
+    }
+
+    // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xba)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ba    STMicroeletronics STM8 8-bit,")
+      off += ml
+      out = append(out, "STMicroeletronics STM8 8-bit,")
+    }
+
+    // >0x12    shortle    bb    Tilera TILE64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbb)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bb    Tilera TILE64,")
+      off += ml
+      out = append(out, "Tilera TILE64,")
+    }
+
+    // >0x12    shortle    bc    Tilera TILEPro,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbc)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bc    Tilera TILEPro,")
+      off += ml
+      out = append(out, "Tilera TILEPro,")
+    }
+
+    // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbd)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,")
+      off += ml
+      out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
+    }
+
+    // >0x12    shortle    be    NVIDIA CUDA architecture,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbe)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    be    NVIDIA CUDA architecture,")
+      off += ml
+      out = append(out, "NVIDIA CUDA architecture,")
+    }
+
+    // >0x12    shortle    bf    Tilera TILE-Gx,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbf)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    bf    Tilera TILE-Gx,")
+      off += ml
+      out = append(out, "Tilera TILE-Gx,")
+    }
+
+    // >0x12    shortle    c5    Renesas RL78 family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xc5)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    c5    Renesas RL78 family,")
+      off += ml
+      out = append(out, "Renesas RL78 family,")
+    }
+
+    // >0x12    shortle    c7    Renesas 78K0R,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xc7)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    c7    Renesas 78K0R,")
+      off += ml
+      out = append(out, "Renesas 78K0R,")
+    }
+
+    // >0x12    shortle    1057    AVR (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x1057)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1057    AVR (unofficial),")
+      off += ml
+      out = append(out, "AVR (unofficial),")
+    }
+
+    // >0x12    shortle    1059    MSP430 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x1059)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1059    MSP430 (unofficial),")
+      off += ml
+      out = append(out, "MSP430 (unofficial),")
+    }
+
+    // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x1223)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    1223    Adapteva Epiphany (unofficial),")
+      off += ml
+      out = append(out, "Adapteva Epiphany (unofficial),")
+    }
+
+    // >0x12    shortle    2530    Morpho MT (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x2530)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    2530    Morpho MT (unofficial),")
+      off += ml
+      out = append(out, "Morpho MT (unofficial),")
+    }
+
+    // >0x12    shortle    3330    FR30 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3330)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3330    FR30 (unofficial),")
+      off += ml
+      out = append(out, "FR30 (unofficial),")
+    }
+
+    // >0x12    shortle    3426    OpenRISC (obsolete),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x3426)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    3426    OpenRISC (obsolete),")
+      off += ml
+      out = append(out, "OpenRISC (obsolete),")
+    }
+
+    // >0x12    shortle    4688    Infineon C166 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x4688)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    4688    Infineon C166 (unofficial),")
+      off += ml
+      out = append(out, "Infineon C166 (unofficial),")
+    }
+
+    // >0x12    shortle    5441    Cygnus FRV (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5441)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5441    Cygnus FRV (unofficial),")
+      off += ml
+      out = append(out, "Cygnus FRV (unofficial),")
+    }
+
+    // >0x12    shortle    5aa5    DLX (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x5aa5)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    5aa5    DLX (unofficial),")
+      off += ml
+      out = append(out, "DLX (unofficial),")
+    }
+
+    // >0x12    shortle    7650    Cygnus D10V (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x7650)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    7650    Cygnus D10V (unofficial),")
+      off += ml
+      out = append(out, "Cygnus D10V (unofficial),")
+    }
+
+    // >0x12    shortle    7676    Cygnus D30V (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x7676)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    7676    Cygnus D30V (unofficial),")
+      off += ml
+      out = append(out, "Cygnus D30V (unofficial),")
+    }
+
+    // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8217)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8217    Ubicom IP2xxx (unofficial),")
+      off += ml
+      out = append(out, "Ubicom IP2xxx (unofficial),")
+    }
+
+    // >0x12    shortle    8472    OpenRISC (obsolete),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x8472)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    8472    OpenRISC (obsolete),")
+      off += ml
+      out = append(out, "OpenRISC (obsolete),")
+    }
+
+    // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x9025)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9025    Cygnus PowerPC (unofficial),")
+      off += ml
+      out = append(out, "Cygnus PowerPC (unofficial),")
+    }
+
+    // >0x12    shortle    9026    Alpha (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x9026)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9026    Alpha (unofficial),")
+      off += ml
+      out = append(out, "Alpha (unofficial),")
+    }
+
+    // >0x12    shortle    9041    Cygnus M32R (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x9041)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9041    Cygnus M32R (unofficial),")
+      off += ml
+      out = append(out, "Cygnus M32R (unofficial),")
+    }
+
+    // >0x12    shortle    9080    Cygnus V850 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0x9080)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    9080    Cygnus V850 (unofficial),")
+      off += ml
+      out = append(out, "Cygnus V850 (unofficial),")
+    }
+
+    // >0x12    shortle    a390    IBM S/390 (obsolete),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xa390)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    a390    IBM S/390 (obsolete),")
+      off += ml
+      out = append(out, "IBM S/390 (obsolete),")
+    }
+
+    // >0x12    shortle    abc7    Old Xtensa (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xabc7)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    abc7    Old Xtensa (unofficial),")
+      off += ml
+      out = append(out, "Old Xtensa (unofficial),")
+    }
+
+    // >0x12    shortle    ad45    xstormy16 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xad45)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    ad45    xstormy16 (unofficial),")
+      off += ml
+      out = append(out, "xstormy16 (unofficial),")
+    }
+
+    // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbaab)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    baab    Old MicroBlaze (unofficial),,")
+      off += ml
+      out = append(out, "Old MicroBlaze (unofficial),,")
+    }
+
+    // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xbeef)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    beef    Cygnus MN10300 (unofficial),")
+      off += ml
+      out = append(out, "Cygnus MN10300 (unofficial),")
+    }
+
+    // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xdead)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    dead    Cygnus MN10200 (unofficial),")
+      off += ml
+      out = append(out, "Cygnus MN10200 (unofficial),")
+    }
+
+    // >0x12    shortle    f00d    Toshiba MeP (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xf00d)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    f00d    Toshiba MeP (unofficial),")
+      off += ml
+      out = append(out, "Toshiba MeP (unofficial),")
+    }
+
+    // >0x12    shortle    feb0    Renesas M32C (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xfeb0)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    feb0    Renesas M32C (unofficial),")
+      off += ml
+      out = append(out, "Renesas M32C (unofficial),")
+    }
+
+    // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xfeba)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    feba    Vitesse IQ2000 (unofficial),")
+      off += ml
+      out = append(out, "Vitesse IQ2000 (unofficial),")
+    }
+
+    // >0x12    shortle    febb    NIOS (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xfebb)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    febb    NIOS (unofficial),")
+      off += ml
+      out = append(out, "NIOS (unofficial),")
+    }
+
+    // >0x12    shortle    feed    Moxie (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (u64(iv) == 0xfeed)
+      ml = 2
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x12    shortle    feed    Moxie (unofficial),")
+      off += ml
+      out = append(out, "Moxie (unofficial),")
+    }
+
+    // >0x12    default    
+    off = pageOff + 18
+    // uh oh unhandled kind
+    if m1 {
+      // >>0x12    shortle    0    *unknown arch 0x%x*
+      off = pageOff + 18
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (u64(iv) == 0x0)
+        ml = 2
+      }
+      if m2 {
+        fmt.Printf("matched rule: %s\n", ">>0x12    shortle    0    *unknown arch 0x%x*")
+        off += ml
+        out = append(out, "*unknown arch 0x%x*")
+      }
+
+    }
+    m1 = false
+    // >0x14    longle    0    invalid version
+    off = pageOff + 20
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (u64(iv) == 0x0)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x14    longle    0    invalid version")
+      off += ml
+      out = append(out, "invalid version")
+    }
+
+    // >0x14    longle    1    version 1
+    off = pageOff + 20
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (u64(iv) == 0x1)
+      ml = 4
+    }
+    if m1 {
+      fmt.Printf("matched rule: %s\n", ">0x14    longle    1    version 1")
+      off += ml
+      out = append(out, "version 1")
+    }
+
+  }
+  return out, nil
+}
+
+func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
+  var out []string
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -13690,7 +13991,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\u007fELF"    ELF
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x7f, 0x45, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x7f, 0x45, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\u007fELF\"    ELF")
@@ -13703,7 +14004,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -13716,7 +14017,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 1
     }
     if m1 {
@@ -13729,7 +14030,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 1
     }
     if m1 {
@@ -13742,7 +14043,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -13755,7 +14056,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 1
     }
     if m1 {
@@ -13774,7 +14075,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 1
     }
     if m1 {
@@ -13793,7 +14094,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) < 0x80)
+      m1 = ok && (i64(i8(iv)) < 0x80)
       ml = 1
     }
     if m1 {
@@ -13804,7 +14105,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x8    string    ">\x00"    (%s)
       off = pageOff + 8
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x8    string    \">\\x00\"    (%s)")
@@ -13816,7 +14117,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x8    string    "\x00"    
     off = pageOff + 8
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x8    string    \"\\x00\"    ")
@@ -13828,7 +14129,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -13841,7 +14142,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 1
       }
       if m2 {
@@ -13854,7 +14155,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 1
       }
       if m2 {
@@ -13867,7 +14168,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x3)
+        m2 = ok && (u64(iv) == 0x3)
         ml = 1
       }
       if m2 {
@@ -13880,7 +14181,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x4)
+        m2 = ok && (u64(iv) == 0x4)
         ml = 1
       }
       if m2 {
@@ -13893,7 +14194,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x5)
+        m2 = ok && (u64(iv) == 0x5)
         ml = 1
       }
       if m2 {
@@ -13906,7 +14207,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x6)
+        m2 = ok && (u64(iv) == 0x6)
         ml = 1
       }
       if m2 {
@@ -13919,7 +14220,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x7)
+        m2 = ok && (u64(iv) == 0x7)
         ml = 1
       }
       if m2 {
@@ -13932,7 +14233,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8)
+        m2 = ok && (u64(iv) == 0x8)
         ml = 1
       }
       if m2 {
@@ -13945,7 +14246,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x9)
+        m2 = ok && (u64(iv) == 0x9)
         ml = 1
       }
       if m2 {
@@ -13958,7 +14259,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xa)
+        m2 = ok && (u64(iv) == 0xa)
         ml = 1
       }
       if m2 {
@@ -13971,7 +14272,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xb)
+        m2 = ok && (u64(iv) == 0xb)
         ml = 1
       }
       if m2 {
@@ -13984,7 +14285,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xc)
+        m2 = ok && (u64(iv) == 0xc)
         ml = 1
       }
       if m2 {
@@ -13997,7 +14298,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x8    string    "\x02"    
     off = pageOff + 8
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x8    string    \"\\x02\"    ")
@@ -14009,7 +14310,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xd)
+        m2 = ok && (u64(iv) == 0xd)
         ml = 1
       }
       if m2 {
@@ -14022,7 +14323,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x61)
+        m2 = ok && (u64(iv) == 0x61)
         ml = 1
       }
       if m2 {
@@ -14035,7 +14336,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 7
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xff)
+        m2 = ok && (u64(iv) == 0xff)
         ml = 1
       }
       if m2 {
@@ -14050,7 +14351,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "@"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x40}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:true, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x40}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:true, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"@\"    ")
@@ -14060,7 +14361,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x1    string    " echo off"    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \" echo off\"    DOS batch file text")
@@ -14070,7 +14371,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1    string    "echo off"    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x63, 0x68, 0x6f, 0x20, 0x6f, 0x66, 0x66}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \"echo off\"    DOS batch file text")
@@ -14080,7 +14381,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1    string    "rem"    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x72, 0x65, 0x6d}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x72, 0x65, 0x6d}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \"rem\"    DOS batch file text")
@@ -14090,7 +14391,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1    string    "set "    DOS batch file text
     off = pageOff + 1
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:true, OptionalBlanks:false, LowerMatchesBoth:true, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1    string    \"set \"    DOS batch file text")
@@ -14110,7 +14411,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (uint64(iv) == 0x166)
+    m0 = ok && (u64(iv) == 0x166)
     ml = 2
   }
   if m0 {
@@ -14123,7 +14424,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (uint64(iv) == 0x184)
+    m0 = ok && (u64(iv) == 0x184)
     ml = 2
   }
   if m0 {
@@ -14136,7 +14437,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (uint64(iv) == 0x268)
+    m0 = ok && (u64(iv) == 0x268)
     ml = 2
   }
   if m0 {
@@ -14149,7 +14450,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (uint64(iv) == 0x1f0)
+    m0 = ok && (u64(iv) == 0x1f0)
     ml = 2
   }
   if m0 {
@@ -14162,7 +14463,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (uint64(iv) == 0x290)
+    m0 = ok && (u64(iv) == 0x290)
     ml = 2
   }
   if m0 {
@@ -14173,7 +14474,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MZ"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MZ\"    ")
@@ -14185,7 +14486,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 24
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) < 0x40)
+      m1 = ok && (i64(i16(iv)) < 0x40)
       ml = 2
     }
     if m1 {
@@ -14198,7 +14499,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 24
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x3f)
+      m1 = ok && (i64(i16(iv)) > 0x3f)
       ml = 2
     }
     if m1 {
@@ -14209,7 +14510,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>(0x3c.longle)    string    "PE\x00\x00"    PE
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"PE\\x00\\x00\"    PE")
@@ -14222,7 +14523,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x10b)
+          m3 = ok && (u64(iv) == 0x10b)
           ml = 2
         }
         if m3 {
@@ -14235,7 +14536,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x20b)
+          m3 = ok && (u64(iv) == 0x20b)
           ml = 2
         }
         if m3 {
@@ -14248,7 +14549,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x107)
+          m3 = ok && (u64(iv) == 0x107)
           ml = 2
         }
         if m3 {
@@ -14265,7 +14566,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -14280,7 +14581,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x0)
+          m3 = ok && (i64(i16(iv)) > 0x0)
           ml = 2
         }
         if m3 {
@@ -14293,7 +14594,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -14306,7 +14607,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -14319,7 +14620,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -14332,7 +14633,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x7)
+          m3 = ok && (u64(iv) == 0x7)
           ml = 2
         }
         if m3 {
@@ -14345,7 +14646,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x9)
+          m3 = ok && (u64(iv) == 0x9)
           ml = 2
         }
         if m3 {
@@ -14358,7 +14659,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xa)
+          m3 = ok && (u64(iv) == 0xa)
           ml = 2
         }
         if m3 {
@@ -14371,7 +14672,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xb)
+          m3 = ok && (u64(iv) == 0xb)
           ml = 2
         }
         if m3 {
@@ -14384,7 +14685,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xc)
+          m3 = ok && (u64(iv) == 0xc)
           ml = 2
         }
         if m3 {
@@ -14397,7 +14698,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xd)
+          m3 = ok && (u64(iv) == 0xd)
           ml = 2
         }
         if m3 {
@@ -14410,7 +14711,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xe)
+          m3 = ok && (u64(iv) == 0xe)
           ml = 2
         }
         if m3 {
@@ -14423,7 +14724,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xf)
+          m3 = ok && (u64(iv) == 0xf)
           ml = 2
         }
         if m3 {
@@ -14440,7 +14741,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -14455,7 +14756,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x14c)
+          m3 = ok && (u64(iv) == 0x14c)
           ml = 2
         }
         if m3 {
@@ -14468,7 +14769,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x166)
+          m3 = ok && (u64(iv) == 0x166)
           ml = 2
         }
         if m3 {
@@ -14481,7 +14782,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x168)
+          m3 = ok && (u64(iv) == 0x168)
           ml = 2
         }
         if m3 {
@@ -14494,7 +14795,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x184)
+          m3 = ok && (u64(iv) == 0x184)
           ml = 2
         }
         if m3 {
@@ -14507,7 +14808,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1a2)
+          m3 = ok && (u64(iv) == 0x1a2)
           ml = 2
         }
         if m3 {
@@ -14520,7 +14821,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1a6)
+          m3 = ok && (u64(iv) == 0x1a6)
           ml = 2
         }
         if m3 {
@@ -14533,7 +14834,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1c0)
+          m3 = ok && (u64(iv) == 0x1c0)
           ml = 2
         }
         if m3 {
@@ -14546,7 +14847,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1c2)
+          m3 = ok && (u64(iv) == 0x1c2)
           ml = 2
         }
         if m3 {
@@ -14559,7 +14860,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1c4)
+          m3 = ok && (u64(iv) == 0x1c4)
           ml = 2
         }
         if m3 {
@@ -14572,7 +14873,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1f0)
+          m3 = ok && (u64(iv) == 0x1f0)
           ml = 2
         }
         if m3 {
@@ -14585,7 +14886,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
+          m3 = ok && (u64(iv) == 0x200)
           ml = 2
         }
         if m3 {
@@ -14598,7 +14899,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x266)
+          m3 = ok && (u64(iv) == 0x266)
           ml = 2
         }
         if m3 {
@@ -14611,7 +14912,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x268)
+          m3 = ok && (u64(iv) == 0x268)
           ml = 2
         }
         if m3 {
@@ -14624,7 +14925,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x290)
+          m3 = ok && (u64(iv) == 0x290)
           ml = 2
         }
         if m3 {
@@ -14637,7 +14938,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x366)
+          m3 = ok && (u64(iv) == 0x366)
           ml = 2
         }
         if m3 {
@@ -14650,7 +14951,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x466)
+          m3 = ok && (u64(iv) == 0x466)
           ml = 2
         }
         if m3 {
@@ -14663,7 +14964,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xebc)
+          m3 = ok && (u64(iv) == 0xebc)
           ml = 2
         }
         if m3 {
@@ -14676,7 +14977,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8664)
+          m3 = ok && (u64(iv) == 0x8664)
           ml = 2
         }
         if m3 {
@@ -14689,7 +14990,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xc0ee)
+          m3 = ok && (u64(iv) == 0xc0ee)
           ml = 2
         }
         if m3 {
@@ -14706,7 +15007,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -14721,7 +15022,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x0)
+          m3 = ok && (i64(i16(iv)) > 0x0)
           ml = 2
         }
         if m3 {
@@ -14734,7 +15035,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x0)
+          m3 = ok && (i64(i16(iv)) > 0x0)
           ml = 2
         }
         if m3 {
@@ -14747,7 +15048,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x10b)
+          m3 = ok && (u64(iv) == 0x10b)
           ml = 2
         }
         if m3 {
@@ -14760,7 +15061,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -14775,7 +15076,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x20b)
+          m3 = ok && (u64(iv) == 0x20b)
           ml = 2
         }
         if m3 {
@@ -14788,7 +15089,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -14801,7 +15102,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m3 = false
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, 32rtm DOS extender
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x8.shortle*16)    string    \"32STUB\"    \\b, 32rtm DOS extender")
@@ -14811,7 +15112,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, for MS Windows
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x8.shortle*16)    string    \"32STUB\"    \\b, for MS Windows")
@@ -14821,7 +15122,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(0x3c.longle+248)    string    "UPX0"    \b, UPX compressed
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x3c.longle+248)    string    \"UPX0\"    \\b, UPX compressed")
@@ -14838,7 +15139,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0x10.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0x10.longle+(-4))    string    \"PK\\x03\\x04\"    \\b, ZIP self-extracting archive (Info-Zip)")
@@ -14854,7 +15155,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0xe.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xe.longle+(-4))    string    \"PK\\x03\\x04\"    \\b, ZIP self-extracting archive (Info-Zip)")
@@ -14864,7 +15165,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ0"    \b, ZZip self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xe.longle+(-4))    string    \"ZZ0\"    \\b, ZZip self-extracting archive")
@@ -14874,7 +15175,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ1"    \b, ZZip self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xe.longle+(-4))    string    \"ZZ1\"    \\b, ZZip self-extracting archive")
@@ -14890,7 +15191,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0xf.longle+(-4))    string    "a\\\x04\x05"    \b, WinHKI self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xf.longle+(-4))    string    \"a\\\\\\x04\\x05\"    \\b, WinHKI self-extracting archive")
@@ -14900,7 +15201,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
           // >>>>(&0xf.longle+(-4))    string    "Rar!"    \b, RAR self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xf.longle+(-4))    string    \"Rar!\"    \\b, RAR self-extracting archive")
@@ -14922,7 +15223,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>(&0xf.longle)    string    "WEXTRACT"    \b, MS CAB-Installer self-extracting archive
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>(&0xf.longle)    string    \"WEXTRACT\"    \\b, MS CAB-Installer self-extracting archive")
@@ -14940,7 +15241,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -14951,7 +15252,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>(&0x104.longle+(-4))    string    "=!sfx!"    \b, ACE self-extracting archive
             // uh oh indirect offset
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.longle+(-4))    string    \"=!sfx!\"    \\b, ACE self-extracting archive")
@@ -14977,7 +15278,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh unhandled kind
         // >>>0x30    string    "Inno"    \b, InnoSetup self-extracting archive
         off = pageOff + 48
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x6e, 0x6e, 0x6f}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x6e, 0x6e, 0x6f}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>0x30    string    \"Inno\"    \\b, InnoSetup self-extracting archive")
@@ -14989,7 +15290,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m2 = false
       // >>(0x3c.longle)    string    "PE\x00\x00"    MS-DOS executable
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"PE\\x00\\x00\"    MS-DOS executable")
@@ -14999,7 +15300,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>(0x3c.longle)    string    "NE"    \b, NE
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"NE\"    \\b, NE")
@@ -15012,7 +15313,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 1
         }
         if m3 {
@@ -15025,7 +15326,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 1
         }
         if m3 {
@@ -15038,7 +15339,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 1
         }
         if m3 {
@@ -15051,7 +15352,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (uint64(iv) == 0x4)
+          m3 = ok && (u64(iv) == 0x4)
           ml = 1
         }
         if m3 {
@@ -15064,7 +15365,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (uint64(iv) == 0x5)
+          m3 = ok && (u64(iv) == 0x5)
           ml = 1
         }
         if m3 {
@@ -15081,7 +15382,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // uh oh indirect offset
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -15096,7 +15397,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (uint64(iv) == 0x81)
+          m3 = ok && (u64(iv) == 0x81)
           ml = 1
         }
         if m3 {
@@ -15109,7 +15410,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8002)
+          m3 = ok && (u64(iv) == 0x8002)
           ml = 2
         }
         if m3 {
@@ -15122,7 +15423,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8001)
+          m3 = ok && (u64(iv) == 0x8001)
           ml = 2
         }
         if m3 {
@@ -15133,7 +15434,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&(&0x24.shortle-1)    string    "ARJSFX"    \b, ARJ self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&(&0x24.shortle-1)    string    \"ARJSFX\"    \\b, ARJ self-extracting archive")
@@ -15148,7 +15449,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m2 = false
       // >>(0x3c.longle)    string    "LX\x00\x00"    \b, LX
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"LX\\x00\\x00\"    \\b, LX")
@@ -15161,7 +15462,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (int64(int16(iv)) < 0x1)
+          m3 = ok && (i64(i16(iv)) < 0x1)
           ml = 2
         }
         if m3 {
@@ -15174,7 +15475,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -15187,7 +15488,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -15200,7 +15501,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -15213,7 +15514,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (int64(int16(iv)) > 0x3)
+          m3 = ok && (i64(i16(iv)) > 0x3)
           ml = 2
         }
         if m3 {
@@ -15226,7 +15527,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8000)
+          m3 = ok && (u64(iv) == 0x8000)
           ml = 4
         }
         if m3 {
@@ -15239,7 +15540,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (int64(int32(iv)) > 0x0)
+          m3 = ok && (i64(i32(iv)) > 0x0)
           ml = 4
         }
         if m3 {
@@ -15252,7 +15553,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x300)
+          m3 = ok && (u64(iv) == 0x300)
           ml = 4
         }
         if m3 {
@@ -15265,7 +15566,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (int64(int32(iv)) < 0x300)
+          m3 = ok && (i64(i32(iv)) < 0x300)
           ml = 4
         }
         if m3 {
@@ -15278,7 +15579,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -15291,7 +15592,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -15304,7 +15605,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -15315,7 +15616,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(0x8.shortle*16)    string    "emx"    \b, emx
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(0x8.shortle*16)    string    \"emx\"    \\b, emx")
@@ -15326,7 +15627,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>&0x1    string    "x"    %s
           off = pageOff + 1
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&0x1    string    \"x\"    %s")
@@ -15338,7 +15639,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m3 = false
         // >>>&(&0x54.longle-3)    string    "arjsfx"    \b, ARJ self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&(&0x54.longle-3)    string    \"arjsfx\"    \\b, ARJ self-extracting archive")
@@ -15350,7 +15651,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m2 = false
       // >>(0x3c.longle)    string    "W3"    \b, W3 for MS Windows
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"W3\"    \\b, W3 for MS Windows")
@@ -15360,7 +15661,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>(0x3c.longle)    string    "LE\x00\x00"    \b, LE executable
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x3c.longle)    string    \"LE\\x00\\x00\"    \\b, LE executable")
@@ -15373,7 +15674,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -15407,7 +15708,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 36
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (int64(int32(iv)) < 0x50)
+            m4 = ok && (i64(i32(iv)) < 0x50)
             ml = 4
           }
           if m4 {
@@ -15418,7 +15719,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>(&0x4c.longle)    string    "\xfc\xb8WATCOM"    
             // uh oh indirect offset
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>(&0x4c.longle)    string    \"\\xfc\\xb8WATCOM\"    ")
@@ -15439,7 +15740,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -15452,7 +15753,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -15465,7 +15766,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x4)
+          m3 = ok && (u64(iv) == 0x4)
           ml = 2
         }
         if m3 {
@@ -15476,7 +15777,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>(&0x7c.longle+38)    string    "UPX"    \b, UPX compressed
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(&0x7c.longle+38)    string    \"UPX\"    \\b, UPX compressed")
@@ -15486,7 +15787,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&(&0x54.longle-3)    string    "UNACE"    \b, ACE self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&(&0x54.longle-3)    string    \"UNACE\"    \\b, ACE self-extracting archive")
@@ -15500,7 +15801,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 60
       {
         iv, ok := readUint32le(tb, off)
-        m2 = ok && (int64(int32(iv)) > 0x20000000)
+        m2 = ok && (i64(i32(iv)) > 0x20000000)
         ml = 4
       }
       if m2 {
@@ -15513,7 +15814,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) != 0x14c)
+          m3 = ok && (u64(iv) != 0x14c)
           ml = 2
         }
         if m3 {
@@ -15530,7 +15831,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 2
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
+      m1 = ok && (u64(iv) != 0x0)
       ml = 4
     }
     if m1 {
@@ -15543,7 +15844,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 24
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) < 0x40)
+        m2 = ok && (i64(i16(iv)) < 0x40)
         ml = 2
       }
       if m2 {
@@ -15556,7 +15857,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // uh oh indirect offset
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) != 0x14c)
+          m3 = ok && (u64(iv) != 0x14c)
           ml = 2
         }
         if m3 {
@@ -15567,7 +15868,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>&(0x2.shortle-514)    string    "LE"    
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&(0x2.shortle-514)    string    \"LE\"    ")
@@ -15577,7 +15878,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>&0x-2    string    "BW"    \b, MZ for MS-DOS
             off = pageOff + -2
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>&0x-2    string    \"BW\"    \\b, MZ for MS-DOS")
@@ -15589,7 +15890,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m4 = false
           // >>>>&(0x2.shortle-514)    string    "LE"    \b, LE
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&(0x2.shortle-514)    string    \"LE\"    \\b, LE")
@@ -15605,7 +15906,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m4 = false
           // >>>>&(0x2.shortle-514)    string    "BW"    
           // uh oh indirect offset
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>&(0x2.shortle-514)    string    \"BW\"    ")
@@ -15631,7 +15932,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // uh oh indirect offset
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x14c)
+      m1 = ok && (u64(iv) == 0x14c)
       ml = 2
     }
     if m1 {
@@ -15643,7 +15944,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>(0x8.shortle*16)    string    "go32stub"    for MS-DOS, DJGPP go32 DOS extender
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x8.shortle*16)    string    \"go32stub\"    for MS-DOS, DJGPP go32 DOS extender")
@@ -15653,7 +15954,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>(0x8.shortle*16)    string    "emx"    
       // uh oh indirect offset
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>(0x8.shortle*16)    string    \"emx\"    ")
@@ -15663,7 +15964,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x1    string    "x"    for DOS, Win or OS/2, emx %s
         off = pageOff + 1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x1    string    \"x\"    for DOS, Win or OS/2, emx %s")
@@ -15677,7 +15978,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -15688,7 +15989,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x26    string    "UPX"    \b, UPX compressed
         off = pageOff + 38
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x26    string    \"UPX\"    \\b, UPX compressed")
@@ -15706,7 +16007,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 11
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (int64(int32(iv)) < 0x2000)
+          m3 = ok && (i64(i32(iv)) < 0x2000)
           ml = 4
         }
         if m3 {
@@ -15719,7 +16020,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x6000)
+            m4 = ok && (i64(i32(iv)) > 0x6000)
             ml = 4
           }
           if m4 {
@@ -15736,7 +16037,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >(0x8.shortle*16)    string    "$WdX"    \b, WDos/X DOS extender
     // uh oh indirect offset
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">(0x8.shortle*16)    string    \"$WdX\"    \\b, WDos/X DOS extender")
@@ -15746,7 +16047,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x35    string    "\x8e\xc0\xb9\b\x00\xf3\xa5Ju\xeb\x8eÎ\xd83\xff\xbe0\x00\x05"    \b, aPack compressed
     off = pageOff + 53
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x8e, 0xc0, 0xb9, 0x8, 0x0, 0xf3, 0xa5, 0x4a, 0x75, 0xeb, 0x8e, 0xc3, 0x8e, 0xd8, 0x33, 0xff, 0xbe, 0x30, 0x0, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x8e, 0xc0, 0xb9, 0x8, 0x0, 0xf3, 0xa5, 0x4a, 0x75, 0xeb, 0x8e, 0xc3, 0x8e, 0xd8, 0x33, 0xff, 0xbe, 0x30, 0x0, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x35    string    \"\\x8e\\xc0\\xb9\\b\\x00\\xf3\\xa5Ju\\xeb\\x8eÎ\\xd83\\xff\\xbe0\\x00\\x05\"    \\b, aPack compressed")
@@ -15756,7 +16057,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0xe7    string    "LH/2 "    Self-Extract \b, %s
     off = pageOff + 231
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x2f, 0x32, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x2f, 0x32, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xe7    string    \"LH/2 \"    Self-Extract \\b, %s")
@@ -15766,7 +16067,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "UC2X"    \b, UCEXE compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x43, 0x32, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x43, 0x32, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"UC2X\"    \\b, UCEXE compressed")
@@ -15776,7 +16077,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "WWP "    \b, WWPACK compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x57, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x57, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"WWP \"    \\b, WWPACK compressed")
@@ -15786,7 +16087,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "RJSX"    \b, ARJ self-extracting archive
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x4a, 0x53, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x4a, 0x53, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"RJSX\"    \\b, ARJ self-extracting archive")
@@ -15796,7 +16097,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "diet"    \b, diet compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x64, 0x69, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x64, 0x69, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"diet\"    \\b, diet compressed")
@@ -15806,7 +16107,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "LZ09"    \b, LZEXE v0.90 compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x30, 0x39}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x30, 0x39}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"LZ09\"    \\b, LZEXE v0.90 compressed")
@@ -15816,7 +16117,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "LZ91"    \b, LZEXE v0.91 compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x39, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a, 0x39, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"LZ91\"    \\b, LZEXE v0.91 compressed")
@@ -15826,7 +16127,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1c    string    "tz"    \b, TinyProg compressed
     off = pageOff + 28
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x74, 0x7a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x74, 0x7a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1c    string    \"tz\"    \\b, TinyProg compressed")
@@ -15836,7 +16137,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1e    string    "Copyright 1989-1990 PKWARE Inc."    Self-extracting PKZIP archive
     off = pageOff + 30
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x31, 0x39, 0x38, 0x39, 0x2d, 0x31, 0x39, 0x39, 0x30, 0x20, 0x50, 0x4b, 0x57, 0x41, 0x52, 0x45, 0x20, 0x49, 0x6e, 0x63, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x43, 0x6f, 0x70, 0x79, 0x72, 0x69, 0x67, 0x68, 0x74, 0x20, 0x31, 0x39, 0x38, 0x39, 0x2d, 0x31, 0x39, 0x39, 0x30, 0x20, 0x50, 0x4b, 0x57, 0x41, 0x52, 0x45, 0x20, 0x49, 0x6e, 0x63, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1e    string    \"Copyright 1989-1990 PKWARE Inc.\"    Self-extracting PKZIP archive")
@@ -15846,7 +16147,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x1e    string    "PKLITE Copr."    Self-extracting PKZIP archive
     off = pageOff + 30
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x4c, 0x49, 0x54, 0x45, 0x20, 0x43, 0x6f, 0x70, 0x72, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x4c, 0x49, 0x54, 0x45, 0x20, 0x43, 0x6f, 0x70, 0x72, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x1e    string    \"PKLITE Copr.\"    Self-extracting PKZIP archive")
@@ -15859,7 +16160,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // uh oh unhandled kind
     // >0x20    string    "AIN"    
     off = pageOff + 32
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x20    string    \"AIN\"    ")
@@ -15869,7 +16170,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x23    string    "2"    \b, AIN 2.x compressed
       off = pageOff + 35
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x23    string    \"2\"    \\b, AIN 2.x compressed")
@@ -15879,7 +16180,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x23    string    "<2"    \b, AIN 1.x compressed
       off = pageOff + 35
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x23    string    \"<2\"    \\b, AIN 1.x compressed")
@@ -15889,7 +16190,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x23    string    ">2"    \b, AIN 1.x compressed
       off = pageOff + 35
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x32}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x23    string    \">2\"    \\b, AIN 1.x compressed")
@@ -15901,7 +16202,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x24    string    "LHa's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x61, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x61, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \"LHa's SFX\"    \\b, LHa self-extracting archive")
@@ -15911,7 +16212,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x24    string    "LHA's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x41, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x48, 0x41, 0x27, 0x73, 0x20, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \"LHA's SFX\"    \\b, LHa self-extracting archive")
@@ -15921,7 +16222,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x24    string    " $ARX"    \b, ARX self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \" $ARX\"    \\b, ARX self-extracting archive")
@@ -15931,7 +16232,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x24    string    " $LHarc"    \b, LHarc self-extracting archive
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \" $LHarc\"    \\b, LHarc self-extracting archive")
@@ -15941,7 +16242,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x20    string    "SFX by LARC"    \b, LARC self-extracting archive
     off = pageOff + 32
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x20    string    \"SFX by LARC\"    \\b, LARC self-extracting archive")
@@ -15951,7 +16252,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x40    string    "aPKG"    \b, aPackage self-extracting archive
     off = pageOff + 64
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x50, 0x4b, 0x47}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x50, 0x4b, 0x47}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x40    string    \"aPKG\"    \\b, aPackage self-extracting archive")
@@ -15961,7 +16262,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x64    string    "W Collis\x00\x00"    \b, Compack compressed
     off = pageOff + 100
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x64    string    \"W Collis\\x00\\x00\"    \\b, Compack compressed")
@@ -15971,7 +16272,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x7a    string    "Windows self-extracting ZIP"    \b, ZIP self-extracting archive
     off = pageOff + 122
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x69, 0x6e, 0x64, 0x6f, 0x77, 0x73, 0x20, 0x73, 0x65, 0x6c, 0x66, 0x2d, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x69, 0x6e, 0x67, 0x20, 0x5a, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x69, 0x6e, 0x64, 0x6f, 0x77, 0x73, 0x20, 0x73, 0x65, 0x6c, 0x66, 0x2d, 0x65, 0x78, 0x74, 0x72, 0x61, 0x63, 0x74, 0x69, 0x6e, 0x67, 0x20, 0x5a, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x7a    string    \"Windows self-extracting ZIP\"    \\b, ZIP self-extracting archive")
@@ -15986,7 +16287,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>(&0x0.longle+(4))    string    "MSCF"    \b, WinHKI CAB self-extracting archive
         // uh oh indirect offset
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>(&0x0.longle+(4))    string    \"MSCF\"    \\b, WinHKI CAB self-extracting archive")
@@ -16000,7 +16301,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m1 = false
     // >0x666    string    "-lh5-"    \b, LHa self-extracting archive v2.13S
     off = pageOff + 1638
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x2d, 0x6c, 0x68, 0x35, 0x2d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x2d, 0x6c, 0x68, 0x35, 0x2d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x666    string    \"-lh5-\"    \\b, LHa self-extracting archive v2.13S")
@@ -16010,7 +16311,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x17888    string    "Rar!"    \b, RAR self-extracting archive
     off = pageOff + 96392
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x17888    string    \"Rar!\"    \\b, RAR self-extracting archive")
@@ -16022,7 +16323,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // uh oh indirect offset
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -16035,7 +16336,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -16046,7 +16347,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x0    string    "PK\x03\x04"    \b, ZIP self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"PK\\x03\\x04\"    \\b, ZIP self-extracting archive")
@@ -16056,7 +16357,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "Rar!"    \b, RAR self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"Rar!\"    \\b, RAR self-extracting archive")
@@ -16066,7 +16367,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x11"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x11}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x11}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x11\"    \\b, AIN 2.x self-extracting archive")
@@ -16076,7 +16377,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x12"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x12}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x12}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x12\"    \\b, AIN 2.x self-extracting archive")
@@ -16086,7 +16387,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x17"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x17}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x17}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x17\"    \\b, AIN 1.x self-extracting archive")
@@ -16096,7 +16397,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x0    string    "=!\x18"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x18}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x18}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"=!\\x18\"    \\b, AIN 1.x self-extracting archive")
@@ -16119,7 +16420,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // uh oh unhandled kind
     // >0xc289    string    "y\xff\x80\xffv\xff"    \b, CODEC archive v3.21
     off = pageOff + 49801
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x79, 0xff, 0x80, 0xff, 0x76, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x79, 0xff, 0x80, 0xff, 0x76, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xc289    string    \"y\\xff\\x80\\xffv\\xff\"    \\b, CODEC archive v3.21")
@@ -16132,7 +16433,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 49824
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
+        m2 = ok && (u64(iv) == 0x1)
         ml = 2
       }
       if m2 {
@@ -16145,7 +16446,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 49824
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x1)
+        m2 = ok && (i64(i16(iv)) > 0x1)
         ml = 2
       }
       if m2 {
@@ -16160,7 +16461,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "KCF"    FreeDOS KEYBoard Layout collection
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"KCF\"    FreeDOS KEYBoard Layout collection")
@@ -16173,7 +16474,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 3
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -16186,7 +16487,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 6
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x0)
+      m1 = ok && (i64(i8(iv)) > 0x0)
       ml = 1
     }
     if m1 {
@@ -16197,7 +16498,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x7    string    ">\x00"    \b, author=%-.14s
       off = pageOff + 7
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x7    string    \">\\x00\"    \\b, author=%-.14s")
@@ -16211,7 +16512,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x0    string    "x"    \b%-.15s
         off = pageOff + 0
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x0    string    \"x\"    \\b%-.15s")
@@ -16227,7 +16528,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "KLF"    FreeDOS KEYBoard Layout file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4b, 0x4c, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"KLF\"    FreeDOS KEYBoard Layout file")
@@ -16240,7 +16541,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 3
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -16253,7 +16554,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x0)
+      m1 = ok && (i64(i8(iv)) > 0x0)
       ml = 1
     }
     if m1 {
@@ -16264,7 +16565,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x8    string    "x"    \b, name=%-.2s
       off = pageOff + 8
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x8    string    \"x\"    \\b, name=%-.2s")
@@ -16278,7 +16579,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\xffKEYB   \x00\x00\x00\x00"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xff, 0x4b, 0x45, 0x59, 0x42, 0x20, 0x20, 0x20, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xff, 0x4b, 0x45, 0x59, 0x42, 0x20, 0x20, 0x20, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xffKEYB   \\x00\\x00\\x00\\x00\"    ")
@@ -16288,7 +16589,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0xc    string    "\x00\x00\x00\x00`\x04\xf0"    MS-DOS KEYBoard Layout file
     off = pageOff + 12
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x60, 0x4, 0xf0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x60, 0x4, 0xf0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xc    string    \"\\x00\\x00\\x00\\x00`\\x04\\xf0\"    MS-DOS KEYBoard Layout file")
@@ -16302,7 +16603,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0xffffffff)
+    m0 = ok && (u64(iv) == 0xffffffff)
     ml = 8
   }
   if m0 {
@@ -16320,7 +16621,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0x513c00000000012)
+    m0 = ok && (u64(iv) == 0x513c00000000012)
     ml = 8
   }
   if m0 {
@@ -16338,7 +16639,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0x32f28000ffff0016)
+    m0 = ok && (u64(iv) == 0x32f28000ffff0016)
     ml = 8
   }
   if m0 {
@@ -16356,7 +16657,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0x7f00000000ffff)
+    m0 = ok && (u64(iv) == 0x7f00000000ffff)
     ml = 8
   }
   if m0 {
@@ -16374,7 +16675,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0x1600000000ffff)
+    m0 = ok && (u64(iv) == 0x1600000000ffff)
     ml = 8
   }
   if m0 {
@@ -16392,7 +16693,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0xbf708c2ffffffff)
+    m0 = ok && (u64(iv) == 0xbf708c2ffffffff)
     ml = 8
   }
   if m0 {
@@ -16410,7 +16711,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0x7bd08c2ffffffff)
+    m0 = ok && (u64(iv) == 0x7bd08c2ffffffff)
     ml = 8
   }
   if m0 {
@@ -16428,7 +16729,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8le(tb, off)
-    m0 = ok && (uint64(iv) == 0x8c)
+    m0 = ok && (u64(iv) == 0x8c)
     ml = 1
   }
   if m0 {
@@ -16439,7 +16740,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    "O===="    
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4f, 0x3d, 0x3d, 0x3d, 0x3d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4f, 0x3d, 0x3d, 0x3d, 0x3d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \"O====\"    ")
@@ -16449,7 +16750,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x5    string    "MAIN"    
       off = pageOff + 5
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x41, 0x49, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x5    string    \"MAIN\"    ")
@@ -16461,7 +16762,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0xd)
+          m3 = ok && (i64(i8(iv)) > 0xd)
           ml = 1
         }
         if m3 {
@@ -16480,7 +16781,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0xffff10eb)
+    m0 = ok && (u64(iv) == 0xffff10eb)
     ml = 4
   }
   if m0 {
@@ -16493,7 +16794,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16be(tb, off)
-    m0 = ok && (int64(int16(iv)) > 0xeb00)
+    m0 = ok && (i64(i16(iv)) > 0xeb00)
     ml = 2
   }
   if m0 {
@@ -16505,7 +16806,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8le(tb, off)
-    m0 = ok && (uint64(iv) == 0xeb)
+    m0 = ok && (u64(iv) == 0xeb)
     ml = 1
   }
   if m0 {
@@ -16518,7 +16819,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 1
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) > -1)
+      m1 = ok && (i64(i8(iv)) > -1)
       ml = 1
     }
     if m1 {
@@ -16531,7 +16832,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -16553,7 +16854,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8le(tb, off)
-    m0 = ok && (uint64(iv) == 0xe9)
+    m0 = ok && (u64(iv) == 0xe9)
     ml = 1
   }
   if m0 {
@@ -16566,7 +16867,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 1
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > -1)
+      m1 = ok && (i64(i16(iv)) > -1)
       ml = 2
     }
     if m1 {
@@ -16579,7 +16880,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -16599,7 +16900,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 1
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) < -259)
+      m1 = ok && (i64(i16(iv)) < -259)
       ml = 2
     }
     if m1 {
@@ -16612,7 +16913,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // uh oh indirect offset
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -16634,7 +16935,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint8le(tb, off)
-    m0 = ok && (uint64(iv) == 0xb8)
+    m0 = ok && (u64(iv) == 0xb8)
     ml = 1
   }
   if m0 {
@@ -16645,7 +16946,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x0    string    "\xb8\xc0\a\x8e"    
     off = pageOff + 0
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0xb8, 0xc0, 0x7, 0x8e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0xb8, 0xc0, 0x7, 0x8e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x0    string    \"\\xb8\\xc0\\a\\x8e\"    ")
@@ -16657,7 +16958,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 1
       {
         iv, ok := readUint32le(tb, off)
-        m2 = ok && (uint64(iv) == 0x21cd4cfe)
+        m2 = ok && (u64(iv) == 0x21cd4cfe)
         ml = 4
       }
       if m2 {
@@ -16671,7 +16972,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 1
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x21cd4cff)
+          m3 = ok && (u64(iv) == 0x21cd4cff)
           ml = 4
         }
         if m3 {
@@ -16684,7 +16985,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 1
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x21cd4cfe)
+          m3 = ok && (u64(iv) == 0x21cd4cfe)
           ml = 4
         }
         if m3 {
@@ -16704,7 +17005,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\x81\xfc"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x81, 0xfc}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x81, 0xfc}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x81\\xfc\"    ")
@@ -16714,7 +17015,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    "w\x02\xcd \xb9"    
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x77, 0x2, 0xcd, 0x20, 0xb9}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x77, 0x2, 0xcd, 0x20, 0xb9}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \"w\\x02\\xcd \\xb9\"    ")
@@ -16724,7 +17025,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x24    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
       off = pageOff + 36
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x24    string    \"UPX!\"    FREE-DOS executable (COM), UPX compressed")
@@ -16738,7 +17039,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0xfc    string    "Must have DOS version"    DR-DOS executable (COM)
   off = pageOff + 252
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x75, 0x73, 0x74, 0x20, 0x68, 0x61, 0x76, 0x65, 0x20, 0x44, 0x4f, 0x53, 0x20, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x75, 0x73, 0x74, 0x20, 0x68, 0x61, 0x76, 0x65, 0x20, 0x44, 0x4f, 0x53, 0x20, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0xfc    string    \"Must have DOS version\"    DR-DOS executable (COM)")
@@ -16748,7 +17049,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x22    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 34
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x22    string    \"UPX!\"    FREE-DOS executable (COM), UPX compressed")
@@ -16758,7 +17059,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x23    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 35
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x23    string    \"UPX!\"    FREE-DOS executable (COM), UPX compressed")
@@ -16768,7 +17069,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x2    string    "\xcd!"    COM executable for DOS
   off = pageOff + 2
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x2    string    \"\\xcd!\"    COM executable for DOS")
@@ -16778,7 +17079,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x4    string    "\xcd!"    COM executable for DOS
   off = pageOff + 4
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x4    string    \"\\xcd!\"    COM executable for DOS")
@@ -16788,7 +17089,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x5    string    "\xcd!"    COM executable for DOS
   off = pageOff + 5
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x5    string    \"\\xcd!\"    COM executable for DOS")
@@ -16798,7 +17099,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x7    string    "\xcd!"    
   off = pageOff + 7
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x7    string    \"\\xcd!\"    ")
@@ -16810,7 +17111,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0xb8)
+      m1 = ok && (u64(iv) != 0xb8)
       ml = 1
     }
     if m1 {
@@ -16823,7 +17124,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0xa    string    "\xcd!"    
   off = pageOff + 10
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0xa    string    \"\\xcd!\"    ")
@@ -16833,7 +17134,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x5    string    "\xcd!"    COM executable for DOS
     off = pageOff + 5
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x5    string    \"\\xcd!\"    COM executable for DOS")
@@ -16845,7 +17146,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0xd    string    "\xcd!"    COM executable for DOS
   off = pageOff + 13
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0xd    string    \"\\xcd!\"    COM executable for DOS")
@@ -16855,7 +17156,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x12    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 18
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x12    string    \"\\xcd!\"    COM executable for MS-DOS")
@@ -16865,7 +17166,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x17    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 23
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x17    string    \"\\xcd!\"    COM executable for MS-DOS")
@@ -16875,7 +17176,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x1e    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 30
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x1e    string    \"\\xcd!\"    COM executable for MS-DOS")
@@ -16885,7 +17186,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x46    string    "\xcd!"    COM executable for DOS
   off = pageOff + 70
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xcd, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x46    string    \"\\xcd!\"    COM executable for DOS")
@@ -16907,7 +17208,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x3c    string    "W Collis\x00\x00"    COM executable for MS-DOS, Compack compressed
   off = pageOff + 60
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x20, 0x43, 0x6f, 0x6c, 0x6c, 0x69, 0x73, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x3c    string    \"W Collis\\x00\\x00\"    COM executable for MS-DOS, Compack compressed")
@@ -16917,7 +17218,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "LZ"    MS-DOS executable (built-in)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x5a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"LZ\"    MS-DOS executable (built-in)")
@@ -16927,7 +17228,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1AAFB\r\x00OM\x06\x0e+4\x01\x01\x01\xff"    AAF legacy file using MS Structured Storage
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x41, 0x41, 0x46, 0x42, 0xd, 0x0, 0x4f, 0x4d, 0x6, 0xe, 0x2b, 0x34, 0x1, 0x1, 0x1, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x41, 0x41, 0x46, 0x42, 0xd, 0x0, 0x4f, 0x4d, 0x6, 0xe, 0x2b, 0x34, 0x1, 0x1, 0x1, 0xff}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd0\\xcf\\x11\\u0871\\x1a\\xe1AAFB\\r\\x00OM\\x06\\x0e+4\\x01\\x01\\x01\\xff\"    AAF legacy file using MS Structured Storage")
@@ -16940,7 +17241,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
+      m1 = ok && (u64(iv) == 0x9)
       ml = 1
     }
     if m1 {
@@ -16953,7 +17254,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0xc)
+      m1 = ok && (u64(iv) == 0xc)
       ml = 1
     }
     if m1 {
@@ -16966,7 +17267,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1\x01\x02\x01\r\x00\x02\x00\x00\x06\x0e+4\x03\x02\x01\x01"    AAF file using MS Structured Storage
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x1, 0x2, 0x1, 0xd, 0x0, 0x2, 0x0, 0x0, 0x6, 0xe, 0x2b, 0x34, 0x3, 0x2, 0x1, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0x1, 0x2, 0x1, 0xd, 0x0, 0x2, 0x0, 0x0, 0x6, 0xe, 0x2b, 0x34, 0x3, 0x2, 0x1, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd0\\xcf\\x11\\u0871\\x1a\\xe1\\x01\\x02\\x01\\r\\x00\\x02\\x00\\x00\\x06\\x0e+4\\x03\\x02\\x01\\x01\"    AAF file using MS Structured Storage")
@@ -16979,7 +17280,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
+      m1 = ok && (u64(iv) == 0x9)
       ml = 1
     }
     if m1 {
@@ -16992,7 +17293,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 30
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0xc)
+      m1 = ok && (u64(iv) == 0xc)
       ml = 1
     }
     if m1 {
@@ -17005,7 +17306,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x820    string    "Microsoft Word 6.0 Document"    %s
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36, 0x2e, 0x30, 0x20, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36, 0x2e, 0x30, 0x20, 0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Microsoft Word 6.0 Document\"    %s")
@@ -17015,7 +17316,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x820    string    "Documento Microsoft Word 6"    Spanish Microsoft Word 6 document data
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x6f, 0x63, 0x75, 0x6d, 0x65, 0x6e, 0x74, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x57, 0x6f, 0x72, 0x64, 0x20, 0x36}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Documento Microsoft Word 6\"    Spanish Microsoft Word 6 document data")
@@ -17025,7 +17326,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x840    string    "MSWordDoc"    Microsoft Word document data
   off = pageOff + 2112
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x6f, 0x72, 0x64, 0x44, 0x6f, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x6f, 0x72, 0x64, 0x44, 0x6f, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x840    string    \"MSWordDoc\"    Microsoft Word document data")
@@ -17037,7 +17338,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x31be0000)
+    m0 = ok && (u64(iv) == 0x31be0000)
     ml = 4
   }
   if m0 {
@@ -17048,7 +17349,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "PO^Q`"    Microsoft Word 6.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4f, 0x5e, 0x51, 0x60}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4f, 0x5e, 0x51, 0x60}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"PO^Q`\"    Microsoft Word 6.0 Document")
@@ -17060,7 +17361,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 4
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x0)
+    m0 = ok && (u64(iv) == 0x0)
     ml = 4
   }
   if m0 {
@@ -17073,7 +17374,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe320000)
+      m1 = ok && (u64(iv) == 0xfe320000)
       ml = 4
     }
     if m1 {
@@ -17086,7 +17387,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe340000)
+      m1 = ok && (u64(iv) == 0xfe340000)
       ml = 4
     }
     if m1 {
@@ -17099,7 +17400,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe37001c)
+      m1 = ok && (u64(iv) == 0xfe37001c)
       ml = 4
     }
     if m1 {
@@ -17112,7 +17413,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfe370023)
+      m1 = ok && (u64(iv) == 0xfe370023)
       ml = 4
     }
     if m1 {
@@ -17125,7 +17426,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "ۥ-\x00\x00\x00"    Microsoft Word 2.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ۥ-\\x00\\x00\\x00\"    Microsoft Word 2.0 Document")
@@ -17135,7 +17436,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x200    string    "\xec\xa5\xc1"    Microsoft Word Document
   off = pageOff + 512
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xec, 0xa5, 0xc1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xec, 0xa5, 0xc1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x200    string    \"\\xec\\xa5\\xc1\"    Microsoft Word Document")
@@ -17145,7 +17446,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ۥ-\\x00\"    Microsoft WinWord 2.0 Document")
@@ -17155,7 +17456,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x820    string    "Microsoft Excel 5.0 Worksheet"    %s
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65, 0x6c, 0x20, 0x35, 0x2e, 0x30, 0x20, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x68, 0x65, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65, 0x6c, 0x20, 0x35, 0x2e, 0x30, 0x20, 0x57, 0x6f, 0x72, 0x6b, 0x73, 0x68, 0x65, 0x65, 0x74}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Microsoft Excel 5.0 Worksheet\"    %s")
@@ -17165,7 +17466,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xdb, 0xa5, 0x2d, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ۥ-\\x00\"    Microsoft WinWord 2.0 Document")
@@ -17175,7 +17476,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x820    string    "Foglio di lavoro Microsoft Exce"    %s
   off = pageOff + 2080
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x46, 0x6f, 0x67, 0x6c, 0x69, 0x6f, 0x20, 0x64, 0x69, 0x20, 0x6c, 0x61, 0x76, 0x6f, 0x72, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x46, 0x6f, 0x67, 0x6c, 0x69, 0x6f, 0x20, 0x64, 0x69, 0x20, 0x6c, 0x61, 0x76, 0x6f, 0x72, 0x6f, 0x20, 0x4d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x45, 0x78, 0x63, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x820    string    \"Foglio di lavoro Microsoft Exce\"    %s")
@@ -17185,7 +17486,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x842    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2114
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x842    string    \"Biff5\"    Microsoft Excel 5.0 Worksheet")
@@ -17195,7 +17496,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x849    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2121
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x69, 0x66, 0x66, 0x35}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x849    string    \"Biff5\"    Microsoft Excel 5.0 Worksheet")
@@ -17205,7 +17506,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\t\x04\x06\x00\x00\x00\x10\x00"    Microsoft Excel Worksheet
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x9, 0x4, 0x6, 0x0, 0x0, 0x0, 0x10, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x9, 0x4, 0x6, 0x0, 0x0, 0x0, 0x10, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\t\\x04\\x06\\x00\\x00\\x00\\x10\\x00\"    Microsoft Excel Worksheet")
@@ -17217,7 +17518,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x1a00)
+    m0 = ok && (u64(iv) == 0x1a00)
     ml = 4
   }
   if m0 {
@@ -17230,7 +17531,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x0)
+      m1 = ok && (i64(i8(iv)) > 0x0)
       ml = 1
     }
     if m1 {
@@ -17243,7 +17544,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 20
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (int64(int8(iv)) < 0x20)
+        m2 = ok && (i64(i8(iv)) < 0x20)
         ml = 1
       }
       if m2 {
@@ -17257,7 +17558,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1000)
+          m3 = ok && (u64(iv) == 0x1000)
           ml = 2
         }
         if m3 {
@@ -17270,7 +17571,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1002)
+          m3 = ok && (u64(iv) == 0x1002)
           ml = 2
         }
         if m3 {
@@ -17283,7 +17584,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1003)
+          m3 = ok && (u64(iv) == 0x1003)
           ml = 2
         }
         if m3 {
@@ -17296,7 +17597,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1005)
+          m3 = ok && (u64(iv) == 0x1005)
           ml = 2
         }
         if m3 {
@@ -17309,7 +17610,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8001)
+          m3 = ok && (u64(iv) == 0x8001)
           ml = 2
         }
         if m3 {
@@ -17322,7 +17623,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8007)
+          m3 = ok && (u64(iv) == 0x8007)
           ml = 2
         }
         if m3 {
@@ -17339,7 +17640,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 6
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x4)
+            m4 = ok && (u64(iv) == 0x4)
             ml = 2
           }
           if m4 {
@@ -17352,7 +17653,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 6
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) != 0x4)
+            m4 = ok && (u64(iv) != 0x4)
             ml = 2
           }
           if m4 {
@@ -17365,7 +17666,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -17380,7 +17681,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 6
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x4)
+          m3 = ok && (u64(iv) == 0x4)
           ml = 2
         }
         if m3 {
@@ -17394,7 +17695,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 8
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (uint64(iv) != 0x0)
+            m4 = ok && (u64(iv) != 0x0)
             ml = 4
           }
           if m4 {
@@ -17407,7 +17708,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 10
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (int64(int8(iv)) > 0x0)
+              m5 = ok && (i64(i8(iv)) > 0x0)
               ml = 1
             }
             if m5 {
@@ -17420,7 +17721,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 8
             {
               iv, ok := readUint16le(tb, off)
-              m5 = ok && (uint64(iv) == 0x0)
+              m5 = ok && (u64(iv) == 0x0)
               ml = 2
             }
             if m5 {
@@ -17433,7 +17734,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 11
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) == 0x0)
+              m5 = ok && (u64(iv) == 0x0)
               ml = 1
             }
             if m5 {
@@ -17448,7 +17749,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 14
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x0)
+            m4 = ok && (i64(i8(iv)) > 0x0)
             ml = 1
           }
           if m4 {
@@ -17461,7 +17762,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 12
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -17474,7 +17775,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 15
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -17487,7 +17788,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 20
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x1)
+            m4 = ok && (i64(i8(iv)) > 0x1)
             ml = 1
           }
           if m4 {
@@ -17500,7 +17801,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 21
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -17515,7 +17816,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 6
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) != 0x4)
+          m3 = ok && (u64(iv) != 0x4)
           ml = 2
         }
         if m3 {
@@ -17530,7 +17831,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           if m4 {
             // >>>>>&0x4    string    ">\x00"    \b, 1st font "%s"
             off = pageOff + 4
-            ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
             m5 = ml >= 0
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>&0x4    string    \">\\x00\"    \\b, 1st font \"%s\"")
@@ -17552,7 +17853,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x200)
+    m0 = ok && (u64(iv) == 0x200)
     ml = 4
   }
   if m0 {
@@ -17565,7 +17866,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 7
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -17578,7 +17879,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 6
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -17592,7 +17893,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x7)
+          m3 = ok && (u64(iv) == 0x7)
           ml = 2
         }
         if m3 {
@@ -17605,7 +17906,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0xc05)
+          m3 = ok && (u64(iv) == 0xc05)
           ml = 2
         }
         if m3 {
@@ -17618,7 +17919,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x801)
+          m3 = ok && (u64(iv) == 0x801)
           ml = 2
         }
         if m3 {
@@ -17631,7 +17932,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x802)
+          m3 = ok && (u64(iv) == 0x802)
           ml = 2
         }
         if m3 {
@@ -17644,7 +17945,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x804)
+          m3 = ok && (u64(iv) == 0x804)
           ml = 2
         }
         if m3 {
@@ -17657,7 +17958,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x80a)
+          m3 = ok && (u64(iv) == 0x80a)
           ml = 2
         }
         if m3 {
@@ -17670,7 +17971,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1402)
+          m3 = ok && (u64(iv) == 0x1402)
           ml = 2
         }
         if m3 {
@@ -17683,7 +17984,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1450)
+          m3 = ok && (u64(iv) == 0x1450)
           ml = 2
         }
         if m3 {
@@ -17696,7 +17997,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x404)
+          m3 = ok && (u64(iv) == 0x404)
           ml = 2
         }
         if m3 {
@@ -17709,7 +18010,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x405)
+          m3 = ok && (u64(iv) == 0x405)
           ml = 2
         }
         if m3 {
@@ -17722,7 +18023,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x406)
+          m3 = ok && (u64(iv) == 0x406)
           ml = 2
         }
         if m3 {
@@ -17735,7 +18036,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x600)
+          m3 = ok && (u64(iv) == 0x600)
           ml = 2
         }
         if m3 {
@@ -17748,7 +18049,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x602)
+          m3 = ok && (u64(iv) == 0x602)
           ml = 2
         }
         if m3 {
@@ -17761,7 +18062,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8006)
+          m3 = ok && (u64(iv) == 0x8006)
           ml = 2
         }
         if m3 {
@@ -17774,7 +18075,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x8007)
+          m3 = ok && (u64(iv) == 0x8007)
           ml = 2
         }
         if m3 {
@@ -17791,7 +18092,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 4
           {
             iv, ok := readUint16le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 2
           }
           if m4 {
@@ -17816,7 +18117,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "WordPro\x00"    Lotus WordPro
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"WordPro\\x00\"    Lotus WordPro")
@@ -17826,7 +18127,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "WordPro\r\xfb"    Lotus WordPro
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0xd, 0xfb}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x6f, 0x72, 0x64, 0x50, 0x72, 0x6f, 0xd, 0xfb}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"WordPro\\r\\xfb\"    Lotus WordPro")
@@ -17836,7 +18137,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "q\xa8\x00\x00\x01\x02"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x71, 0xa8, 0x0, 0x0, 0x1, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x71, 0xa8, 0x0, 0x0, 0x1, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"q\\xa8\\x00\\x00\\x01\\x02\"    ")
@@ -17846,7 +18147,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0xc    string    "Stirling Technologies,"    InstallShield Uninstall Script
     off = pageOff + 12
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x74, 0x69, 0x72, 0x6c, 0x69, 0x6e, 0x67, 0x20, 0x54, 0x65, 0x63, 0x68, 0x6e, 0x6f, 0x6c, 0x6f, 0x67, 0x69, 0x65, 0x73, 0x2c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x74, 0x69, 0x72, 0x6c, 0x69, 0x6e, 0x67, 0x20, 0x54, 0x65, 0x63, 0x68, 0x6e, 0x6f, 0x6c, 0x6f, 0x67, 0x69, 0x65, 0x73, 0x2c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xc    string    \"Stirling Technologies,\"    InstallShield Uninstall Script")
@@ -17858,7 +18159,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "Nullsoft AVS Preset "    Winamp plug in
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x75, 0x6c, 0x6c, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x41, 0x56, 0x53, 0x20, 0x50, 0x72, 0x65, 0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x75, 0x6c, 0x6c, 0x73, 0x6f, 0x66, 0x74, 0x20, 0x41, 0x56, 0x53, 0x20, 0x50, 0x72, 0x65, 0x73, 0x65, 0x74, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"Nullsoft AVS Preset \"    Winamp plug in")
@@ -17868,7 +18169,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xd7\xcdƚ"    ms-windows metafont .wmf
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd7, 0xcd, 0xc6, 0x9a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd7, 0xcd, 0xc6, 0x9a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd7\\xcdƚ\"    ms-windows metafont .wmf")
@@ -17878,7 +18179,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x02\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x2, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x2, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x02\\x00\\t\\x00\"    ms-windows metafont .wmf")
@@ -17888,7 +18189,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x01\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x1, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x1, 0x0, 0x9, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x01\\x00\\t\\x00\"    ms-windows metafont .wmf")
@@ -17898,7 +18199,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x03\x01\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x1, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x1, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x03\\x01\\x01\\x048\\x01\\x00\\x00\"    tz3 ms-works file")
@@ -17908,7 +18209,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x03\x02\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x2, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x2, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x03\\x02\\x01\\x048\\x01\\x00\\x00\"    tz3 ms-works file")
@@ -17918,7 +18219,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x03\x03\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x3, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3, 0x3, 0x1, 0x4, 0x38, 0x1, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x03\\x03\\x01\\x048\\x01\\x00\\x00\"    tz3 ms-works file")
@@ -17928,7 +18229,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW5\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x35, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x35, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW5\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -17938,7 +18239,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW6\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x36, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x36, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW6\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -17948,7 +18249,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW7\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x37, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x37, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW7\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -17958,7 +18259,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW8\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x38, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x38, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW8\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -17968,7 +18269,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW9\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x39, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x3f, 0x3, 0x5, 0x0, 0x33, 0x9f, 0x57, 0x39, 0x17, 0xb6, 0x69, 0x34, 0x5, 0x25, 0x41, 0x9b, 0x11, 0x2}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00?\\x03\\x05\\x003\\x9fW9\\x17\\xb6i4\\x05%A\\x9b\\x11\\x02\"    PGP sig")
@@ -17978,7 +18279,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\x89\x00\x95\x03\x05\x002R\x87\xc4@\xe5\""    PGP sig
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x95, 0x3, 0x5, 0x0, 0x32, 0x52, 0x87, 0xc4, 0x40, 0xe5, 0x22}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x89, 0x0, 0x95, 0x3, 0x5, 0x0, 0x32, 0x52, 0x87, 0xc4, 0x40, 0xe5, 0x22}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x89\\x00\\x95\\x03\\x05\\x002R\\x87\\xc4@\\xe5\\\"\"    PGP sig")
@@ -17988,7 +18289,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MDIF\x1a\x00\b\x00\x00\x00\xfa&@}\x01\x00\x01\x1e\x01\x00"    MS Windows special zipped file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x44, 0x49, 0x46, 0x1a, 0x0, 0x8, 0x0, 0x0, 0x0, 0xfa, 0x26, 0x40, 0x7d, 0x1, 0x0, 0x1, 0x1e, 0x1, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x44, 0x49, 0x46, 0x1a, 0x0, 0x8, 0x0, 0x0, 0x0, 0xfa, 0x26, 0x40, 0x7d, 0x1, 0x0, 0x1, 0x1e, 0x1, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MDIF\\x1a\\x00\\b\\x00\\x00\\x00\\xfa&@}\\x01\\x00\\x01\\x1e\\x01\\x00\"    MS Windows special zipped file")
@@ -17998,7 +18299,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "BA(\x00\x00\x00.\x00\x00\x00\x00\x00\x00\x00"    Icon for MS Windows
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x41, 0x28, 0x0, 0x0, 0x0, 0x2e, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x41, 0x28, 0x0, 0x0, 0x0, 0x2e, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"BA(\\x00\\x00\\x00.\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    Icon for MS Windows")
@@ -18010,7 +18311,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x100)
+    m0 = ok && (u64(iv) == 0x100)
     ml = 4
   }
   if m0 {
@@ -18023,7 +18324,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -18036,7 +18337,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -18053,7 +18354,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0xff)
+      m1 = ok && (u64(iv) == 0xff)
       ml = 1
     }
     if m1 {
@@ -18066,7 +18367,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -18085,7 +18386,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0x200)
+    m0 = ok && (u64(iv) == 0x200)
     ml = 4
   }
   if m0 {
@@ -18098,7 +18399,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -18116,7 +18417,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0xff)
+      m1 = ok && (u64(iv) == 0xff)
       ml = 1
     }
     if m1 {
@@ -18134,7 +18435,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "PK\b\bBGI"    Borland font
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"PK\\b\\bBGI\"    Borland font")
@@ -18145,7 +18446,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \">\\x00\"    %s")
@@ -18157,7 +18458,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "pk\b\bBGI"    Borland device
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x70, 0x6b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x70, 0x6b, 0x8, 0x8, 0x42, 0x47, 0x49}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"pk\\b\\bBGI\"    Borland device")
@@ -18168,7 +18469,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \">\\x00\"    %s")
@@ -18182,7 +18483,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x4)
+    m0 = ok && (u64(iv) == 0x4)
     ml = 4
   }
   if m0 {
@@ -18195,7 +18496,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 12
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x118)
+      m1 = ok && (u64(iv) == 0x118)
       ml = 4
     }
     if m1 {
@@ -18210,7 +18511,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x5)
+    m0 = ok && (u64(iv) == 0x5)
     ml = 4
   }
   if m0 {
@@ -18223,7 +18524,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 12
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x320)
+      m1 = ok && (u64(iv) == 0x320)
       ml = 4
     }
     if m1 {
@@ -18236,7 +18537,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x9    string    "GERBILDOC"    First Choice document
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x4f, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x4f, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"GERBILDOC\"    First Choice document")
@@ -18246,7 +18547,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x9    string    "GERBILDB"    First Choice database
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x44, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"GERBILDB\"    First Choice database")
@@ -18256,7 +18557,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x9    string    "GERBILCLIP"    First Choice database
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x43, 0x4c, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c, 0x43, 0x4c, 0x49, 0x50}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"GERBILCLIP\"    First Choice database")
@@ -18266,7 +18567,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "GERBIL"    First Choice device file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x45, 0x52, 0x42, 0x49, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"GERBIL\"    First Choice device file")
@@ -18276,7 +18577,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x9    string    "RABBITGRAPH"    RabbitGraph file
   off = pageOff + 9
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x41, 0x42, 0x42, 0x49, 0x54, 0x47, 0x52, 0x41, 0x50, 0x48}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x41, 0x42, 0x42, 0x49, 0x54, 0x47, 0x52, 0x41, 0x50, 0x48}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x9    string    \"RABBITGRAPH\"    RabbitGraph file")
@@ -18286,7 +18587,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "DCU1"    Borland Delphi .DCU file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x43, 0x55, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x43, 0x55, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"DCU1\"    Borland Delphi .DCU file")
@@ -18296,7 +18597,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "=!<spell>"    MKS Spell hash list (old format)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"=!<spell>\"    MKS Spell hash list (old format)")
@@ -18306,7 +18607,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "=!<spell2>"    MKS Spell hash list
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x32, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x3c, 0x73, 0x70, 0x65, 0x6c, 0x6c, 0x32, 0x3e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"=!<spell2>\"    MKS Spell hash list")
@@ -18318,7 +18619,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x8086b70)
+    m0 = ok && (u64(iv) == 0x8086b70)
     ml = 4
   }
   if m0 {
@@ -18331,7 +18632,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x8084b50)
+    m0 = ok && (u64(iv) == 0x8084b50)
     ml = 4
   }
   if m0 {
@@ -18342,7 +18643,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "TPF0"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x54, 0x50, 0x46, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x54, 0x50, 0x46, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"TPF0\"    ")
@@ -18351,7 +18652,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "PMCC"    Windows 3.x .GRP file
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4d, 0x43, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4d, 0x43, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"PMCC\"    Windows 3.x .GRP file")
@@ -18361,7 +18662,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x1    string    "RDC-meg"    MegaDots
   off = pageOff + 1
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x44, 0x43, 0x2d, 0x6d, 0x65, 0x67}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x44, 0x43, 0x2d, 0x6d, 0x65, 0x67}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x1    string    \"RDC-meg\"    MegaDots")
@@ -18374,7 +18675,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 8
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x2f)
+      m1 = ok && (i64(i8(iv)) > 0x2f)
       ml = 1
     }
     if m1 {
@@ -18387,7 +18688,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 9
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) > 0x2f)
+      m1 = ok && (i64(i8(iv)) > 0x2f)
       ml = 1
     }
     if m1 {
@@ -18402,7 +18703,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x4c)
+    m0 = ok && (u64(iv) == 0x4c)
     ml = 4
   }
   if m0 {
@@ -18415,7 +18716,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x21401)
+      m1 = ok && (u64(iv) == 0x21401)
       ml = 4
     }
     if m1 {
@@ -18428,7 +18729,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x171    string    "MICROSOFT PIFEX\x00"    Windows Program Information File
   off = pageOff + 369
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x50, 0x49, 0x46, 0x45, 0x58, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x43, 0x52, 0x4f, 0x53, 0x4f, 0x46, 0x54, 0x20, 0x50, 0x49, 0x46, 0x45, 0x58, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x171    string    \"MICROSOFT PIFEX\\x00\"    Windows Program Information File")
@@ -18439,7 +18740,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x24    string    ">\x00"    \b for %.63s
     off = pageOff + 36
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x24    string    \">\\x00\"    \\b for %.63s")
@@ -18449,7 +18750,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x65    string    ">\x00"    \b, directory=%.64s
     off = pageOff + 101
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x65    string    \">\\x00\"    \\b, directory=%.64s")
@@ -18459,7 +18760,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0xa5    string    ">\x00"    \b, parameters=%.64s
     off = pageOff + 165
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xa5    string    \">\\x00\"    \\b, parameters=%.64s")
@@ -18475,7 +18776,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 94
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -18486,7 +18787,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x-1    string    "<PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \"<PIFMGR.DLL\"    \\b, icon=%s")
@@ -18496,7 +18797,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x-1    string    ">PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x50, 0x49, 0x46, 0x4d, 0x47, 0x52, 0x2e, 0x44, 0x4c, 0x4c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \">PIFMGR.DLL\"    \\b, icon=%s")
@@ -18510,7 +18811,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 240
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -18521,7 +18822,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x-1    string    "<Terminal"    \b, font=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \"<Terminal\"    \\b, font=%.32s")
@@ -18531,7 +18832,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x-1    string    ">Terminal"    \b, font=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x54, 0x65, 0x72, 0x6d, 0x69, 0x6e, 0x61, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \">Terminal\"    \\b, font=%.32s")
@@ -18545,7 +18846,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 272
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (int64(int8(iv)) > 0x0)
+        m2 = ok && (i64(i8(iv)) > 0x0)
         ml = 1
       }
       if m2 {
@@ -18556,7 +18857,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>&0x-1    string    "<Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3c, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \"<Lucida Console\"    \\b, TrueTypeFont=%.32s")
@@ -18566,7 +18867,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
         // >>>&0x-1    string    ">Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x4c, 0x75, 0x63, 0x69, 0x64, 0x61, 0x20, 0x43, 0x6f, 0x6e, 0x73, 0x6f, 0x6c, 0x65}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0x-1    string    \">Lucida Console\"    \\b, TrueTypeFont=%.32s")
@@ -18593,7 +18894,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32be(tb, off)
-    m0 = ok && (uint64(iv) == 0xc5d0d3c6)
+    m0 = ok && (u64(iv) == 0xc5d0d3c6)
     ml = 4
   }
   if m0 {
@@ -18607,7 +18908,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (int64(int32(iv)) > 0x0)
+      m1 = ok && (i64(i32(iv)) > 0x0)
       ml = 4
     }
     if m1 {
@@ -18621,7 +18922,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 8
       {
         iv, ok := readUint32le(tb, off)
-        m2 = ok && (int64(int32(iv)) > 0x0)
+        m2 = ok && (i64(i32(iv)) > 0x0)
         ml = 4
       }
       if m2 {
@@ -18635,7 +18936,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 12
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (int64(int32(iv)) > 0x0)
+          m3 = ok && (i64(i32(iv)) > 0x0)
           ml = 4
         }
         if m3 {
@@ -18649,7 +18950,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 16
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -18664,7 +18965,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 20
         {
           iv, ok := readUint32le(tb, off)
-          m3 = ok && (int64(int32(iv)) > 0x0)
+          m3 = ok && (i64(i32(iv)) > 0x0)
           ml = 4
         }
         if m3 {
@@ -18678,7 +18979,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 24
           {
             iv, ok := readUint32le(tb, off)
-            m4 = ok && (int64(int32(iv)) > 0x0)
+            m4 = ok && (i64(i32(iv)) > 0x0)
             ml = 4
           }
           if m4 {
@@ -18699,7 +19000,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (uint64(iv) == 0x223e9f78)
+    m0 = ok && (u64(iv) == 0x223e9f78)
     ml = 2
   }
   if m0 {
@@ -18710,7 +19011,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "NG\x00\x01"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x47, 0x0, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x47, 0x0, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"NG\\x00\\x01\"    ")
@@ -18722,7 +19023,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 2
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x100)
+      m1 = ok && (u64(iv) == 0x100)
       ml = 4
     }
     if m1 {
@@ -18734,7 +19035,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x8    string    ">\x00"    "%-.40s"
       off = pageOff + 8
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x8    string    \">\\x00\"    \"%-.40s\"")
@@ -18744,7 +19045,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x30    string    ">\x00"    \b, %-.66s
       off = pageOff + 48
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x30    string    \">\\x00\"    \\b, %-.66s")
@@ -18754,7 +19055,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
       // >>0x72    string    ">\x00"    %-.66s
       off = pageOff + 114
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x72    string    \">\\x00\"    %-.66s")
@@ -18770,7 +19071,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x48443408)
+    m0 = ok && (u64(iv) == 0x48443408)
     ml = 4
   }
   if m0 {
@@ -18782,7 +19083,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x4    string    "x"    \b, version %-4.4s
     off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x4    string    \"x\"    \\b, version %-4.4s")
@@ -18796,7 +19097,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint64le(tb, off)
-    m0 = ok && (uint64(iv) == 0x3a000000024e4c)
+    m0 = ok && (u64(iv) == 0x3a000000024e4c)
     ml = 8
   }
   if m0 {
@@ -18807,7 +19108,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "ITSF\x03\x00\x00\x00`\x00\x00\x00"    MS Windows HtmlHelp Data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x53, 0x46, 0x3, 0x0, 0x0, 0x0, 0x60, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x53, 0x46, 0x3, 0x0, 0x0, 0x0, 0x60, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ITSF\\x03\\x00\\x00\\x00`\\x00\\x00\\x00\"    MS Windows HtmlHelp Data")
@@ -18817,7 +19118,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x2    string    "GFA-BASIC3"    GFA-BASIC 3 data
   off = pageOff + 2
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x46, 0x41, 0x2d, 0x42, 0x41, 0x53, 0x49, 0x43, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x47, 0x46, 0x41, 0x2d, 0x42, 0x41, 0x53, 0x49, 0x43, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x2    string    \"GFA-BASIC3\"    GFA-BASIC 3 data")
@@ -18827,7 +19128,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MSCF\x00\x00\x00\x00"    Microsoft Cabinet archive data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MSCF\\x00\\x00\\x00\\x00\"    Microsoft Cabinet archive data")
@@ -18840,7 +19141,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 8
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -18853,7 +19154,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 28
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -18866,7 +19167,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 28
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -18879,7 +19180,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "ISc("    InstallShield Cabinet archive data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x53, 0x63, 0x28}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x53, 0x63, 0x28}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ISc(\"    InstallShield Cabinet archive data")
@@ -18892,7 +19193,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x60)
+      m1 = ok && (u64(iv) == 0x60)
       ml = 1
     }
     if m1 {
@@ -18905,7 +19206,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x60)
+      m1 = ok && (u64(iv) != 0x60)
       ml = 1
     }
     if m1 {
@@ -18918,7 +19219,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // uh oh indirect offset
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -18931,7 +19232,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "MSCE\x00\x00\x00\x00"    Microsoft WinCE install header
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x45, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x45, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MSCE\\x00\\x00\\x00\\x00\"    Microsoft WinCE install header")
@@ -18944,7 +19245,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -18957,7 +19258,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x67)
+      m1 = ok && (u64(iv) == 0x67)
       ml = 4
     }
     if m1 {
@@ -18970,7 +19271,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x68)
+      m1 = ok && (u64(iv) == 0x68)
       ml = 4
     }
     if m1 {
@@ -18983,7 +19284,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0xa11)
+      m1 = ok && (u64(iv) == 0xa11)
       ml = 4
     }
     if m1 {
@@ -18996,7 +19297,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0xfa0)
+      m1 = ok && (u64(iv) == 0xfa0)
       ml = 4
     }
     if m1 {
@@ -19009,7 +19310,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2713)
+      m1 = ok && (u64(iv) == 0x2713)
       ml = 4
     }
     if m1 {
@@ -19022,7 +19323,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2714)
+      m1 = ok && (u64(iv) == 0x2714)
       ml = 4
     }
     if m1 {
@@ -19035,7 +19336,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2715)
+      m1 = ok && (u64(iv) == 0x2715)
       ml = 4
     }
     if m1 {
@@ -19048,7 +19349,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 20
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x11171)
+      m1 = ok && (u64(iv) == 0x11171)
       ml = 4
     }
     if m1 {
@@ -19061,7 +19362,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 52
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -19074,7 +19375,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 52
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -19087,7 +19388,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 56
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
+      m1 = ok && (u64(iv) == 0x1)
       ml = 2
     }
     if m1 {
@@ -19100,7 +19401,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 56
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (i64(i16(iv)) > 0x1)
       ml = 2
     }
     if m1 {
@@ -19115,7 +19416,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 0
   {
     iv, ok := readUint32le(tb, off)
-    m0 = ok && (uint64(iv) == 0x1)
+    m0 = ok && (u64(iv) == 0x1)
     ml = 4
   }
   if m0 {
@@ -19126,7 +19427,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x28    string    " EMF"    Windows Enhanced Metafile (EMF) image data
     off = pageOff + 40
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x45, 0x4d, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x45, 0x4d, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x28    string    \" EMF\"    Windows Enhanced Metafile (EMF) image data")
@@ -19139,7 +19440,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 44
       {
         iv, ok := readUint32le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 4
       }
       if m2 {
@@ -19154,7 +19455,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1"    Microsoft Office Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xd0\\xcf\\x11\\u0871\\x1a\\xe1\"    Microsoft Office Document")
@@ -19165,7 +19466,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x222    string    "bjbj"    Microsoft Word Document
     off = pageOff + 546
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x62, 0x6a, 0x62, 0x6a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x62, 0x6a, 0x62, 0x6a}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x222    string    \"bjbj\"    Microsoft Word Document")
@@ -19175,7 +19476,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x222    string    "jbjb"    Microsoft Word Document
     off = pageOff + 546
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x6a, 0x62, 0x6a, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x6a, 0x62, 0x6a, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x222    string    \"jbjb\"    Microsoft Word Document")
@@ -19187,7 +19488,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\x94\xa6."    Microsoft Word Document
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x94, 0xa6, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x94, 0xa6, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x94\\xa6.\"    Microsoft Word Document")
@@ -19197,7 +19498,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x200    string    "R\x00o\x00o\x00t\x00 \x00E\x00n\x00t\x00r\x00y"    Microsoft Word Document
   off = pageOff + 512
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x0, 0x6f, 0x0, 0x6f, 0x0, 0x74, 0x0, 0x20, 0x0, 0x45, 0x0, 0x6e, 0x0, 0x74, 0x0, 0x72, 0x0, 0x79}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x0, 0x6f, 0x0, 0x6f, 0x0, 0x74, 0x0, 0x20, 0x0, 0x45, 0x0, 0x6e, 0x0, 0x74, 0x0, 0x72, 0x0, 0x79}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x200    string    \"R\\x00o\\x00o\\x00t\\x00 \\x00E\\x00n\\x00t\\x00r\\x00y\"    Microsoft Word Document")
@@ -19207,7 +19508,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "$RBU"    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x52, 0x42, 0x55}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x52, 0x42, 0x55}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"$RBU\"    ")
@@ -19217,7 +19518,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x17    string    "Dell"    %s system BIOS
     off = pageOff + 23
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x65, 0x6c, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x65, 0x6c, 0x6c}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x17    string    \"Dell\"    %s system BIOS")
@@ -19229,7 +19530,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
+      m1 = ok && (u64(iv) == 0x2)
       ml = 1
     }
     if m1 {
@@ -19242,7 +19543,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 48
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -19255,7 +19556,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 49
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -19268,7 +19569,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 50
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -19283,7 +19584,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) < 0x2)
+      m1 = ok && (i64(i8(iv)) < 0x2)
       ml = 1
     }
     if m1 {
@@ -19294,7 +19595,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x30    string    "x"    version %.3s
       off = pageOff + 48
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x30    string    \"x\"    version %.3s")
@@ -19308,7 +19609,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "DDS |\x00\x00\x00"    Microsoft DirectDraw Surface (DDS),
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x44, 0x53, 0x20, 0x7c, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x44, 0x44, 0x53, 0x20, 0x7c, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"DDS |\\x00\\x00\\x00\"    Microsoft DirectDraw Surface (DDS),")
@@ -19321,7 +19622,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 16
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (int64(int32(iv)) > 0x0)
+      m1 = ok && (i64(i32(iv)) > 0x0)
       ml = 4
     }
     if m1 {
@@ -19334,7 +19635,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 12
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (int64(int32(iv)) > 0x0)
+      m1 = ok && (i64(i32(iv)) > 0x0)
       ml = 4
     }
     if m1 {
@@ -19345,7 +19646,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
     // >0x54    string    "x"    %.4s
     off = pageOff + 84
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x54    string    \"x\"    %.4s")
@@ -19357,7 +19658,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "ITOLITLS"    Microsoft Reader eBook Data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x4f, 0x4c, 0x49, 0x54, 0x4c, 0x53}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x49, 0x54, 0x4f, 0x4c, 0x49, 0x54, 0x4c, 0x53}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"ITOLITLS\"    Microsoft Reader eBook Data")
@@ -19370,7 +19671,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 8
     {
       iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 4
     }
     if m1 {
@@ -19383,7 +19684,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "B000FF\n"    Windows Embedded CE binary image
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x30, 0x30, 0x30, 0x46, 0x46, 0xa}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x30, 0x30, 0x30, 0x46, 0x46, 0xa}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"B000FF\\n\"    Windows Embedded CE binary image")
@@ -19393,7 +19694,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MSWIM\x00\x00\x00"    Windows imaging (WIM) image
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x49, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x57, 0x49, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MSWIM\\x00\\x00\\x00\"    Windows imaging (WIM) image")
@@ -19403,7 +19704,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "WLPWM\x00\x00\x00"    Windows imaging (WIM) image, wimlib pipable format
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x4c, 0x50, 0x57, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x4c, 0x50, 0x57, 0x4d, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:true}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"WLPWM\\x00\\x00\\x00\"    Windows imaging (WIM) image, wimlib pipable format")
@@ -19413,7 +19714,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x03\x00"    Mallard BASIC program data (v1.11)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x03\\x00\"    Mallard BASIC program data (v1.11)")
@@ -19423,7 +19724,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x04\x00"    Mallard BASIC program data (v1.29+)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x04\\x00\"    Mallard BASIC program data (v1.29+)")
@@ -19433,7 +19734,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x03\x01"    Mallard BASIC protected program data (v1.11)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x3, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x03\\x01\"    Mallard BASIC protected program data (v1.11)")
@@ -19443,7 +19744,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "\xfc\x04\x01"    Mallard BASIC protected program data (v1.29+)
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0x4, 0x1}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\xfc\\x04\\x01\"    Mallard BASIC protected program data (v1.29+)")
@@ -19453,7 +19754,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "MIOPEN"    Mallard BASIC Jetsam data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x4f, 0x50, 0x45, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x49, 0x4f, 0x50, 0x45, 0x4e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"MIOPEN\"    Mallard BASIC Jetsam data")
@@ -19463,7 +19764,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
 
   // 0x0    string    "Jetsam0"    Mallard BASIC Jetsam index data
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x4a, 0x65, 0x74, 0x73, 0x61, 0x6d, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4a, 0x65, 0x74, 0x73, 0x61, 0x6d, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"Jetsam0\"    Mallard BASIC Jetsam index data")
@@ -19475,7 +19776,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 3
   {
     iv, ok := readUint16le(tb, off)
-    m0 = ok && (int64(int16(iv)) > 0x7bb)
+    m0 = ok && (i64(i16(iv)) > 0x7bb)
     ml = 2
   }
   if m0 {
@@ -19488,7 +19789,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 5
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (int64(int8(iv)) < 0x1f)
+      m1 = ok && (i64(i8(iv)) < 0x1f)
       ml = 1
     }
     if m1 {
@@ -19501,7 +19802,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 6
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (int64(int8(iv)) < 0xc)
+        m2 = ok && (i64(i8(iv)) < 0xc)
         ml = 1
       }
       if m2 {
@@ -19512,7 +19813,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       if m2 {
         // >>>0x7    string    "\x00\x00\x00\x00\x00\x00\x00\x00"    
         off = pageOff + 7
-        ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
         m3 = ml >= 0
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>0x7    string    \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    ")
@@ -19524,7 +19825,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 1
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
+            m4 = ok && (u64(iv) == 0x0)
             ml = 1
           }
           if m4 {
@@ -19537,7 +19838,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 0
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) == 0xff)
+            m4 = ok && (u64(iv) == 0xff)
             ml = 1
           }
           if m4 {
@@ -19558,7 +19859,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   off = pageOff + 83
   {
     iv, ok := readUint8le(tb, off)
-    m0 = ok && (int64(int8(iv)) < 0x50)
+    m0 = ok && (i64(i8(iv)) < 0x50)
     ml = 1
   }
   if m0 {
@@ -19569,7 +19870,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0x54    string    "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"    
     off = pageOff + 84
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x54    string    \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    ")
@@ -19579,7 +19880,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     if m1 {
       // >>0x5    string    "x"    DOS 2.0 backed up file %s,
       off = pageOff + 5
-      ml = int64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
       m2 = ml >= 0
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>0x5    string    \"x\"    DOS 2.0 backed up file %s,")
@@ -19591,7 +19892,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xff)
+        m2 = ok && (u64(iv) == 0xff)
         ml = 1
       }
       if m2 {
@@ -19604,7 +19905,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 0
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) != 0xff)
+        m2 = ok && (u64(iv) != 0xff)
         ml = 1
       }
       if m2 {
@@ -19617,7 +19918,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 1
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          m3 = ok && (u64(iv) == 0x0)
           ml = 2
         }
         if m3 {
@@ -19634,7 +19935,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   m0 = false
   // 0x0    string    "\x8bBACKUP "    
   off = pageOff + 0
-  ml = int64(wizardry.StringTest(tb, int(off), []byte{0x8b, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+  ml = i64(wizardry.StringTest(tb, int(off), []byte{0x8b, 0x42, 0x41, 0x43, 0x4b, 0x55, 0x50, 0x20}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
   m0 = ml >= 0
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x0    string    \"\\x8bBACKUP \"    ")
@@ -19644,7 +19945,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   if m0 {
     // >0xa    string    "\x00\x00\x00\x00\x00\x00\x00\x00"    
     off = pageOff + 10
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+    ml = i64(wizardry.StringTest(tb, int(off), []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
     m1 = ml >= 0
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0xa    string    \"\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00\"    ")
@@ -19656,7 +19957,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 9
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (u64(iv) == 0x0)
         ml = 1
       }
       if m2 {
@@ -19669,7 +19970,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 138
       {
         iv, ok := readUint8le(tb, off)
-        m2 = ok && (uint64(iv) == 0xff)
+        m2 = ok && (u64(iv) == 0xff)
         ml = 1
       }
       if m2 {
@@ -19683,10 +19984,10 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyMsdosDriver__Swapped(tb []byte, pageOff i64) ([]string, error) {
   var out []string
-  var off int64
-  var ml int64
+  var off i64
+  var ml i64
   m0 := false
   m0 = !!m0
   m1 := false
@@ -19710,7 +20011,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -19723,7 +20024,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
+      m1 = ok && (u64(iv) == 0x8000)
       ml = 2
     }
     if m1 {
@@ -19737,7 +20038,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8)
+        m2 = ok && (u64(iv) == 0x8)
         ml = 2
       }
       if m2 {
@@ -19750,7 +20051,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x10)
+        m2 = ok && (u64(iv) == 0x10)
         ml = 2
       }
       if m2 {
@@ -19763,7 +20064,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
+        m2 = ok && (i64(i16(iv)) > 0x0)
         ml = 2
       }
       if m2 {
@@ -19777,7 +20078,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
+          m3 = ok && (u64(iv) == 0x1)
           ml = 2
         }
         if m3 {
@@ -19790,7 +20091,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
+          m3 = ok && (u64(iv) == 0x3)
           ml = 2
         }
         if m3 {
@@ -19803,7 +20104,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
+          m3 = ok && (u64(iv) == 0x2)
           ml = 2
         }
         if m3 {
@@ -19818,7 +20119,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8000)
+        m2 = ok && (u64(iv) == 0x8000)
         ml = 2
       }
       if m2 {
@@ -19833,7 +20134,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
@@ -19853,7 +20154,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 12
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x2e)
+          m3 = ok && (i64(i8(iv)) > 0x2e)
           ml = 1
         }
         if m3 {
@@ -19867,7 +20168,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 10
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -19880,7 +20181,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 10
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -19893,7 +20194,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 10
               {
                 iv, ok := readUint8le(tb, off)
-                m6 = ok && (uint64(iv) != 0x2a)
+                m6 = ok && (u64(iv) != 0x2a)
                 ml = 1
               }
               if m6 {
@@ -19910,7 +20211,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 11
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -19923,7 +20224,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 11
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -19938,7 +20239,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 12
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -19951,7 +20252,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 12
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x39)
+              m5 = ok && (u64(iv) != 0x39)
               ml = 1
             }
             if m5 {
@@ -19964,7 +20265,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 12
               {
                 iv, ok := readUint8le(tb, off)
-                m6 = ok && (uint64(iv) != 0x2e)
+                m6 = ok && (u64(iv) != 0x2e)
                 ml = 1
               }
               if m6 {
@@ -19983,7 +20284,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 13
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x20)
+          m3 = ok && (i64(i8(iv)) > 0x20)
           ml = 1
         }
         if m3 {
@@ -19996,7 +20297,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 13
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) != 0x2e)
+            m4 = ok && (u64(iv) != 0x2e)
             ml = 1
           }
           if m4 {
@@ -20009,7 +20310,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 14
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -20022,7 +20323,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 14
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -20037,7 +20338,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 15
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -20050,7 +20351,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 15
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -20065,7 +20366,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 16
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -20078,7 +20379,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 16
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -20091,7 +20392,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 16
               {
                 iv, ok := readUint8le(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0xcb)
+                m6 = ok && (i64(i8(iv)) < 0xcb)
                 ml = 1
               }
               if m6 {
@@ -20108,7 +20409,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
           off = pageOff + 17
           {
             iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
+            m4 = ok && (i64(i8(iv)) > 0x20)
             ml = 1
           }
           if m4 {
@@ -20121,7 +20422,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
             off = pageOff + 17
             {
               iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
+              m5 = ok && (u64(iv) != 0x2e)
               ml = 1
             }
             if m5 {
@@ -20134,7 +20435,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
               off = pageOff + 17
               {
                 iv, ok := readUint8le(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0x90)
+                m6 = ok && (i64(i8(iv)) < 0x90)
                 ml = 1
               }
               if m6 {
@@ -20153,7 +20454,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         off = pageOff + 12
         {
           iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) < 0x2f)
+          m3 = ok && (i64(i8(iv)) < 0x2f)
           ml = 1
         }
         if m3 {
@@ -20164,7 +20465,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
         if m3 {
           // >>>>0x16    string    ">."    %-.6s
           off = pageOff + 22
-          ml = int64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3e, 0x2e}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
           m4 = ml >= 0
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x16    string    \">.\"    %-.6s")
@@ -20182,7 +20483,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -20195,7 +20496,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        m2 = ok && (u64(iv) == 0x2)
         ml = 2
       }
       if m2 {
@@ -20210,7 +20511,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
+      m1 = ok && (u64(iv) == 0x40)
       ml = 2
     }
     if m1 {
@@ -20223,7 +20524,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x800)
+      m1 = ok && (u64(iv) == 0x800)
       ml = 2
     }
     if m1 {
@@ -20236,7 +20537,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
+      m1 = ok && (u64(iv) == 0x8000)
       ml = 2
     }
     if m1 {
@@ -20249,7 +20550,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2000)
+        m2 = ok && (u64(iv) == 0x2000)
         ml = 2
       }
       if m2 {
@@ -20264,7 +20565,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4000)
+      m1 = ok && (u64(iv) == 0x4000)
       ml = 2
     }
     if m1 {
@@ -20277,7 +20578,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
+      m1 = ok && (u64(iv) == 0x8000)
       ml = 2
     }
     if m1 {
@@ -20290,7 +20591,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
+        m2 = ok && (i64(i16(iv)) > 0x0)
         ml = 2
       }
       if m2 {
@@ -20305,7 +20606,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 2
     }
     if m1 {
@@ -20318,7 +20619,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
       off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
+        m2 = ok && (i64(i16(iv)) > 0x0)
         ml = 2
       }
       if m2 {
@@ -20333,306 +20634,13 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     {
       iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (u64(iv) == 0x0)
       ml = 1
     }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x0    ubytele    0    \\b)")
       off += ml
       out = append(out, "\\b)")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyMsdosCom__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0x0    bytele    0    DOS executable (COM)
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    DOS executable (COM)")
-      off += ml
-      out = append(out, "DOS executable (COM)")
-    }
-
-    // >0x6    string    "SFX of LHarc"    \b, %s
-    off = pageOff + 6
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x6f, 0x66, 0x20, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x6    string    \"SFX of LHarc\"    \\b, %s")
-      off += ml
-      out = append(out, "\\b, %s")
-    }
-
-    // >0x1fe    shortle    aa55    \b, boot code
-    off = pageOff + 510
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa55)
-      ml = 2
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x1fe    shortle    aa55    \\b, boot code")
-      off += ml
-      out = append(out, "\\b, boot code")
-    }
-
-    // >0x55    string    "UPX"    \b, UPX compressed
-    off = pageOff + 85
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x55    string    \"UPX\"    \\b, UPX compressed")
-      off += ml
-      out = append(out, "\\b, UPX compressed")
-    }
-
-    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
-    off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x41, 0x52, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $ARX\"    \\b, ARX self-extracting archive")
-      off += ml
-      out = append(out, "\\b, ARX self-extracting archive")
-    }
-
-    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
-    off = pageOff + 4
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x20, 0x24, 0x4c, 0x48, 0x61, 0x72, 0x63}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x4    string    \" $LHarc\"    \\b, LHarc self-extracting archive")
-      off += ml
-      out = append(out, "\\b, LHarc self-extracting archive")
-    }
-
-    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
-    off = pageOff + 526
-    ml = int64(wizardry.StringTest(tb, int(off), []byte{0x53, 0x46, 0x58, 0x20, 0x62, 0x79, 0x20, 0x4c, 0x41, 0x52, 0x43}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-    m1 = ml >= 0
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x20e    string    \"SFX by LARC\"    \\b, LARC self-extracting archive")
-      off += ml
-      out = append(out, "\\b, LARC self-extracting archive")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyLotusCells__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-  m2 := false
-  m2 = !!m2
-  m3 := false
-  m3 = !!m3
-
-  if m0 {
-    // >0x0    ulongbe    6000800    \b, cell range
-    off = pageOff + 0
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6000800)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    ulongbe    6000800    \\b, cell range")
-      off += ml
-      out = append(out, "\\b, cell range")
-    }
-
-    if m1 {
-      // >>0x4    ulongle    0    
-      off = pageOff + 4
-      {
-        iv, ok := readUint32le(tb, off)
-        m2 = ok && (uint64(iv) != 0x0)
-        ml = 4
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x4    ulongle    0    ")
-        off += ml
-      }
-
-      if m2 {
-        // >>>0x4    ushortle    0    \b%d,
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x4    ushortle    0    \\b%d,")
-          off += ml
-          out = append(out, "\\b%d,")
-        }
-
-        // >>>0x6    ushortle    0    \b%d-
-        off = pageOff + 6
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-          ml = 2
-        }
-        if m3 {
-          fmt.Printf("matched rule: %s\n", ">>>0x6    ushortle    0    \\b%d-")
-          off += ml
-          out = append(out, "\\b%d-")
-        }
-
-      }
-      m2 = false
-      // >>0x8    ushortle    0    \b%d,
-      off = pageOff + 8
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0x8    ushortle    0    \\b%d,")
-        off += ml
-        out = append(out, "\\b%d,")
-      }
-
-      // >>0xa    ushortle    0    \b%d
-      off = pageOff + 10
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-        ml = 2
-      }
-      if m2 {
-        fmt.Printf("matched rule: %s\n", ">>0xa    ushortle    0    \\b%d")
-        off += ml
-        out = append(out, "\\b%d")
-      }
-
-    }
-  }
-  return out, nil
-}
-
-func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  var ml int64
-  m0 := false
-  m0 = !!m0
-  m1 := false
-  m1 = !!m1
-
-  if m0 {
-    // >0x0    bytele    0    \b, 256x
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, 256x")
-      off += ml
-      out = append(out, "\\b, 256x")
-    }
-
-    // >0x0    bytele    0    \b, %dx
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x0    bytele    0    \\b, %dx")
-      off += ml
-      out = append(out, "\\b, %dx")
-    }
-
-    // >0x1    bytele    0    \b256
-    off = pageOff + 1
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b256")
-      off += ml
-      out = append(out, "\\b256")
-    }
-
-    // >0x1    bytele    0    \b%d
-    off = pageOff + 1
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x1    bytele    0    \\b%d")
-      off += ml
-      out = append(out, "\\b%d")
-    }
-
-    // >0x2    ubytele    0    \b, %d colors
-    off = pageOff + 2
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-      ml = 1
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">0x2    ubytele    0    \\b, %d colors")
-      off += ml
-      out = append(out, "\\b, %d colors")
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x89504e47)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
-      off += ml
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) != 0x89504e47)
-      ml = 4
-    }
-    if m1 {
-      fmt.Printf("matched rule: %s\n", ">(0xc.longle)    ulongbe    89504e47    ")
-      off += ml
     }
 
   }

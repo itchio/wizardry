@@ -80,15 +80,19 @@ func Compile(book wizparser.Spellbook) error {
 
 	emit("var le binary.ByteOrder = binary.LittleEndian")
 	emit("var be binary.ByteOrder = binary.BigEndian")
+	for _, byteWidth := range []byte{1, 2, 4, 8} {
+		emit("type i%d int%d", byteWidth*8, byteWidth*8)
+		emit("type u%d uint%d", byteWidth*8, byteWidth*8)
+	}
 	emit("")
 
 	for _, byteWidth := range []byte{1, 2, 4, 8} {
 		for _, endianness := range []wizparser.Endianness{wizparser.LittleEndian, wizparser.BigEndian} {
-			retType := fmt.Sprintf("uint%d", byteWidth*8)
+			retType := fmt.Sprintf("u%d", byteWidth*8)
 
-			emit("func readUint%d%s(tb []byte, off int64) (%s, bool) {", byteWidth*8, endiannessString(endianness, false), retType)
+			emit("func readUint%d%s(tb []byte, off i64) (%s, bool) {", byteWidth*8, endiannessString(endianness, false), retType)
 			withIndent(func() {
-				emit("if int64(len(tb)) < off+%d {", byteWidth)
+				emit("if i64(len(tb)) < off+%d {", byteWidth)
 				withIndent(func() {
 					emit("return 0, false")
 				})
@@ -99,7 +103,7 @@ func Compile(book wizparser.Spellbook) error {
 				} else {
 					emit("pi := %s.Uint%d(tb[off:])", endiannessString(endianness, false), byteWidth*8)
 				}
-				emit("return pi, true")
+				emit("return %s(pi), true", retType)
 			})
 			emit("}")
 			emit("")
@@ -112,11 +116,11 @@ func Compile(book wizparser.Spellbook) error {
 		for page := range book {
 			rules := book[page]
 
-			emit("func Identify%s(tb []byte, pageOff int64) ([]string, error) {", pageSymbol(page, swapEndian))
+			emit("func Identify%s(tb []byte, pageOff i64) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
 				emit("var out []string")
-				emit("var off int64") // lookupOffset
-				emit("var ml int64")  // matchLength
+				emit("var off i64") // lookupOffset
+				emit("var ml i64")  // matchLength
 
 				maxLevel := 0
 				for _, rule := range rules {
@@ -189,9 +193,9 @@ func Compile(book wizparser.Spellbook) error {
 							}
 
 							if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
-								lhs = fmt.Sprintf("int64(int%d(iv))", ik.ByteWidth*8)
+								lhs = fmt.Sprintf("i64(i%d(iv))", ik.ByteWidth*8)
 							} else {
-								lhs = fmt.Sprintf("uint64(iv)")
+								lhs = fmt.Sprintf("u64(iv)")
 							}
 
 							ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, quoteNumber(ik.Value))
@@ -202,7 +206,7 @@ func Compile(book wizparser.Spellbook) error {
 
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
-						emit("ml = int64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
+						emit("ml = i64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
 						emit("m%d = ml >= 0", rule.Level)
 
 					default:
