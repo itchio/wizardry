@@ -8,6 +8,8 @@ import (
   "github.com/fasterthanlime/wizardry/wizardry"
 )
 
+// silence import errors, if we don't use string/search etc.
+var _ wizardry.StringTestFlags
 var le binary.ByteOrder = binary.LittleEndian
 var be binary.ByteOrder = binary.BigEndian
 
@@ -76,10 +78,8 @@ func readUint64le(tb []byte, off int64) (uint64, bool) {
 }
 
 func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
@@ -93,7 +93,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with no file type,
+      out = append(out, "no file type,")
     }
 
     // >0x10    shortle    1    relocatable,
@@ -103,7 +103,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with relocatable,
+      out = append(out, "relocatable,")
     }
 
     // >0x10    shortle    2    executable,
@@ -113,7 +113,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with executable,
+      out = append(out, "executable,")
     }
 
     // >0x10    shortle    3    shared object,
@@ -123,7 +123,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3)
     }
     if m1 {
-      // do something with shared object,
+      out = append(out, "shared object,")
     }
 
     // >0x10    shortle    4    core file
@@ -133,7 +133,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4)
     }
     if m1 {
-      // do something with core file
+      out = append(out, "core file")
     }
 
     // >0x12    clear    
@@ -147,7 +147,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with no machine,
+      out = append(out, "no machine,")
     }
 
     // >0x12    shortle    1    AT&T WE32100,
@@ -157,7 +157,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with AT&T WE32100,
+      out = append(out, "AT&T WE32100,")
     }
 
     // >0x12    shortle    2    SPARC,
@@ -167,7 +167,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with SPARC,
+      out = append(out, "SPARC,")
     }
 
     // >0x12    shortle    3    Intel 80386,
@@ -177,7 +177,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3)
     }
     if m1 {
-      // do something with Intel 80386,
+      out = append(out, "Intel 80386,")
     }
 
     // >0x12    shortle    4    Motorola m68k,
@@ -187,7 +187,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4)
     }
     if m1 {
-      // do something with Motorola m68k,
+      out = append(out, "Motorola m68k,")
     }
 
     if m1 {
@@ -206,7 +206,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with 68020,
+          out = append(out, "68020,")
         }
 
       }
@@ -218,7 +218,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5)
     }
     if m1 {
-      // do something with Motorola m88k,
+      out = append(out, "Motorola m88k,")
     }
 
     // >0x12    shortle    6    Intel 80486,
@@ -228,7 +228,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6)
     }
     if m1 {
-      // do something with Intel 80486,
+      out = append(out, "Intel 80486,")
     }
 
     // >0x12    shortle    7    Intel 80860,
@@ -238,7 +238,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x7)
     }
     if m1 {
-      // do something with Intel 80860,
+      out = append(out, "Intel 80860,")
     }
 
     // >0x12    shortle    8    MIPS,
@@ -248,7 +248,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8)
     }
     if m1 {
-      // do something with MIPS,
+      out = append(out, "MIPS,")
     }
 
     if m1 {
@@ -267,7 +267,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa)
     }
     if m1 {
-      // do something with MIPS,
+      out = append(out, "MIPS,")
     }
 
     if m1 {
@@ -302,7 +302,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with MIPS-I
+          out = append(out, "MIPS-I")
         }
 
         // >>>0x24    longle    10000000&0xf0000000    MIPS-II
@@ -312,7 +312,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x10000000)
         }
         if m3 {
-          // do something with MIPS-II
+          out = append(out, "MIPS-II")
         }
 
         // >>>0x24    longle    20000000&0xf0000000    MIPS-III
@@ -322,7 +322,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x20000000)
         }
         if m3 {
-          // do something with MIPS-III
+          out = append(out, "MIPS-III")
         }
 
         // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
@@ -332,7 +332,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x30000000)
         }
         if m3 {
-          // do something with MIPS-IV
+          out = append(out, "MIPS-IV")
         }
 
         // >>>0x24    longle    40000000&0xf0000000    MIPS-V
@@ -342,7 +342,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x40000000)
         }
         if m3 {
-          // do something with MIPS-V
+          out = append(out, "MIPS-V")
         }
 
         // >>>0x24    longle    50000000&0xf0000000    MIPS32
@@ -352,7 +352,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x50000000)
         }
         if m3 {
-          // do something with MIPS32
+          out = append(out, "MIPS32")
         }
 
         // >>>0x24    longle    60000000&0xf0000000    MIPS64
@@ -362,7 +362,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x60000000)
         }
         if m3 {
-          // do something with MIPS64
+          out = append(out, "MIPS64")
         }
 
         // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
@@ -372,7 +372,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x70000000)
         }
         if m3 {
-          // do something with MIPS32 rel2
+          out = append(out, "MIPS32 rel2")
         }
 
         // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
@@ -382,7 +382,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x80000000)
         }
         if m3 {
-          // do something with MIPS64 rel2
+          out = append(out, "MIPS64 rel2")
         }
 
       }
@@ -401,7 +401,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with MIPS-I
+          out = append(out, "MIPS-I")
         }
 
         // >>>0x30    longle    10000000&0xf0000000    MIPS-II
@@ -411,7 +411,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x10000000)
         }
         if m3 {
-          // do something with MIPS-II
+          out = append(out, "MIPS-II")
         }
 
         // >>>0x30    longle    20000000&0xf0000000    MIPS-III
@@ -421,7 +421,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x20000000)
         }
         if m3 {
-          // do something with MIPS-III
+          out = append(out, "MIPS-III")
         }
 
         // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
@@ -431,7 +431,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x30000000)
         }
         if m3 {
-          // do something with MIPS-IV
+          out = append(out, "MIPS-IV")
         }
 
         // >>>0x30    longle    40000000&0xf0000000    MIPS-V
@@ -441,7 +441,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x40000000)
         }
         if m3 {
-          // do something with MIPS-V
+          out = append(out, "MIPS-V")
         }
 
         // >>>0x30    longle    50000000&0xf0000000    MIPS32
@@ -451,7 +451,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x50000000)
         }
         if m3 {
-          // do something with MIPS32
+          out = append(out, "MIPS32")
         }
 
         // >>>0x30    longle    60000000&0xf0000000    MIPS64
@@ -461,7 +461,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x60000000)
         }
         if m3 {
-          // do something with MIPS64
+          out = append(out, "MIPS64")
         }
 
         // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
@@ -471,7 +471,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x70000000)
         }
         if m3 {
-          // do something with MIPS32 rel2
+          out = append(out, "MIPS32 rel2")
         }
 
         // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
@@ -481,7 +481,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x80000000)
         }
         if m3 {
-          // do something with MIPS64 rel2
+          out = append(out, "MIPS64 rel2")
         }
 
       }
@@ -493,7 +493,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9)
     }
     if m1 {
-      // do something with Amdahl,
+      out = append(out, "Amdahl,")
     }
 
     // >0x12    shortle    a    MIPS (deprecated),
@@ -503,7 +503,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa)
     }
     if m1 {
-      // do something with MIPS (deprecated),
+      out = append(out, "MIPS (deprecated),")
     }
 
     // >0x12    shortle    b    RS6000,
@@ -513,7 +513,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb)
     }
     if m1 {
-      // do something with RS6000,
+      out = append(out, "RS6000,")
     }
 
     // >0x12    shortle    f    PA-RISC,
@@ -523,7 +523,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xf)
     }
     if m1 {
-      // do something with PA-RISC,
+      out = append(out, "PA-RISC,")
     }
 
     if m1 {
@@ -542,7 +542,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x214)
         }
         if m3 {
-          // do something with 2.0
+          out = append(out, "2.0")
         }
 
       }
@@ -561,7 +561,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x214)
         }
         if m3 {
-          // do something with 2.0
+          out = append(out, "2.0")
         }
 
       }
@@ -573,7 +573,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x10)
     }
     if m1 {
-      // do something with nCUBE,
+      out = append(out, "nCUBE,")
     }
 
     // >0x12    shortle    11    Fujitsu VPP500,
@@ -583,7 +583,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x11)
     }
     if m1 {
-      // do something with Fujitsu VPP500,
+      out = append(out, "Fujitsu VPP500,")
     }
 
     // >0x12    shortle    12    SPARC32PLUS,
@@ -593,7 +593,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x12)
     }
     if m1 {
-      // do something with SPARC32PLUS,
+      out = append(out, "SPARC32PLUS,")
     }
 
     if m1 {
@@ -612,7 +612,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x100)
         }
         if m3 {
-          // do something with V8+ Required,
+          out = append(out, "V8+ Required,")
         }
 
         // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
@@ -622,7 +622,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with Sun UltraSPARC1 Extensions Required,
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
         }
 
         // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
@@ -632,7 +632,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x400)
         }
         if m3 {
-          // do something with HaL R1 Extensions Required,
+          out = append(out, "HaL R1 Extensions Required,")
         }
 
         // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
@@ -642,7 +642,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x800)
         }
         if m3 {
-          // do something with Sun UltraSPARC3 Extensions Required,
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
         }
 
       }
@@ -654,7 +654,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x13)
     }
     if m1 {
-      // do something with Intel 80960,
+      out = append(out, "Intel 80960,")
     }
 
     // >0x12    shortle    14    PowerPC or cisco 4500,
@@ -664,7 +664,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x14)
     }
     if m1 {
-      // do something with PowerPC or cisco 4500,
+      out = append(out, "PowerPC or cisco 4500,")
     }
 
     // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
@@ -674,7 +674,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x15)
     }
     if m1 {
-      // do something with 64-bit PowerPC or cisco 7500,
+      out = append(out, "64-bit PowerPC or cisco 7500,")
     }
 
     // >0x12    shortle    16    IBM S/390,
@@ -684,7 +684,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x16)
     }
     if m1 {
-      // do something with IBM S/390,
+      out = append(out, "IBM S/390,")
     }
 
     // >0x12    shortle    17    Cell SPU,
@@ -694,7 +694,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x17)
     }
     if m1 {
-      // do something with Cell SPU,
+      out = append(out, "Cell SPU,")
     }
 
     // >0x12    shortle    18    cisco SVIP,
@@ -704,7 +704,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x18)
     }
     if m1 {
-      // do something with cisco SVIP,
+      out = append(out, "cisco SVIP,")
     }
 
     // >0x12    shortle    19    cisco 7200,
@@ -714,7 +714,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x19)
     }
     if m1 {
-      // do something with cisco 7200,
+      out = append(out, "cisco 7200,")
     }
 
     // >0x12    shortle    24    NEC V800 or cisco 12000,
@@ -724,7 +724,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x24)
     }
     if m1 {
-      // do something with NEC V800 or cisco 12000,
+      out = append(out, "NEC V800 or cisco 12000,")
     }
 
     // >0x12    shortle    25    Fujitsu FR20,
@@ -734,7 +734,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x25)
     }
     if m1 {
-      // do something with Fujitsu FR20,
+      out = append(out, "Fujitsu FR20,")
     }
 
     // >0x12    shortle    26    TRW RH-32,
@@ -744,7 +744,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x26)
     }
     if m1 {
-      // do something with TRW RH-32,
+      out = append(out, "TRW RH-32,")
     }
 
     // >0x12    shortle    27    Motorola RCE,
@@ -754,7 +754,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x27)
     }
     if m1 {
-      // do something with Motorola RCE,
+      out = append(out, "Motorola RCE,")
     }
 
     // >0x12    shortle    28    ARM,
@@ -764,7 +764,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x28)
     }
     if m1 {
-      // do something with ARM,
+      out = append(out, "ARM,")
     }
 
     if m1 {
@@ -783,7 +783,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4000000)
         }
         if m3 {
-          // do something with EABI4
+          out = append(out, "EABI4")
         }
 
         // >>>0x24    longle    5000000&0xff000000    EABI5
@@ -793,7 +793,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x5000000)
         }
         if m3 {
-          // do something with EABI5
+          out = append(out, "EABI5")
         }
 
       }
@@ -805,7 +805,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x29)
     }
     if m1 {
-      // do something with Alpha,
+      out = append(out, "Alpha,")
     }
 
     // >0x12    shortle    2a    Renesas SH,
@@ -815,7 +815,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2a)
     }
     if m1 {
-      // do something with Renesas SH,
+      out = append(out, "Renesas SH,")
     }
 
     // >0x12    shortle    2b    SPARC V9,
@@ -825,7 +825,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2b)
     }
     if m1 {
-      // do something with SPARC V9,
+      out = append(out, "SPARC V9,")
     }
 
     if m1 {
@@ -844,7 +844,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with Sun UltraSPARC1 Extensions Required,
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
         }
 
         // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
@@ -854,7 +854,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x400)
         }
         if m3 {
-          // do something with HaL R1 Extensions Required,
+          out = append(out, "HaL R1 Extensions Required,")
         }
 
         // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
@@ -864,7 +864,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x800)
         }
         if m3 {
-          // do something with Sun UltraSPARC3 Extensions Required,
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
         }
 
         // >>>0x30    longle    0&0x3    total store ordering,
@@ -874,7 +874,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with total store ordering,
+          out = append(out, "total store ordering,")
         }
 
         // >>>0x30    longle    1&0x3    partial store ordering,
@@ -884,7 +884,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with partial store ordering,
+          out = append(out, "partial store ordering,")
         }
 
         // >>>0x30    longle    2&0x3    relaxed memory ordering,
@@ -894,7 +894,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with relaxed memory ordering,
+          out = append(out, "relaxed memory ordering,")
         }
 
       }
@@ -906,7 +906,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2c)
     }
     if m1 {
-      // do something with Siemens Tricore Embedded Processor,
+      out = append(out, "Siemens Tricore Embedded Processor,")
     }
 
     // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
@@ -916,7 +916,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2d)
     }
     if m1 {
-      // do something with Argonaut RISC Core, Argonaut Technologies Inc.,
+      out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
     }
 
     // >0x12    shortle    2e    Renesas H8/300,
@@ -926,7 +926,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2e)
     }
     if m1 {
-      // do something with Renesas H8/300,
+      out = append(out, "Renesas H8/300,")
     }
 
     // >0x12    shortle    2f    Renesas H8/300H,
@@ -936,7 +936,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2f)
     }
     if m1 {
-      // do something with Renesas H8/300H,
+      out = append(out, "Renesas H8/300H,")
     }
 
     // >0x12    shortle    30    Renesas H8S,
@@ -946,7 +946,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x30)
     }
     if m1 {
-      // do something with Renesas H8S,
+      out = append(out, "Renesas H8S,")
     }
 
     // >0x12    shortle    31    Renesas H8/500,
@@ -956,7 +956,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x31)
     }
     if m1 {
-      // do something with Renesas H8/500,
+      out = append(out, "Renesas H8/500,")
     }
 
     // >0x12    shortle    32    IA-64,
@@ -966,7 +966,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x32)
     }
     if m1 {
-      // do something with IA-64,
+      out = append(out, "IA-64,")
     }
 
     // >0x12    shortle    33    Stanford MIPS-X,
@@ -976,7 +976,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x33)
     }
     if m1 {
-      // do something with Stanford MIPS-X,
+      out = append(out, "Stanford MIPS-X,")
     }
 
     // >0x12    shortle    34    Motorola Coldfire,
@@ -986,7 +986,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x34)
     }
     if m1 {
-      // do something with Motorola Coldfire,
+      out = append(out, "Motorola Coldfire,")
     }
 
     // >0x12    shortle    35    Motorola M68HC12,
@@ -996,7 +996,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x35)
     }
     if m1 {
-      // do something with Motorola M68HC12,
+      out = append(out, "Motorola M68HC12,")
     }
 
     // >0x12    shortle    36    Fujitsu MMA,
@@ -1006,7 +1006,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x36)
     }
     if m1 {
-      // do something with Fujitsu MMA,
+      out = append(out, "Fujitsu MMA,")
     }
 
     // >0x12    shortle    37    Siemens PCP,
@@ -1016,7 +1016,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x37)
     }
     if m1 {
-      // do something with Siemens PCP,
+      out = append(out, "Siemens PCP,")
     }
 
     // >0x12    shortle    38    Sony nCPU,
@@ -1026,7 +1026,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x38)
     }
     if m1 {
-      // do something with Sony nCPU,
+      out = append(out, "Sony nCPU,")
     }
 
     // >0x12    shortle    39    Denso NDR1,
@@ -1036,7 +1036,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x39)
     }
     if m1 {
-      // do something with Denso NDR1,
+      out = append(out, "Denso NDR1,")
     }
 
     // >0x12    shortle    3a    Start*Core,
@@ -1046,7 +1046,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3a)
     }
     if m1 {
-      // do something with Start*Core,
+      out = append(out, "Start*Core,")
     }
 
     // >0x12    shortle    3b    Toyota ME16,
@@ -1056,7 +1056,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3b)
     }
     if m1 {
-      // do something with Toyota ME16,
+      out = append(out, "Toyota ME16,")
     }
 
     // >0x12    shortle    3c    ST100,
@@ -1066,7 +1066,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3c)
     }
     if m1 {
-      // do something with ST100,
+      out = append(out, "ST100,")
     }
 
     // >0x12    shortle    3d    Tinyj emb.,
@@ -1076,7 +1076,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3d)
     }
     if m1 {
-      // do something with Tinyj emb.,
+      out = append(out, "Tinyj emb.,")
     }
 
     // >0x12    shortle    3e    x86-64,
@@ -1086,7 +1086,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3e)
     }
     if m1 {
-      // do something with x86-64,
+      out = append(out, "x86-64,")
     }
 
     // >0x12    shortle    3f    Sony DSP,
@@ -1096,7 +1096,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3f)
     }
     if m1 {
-      // do something with Sony DSP,
+      out = append(out, "Sony DSP,")
     }
 
     // >0x12    shortle    40    DEC PDP-10,
@@ -1106,7 +1106,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x40)
     }
     if m1 {
-      // do something with DEC PDP-10,
+      out = append(out, "DEC PDP-10,")
     }
 
     // >0x12    shortle    41    DEC PDP-11,
@@ -1116,7 +1116,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x41)
     }
     if m1 {
-      // do something with DEC PDP-11,
+      out = append(out, "DEC PDP-11,")
     }
 
     // >0x12    shortle    42    FX66,
@@ -1126,7 +1126,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x42)
     }
     if m1 {
-      // do something with FX66,
+      out = append(out, "FX66,")
     }
 
     // >0x12    shortle    43    ST9+ 8/16 bit,
@@ -1136,7 +1136,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x43)
     }
     if m1 {
-      // do something with ST9+ 8/16 bit,
+      out = append(out, "ST9+ 8/16 bit,")
     }
 
     // >0x12    shortle    44    ST7 8 bit,
@@ -1146,7 +1146,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x44)
     }
     if m1 {
-      // do something with ST7 8 bit,
+      out = append(out, "ST7 8 bit,")
     }
 
     // >0x12    shortle    45    MC68HC16,
@@ -1156,7 +1156,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x45)
     }
     if m1 {
-      // do something with MC68HC16,
+      out = append(out, "MC68HC16,")
     }
 
     // >0x12    shortle    46    MC68HC11,
@@ -1166,7 +1166,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x46)
     }
     if m1 {
-      // do something with MC68HC11,
+      out = append(out, "MC68HC11,")
     }
 
     // >0x12    shortle    47    MC68HC08,
@@ -1176,7 +1176,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x47)
     }
     if m1 {
-      // do something with MC68HC08,
+      out = append(out, "MC68HC08,")
     }
 
     // >0x12    shortle    48    MC68HC05,
@@ -1186,7 +1186,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x48)
     }
     if m1 {
-      // do something with MC68HC05,
+      out = append(out, "MC68HC05,")
     }
 
     // >0x12    shortle    49    SGI SVx or Cray NV1,
@@ -1196,7 +1196,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x49)
     }
     if m1 {
-      // do something with SGI SVx or Cray NV1,
+      out = append(out, "SGI SVx or Cray NV1,")
     }
 
     // >0x12    shortle    4a    ST19 8 bit,
@@ -1206,7 +1206,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4a)
     }
     if m1 {
-      // do something with ST19 8 bit,
+      out = append(out, "ST19 8 bit,")
     }
 
     // >0x12    shortle    4b    Digital VAX,
@@ -1216,7 +1216,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4b)
     }
     if m1 {
-      // do something with Digital VAX,
+      out = append(out, "Digital VAX,")
     }
 
     // >0x12    shortle    4c    Axis cris,
@@ -1226,7 +1226,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4c)
     }
     if m1 {
-      // do something with Axis cris,
+      out = append(out, "Axis cris,")
     }
 
     // >0x12    shortle    4d    Infineon 32-bit embedded,
@@ -1236,7 +1236,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4d)
     }
     if m1 {
-      // do something with Infineon 32-bit embedded,
+      out = append(out, "Infineon 32-bit embedded,")
     }
 
     // >0x12    shortle    4e    Element 14 64-bit DSP,
@@ -1246,7 +1246,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4e)
     }
     if m1 {
-      // do something with Element 14 64-bit DSP,
+      out = append(out, "Element 14 64-bit DSP,")
     }
 
     // >0x12    shortle    4f    LSI Logic 16-bit DSP,
@@ -1256,7 +1256,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4f)
     }
     if m1 {
-      // do something with LSI Logic 16-bit DSP,
+      out = append(out, "LSI Logic 16-bit DSP,")
     }
 
     // >0x12    shortle    50    MMIX,
@@ -1266,7 +1266,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x50)
     }
     if m1 {
-      // do something with MMIX,
+      out = append(out, "MMIX,")
     }
 
     // >0x12    shortle    51    Harvard machine-independent,
@@ -1276,7 +1276,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x51)
     }
     if m1 {
-      // do something with Harvard machine-independent,
+      out = append(out, "Harvard machine-independent,")
     }
 
     // >0x12    shortle    52    SiTera Prism,
@@ -1286,7 +1286,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x52)
     }
     if m1 {
-      // do something with SiTera Prism,
+      out = append(out, "SiTera Prism,")
     }
 
     // >0x12    shortle    53    Atmel AVR 8-bit,
@@ -1296,7 +1296,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x53)
     }
     if m1 {
-      // do something with Atmel AVR 8-bit,
+      out = append(out, "Atmel AVR 8-bit,")
     }
 
     // >0x12    shortle    54    Fujitsu FR30,
@@ -1306,7 +1306,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x54)
     }
     if m1 {
-      // do something with Fujitsu FR30,
+      out = append(out, "Fujitsu FR30,")
     }
 
     // >0x12    shortle    55    Mitsubishi D10V,
@@ -1316,7 +1316,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x55)
     }
     if m1 {
-      // do something with Mitsubishi D10V,
+      out = append(out, "Mitsubishi D10V,")
     }
 
     // >0x12    shortle    56    Mitsubishi D30V,
@@ -1326,7 +1326,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x56)
     }
     if m1 {
-      // do something with Mitsubishi D30V,
+      out = append(out, "Mitsubishi D30V,")
     }
 
     // >0x12    shortle    57    NEC v850,
@@ -1336,7 +1336,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x57)
     }
     if m1 {
-      // do something with NEC v850,
+      out = append(out, "NEC v850,")
     }
 
     // >0x12    shortle    58    Renesas M32R,
@@ -1346,7 +1346,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x58)
     }
     if m1 {
-      // do something with Renesas M32R,
+      out = append(out, "Renesas M32R,")
     }
 
     // >0x12    shortle    59    Matsushita MN10300,
@@ -1356,7 +1356,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x59)
     }
     if m1 {
-      // do something with Matsushita MN10300,
+      out = append(out, "Matsushita MN10300,")
     }
 
     // >0x12    shortle    5a    Matsushita MN10200,
@@ -1366,7 +1366,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5a)
     }
     if m1 {
-      // do something with Matsushita MN10200,
+      out = append(out, "Matsushita MN10200,")
     }
 
     // >0x12    shortle    5b    picoJava,
@@ -1376,7 +1376,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5b)
     }
     if m1 {
-      // do something with picoJava,
+      out = append(out, "picoJava,")
     }
 
     // >0x12    shortle    5c    OpenRISC,
@@ -1386,7 +1386,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5c)
     }
     if m1 {
-      // do something with OpenRISC,
+      out = append(out, "OpenRISC,")
     }
 
     // >0x12    shortle    5d    ARC Cores Tangent-A5,
@@ -1396,7 +1396,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5d)
     }
     if m1 {
-      // do something with ARC Cores Tangent-A5,
+      out = append(out, "ARC Cores Tangent-A5,")
     }
 
     // >0x12    shortle    5e    Tensilica Xtensa,
@@ -1406,7 +1406,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5e)
     }
     if m1 {
-      // do something with Tensilica Xtensa,
+      out = append(out, "Tensilica Xtensa,")
     }
 
     // >0x12    shortle    5f    Alphamosaic VideoCore,
@@ -1416,7 +1416,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5f)
     }
     if m1 {
-      // do something with Alphamosaic VideoCore,
+      out = append(out, "Alphamosaic VideoCore,")
     }
 
     // >0x12    shortle    60    Thompson Multimedia,
@@ -1426,7 +1426,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x60)
     }
     if m1 {
-      // do something with Thompson Multimedia,
+      out = append(out, "Thompson Multimedia,")
     }
 
     // >0x12    shortle    61    NatSemi 32k,
@@ -1436,7 +1436,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x61)
     }
     if m1 {
-      // do something with NatSemi 32k,
+      out = append(out, "NatSemi 32k,")
     }
 
     // >0x12    shortle    62    Tenor Network TPC,
@@ -1446,7 +1446,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x62)
     }
     if m1 {
-      // do something with Tenor Network TPC,
+      out = append(out, "Tenor Network TPC,")
     }
 
     // >0x12    shortle    63    Trebia SNP 1000,
@@ -1456,7 +1456,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x63)
     }
     if m1 {
-      // do something with Trebia SNP 1000,
+      out = append(out, "Trebia SNP 1000,")
     }
 
     // >0x12    shortle    64    STMicroelectronics ST200,
@@ -1466,7 +1466,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x64)
     }
     if m1 {
-      // do something with STMicroelectronics ST200,
+      out = append(out, "STMicroelectronics ST200,")
     }
 
     // >0x12    shortle    65    Ubicom IP2022,
@@ -1476,7 +1476,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x65)
     }
     if m1 {
-      // do something with Ubicom IP2022,
+      out = append(out, "Ubicom IP2022,")
     }
 
     // >0x12    shortle    66    MAX Processor,
@@ -1486,7 +1486,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x66)
     }
     if m1 {
-      // do something with MAX Processor,
+      out = append(out, "MAX Processor,")
     }
 
     // >0x12    shortle    67    NatSemi CompactRISC,
@@ -1496,7 +1496,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x67)
     }
     if m1 {
-      // do something with NatSemi CompactRISC,
+      out = append(out, "NatSemi CompactRISC,")
     }
 
     // >0x12    shortle    68    Fujitsu F2MC16,
@@ -1506,7 +1506,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x68)
     }
     if m1 {
-      // do something with Fujitsu F2MC16,
+      out = append(out, "Fujitsu F2MC16,")
     }
 
     // >0x12    shortle    69    TI msp430,
@@ -1516,7 +1516,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x69)
     }
     if m1 {
-      // do something with TI msp430,
+      out = append(out, "TI msp430,")
     }
 
     // >0x12    shortle    6a    Analog Devices Blackfin,
@@ -1526,7 +1526,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6a)
     }
     if m1 {
-      // do something with Analog Devices Blackfin,
+      out = append(out, "Analog Devices Blackfin,")
     }
 
     // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
@@ -1536,7 +1536,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6b)
     }
     if m1 {
-      // do something with S1C33 Family of Seiko Epson,
+      out = append(out, "S1C33 Family of Seiko Epson,")
     }
 
     // >0x12    shortle    6c    Sharp embedded,
@@ -1546,7 +1546,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6c)
     }
     if m1 {
-      // do something with Sharp embedded,
+      out = append(out, "Sharp embedded,")
     }
 
     // >0x12    shortle    6d    Arca RISC,
@@ -1556,7 +1556,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6d)
     }
     if m1 {
-      // do something with Arca RISC,
+      out = append(out, "Arca RISC,")
     }
 
     // >0x12    shortle    6e    PKU-Unity Ltd.,
@@ -1566,7 +1566,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6e)
     }
     if m1 {
-      // do something with PKU-Unity Ltd.,
+      out = append(out, "PKU-Unity Ltd.,")
     }
 
     // >0x12    shortle    6f    eXcess: 16/32/64-bit,
@@ -1576,7 +1576,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6f)
     }
     if m1 {
-      // do something with eXcess: 16/32/64-bit,
+      out = append(out, "eXcess: 16/32/64-bit,")
     }
 
     // >0x12    shortle    70    Icera Deep Execution Processor,
@@ -1586,7 +1586,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x70)
     }
     if m1 {
-      // do something with Icera Deep Execution Processor,
+      out = append(out, "Icera Deep Execution Processor,")
     }
 
     // >0x12    shortle    71    Altera Nios II,
@@ -1596,7 +1596,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x71)
     }
     if m1 {
-      // do something with Altera Nios II,
+      out = append(out, "Altera Nios II,")
     }
 
     // >0x12    shortle    72    NatSemi CRX,
@@ -1606,7 +1606,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x72)
     }
     if m1 {
-      // do something with NatSemi CRX,
+      out = append(out, "NatSemi CRX,")
     }
 
     // >0x12    shortle    73    Motorola XGATE,
@@ -1616,7 +1616,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x73)
     }
     if m1 {
-      // do something with Motorola XGATE,
+      out = append(out, "Motorola XGATE,")
     }
 
     // >0x12    shortle    74    Infineon C16x/XC16x,
@@ -1626,7 +1626,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x74)
     }
     if m1 {
-      // do something with Infineon C16x/XC16x,
+      out = append(out, "Infineon C16x/XC16x,")
     }
 
     // >0x12    shortle    75    Renesas M16C series,
@@ -1636,7 +1636,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x75)
     }
     if m1 {
-      // do something with Renesas M16C series,
+      out = append(out, "Renesas M16C series,")
     }
 
     // >0x12    shortle    76    Microchip dsPIC30F,
@@ -1646,7 +1646,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x76)
     }
     if m1 {
-      // do something with Microchip dsPIC30F,
+      out = append(out, "Microchip dsPIC30F,")
     }
 
     // >0x12    shortle    77    Freescale RISC core,
@@ -1656,7 +1656,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x77)
     }
     if m1 {
-      // do something with Freescale RISC core,
+      out = append(out, "Freescale RISC core,")
     }
 
     // >0x12    shortle    78    Renesas M32C series,
@@ -1666,7 +1666,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x78)
     }
     if m1 {
-      // do something with Renesas M32C series,
+      out = append(out, "Renesas M32C series,")
     }
 
     // >0x12    shortle    83    Altium TSK3000 core,
@@ -1676,7 +1676,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x83)
     }
     if m1 {
-      // do something with Altium TSK3000 core,
+      out = append(out, "Altium TSK3000 core,")
     }
 
     // >0x12    shortle    84    Freescale RS08,
@@ -1686,7 +1686,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x84)
     }
     if m1 {
-      // do something with Freescale RS08,
+      out = append(out, "Freescale RS08,")
     }
 
     // >0x12    shortle    86    Cyan Technology eCOG2,
@@ -1696,7 +1696,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x86)
     }
     if m1 {
-      // do something with Cyan Technology eCOG2,
+      out = append(out, "Cyan Technology eCOG2,")
     }
 
     // >0x12    shortle    87    Sunplus S+core7 RISC,
@@ -1706,7 +1706,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x87)
     }
     if m1 {
-      // do something with Sunplus S+core7 RISC,
+      out = append(out, "Sunplus S+core7 RISC,")
     }
 
     // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
@@ -1716,7 +1716,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x88)
     }
     if m1 {
-      // do something with New Japan Radio (NJR) 24-bit DSP,
+      out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
     }
 
     // >0x12    shortle    89    Broadcom VideoCore III,
@@ -1726,7 +1726,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x89)
     }
     if m1 {
-      // do something with Broadcom VideoCore III,
+      out = append(out, "Broadcom VideoCore III,")
     }
 
     // >0x12    shortle    8a    LatticeMico32,
@@ -1736,7 +1736,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8a)
     }
     if m1 {
-      // do something with LatticeMico32,
+      out = append(out, "LatticeMico32,")
     }
 
     // >0x12    shortle    8b    Seiko Epson C17 family,
@@ -1746,7 +1746,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8b)
     }
     if m1 {
-      // do something with Seiko Epson C17 family,
+      out = append(out, "Seiko Epson C17 family,")
     }
 
     // >0x12    shortle    8c    TI TMS320C6000 DSP family,
@@ -1756,7 +1756,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8c)
     }
     if m1 {
-      // do something with TI TMS320C6000 DSP family,
+      out = append(out, "TI TMS320C6000 DSP family,")
     }
 
     // >0x12    shortle    8d    TI TMS320C2000 DSP family,
@@ -1766,7 +1766,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8d)
     }
     if m1 {
-      // do something with TI TMS320C2000 DSP family,
+      out = append(out, "TI TMS320C2000 DSP family,")
     }
 
     // >0x12    shortle    8e    TI TMS320C55x DSP family,
@@ -1776,7 +1776,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8e)
     }
     if m1 {
-      // do something with TI TMS320C55x DSP family,
+      out = append(out, "TI TMS320C55x DSP family,")
     }
 
     // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
@@ -1786,7 +1786,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa0)
     }
     if m1 {
-      // do something with STMicroelectronics 64bit VLIW DSP,
+      out = append(out, "STMicroelectronics 64bit VLIW DSP,")
     }
 
     // >0x12    shortle    a1    Cypress M8C,
@@ -1796,7 +1796,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa1)
     }
     if m1 {
-      // do something with Cypress M8C,
+      out = append(out, "Cypress M8C,")
     }
 
     // >0x12    shortle    a2    Renesas R32C series,
@@ -1806,7 +1806,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa2)
     }
     if m1 {
-      // do something with Renesas R32C series,
+      out = append(out, "Renesas R32C series,")
     }
 
     // >0x12    shortle    a3    NXP TriMedia family,
@@ -1816,7 +1816,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa3)
     }
     if m1 {
-      // do something with NXP TriMedia family,
+      out = append(out, "NXP TriMedia family,")
     }
 
     // >0x12    shortle    a4    QUALCOMM DSP6,
@@ -1826,7 +1826,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa4)
     }
     if m1 {
-      // do something with QUALCOMM DSP6,
+      out = append(out, "QUALCOMM DSP6,")
     }
 
     // >0x12    shortle    a5    Intel 8051 and variants,
@@ -1836,7 +1836,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa5)
     }
     if m1 {
-      // do something with Intel 8051 and variants,
+      out = append(out, "Intel 8051 and variants,")
     }
 
     // >0x12    shortle    a6    STMicroelectronics STxP7x family,
@@ -1846,7 +1846,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa6)
     }
     if m1 {
-      // do something with STMicroelectronics STxP7x family,
+      out = append(out, "STMicroelectronics STxP7x family,")
     }
 
     // >0x12    shortle    a7    Andes embedded RISC,
@@ -1856,7 +1856,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa7)
     }
     if m1 {
-      // do something with Andes embedded RISC,
+      out = append(out, "Andes embedded RISC,")
     }
 
     // >0x12    shortle    a8    Cyan eCOG1X family,
@@ -1866,7 +1866,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa8)
     }
     if m1 {
-      // do something with Cyan eCOG1X family,
+      out = append(out, "Cyan eCOG1X family,")
     }
 
     // >0x12    shortle    a9    Dallas MAXQ30,
@@ -1876,7 +1876,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa9)
     }
     if m1 {
-      // do something with Dallas MAXQ30,
+      out = append(out, "Dallas MAXQ30,")
     }
 
     // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
@@ -1886,7 +1886,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xaa)
     }
     if m1 {
-      // do something with New Japan Radio (NJR) 16-bit DSP,
+      out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
     }
 
     // >0x12    shortle    ab    M2000 Reconfigurable RISC,
@@ -1896,7 +1896,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xab)
     }
     if m1 {
-      // do something with M2000 Reconfigurable RISC,
+      out = append(out, "M2000 Reconfigurable RISC,")
     }
 
     // >0x12    shortle    ac    Cray NV2 vector architecture,
@@ -1906,7 +1906,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xac)
     }
     if m1 {
-      // do something with Cray NV2 vector architecture,
+      out = append(out, "Cray NV2 vector architecture,")
     }
 
     // >0x12    shortle    ad    Renesas RX family,
@@ -1916,7 +1916,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xad)
     }
     if m1 {
-      // do something with Renesas RX family,
+      out = append(out, "Renesas RX family,")
     }
 
     // >0x12    shortle    ae    META,
@@ -1926,7 +1926,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xae)
     }
     if m1 {
-      // do something with META,
+      out = append(out, "META,")
     }
 
     // >0x12    shortle    af    MCST Elbrus,
@@ -1936,7 +1936,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xaf)
     }
     if m1 {
-      // do something with MCST Elbrus,
+      out = append(out, "MCST Elbrus,")
     }
 
     // >0x12    shortle    b0    Cyan Technology eCOG16 family,
@@ -1946,7 +1946,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb0)
     }
     if m1 {
-      // do something with Cyan Technology eCOG16 family,
+      out = append(out, "Cyan Technology eCOG16 family,")
     }
 
     // >0x12    shortle    b1    NatSemi CompactRISC,
@@ -1956,7 +1956,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb1)
     }
     if m1 {
-      // do something with NatSemi CompactRISC,
+      out = append(out, "NatSemi CompactRISC,")
     }
 
     // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
@@ -1966,7 +1966,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb2)
     }
     if m1 {
-      // do something with Freescale Extended Time Processing Unit,
+      out = append(out, "Freescale Extended Time Processing Unit,")
     }
 
     // >0x12    shortle    b3    Infineon SLE9X,
@@ -1976,7 +1976,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb3)
     }
     if m1 {
-      // do something with Infineon SLE9X,
+      out = append(out, "Infineon SLE9X,")
     }
 
     // >0x12    shortle    b4    Intel L1OM,
@@ -1986,7 +1986,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb4)
     }
     if m1 {
-      // do something with Intel L1OM,
+      out = append(out, "Intel L1OM,")
     }
 
     // >0x12    shortle    b5    Intel K1OM,
@@ -1996,7 +1996,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb5)
     }
     if m1 {
-      // do something with Intel K1OM,
+      out = append(out, "Intel K1OM,")
     }
 
     // >0x12    shortle    b7    ARM aarch64,
@@ -2006,7 +2006,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb7)
     }
     if m1 {
-      // do something with ARM aarch64,
+      out = append(out, "ARM aarch64,")
     }
 
     // >0x12    shortle    b9    Atmel 32-bit family,
@@ -2016,7 +2016,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb9)
     }
     if m1 {
-      // do something with Atmel 32-bit family,
+      out = append(out, "Atmel 32-bit family,")
     }
 
     // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
@@ -2026,7 +2026,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xba)
     }
     if m1 {
-      // do something with STMicroeletronics STM8 8-bit,
+      out = append(out, "STMicroeletronics STM8 8-bit,")
     }
 
     // >0x12    shortle    bb    Tilera TILE64,
@@ -2036,7 +2036,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbb)
     }
     if m1 {
-      // do something with Tilera TILE64,
+      out = append(out, "Tilera TILE64,")
     }
 
     // >0x12    shortle    bc    Tilera TILEPro,
@@ -2046,7 +2046,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbc)
     }
     if m1 {
-      // do something with Tilera TILEPro,
+      out = append(out, "Tilera TILEPro,")
     }
 
     // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
@@ -2056,7 +2056,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbd)
     }
     if m1 {
-      // do something with Xilinx MicroBlaze 32-bit RISC,
+      out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
     }
 
     // >0x12    shortle    be    NVIDIA CUDA architecture,
@@ -2066,7 +2066,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbe)
     }
     if m1 {
-      // do something with NVIDIA CUDA architecture,
+      out = append(out, "NVIDIA CUDA architecture,")
     }
 
     // >0x12    shortle    bf    Tilera TILE-Gx,
@@ -2076,7 +2076,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbf)
     }
     if m1 {
-      // do something with Tilera TILE-Gx,
+      out = append(out, "Tilera TILE-Gx,")
     }
 
     // >0x12    shortle    c5    Renesas RL78 family,
@@ -2086,7 +2086,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc5)
     }
     if m1 {
-      // do something with Renesas RL78 family,
+      out = append(out, "Renesas RL78 family,")
     }
 
     // >0x12    shortle    c7    Renesas 78K0R,
@@ -2096,7 +2096,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc7)
     }
     if m1 {
-      // do something with Renesas 78K0R,
+      out = append(out, "Renesas 78K0R,")
     }
 
     // >0x12    shortle    1057    AVR (unofficial),
@@ -2106,7 +2106,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1057)
     }
     if m1 {
-      // do something with AVR (unofficial),
+      out = append(out, "AVR (unofficial),")
     }
 
     // >0x12    shortle    1059    MSP430 (unofficial),
@@ -2116,7 +2116,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1059)
     }
     if m1 {
-      // do something with MSP430 (unofficial),
+      out = append(out, "MSP430 (unofficial),")
     }
 
     // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
@@ -2126,7 +2126,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1223)
     }
     if m1 {
-      // do something with Adapteva Epiphany (unofficial),
+      out = append(out, "Adapteva Epiphany (unofficial),")
     }
 
     // >0x12    shortle    2530    Morpho MT (unofficial),
@@ -2136,7 +2136,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2530)
     }
     if m1 {
-      // do something with Morpho MT (unofficial),
+      out = append(out, "Morpho MT (unofficial),")
     }
 
     // >0x12    shortle    3330    FR30 (unofficial),
@@ -2146,7 +2146,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3330)
     }
     if m1 {
-      // do something with FR30 (unofficial),
+      out = append(out, "FR30 (unofficial),")
     }
 
     // >0x12    shortle    3426    OpenRISC (obsolete),
@@ -2156,7 +2156,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3426)
     }
     if m1 {
-      // do something with OpenRISC (obsolete),
+      out = append(out, "OpenRISC (obsolete),")
     }
 
     // >0x12    shortle    4688    Infineon C166 (unofficial),
@@ -2166,7 +2166,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4688)
     }
     if m1 {
-      // do something with Infineon C166 (unofficial),
+      out = append(out, "Infineon C166 (unofficial),")
     }
 
     // >0x12    shortle    5441    Cygnus FRV (unofficial),
@@ -2176,7 +2176,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5441)
     }
     if m1 {
-      // do something with Cygnus FRV (unofficial),
+      out = append(out, "Cygnus FRV (unofficial),")
     }
 
     // >0x12    shortle    5aa5    DLX (unofficial),
@@ -2186,7 +2186,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5aa5)
     }
     if m1 {
-      // do something with DLX (unofficial),
+      out = append(out, "DLX (unofficial),")
     }
 
     // >0x12    shortle    7650    Cygnus D10V (unofficial),
@@ -2196,7 +2196,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x7650)
     }
     if m1 {
-      // do something with Cygnus D10V (unofficial),
+      out = append(out, "Cygnus D10V (unofficial),")
     }
 
     // >0x12    shortle    7676    Cygnus D30V (unofficial),
@@ -2206,7 +2206,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x7676)
     }
     if m1 {
-      // do something with Cygnus D30V (unofficial),
+      out = append(out, "Cygnus D30V (unofficial),")
     }
 
     // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
@@ -2216,7 +2216,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8217)
     }
     if m1 {
-      // do something with Ubicom IP2xxx (unofficial),
+      out = append(out, "Ubicom IP2xxx (unofficial),")
     }
 
     // >0x12    shortle    8472    OpenRISC (obsolete),
@@ -2226,7 +2226,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8472)
     }
     if m1 {
-      // do something with OpenRISC (obsolete),
+      out = append(out, "OpenRISC (obsolete),")
     }
 
     // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
@@ -2236,7 +2236,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9025)
     }
     if m1 {
-      // do something with Cygnus PowerPC (unofficial),
+      out = append(out, "Cygnus PowerPC (unofficial),")
     }
 
     // >0x12    shortle    9026    Alpha (unofficial),
@@ -2246,7 +2246,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9026)
     }
     if m1 {
-      // do something with Alpha (unofficial),
+      out = append(out, "Alpha (unofficial),")
     }
 
     // >0x12    shortle    9041    Cygnus M32R (unofficial),
@@ -2256,7 +2256,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9041)
     }
     if m1 {
-      // do something with Cygnus M32R (unofficial),
+      out = append(out, "Cygnus M32R (unofficial),")
     }
 
     // >0x12    shortle    9080    Cygnus V850 (unofficial),
@@ -2266,7 +2266,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9080)
     }
     if m1 {
-      // do something with Cygnus V850 (unofficial),
+      out = append(out, "Cygnus V850 (unofficial),")
     }
 
     // >0x12    shortle    a390    IBM S/390 (obsolete),
@@ -2276,7 +2276,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa390)
     }
     if m1 {
-      // do something with IBM S/390 (obsolete),
+      out = append(out, "IBM S/390 (obsolete),")
     }
 
     // >0x12    shortle    abc7    Old Xtensa (unofficial),
@@ -2286,7 +2286,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xabc7)
     }
     if m1 {
-      // do something with Old Xtensa (unofficial),
+      out = append(out, "Old Xtensa (unofficial),")
     }
 
     // >0x12    shortle    ad45    xstormy16 (unofficial),
@@ -2296,7 +2296,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xad45)
     }
     if m1 {
-      // do something with xstormy16 (unofficial),
+      out = append(out, "xstormy16 (unofficial),")
     }
 
     // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
@@ -2306,7 +2306,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbaab)
     }
     if m1 {
-      // do something with Old MicroBlaze (unofficial),,
+      out = append(out, "Old MicroBlaze (unofficial),,")
     }
 
     // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
@@ -2316,7 +2316,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbeef)
     }
     if m1 {
-      // do something with Cygnus MN10300 (unofficial),
+      out = append(out, "Cygnus MN10300 (unofficial),")
     }
 
     // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
@@ -2326,7 +2326,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xdead)
     }
     if m1 {
-      // do something with Cygnus MN10200 (unofficial),
+      out = append(out, "Cygnus MN10200 (unofficial),")
     }
 
     // >0x12    shortle    f00d    Toshiba MeP (unofficial),
@@ -2336,7 +2336,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xf00d)
     }
     if m1 {
-      // do something with Toshiba MeP (unofficial),
+      out = append(out, "Toshiba MeP (unofficial),")
     }
 
     // >0x12    shortle    feb0    Renesas M32C (unofficial),
@@ -2346,7 +2346,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfeb0)
     }
     if m1 {
-      // do something with Renesas M32C (unofficial),
+      out = append(out, "Renesas M32C (unofficial),")
     }
 
     // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
@@ -2356,7 +2356,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfeba)
     }
     if m1 {
-      // do something with Vitesse IQ2000 (unofficial),
+      out = append(out, "Vitesse IQ2000 (unofficial),")
     }
 
     // >0x12    shortle    febb    NIOS (unofficial),
@@ -2366,7 +2366,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfebb)
     }
     if m1 {
-      // do something with NIOS (unofficial),
+      out = append(out, "NIOS (unofficial),")
     }
 
     // >0x12    shortle    feed    Moxie (unofficial),
@@ -2376,7 +2376,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfeed)
     }
     if m1 {
-      // do something with Moxie (unofficial),
+      out = append(out, "Moxie (unofficial),")
     }
 
     // >0x12    default    
@@ -2391,7 +2391,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with *unknown arch 0x%x*
+        out = append(out, "*unknown arch 0x%x*")
       }
 
     }
@@ -2402,7 +2402,7 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with invalid version
+      out = append(out, "invalid version")
     }
 
     // >0x14    longle    1    version 1
@@ -2412,94 +2412,16 @@ func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with version 1
+      out = append(out, "version 1")
     }
 
   }
-  return outStrings, nil
-}
-
-func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
-  var off int64
-  var err error
-  var ok bool
-  m0 := false
-  m1 := false
-  m2 := false
-  m3 := false
-
-  if m0 {
-    // >0x0    ulongbe    6000800    \b, cell range
-    off = pageOff + 0
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6000800)
-    }
-    if m1 {
-      // do something with \b, cell range
-    }
-
-    if m1 {
-      // >>0x4    ulongle    0    
-      off = pageOff + 4
-      {
-        iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) != 0x0)
-      }
-
-      if m2 {
-        // >>>0x4    ushortle    0    \b%d,
-        off = pageOff + 4
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          // do something with \b%d,
-        }
-
-        // >>>0x6    ushortle    0    \b%d-
-        off = pageOff + 6
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          // do something with \b%d-
-        }
-
-      }
-      // >>0x8    ushortle    0    \b%d,
-      off = pageOff + 8
-      {
-        iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        // do something with \b%d,
-      }
-
-      // >>0xa    ushortle    0    \b%d
-      off = pageOff + 10
-      {
-        iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        // do something with \b%d
-      }
-
-    }
-  }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyIcoEntry(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
 
@@ -2515,7 +2437,7 @@ func IdentifyIcoEntry(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %d planes
+      out = append(out, "\\b, %d planes")
     }
 
     // >0x6    ushortle    1    \b, %d bits/pixel
@@ -2525,18 +2447,91 @@ func IdentifyIcoEntry(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %d bits/pixel
+      out = append(out, "\\b, %d bits/pixel")
     }
 
   }
-  return outStrings, nil
+  return out, nil
+}
+
+func IdentifyCurIcoEntry(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    bytele    0    \b, 256x
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, 256x")
+    }
+
+    // >0x0    bytele    0    \b, %dx
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, %dx")
+    }
+
+    // >0x1    bytele    0    \b256
+    off = pageOff + 1
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b256")
+    }
+
+    // >0x1    bytele    0    \b%d
+    off = pageOff + 1
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b%d")
+    }
+
+    // >0x2    ubytele    0    \b, %d colors
+    off = pageOff + 2
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, %d colors")
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (uint64(iv) == 0x89504e47)
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (uint64(iv) != 0x89504e47)
+    }
+
+  }
+  return out, nil
 }
 
 func Identify(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
@@ -2548,6 +2543,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "\u007fELF"    ELF
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ELF")
+  }
 
   if m0 {
     // >0x4    bytele    0    invalid class
@@ -2557,7 +2555,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with invalid class
+      out = append(out, "invalid class")
     }
 
     // >0x4    bytele    1    32-bit
@@ -2567,7 +2565,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with 32-bit
+      out = append(out, "32-bit")
     }
 
     // >0x4    bytele    2    64-bit
@@ -2577,7 +2575,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with 64-bit
+      out = append(out, "64-bit")
     }
 
     // >0x5    bytele    0    invalid byte order
@@ -2587,7 +2585,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with invalid byte order
+      out = append(out, "invalid byte order")
     }
 
     // >0x5    bytele    1    LSB
@@ -2597,7 +2595,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with LSB
+      out = append(out, "LSB")
     }
 
     if m1 {
@@ -2613,7 +2611,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with MSB
+      out = append(out, "MSB")
     }
 
     if m1 {
@@ -2633,6 +2631,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x8    string    ">\x00"    (%s)
       off = pageOff + 8
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "(%s)")
+      }
 
     }
     // >0x8    string    "\x00"    
@@ -2647,7 +2648,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with (SYSV)
+        out = append(out, "(SYSV)")
       }
 
       // >>0x7    bytele    1    (HP-UX)
@@ -2657,7 +2658,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x1)
       }
       if m2 {
-        // do something with (HP-UX)
+        out = append(out, "(HP-UX)")
       }
 
       // >>0x7    bytele    2    (NetBSD)
@@ -2667,7 +2668,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x2)
       }
       if m2 {
-        // do something with (NetBSD)
+        out = append(out, "(NetBSD)")
       }
 
       // >>0x7    bytele    3    (GNU/Linux)
@@ -2677,7 +2678,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x3)
       }
       if m2 {
-        // do something with (GNU/Linux)
+        out = append(out, "(GNU/Linux)")
       }
 
       // >>0x7    bytele    4    (GNU/Hurd)
@@ -2687,7 +2688,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x4)
       }
       if m2 {
-        // do something with (GNU/Hurd)
+        out = append(out, "(GNU/Hurd)")
       }
 
       // >>0x7    bytele    5    (86Open)
@@ -2697,7 +2698,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x5)
       }
       if m2 {
-        // do something with (86Open)
+        out = append(out, "(86Open)")
       }
 
       // >>0x7    bytele    6    (Solaris)
@@ -2707,7 +2708,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x6)
       }
       if m2 {
-        // do something with (Solaris)
+        out = append(out, "(Solaris)")
       }
 
       // >>0x7    bytele    7    (Monterey)
@@ -2717,7 +2718,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x7)
       }
       if m2 {
-        // do something with (Monterey)
+        out = append(out, "(Monterey)")
       }
 
       // >>0x7    bytele    8    (IRIX)
@@ -2727,7 +2728,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x8)
       }
       if m2 {
-        // do something with (IRIX)
+        out = append(out, "(IRIX)")
       }
 
       // >>0x7    bytele    9    (FreeBSD)
@@ -2737,7 +2738,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x9)
       }
       if m2 {
-        // do something with (FreeBSD)
+        out = append(out, "(FreeBSD)")
       }
 
       // >>0x7    bytele    a    (Tru64)
@@ -2747,7 +2748,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xa)
       }
       if m2 {
-        // do something with (Tru64)
+        out = append(out, "(Tru64)")
       }
 
       // >>0x7    bytele    b    (Novell Modesto)
@@ -2757,7 +2758,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xb)
       }
       if m2 {
-        // do something with (Novell Modesto)
+        out = append(out, "(Novell Modesto)")
       }
 
       // >>0x7    bytele    c    (OpenBSD)
@@ -2767,7 +2768,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xc)
       }
       if m2 {
-        // do something with (OpenBSD)
+        out = append(out, "(OpenBSD)")
       }
 
     }
@@ -2783,7 +2784,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xd)
       }
       if m2 {
-        // do something with (OpenVMS)
+        out = append(out, "(OpenVMS)")
       }
 
       // >>0x7    bytele    61    (ARM)
@@ -2793,7 +2794,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x61)
       }
       if m2 {
-        // do something with (ARM)
+        out = append(out, "(ARM)")
       }
 
       // >>0x7    bytele    ff    (embedded)
@@ -2803,7 +2804,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xff)
       }
       if m2 {
-        // do something with (embedded)
+        out = append(out, "(embedded)")
       }
 
     }
@@ -2816,18 +2817,30 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >0x1    string    " echo off"    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
     // >0x1    string    "echo off"    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
     // >0x1    string    "rem"    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
     // >0x1    string    "set "    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
   }
   // 0x64    search/0xffff    "rxfuncadd"    
@@ -2845,7 +2858,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x166)
   }
   if m0 {
-    // do something with MS Windows COFF MIPS R4000 object file
+    out = append(out, "MS Windows COFF MIPS R4000 object file")
   }
 
   // 0x0    shortle    184    MS Windows COFF Alpha object file
@@ -2855,7 +2868,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x184)
   }
   if m0 {
-    // do something with MS Windows COFF Alpha object file
+    out = append(out, "MS Windows COFF Alpha object file")
   }
 
   // 0x0    shortle    268    MS Windows COFF Motorola 68000 object file
@@ -2865,7 +2878,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x268)
   }
   if m0 {
-    // do something with MS Windows COFF Motorola 68000 object file
+    out = append(out, "MS Windows COFF Motorola 68000 object file")
   }
 
   // 0x0    shortle    1f0    MS Windows COFF PowerPC object file
@@ -2875,7 +2888,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x1f0)
   }
   if m0 {
-    // do something with MS Windows COFF PowerPC object file
+    out = append(out, "MS Windows COFF PowerPC object file")
   }
 
   // 0x0    shortle    290    MS Windows COFF PA-RISC object file
@@ -2885,7 +2898,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x290)
   }
   if m0 {
-    // do something with MS Windows COFF PA-RISC object file
+    out = append(out, "MS Windows COFF PA-RISC object file")
   }
 
   // 0x0    string    "MZ"    
@@ -2900,7 +2913,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) < 0x40)
     }
     if m1 {
-      // do something with MS-DOS executable
+      out = append(out, "MS-DOS executable")
     }
 
     // >0x18    shortle    3f    
@@ -2914,6 +2927,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>(0x3c.longle)    string    "PE\x00\x00"    PE
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "PE")
+      }
 
       if m2 {
         // >>>(0x3c.longle+24)    shortle    10b    \b32 executable
@@ -2923,7 +2939,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x10b)
         }
         if m3 {
-          // do something with \b32 executable
+          out = append(out, "\\b32 executable")
         }
 
         // >>>(0x3c.longle+24)    shortle    20b    \b32+ executable
@@ -2933,7 +2949,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x20b)
         }
         if m3 {
-          // do something with \b32+ executable
+          out = append(out, "\\b32+ executable")
         }
 
         // >>>(0x3c.longle+24)    shortle    107    ROM image
@@ -2943,12 +2959,15 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x107)
         }
         if m3 {
-          // do something with ROM image
+          out = append(out, "ROM image")
         }
 
         // >>>(0x3c.longle+24)    default    Unknown PE signature
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "Unknown PE signature")
+        }
 
         if m3 {
           // >>>>&0x0    shortle    0    0x%x
@@ -2958,7 +2977,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with 0x%x
+            out = append(out, "0x%x")
           }
 
         }
@@ -2969,7 +2988,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x0)
         }
         if m3 {
-          // do something with (DLL)
+          out = append(out, "(DLL)")
         }
 
         // >>>(0x3c.longle+92)    shortle    1    (native)
@@ -2979,7 +2998,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with (native)
+          out = append(out, "(native)")
         }
 
         // >>>(0x3c.longle+92)    shortle    2    (GUI)
@@ -2989,7 +3008,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with (GUI)
+          out = append(out, "(GUI)")
         }
 
         // >>>(0x3c.longle+92)    shortle    3    (console)
@@ -2999,7 +3018,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with (console)
+          out = append(out, "(console)")
         }
 
         // >>>(0x3c.longle+92)    shortle    7    (POSIX)
@@ -3009,7 +3028,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x7)
         }
         if m3 {
-          // do something with (POSIX)
+          out = append(out, "(POSIX)")
         }
 
         // >>>(0x3c.longle+92)    shortle    9    (Windows CE)
@@ -3019,7 +3038,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x9)
         }
         if m3 {
-          // do something with (Windows CE)
+          out = append(out, "(Windows CE)")
         }
 
         // >>>(0x3c.longle+92)    shortle    a    (EFI application)
@@ -3029,7 +3048,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xa)
         }
         if m3 {
-          // do something with (EFI application)
+          out = append(out, "(EFI application)")
         }
 
         // >>>(0x3c.longle+92)    shortle    b    (EFI boot service driver)
@@ -3039,7 +3058,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xb)
         }
         if m3 {
-          // do something with (EFI boot service driver)
+          out = append(out, "(EFI boot service driver)")
         }
 
         // >>>(0x3c.longle+92)    shortle    c    (EFI runtime driver)
@@ -3049,7 +3068,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xc)
         }
         if m3 {
-          // do something with (EFI runtime driver)
+          out = append(out, "(EFI runtime driver)")
         }
 
         // >>>(0x3c.longle+92)    shortle    d    (EFI ROM)
@@ -3059,7 +3078,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xd)
         }
         if m3 {
-          // do something with (EFI ROM)
+          out = append(out, "(EFI ROM)")
         }
 
         // >>>(0x3c.longle+92)    shortle    e    (XBOX)
@@ -3069,7 +3088,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xe)
         }
         if m3 {
-          // do something with (XBOX)
+          out = append(out, "(XBOX)")
         }
 
         // >>>(0x3c.longle+92)    shortle    f    (Windows boot application)
@@ -3079,12 +3098,15 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xf)
         }
         if m3 {
-          // do something with (Windows boot application)
+          out = append(out, "(Windows boot application)")
         }
 
         // >>>(0x3c.longle+92)    default    (Unknown subsystem
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "(Unknown subsystem")
+        }
 
         if m3 {
           // >>>>&0x0    shortle    0    0x%x)
@@ -3094,7 +3116,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with 0x%x)
+            out = append(out, "0x%x)")
           }
 
         }
@@ -3105,7 +3127,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x14c)
         }
         if m3 {
-          // do something with Intel 80386
+          out = append(out, "Intel 80386")
         }
 
         // >>>(0x3c.longle+4)    shortle    166    MIPS R4000
@@ -3115,7 +3137,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x166)
         }
         if m3 {
-          // do something with MIPS R4000
+          out = append(out, "MIPS R4000")
         }
 
         // >>>(0x3c.longle+4)    shortle    168    MIPS R10000
@@ -3125,7 +3147,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x168)
         }
         if m3 {
-          // do something with MIPS R10000
+          out = append(out, "MIPS R10000")
         }
 
         // >>>(0x3c.longle+4)    shortle    184    Alpha
@@ -3135,7 +3157,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x184)
         }
         if m3 {
-          // do something with Alpha
+          out = append(out, "Alpha")
         }
 
         // >>>(0x3c.longle+4)    shortle    1a2    Hitachi SH3
@@ -3145,7 +3167,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1a2)
         }
         if m3 {
-          // do something with Hitachi SH3
+          out = append(out, "Hitachi SH3")
         }
 
         // >>>(0x3c.longle+4)    shortle    1a6    Hitachi SH4
@@ -3155,7 +3177,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1a6)
         }
         if m3 {
-          // do something with Hitachi SH4
+          out = append(out, "Hitachi SH4")
         }
 
         // >>>(0x3c.longle+4)    shortle    1c0    ARM
@@ -3165,7 +3187,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1c0)
         }
         if m3 {
-          // do something with ARM
+          out = append(out, "ARM")
         }
 
         // >>>(0x3c.longle+4)    shortle    1c2    ARM Thumb
@@ -3175,7 +3197,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1c2)
         }
         if m3 {
-          // do something with ARM Thumb
+          out = append(out, "ARM Thumb")
         }
 
         // >>>(0x3c.longle+4)    shortle    1c4    ARMv7 Thumb
@@ -3185,7 +3207,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1c4)
         }
         if m3 {
-          // do something with ARMv7 Thumb
+          out = append(out, "ARMv7 Thumb")
         }
 
         // >>>(0x3c.longle+4)    shortle    1f0    PowerPC
@@ -3195,7 +3217,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1f0)
         }
         if m3 {
-          // do something with PowerPC
+          out = append(out, "PowerPC")
         }
 
         // >>>(0x3c.longle+4)    shortle    200    Intel Itanium
@@ -3205,7 +3227,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with Intel Itanium
+          out = append(out, "Intel Itanium")
         }
 
         // >>>(0x3c.longle+4)    shortle    266    MIPS16
@@ -3215,7 +3237,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x266)
         }
         if m3 {
-          // do something with MIPS16
+          out = append(out, "MIPS16")
         }
 
         // >>>(0x3c.longle+4)    shortle    268    Motorola 68000
@@ -3225,7 +3247,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x268)
         }
         if m3 {
-          // do something with Motorola 68000
+          out = append(out, "Motorola 68000")
         }
 
         // >>>(0x3c.longle+4)    shortle    290    PA-RISC
@@ -3235,7 +3257,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x290)
         }
         if m3 {
-          // do something with PA-RISC
+          out = append(out, "PA-RISC")
         }
 
         // >>>(0x3c.longle+4)    shortle    366    MIPSIV
@@ -3245,7 +3267,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x366)
         }
         if m3 {
-          // do something with MIPSIV
+          out = append(out, "MIPSIV")
         }
 
         // >>>(0x3c.longle+4)    shortle    466    MIPS16 with FPU
@@ -3255,7 +3277,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x466)
         }
         if m3 {
-          // do something with MIPS16 with FPU
+          out = append(out, "MIPS16 with FPU")
         }
 
         // >>>(0x3c.longle+4)    shortle    ebc    EFI byte code
@@ -3265,7 +3287,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xebc)
         }
         if m3 {
-          // do something with EFI byte code
+          out = append(out, "EFI byte code")
         }
 
         // >>>(0x3c.longle+4)    shortle    8664    x86-64
@@ -3275,7 +3297,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8664)
         }
         if m3 {
-          // do something with x86-64
+          out = append(out, "x86-64")
         }
 
         // >>>(0x3c.longle+4)    shortle    c0ee    MSIL
@@ -3285,12 +3307,15 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xc0ee)
         }
         if m3 {
-          // do something with MSIL
+          out = append(out, "MSIL")
         }
 
         // >>>(0x3c.longle+4)    default    Unknown processor type
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "Unknown processor type")
+        }
 
         if m3 {
           // >>>>&0x0    shortle    0    0x%x
@@ -3300,7 +3325,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with 0x%x
+            out = append(out, "0x%x")
           }
 
         }
@@ -3311,7 +3336,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x0)
         }
         if m3 {
-          // do something with (stripped to external PDB)
+          out = append(out, "(stripped to external PDB)")
         }
 
         // >>>(0x3c.longle+22)    shortle    0&0x1000    system file
@@ -3321,7 +3346,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x0)
         }
         if m3 {
-          // do something with system file
+          out = append(out, "system file")
         }
 
         // >>>(0x3c.longle+24)    shortle    10b    
@@ -3339,7 +3364,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with Mono/.Net assembly
+            out = append(out, "Mono/.Net assembly")
           }
 
         }
@@ -3358,25 +3383,37 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with Mono/.Net assembly
+            out = append(out, "Mono/.Net assembly")
           }
 
         }
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, 32rtm DOS extender
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, 32rtm DOS extender")
+        }
 
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, for MS Windows
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, for MS Windows")
+        }
 
         // >>>(0x3c.longle+248)    string    "UPX0"    \b, UPX compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UPX compressed")
+        }
 
         // >>>(0x3c.longle+248)    search/0x140    "PEC2"    \b, PECompact2 compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, PECompact2 compressed")
+        }
 
         // >>>(0x3c.longle+248)    search/0x140    "UPX2"    
         // uh oh indirect offset
@@ -3386,6 +3423,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0x10.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".idata"    
@@ -3396,14 +3436,23 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0xe.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+          }
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ0"    \b, ZZip self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZZip self-extracting archive")
+          }
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ1"    \b, ZZip self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZZip self-extracting archive")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".rsrc"    
@@ -3414,18 +3463,30 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0xf.longle+(-4))    string    "a\\\x04\x05"    \b, WinHKI self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, WinHKI self-extracting archive")
+          }
 
           // >>>>(&0xf.longle+(-4))    string    "Rar!"    \b, RAR self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, RAR self-extracting archive")
+          }
 
           // >>>>(&0xf.longle+(-4))    search/0x3000    "MSCF"    \b, InstallShield self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, InstallShield self-extracting archive")
+          }
 
           // >>>>(&0xf.longle+(-4))    search/0x20    "Nullsoft"    \b, Nullsoft Installer self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".data"    
@@ -3436,11 +3497,17 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0xf.longle)    string    "WEXTRACT"    \b, MS CAB-Installer self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, MS CAB-Installer self-extracting archive")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".petite\x00"    \b, Petite compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, Petite compressed")
+        }
 
         if m3 {
           // >>>>(0x3c.longle+247)    bytele    0    
@@ -3454,37 +3521,61 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>(&0x104.longle+(-4))    string    "=!sfx!"    \b, ACE self-extracting archive
             // uh oh indirect offset
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, ACE self-extracting archive")
+            }
 
           }
         }
         // >>>(0x3c.longle+248)    search/0x140    ".WISE"    \b, WISE installer self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, WISE installer self-extracting archive")
+        }
 
         // >>>(0x3c.longle+248)    search/0x140    ".dz\x00\x00\x00"    \b, Dzip self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, Dzip self-extracting archive")
+        }
 
         // >>>&(0x3c.longle+248)    search/0x100    "_winzip_"    \b, ZIP self-extracting archive (WinZip)
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+        }
 
         // >>>&(0x3c.longle+248)    search/0x100    "SharedD"    \b, Microsoft Installer self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, Microsoft Installer self-extracting archive")
+        }
 
         // >>>0x30    string    "Inno"    \b, InnoSetup self-extracting archive
         off = pageOff + 48
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, InnoSetup self-extracting archive")
+        }
 
       }
       // >>(0x3c.longle)    string    "PE\x00\x00"    MS-DOS executable
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "MS-DOS executable")
+      }
 
       // >>(0x3c.longle)    string    "NE"    \b, NE
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, NE")
+      }
 
       if m2 {
         // >>>(0x3c.longle+54)    bytele    1    for OS/2 1.x
@@ -3494,7 +3585,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with for OS/2 1.x
+          out = append(out, "for OS/2 1.x")
         }
 
         // >>>(0x3c.longle+54)    bytele    2    for MS Windows 3.x
@@ -3504,7 +3595,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with for MS Windows 3.x
+          out = append(out, "for MS Windows 3.x")
         }
 
         // >>>(0x3c.longle+54)    bytele    3    for MS-DOS
@@ -3514,7 +3605,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with for MS-DOS
+          out = append(out, "for MS-DOS")
         }
 
         // >>>(0x3c.longle+54)    bytele    4    for Windows 386
@@ -3524,7 +3615,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4)
         }
         if m3 {
-          // do something with for Windows 386
+          out = append(out, "for Windows 386")
         }
 
         // >>>(0x3c.longle+54)    bytele    5    for Borland Operating System Services
@@ -3534,7 +3625,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x5)
         }
         if m3 {
-          // do something with for Borland Operating System Services
+          out = append(out, "for Borland Operating System Services")
         }
 
         // >>>(0x3c.longle+54)    default    
@@ -3549,7 +3640,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with (unknown OS %x)
+            out = append(out, "(unknown OS %x)")
           }
 
         }
@@ -3560,7 +3651,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x81)
         }
         if m3 {
-          // do something with for MS-DOS, Phar Lap DOS extender
+          out = append(out, "for MS-DOS, Phar Lap DOS extender")
         }
 
         // >>>(0x3c.longle+12)    shortle    8002&0x8003    (DLL)
@@ -3570,7 +3661,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8002)
         }
         if m3 {
-          // do something with (DLL)
+          out = append(out, "(DLL)")
         }
 
         // >>>(0x3c.longle+12)    shortle    8001&0x8003    (driver)
@@ -3580,21 +3671,30 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8001)
         }
         if m3 {
-          // do something with (driver)
+          out = append(out, "(driver)")
         }
 
         // >>>&(&0x24.shortle-1)    string    "ARJSFX"    \b, ARJ self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ARJ self-extracting archive")
+        }
 
         // >>>(0x3c.longle+112)    search/0x80    "WinZip(R) Self-Extractor"    \b, ZIP self-extracting archive (WinZip)
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+        }
 
       }
       // >>(0x3c.longle)    string    "LX\x00\x00"    \b, LX
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, LX")
+      }
 
       if m2 {
         // >>>(0x3c.longle+10)    shortle    1    (unknown OS)
@@ -3604,7 +3704,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) < 0x1)
         }
         if m3 {
-          // do something with (unknown OS)
+          out = append(out, "(unknown OS)")
         }
 
         // >>>(0x3c.longle+10)    shortle    1    for OS/2
@@ -3614,7 +3714,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with for OS/2
+          out = append(out, "for OS/2")
         }
 
         // >>>(0x3c.longle+10)    shortle    2    for MS Windows
@@ -3624,7 +3724,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with for MS Windows
+          out = append(out, "for MS Windows")
         }
 
         // >>>(0x3c.longle+10)    shortle    3    for DOS
@@ -3634,7 +3734,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with for DOS
+          out = append(out, "for DOS")
         }
 
         // >>>(0x3c.longle+10)    shortle    3    (unknown OS)
@@ -3644,7 +3744,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x3)
         }
         if m3 {
-          // do something with (unknown OS)
+          out = append(out, "(unknown OS)")
         }
 
         // >>>(0x3c.longle+16)    longle    8000&0x28000    (DLL)
@@ -3654,7 +3754,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8000)
         }
         if m3 {
-          // do something with (DLL)
+          out = append(out, "(DLL)")
         }
 
         // >>>(0x3c.longle+16)    longle    0&0x20000    (device driver)
@@ -3664,7 +3764,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) > 0x0)
         }
         if m3 {
-          // do something with (device driver)
+          out = append(out, "(device driver)")
         }
 
         // >>>(0x3c.longle+16)    longle    300&0x300    (GUI)
@@ -3674,7 +3774,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x300)
         }
         if m3 {
-          // do something with (GUI)
+          out = append(out, "(GUI)")
         }
 
         // >>>(0x3c.longle+16)    longle    300&0x28300    (console)
@@ -3684,7 +3784,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) < 0x300)
         }
         if m3 {
-          // do something with (console)
+          out = append(out, "(console)")
         }
 
         // >>>(0x3c.longle+8)    shortle    1    i80286
@@ -3694,7 +3794,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with i80286
+          out = append(out, "i80286")
         }
 
         // >>>(0x3c.longle+8)    shortle    2    i80386
@@ -3704,7 +3804,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with i80386
+          out = append(out, "i80386")
         }
 
         // >>>(0x3c.longle+8)    shortle    3    i80486
@@ -3714,31 +3814,46 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with i80486
+          out = append(out, "i80486")
         }
 
         // >>>(0x8.shortle*16)    string    "emx"    \b, emx
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, emx")
+        }
 
         if m3 {
           // >>>>&0x1    string    "x"    %s
           off = pageOff + 1
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "%s")
+          }
 
         }
         // >>>&(&0x54.longle-3)    string    "arjsfx"    \b, ARJ self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ARJ self-extracting archive")
+        }
 
       }
       // >>(0x3c.longle)    string    "W3"    \b, W3 for MS Windows
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, W3 for MS Windows")
+      }
 
       // >>(0x3c.longle)    string    "LE\x00\x00"    \b, LE executable
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, LE executable")
+      }
 
       if m2 {
         // >>>(0x3c.longle+10)    shortle    1    
@@ -3752,30 +3867,51 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           // >>>>0x240    search/0x100    "DOS/4G"    for MS-DOS, DOS4GW DOS extender
           off = pageOff + 576
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x240    search/0x200    "WATCOM C/C++"    for MS-DOS, DOS4GW DOS extender
           off = pageOff + 576
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x440    search/0x100    "CauseWay DOS Extender"    for MS-DOS, CauseWay DOS extender
           off = pageOff + 1088
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, CauseWay DOS extender")
+          }
 
           // >>>>0x40    search/0x40    "PMODE/W"    for MS-DOS, PMODE/W DOS extender
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, PMODE/W DOS extender")
+          }
 
           // >>>>0x40    search/0x40    "STUB/32A"    for MS-DOS, DOS/32A DOS extender (stub)
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (stub)")
+          }
 
           // >>>>0x40    search/0x80    "STUB/32C"    for MS-DOS, DOS/32A DOS extender (configurable stub)
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (configurable stub)")
+          }
 
           // >>>>0x40    search/0x80    "DOS/32A"    for MS-DOS, DOS/32A DOS extender (embedded)
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (embedded)")
+          }
 
           // >>>>&0x24    longle    50    
           off = pageOff + 36
@@ -3793,6 +3929,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
               // >>>>>>&0x0    search/0x8    "3\xdbf\xb9"    \b, 32Lite compressed
               off = pageOff + 0
               // uh oh unhandled kind
+              if m6 {
+                out = append(out, "\\b, 32Lite compressed")
+              }
 
             }
           }
@@ -3804,7 +3943,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with for MS Windows
+          out = append(out, "for MS Windows")
         }
 
         // >>>(0x3c.longle+10)    shortle    3    for DOS
@@ -3814,7 +3953,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with for DOS
+          out = append(out, "for DOS")
         }
 
         // >>>(0x3c.longle+10)    shortle    4    for MS Windows (VxD)
@@ -3824,16 +3963,22 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4)
         }
         if m3 {
-          // do something with for MS Windows (VxD)
+          out = append(out, "for MS Windows (VxD)")
         }
 
         // >>>(&0x7c.longle+38)    string    "UPX"    \b, UPX compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UPX compressed")
+        }
 
         // >>>&(&0x54.longle-3)    string    "UNACE"    \b, ACE self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ACE self-extracting archive")
+        }
 
       }
       // >>0x3c    longle    20000000    
@@ -3851,7 +3996,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) != 0x14c)
         }
         if m3 {
-          // do something with \b, MZ for MS-DOS
+          out = append(out, "\\b, MZ for MS-DOS")
         }
 
       }
@@ -3888,16 +4033,25 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>&0x-2    string    "BW"    \b, MZ for MS-DOS
             off = pageOff + -2
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, MZ for MS-DOS")
+            }
 
           }
           // >>>>&(0x2.shortle-514)    string    "LE"    \b, LE
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, LE")
+          }
 
           if m4 {
             // >>>>>0x240    search/0x100    "DOS/4G"    for MS-DOS, DOS4GW DOS extender
             off = pageOff + 576
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "for MS-DOS, DOS4GW DOS extender")
+            }
 
           }
           // >>>>&(0x2.shortle-514)    string    "BW"    
@@ -3908,10 +4062,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>0x240    search/0x100    "DOS/4G"    \b, LE for MS-DOS, DOS4GW DOS extender (embedded)
             off = pageOff + 576
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+            }
 
             // >>>>>0x240    search/0x100    "!DOS/4G"    \b, BW collection for MS-DOS
             off = pageOff + 576
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, BW collection for MS-DOS")
+            }
 
           }
         }
@@ -3924,13 +4084,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x14c)
     }
     if m1 {
-      // do something with \b, COFF
+      out = append(out, "\\b, COFF")
     }
 
     if m1 {
       // >>(0x8.shortle*16)    string    "go32stub"    for MS-DOS, DJGPP go32 DOS extender
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
+      }
 
       // >>(0x8.shortle*16)    string    "emx"    
       // uh oh indirect offset
@@ -3940,6 +4103,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x1    string    "x"    for DOS, Win or OS/2, emx %s
         off = pageOff + 1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "for DOS, Win or OS/2, emx %s")
+        }
 
       }
       // >>&(&0x42.longle-3)    bytele    0    
@@ -3953,6 +4119,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x26    string    "UPX"    \b, UPX compressed
         off = pageOff + 38
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UPX compressed")
+        }
 
       }
       // >>&0x2c    search/0xa0    ".text"    
@@ -3975,7 +4144,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x6000)
           }
           if m4 {
-            // do something with \b, 32lite compressed
+            out = append(out, "\\b, 32lite compressed")
           }
 
         }
@@ -3984,54 +4153,93 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >(0x8.shortle*16)    string    "$WdX"    \b, WDos/X DOS extender
     // uh oh indirect offset
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, WDos/X DOS extender")
+    }
 
     // >0x35    string    "\x8e\xc0\xb9\b\x00\xf3\xa5Ju\xeb\x8eÎ\xd83\xff\xbe0\x00\x05"    \b, aPack compressed
     off = pageOff + 53
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, aPack compressed")
+    }
 
     // >0xe7    string    "LH/2 "    Self-Extract \b, %s
     off = pageOff + 231
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Self-Extract \\b, %s")
+    }
 
     // >0x1c    string    "UC2X"    \b, UCEXE compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, UCEXE compressed")
+    }
 
     // >0x1c    string    "WWP "    \b, WWPACK compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, WWPACK compressed")
+    }
 
     // >0x1c    string    "RJSX"    \b, ARJ self-extracting archive
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARJ self-extracting archive")
+    }
 
     // >0x1c    string    "diet"    \b, diet compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, diet compressed")
+    }
 
     // >0x1c    string    "LZ09"    \b, LZEXE v0.90 compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LZEXE v0.90 compressed")
+    }
 
     // >0x1c    string    "LZ91"    \b, LZEXE v0.91 compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LZEXE v0.91 compressed")
+    }
 
     // >0x1c    string    "tz"    \b, TinyProg compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, TinyProg compressed")
+    }
 
     // >0x1e    string    "Copyright 1989-1990 PKWARE Inc."    Self-extracting PKZIP archive
     off = pageOff + 30
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Self-extracting PKZIP archive")
+    }
 
     // >0x1e    string    "PKLITE Copr."    Self-extracting PKZIP archive
     off = pageOff + 30
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Self-extracting PKZIP archive")
+    }
 
     // >0x20    search/0xe0    "aRJsfX"    \b, ARJ self-extracting archive
     off = pageOff + 32
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARJ self-extracting archive")
+    }
 
     // >0x20    string    "AIN"    
     off = pageOff + 32
@@ -4041,47 +4249,80 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x23    string    "2"    \b, AIN 2.x compressed
       off = pageOff + 35
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, AIN 2.x compressed")
+      }
 
       // >>0x23    string    "<2"    \b, AIN 1.x compressed
       off = pageOff + 35
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, AIN 1.x compressed")
+      }
 
       // >>0x23    string    ">2"    \b, AIN 1.x compressed
       off = pageOff + 35
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, AIN 1.x compressed")
+      }
 
     }
     // >0x24    string    "LHa's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHa self-extracting archive")
+    }
 
     // >0x24    string    "LHA's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHa self-extracting archive")
+    }
 
     // >0x24    string    " $ARX"    \b, ARX self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
 
     // >0x24    string    " $LHarc"    \b, LHarc self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
 
     // >0x20    string    "SFX by LARC"    \b, LARC self-extracting archive
     off = pageOff + 32
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LARC self-extracting archive")
+    }
 
     // >0x40    string    "aPKG"    \b, aPackage self-extracting archive
     off = pageOff + 64
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, aPackage self-extracting archive")
+    }
 
     // >0x64    string    "W Collis\x00\x00"    \b, Compack compressed
     off = pageOff + 100
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, Compack compressed")
+    }
 
     // >0x7a    string    "Windows self-extracting ZIP"    \b, ZIP self-extracting archive
     off = pageOff + 122
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ZIP self-extracting archive")
+    }
 
     if m1 {
       // >>&0xf4    search/0x140    "\x00@\x01\x00"    
@@ -4092,16 +4333,25 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>(&0x0.longle+(4))    string    "MSCF"    \b, WinHKI CAB self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, WinHKI CAB self-extracting archive")
+        }
 
       }
     }
     // >0x666    string    "-lh5-"    \b, LHa self-extracting archive v2.13S
     off = pageOff + 1638
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHa self-extracting archive v2.13S")
+    }
 
     // >0x17888    string    "Rar!"    \b, RAR self-extracting archive
     off = pageOff + 96392
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, RAR self-extracting archive")
+    }
 
     // >(0x4.shortle*512)    longle    0    
     // uh oh indirect offset
@@ -4122,44 +4372,74 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x0    string    "PK\x03\x04"    \b, ZIP self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ZIP self-extracting archive")
+        }
 
         // >>>&0x0    string    "Rar!"    \b, RAR self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, RAR self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x11"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 2.x self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x12"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 2.x self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x17"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 1.x self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x18"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 1.x self-extracting archive")
+        }
 
         // >>>&0x7    search/0x190    "**ACE**"    \b, ACE self-extracting archive
         off = pageOff + 7
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ACE self-extracting archive")
+        }
 
         // >>>&0x0    search/0x480    "UC2SFX Header"    \b, UC2 self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UC2 self-extracting archive")
+        }
 
       }
     }
     // >(0x8.shortle*16)    search/0x20    "PKSFX"    \b, ZIP self-extracting archive (PKZIP)
     // uh oh indirect offset
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+    }
 
     // >0xc289    string    "y\xff\x80\xffv\xff"    \b, CODEC archive v3.21
     off = pageOff + 49801
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, CODEC archive v3.21")
+    }
 
     if m1 {
       // >>0xc2a0    shortle    1    \b, 1 file
@@ -4169,7 +4449,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x1)
       }
       if m2 {
-        // do something with \b, 1 file
+        out = append(out, "\\b, 1 file")
       }
 
       // >>0xc2a0    shortle    1    \b, %u files
@@ -4179,7 +4459,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int16(iv)) > 0x1)
       }
       if m2 {
-        // do something with \b, %u files
+        out = append(out, "\\b, %u files")
       }
 
     }
@@ -4187,6 +4467,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "KCF"    FreeDOS KEYBoard Layout collection
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FreeDOS KEYBoard Layout collection")
+  }
 
   if m0 {
     // >0x3    ushortle    0    \b, version 0x%x
@@ -4196,7 +4479,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, version 0x%x
+      out = append(out, "\\b, version 0x%x")
     }
 
     // >0x6    ubytele    0    
@@ -4210,15 +4493,24 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x7    string    ">\x00"    \b, author=%-.14s
       off = pageOff + 7
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, author=%-.14s")
+      }
 
       // >>0x7    search/0xfe    "\xff"    \b, info=
       off = pageOff + 7
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, info=")
+      }
 
       if m2 {
         // >>>&0x0    string    "x"    \b%-.15s
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b%-.15s")
+        }
 
       }
     }
@@ -4226,6 +4518,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "KLF"    FreeDOS KEYBoard Layout file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FreeDOS KEYBoard Layout file")
+  }
 
   if m0 {
     // >0x3    ushortle    0    \b, version 0x%x
@@ -4235,7 +4530,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, version 0x%x
+      out = append(out, "\\b, version 0x%x")
     }
 
     // >0x5    ubytele    0    
@@ -4249,6 +4544,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x8    string    "x"    \b, name=%-.2s
       off = pageOff + 8
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, name=%-.2s")
+      }
 
     }
   }
@@ -4260,6 +4558,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >0xc    string    "\x00\x00\x00\x00`\x04\xf0"    MS-DOS KEYBoard Layout file
     off = pageOff + 12
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "MS-DOS KEYBoard Layout file")
+    }
 
   }
   // 0x0    uquadle    ffffffff&0x7a0ffffffff    
@@ -4378,7 +4679,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int8(iv)) > 0xd)
         }
         if m3 {
-          // do something with DOS executable (COM, 0x8C-variant)
+          out = append(out, "DOS executable (COM, 0x8C-variant)")
         }
 
       }
@@ -4391,7 +4692,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0xffff10eb)
   }
   if m0 {
-    // do something with DR-DOS executable (COM)
+    out = append(out, "DR-DOS executable (COM)")
   }
 
   // 0x0    ushortbe    eb00&0xeb8d    
@@ -4505,7 +4806,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x21cd4cfe)
       }
       if m2 {
-        // do something with COM executable (32-bit COMBOOT
+        out = append(out, "COM executable (32-bit COMBOOT")
       }
 
       if m2 {
@@ -4516,7 +4817,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x21cd4cff)
         }
         if m3 {
-          // do something with \b)
+          out = append(out, "\\b)")
         }
 
         // >>>0x1    longle    21cd4cfe    \b, relocatable)
@@ -4526,13 +4827,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x21cd4cfe)
         }
         if m3 {
-          // do something with \b, relocatable)
+          out = append(out, "\\b, relocatable)")
         }
 
       }
       // >>0x1    default    COM executable for DOS
       off = pageOff + 1
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "COM executable for DOS")
+      }
 
     }
   }
@@ -4549,32 +4853,53 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x24    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
       off = pageOff + 36
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "FREE-DOS executable (COM), UPX compressed")
+      }
 
     }
   }
   // 0xfc    string    "Must have DOS version"    DR-DOS executable (COM)
   off = pageOff + 252
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "DR-DOS executable (COM)")
+  }
 
   // 0x22    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 34
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  }
 
   // 0x23    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 35
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  }
 
   // 0x2    string    "\xcd!"    COM executable for DOS
   off = pageOff + 2
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x4    string    "\xcd!"    COM executable for DOS
   off = pageOff + 4
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x5    string    "\xcd!"    COM executable for DOS
   off = pageOff + 5
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x7    string    "\xcd!"    
   off = pageOff + 7
@@ -4588,7 +4913,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0xb8)
     }
     if m1 {
-      // do something with COM executable for DOS
+      out = append(out, "COM executable for DOS")
     }
 
   }
@@ -4600,53 +4925,89 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >0x5    string    "\xcd!"    COM executable for DOS
     off = pageOff + 5
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "COM executable for DOS")
+    }
 
   }
   // 0xd    string    "\xcd!"    COM executable for DOS
   off = pageOff + 13
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x12    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 18
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x17    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 23
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x1e    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 30
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x46    string    "\xcd!"    COM executable for DOS
   off = pageOff + 70
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x6    search/0xa    "\xfcW\xf3\xa5\xc3"    COM executable for MS-DOS
   off = pageOff + 6
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x6    search/0xa    "\xfcW\xf3\xa4\xc3"    COM executable for DOS
   off = pageOff + 6
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   if m0 {
     // >0x18    search/0x10    "P\xa4\xff\xd5s"    \b, aPack compressed
     off = pageOff + 24
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, aPack compressed")
+    }
 
   }
   // 0x3c    string    "W Collis\x00\x00"    COM executable for MS-DOS, Compack compressed
   off = pageOff + 60
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS, Compack compressed")
+  }
 
   // 0x0    string    "LZ"    MS-DOS executable (built-in)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MS-DOS executable (built-in)")
+  }
 
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1AAFB\r\x00OM\x06\x0e+4\x01\x01\x01\xff"    AAF legacy file using MS Structured Storage
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "AAF legacy file using MS Structured Storage")
+  }
 
   if m0 {
     // >0x1e    bytele    9    (512B sectors)
@@ -4656,7 +5017,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9)
     }
     if m1 {
-      // do something with (512B sectors)
+      out = append(out, "(512B sectors)")
     }
 
     // >0x1e    bytele    c    (4kB sectors)
@@ -4666,13 +5027,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc)
     }
     if m1 {
-      // do something with (4kB sectors)
+      out = append(out, "(4kB sectors)")
     }
 
   }
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1\x01\x02\x01\r\x00\x02\x00\x00\x06\x0e+4\x03\x02\x01\x01"    AAF file using MS Structured Storage
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "AAF file using MS Structured Storage")
+  }
 
   if m0 {
     // >0x1e    bytele    9    (512B sectors)
@@ -4682,7 +5046,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9)
     }
     if m1 {
-      // do something with (512B sectors)
+      out = append(out, "(512B sectors)")
     }
 
     // >0x1e    bytele    c    (4kB sectors)
@@ -4692,21 +5056,30 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc)
     }
     if m1 {
-      // do something with (4kB sectors)
+      out = append(out, "(4kB sectors)")
     }
 
   }
   // 0x820    string    "Microsoft Word 6.0 Document"    %s
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "%s")
+  }
 
   // 0x820    string    "Documento Microsoft Word 6"    Spanish Microsoft Word 6 document data
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Spanish Microsoft Word 6 document data")
+  }
 
   // 0x840    string    "MSWordDoc"    Microsoft Word document data
   off = pageOff + 2112
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word document data")
+  }
 
   // 0x0    longbe    31be0000    Microsoft Word Document
   off = pageOff + 0
@@ -4715,12 +5088,15 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x31be0000)
   }
   if m0 {
-    // do something with Microsoft Word Document
+    out = append(out, "Microsoft Word Document")
   }
 
   // 0x0    string    "PO^Q`"    Microsoft Word 6.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word 6.0 Document")
+  }
 
   // 0x4    longle    0    
   off = pageOff + 4
@@ -4737,7 +5113,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe320000)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 1.0
+      out = append(out, "Microsoft Word for Macintosh 1.0")
     }
 
     // >0x0    longbe    fe340000    Microsoft Word for Macintosh 3.0
@@ -4747,7 +5123,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe340000)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 3.0
+      out = append(out, "Microsoft Word for Macintosh 3.0")
     }
 
     // >0x0    longbe    fe37001c    Microsoft Word for Macintosh 4.0
@@ -4757,7 +5133,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe37001c)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 4.0
+      out = append(out, "Microsoft Word for Macintosh 4.0")
     }
 
     // >0x0    longbe    fe370023    Microsoft Word for Macintosh 5.0
@@ -4767,45 +5143,72 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe370023)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 5.0
+      out = append(out, "Microsoft Word for Macintosh 5.0")
     }
 
   }
   // 0x0    string    "ۥ-\x00\x00\x00"    Microsoft Word 2.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word 2.0 Document")
+  }
 
   // 0x200    string    "\xec\xa5\xc1"    Microsoft Word Document
   off = pageOff + 512
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word Document")
+  }
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft WinWord 2.0 Document")
+  }
 
   // 0x820    string    "Microsoft Excel 5.0 Worksheet"    %s
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "%s")
+  }
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft WinWord 2.0 Document")
+  }
 
   // 0x820    string    "Foglio di lavoro Microsoft Exce"    %s
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "%s")
+  }
 
   // 0x842    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2114
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Excel 5.0 Worksheet")
+  }
 
   // 0x849    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2121
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Excel 5.0 Worksheet")
+  }
 
   // 0x0    string    "\t\x04\x06\x00\x00\x00\x10\x00"    Microsoft Excel Worksheet
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Excel Worksheet")
+  }
 
   // 0x0    longbe    1a00    
   off = pageOff + 0
@@ -4830,7 +5233,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int8(iv)) < 0x20)
       }
       if m2 {
-        // do something with Lotus 1-2-3
+        out = append(out, "Lotus 1-2-3")
       }
 
       if m2 {
@@ -4841,7 +5244,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1000)
         }
         if m3 {
-          // do something with WorKsheet, version 3
+          out = append(out, "WorKsheet, version 3")
         }
 
         // >>>0x4    ushortle    1002    WorKsheet, version 4
@@ -4851,7 +5254,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1002)
         }
         if m3 {
-          // do something with WorKsheet, version 4
+          out = append(out, "WorKsheet, version 4")
         }
 
         // >>>0x4    ushortle    1003    WorKsheet, version 97
@@ -4861,7 +5264,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1003)
         }
         if m3 {
-          // do something with WorKsheet, version 97
+          out = append(out, "WorKsheet, version 97")
         }
 
         // >>>0x4    ushortle    1005    WorKsheet, version 9.8 Millennium
@@ -4871,7 +5274,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1005)
         }
         if m3 {
-          // do something with WorKsheet, version 9.8 Millennium
+          out = append(out, "WorKsheet, version 9.8 Millennium")
         }
 
         // >>>0x4    ushortle    8001    FoRMatting data
@@ -4881,7 +5284,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8001)
         }
         if m3 {
-          // do something with FoRMatting data
+          out = append(out, "FoRMatting data")
         }
 
         // >>>0x4    ushortle    8007    ForMatting data, version 3
@@ -4891,12 +5294,15 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8007)
         }
         if m3 {
-          // do something with ForMatting data, version 3
+          out = append(out, "ForMatting data, version 3")
         }
 
         // >>>0x4    default    unknown
         off = pageOff + 4
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "unknown")
+        }
 
         if m3 {
           // >>>>0x6    ushortle    4    worksheet
@@ -4906,7 +5312,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x4)
           }
           if m4 {
-            // do something with worksheet
+            out = append(out, "worksheet")
           }
 
           // >>>>0x6    ushortle    4    formatting data
@@ -4916,7 +5322,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) != 0x4)
           }
           if m4 {
-            // do something with formatting data
+            out = append(out, "formatting data")
           }
 
           // >>>>0x4    ushortle    0    \b, revision 0x%x
@@ -4926,7 +5332,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b, revision 0x%x
+            out = append(out, "\\b, revision 0x%x")
           }
 
         }
@@ -4937,7 +5343,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4)
         }
         if m3 {
-          // do something with \b, cell range
+          out = append(out, "\\b, cell range")
         }
 
         if m3 {
@@ -4956,7 +5362,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (int64(int8(iv)) > 0x0)
             }
             if m5 {
-              // do something with \b%d*
+              out = append(out, "\\b%d*")
             }
 
             // >>>>>0x8    ushortle    0    \b%d,
@@ -4966,7 +5372,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) == 0x0)
             }
             if m5 {
-              // do something with \b%d,
+              out = append(out, "\\b%d,")
             }
 
             // >>>>>0xb    ubytele    0    \b%d-
@@ -4976,7 +5382,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) == 0x0)
             }
             if m5 {
-              // do something with \b%d-
+              out = append(out, "\\b%d-")
             }
 
           }
@@ -4987,7 +5393,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int8(iv)) > 0x0)
           }
           if m4 {
-            // do something with \b%d*
+            out = append(out, "\\b%d*")
           }
 
           // >>>>0xc    ushortle    0    \b%d,
@@ -4997,7 +5403,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b%d,
+            out = append(out, "\\b%d,")
           }
 
           // >>>>0xf    ubytele    0    \b%d
@@ -5007,7 +5413,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b%d
+            out = append(out, "\\b%d")
           }
 
           // >>>>0x14    ubytele    1    \b, character set 0x%x
@@ -5017,7 +5423,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int8(iv)) > 0x1)
           }
           if m4 {
-            // do something with \b, character set 0x%x
+            out = append(out, "\\b, character set 0x%x")
           }
 
           // >>>>0x15    ubytele    0    \b, flags 0x%x
@@ -5027,7 +5433,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b, flags 0x%x
+            out = append(out, "\\b, flags 0x%x")
           }
 
         }
@@ -5047,6 +5453,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>&0x4    string    ">\x00"    \b, 1st font "%s"
             off = pageOff + 4
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, 1st font \"%s\"")
+            }
 
           }
         }
@@ -5076,7 +5485,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int8(iv)) > 0x0)
       }
       if m2 {
-        // do something with Lotus
+        out = append(out, "Lotus")
       }
 
       if m2 {
@@ -5087,7 +5496,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x7)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)
+          out = append(out, "1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
         }
 
         // >>>0x4    ushortle    c05    1-2-3 CoNFiguration, version 2.4J
@@ -5097,7 +5506,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xc05)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.4J
+          out = append(out, "1-2-3 CoNFiguration, version 2.4J")
         }
 
         // >>>0x4    ushortle    801    1-2-3 CoNFiguration, version 1-2.1
@@ -5107,7 +5516,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x801)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 1-2.1
+          out = append(out, "1-2-3 CoNFiguration, version 1-2.1")
         }
 
         // >>>0x4    ushortle    802    Symphony CoNFiguration
@@ -5117,7 +5526,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x802)
         }
         if m3 {
-          // do something with Symphony CoNFiguration
+          out = append(out, "Symphony CoNFiguration")
         }
 
         // >>>0x4    ushortle    804    1-2-3 CoNFiguration, version 2.2
@@ -5127,7 +5536,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x804)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.2
+          out = append(out, "1-2-3 CoNFiguration, version 2.2")
         }
 
         // >>>0x4    ushortle    80a    1-2-3 CoNFiguration, version 2.3-2.4
@@ -5137,7 +5546,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x80a)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.3-2.4
+          out = append(out, "1-2-3 CoNFiguration, version 2.3-2.4")
         }
 
         // >>>0x4    ushortle    1402    1-2-3 CoNFiguration, version 3.x
@@ -5147,7 +5556,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1402)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 3.x
+          out = append(out, "1-2-3 CoNFiguration, version 3.x")
         }
 
         // >>>0x4    ushortle    1450    1-2-3 CoNFiguration, version 4.x
@@ -5157,7 +5566,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1450)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 4.x
+          out = append(out, "1-2-3 CoNFiguration, version 4.x")
         }
 
         // >>>0x4    ushortle    404    1-2-3 WorKSheet, version 1
@@ -5167,7 +5576,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x404)
         }
         if m3 {
-          // do something with 1-2-3 WorKSheet, version 1
+          out = append(out, "1-2-3 WorKSheet, version 1")
         }
 
         // >>>0x4    ushortle    405    Symphony WoRksheet, version 1.0
@@ -5177,7 +5586,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x405)
         }
         if m3 {
-          // do something with Symphony WoRksheet, version 1.0
+          out = append(out, "Symphony WoRksheet, version 1.0")
         }
 
         // >>>0x4    ushortle    406    1-2-3/Symphony worksheet, version 2
@@ -5187,7 +5596,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x406)
         }
         if m3 {
-          // do something with 1-2-3/Symphony worksheet, version 2
+          out = append(out, "1-2-3/Symphony worksheet, version 2")
         }
 
         // >>>0x4    ushortle    600    1-2-3 WorKsheet, version 1.xJ
@@ -5197,7 +5606,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x600)
         }
         if m3 {
-          // do something with 1-2-3 WorKsheet, version 1.xJ
+          out = append(out, "1-2-3 WorKsheet, version 1.xJ")
         }
 
         // >>>0x4    ushortle    602    1-2-3 worksheet, version 2.4J
@@ -5207,7 +5616,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x602)
         }
         if m3 {
-          // do something with 1-2-3 worksheet, version 2.4J
+          out = append(out, "1-2-3 worksheet, version 2.4J")
         }
 
         // >>>0x4    ushortle    8006    1-2-3 ForMaTting data, version 2.x
@@ -5217,7 +5626,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8006)
         }
         if m3 {
-          // do something with 1-2-3 ForMaTting data, version 2.x
+          out = append(out, "1-2-3 ForMaTting data, version 2.x")
         }
 
         // >>>0x4    ushortle    8007    1-2-3 FoRMatting data, version 2.0
@@ -5227,12 +5636,15 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8007)
         }
         if m3 {
-          // do something with 1-2-3 FoRMatting data, version 2.0
+          out = append(out, "1-2-3 FoRMatting data, version 2.0")
         }
 
         // >>>0x4    default    unknown worksheet or configuration
         off = pageOff + 4
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "unknown worksheet or configuration")
+        }
 
         if m3 {
           // >>>>0x4    ushortle    0    \b, revision 0x%x
@@ -5242,7 +5654,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b, revision 0x%x
+            out = append(out, "\\b, revision 0x%x")
           }
 
         }
@@ -5260,10 +5672,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "WordPro\x00"    Lotus WordPro
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Lotus WordPro")
+  }
 
   // 0x0    string    "WordPro\r\xfb"    Lotus WordPro
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Lotus WordPro")
+  }
 
   // 0x0    string    "q\xa8\x00\x00\x01\x02"    
   off = pageOff + 0
@@ -5273,67 +5691,115 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >0xc    string    "Stirling Technologies,"    InstallShield Uninstall Script
     off = pageOff + 12
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "InstallShield Uninstall Script")
+    }
 
   }
   // 0x0    string    "Nullsoft AVS Preset "    Winamp plug in
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Winamp plug in")
+  }
 
   // 0x0    string    "\xd7\xcdƚ"    ms-windows metafont .wmf
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ms-windows metafont .wmf")
+  }
 
   // 0x0    string    "\x02\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ms-windows metafont .wmf")
+  }
 
   // 0x0    string    "\x01\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ms-windows metafont .wmf")
+  }
 
   // 0x0    string    "\x03\x01\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "tz3 ms-works file")
+  }
 
   // 0x0    string    "\x03\x02\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "tz3 ms-works file")
+  }
 
   // 0x0    string    "\x03\x03\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "tz3 ms-works file")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW5\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW6\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW7\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW8\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW9\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00\x95\x03\x05\x002R\x87\xc4@\xe5\""    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "MDIF\x1a\x00\b\x00\x00\x00\xfa&@}\x01\x00\x01\x1e\x01\x00"    MS Windows special zipped file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MS Windows special zipped file")
+  }
 
   // 0x0    string    "BA(\x00\x00\x00.\x00\x00\x00\x00\x00\x00\x00"    Icon for MS Windows
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Icon for MS Windows")
+  }
 
   // 0x0    longbe    100    
   off = pageOff + 0
@@ -5422,21 +5888,33 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "PK\b\bBGI"    Borland font
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Borland font")
+  }
 
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%s")
+    }
 
   }
   // 0x0    string    "pk\b\bBGI"    Borland device
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Borland device")
+  }
 
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%s")
+    }
 
   }
   // 0x0    longle    4    
@@ -5454,7 +5932,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x118)
     }
     if m1 {
-      // do something with Windows Recycle Bin INFO2 file (Win98 or below)
+      out = append(out, "Windows Recycle Bin INFO2 file (Win98 or below)")
     }
 
   }
@@ -5473,41 +5951,65 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x320)
     }
     if m1 {
-      // do something with Windows Recycle Bin INFO2 file (Win2k - WinXP)
+      out = append(out, "Windows Recycle Bin INFO2 file (Win2k - WinXP)")
     }
 
   }
   // 0x9    string    "GERBILDOC"    First Choice document
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice document")
+  }
 
   // 0x9    string    "GERBILDB"    First Choice database
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice database")
+  }
 
   // 0x9    string    "GERBILCLIP"    First Choice database
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice database")
+  }
 
   // 0x0    string    "GERBIL"    First Choice device file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice device file")
+  }
 
   // 0x9    string    "RABBITGRAPH"    RabbitGraph file
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "RabbitGraph file")
+  }
 
   // 0x0    string    "DCU1"    Borland Delphi .DCU file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Borland Delphi .DCU file")
+  }
 
   // 0x0    string    "=!<spell>"    MKS Spell hash list (old format)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MKS Spell hash list (old format)")
+  }
 
   // 0x0    string    "=!<spell2>"    MKS Spell hash list
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MKS Spell hash list")
+  }
 
   // 0x0    longle    8086b70    TurboC BGI file
   off = pageOff + 0
@@ -5516,7 +6018,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x8086b70)
   }
   if m0 {
-    // do something with TurboC BGI file
+    out = append(out, "TurboC BGI file")
   }
 
   // 0x0    longle    8084b50    TurboC Font file
@@ -5526,7 +6028,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x8084b50)
   }
   if m0 {
-    // do something with TurboC Font file
+    out = append(out, "TurboC Font file")
   }
 
   // 0x0    string    "TPF0"    
@@ -5536,10 +6038,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "PMCC"    Windows 3.x .GRP file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows 3.x .GRP file")
+  }
 
   // 0x1    string    "RDC-meg"    MegaDots
   off = pageOff + 1
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MegaDots")
+  }
 
   if m0 {
     // >0x8    bytele    2f    version %c
@@ -5549,7 +6057,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int8(iv)) > 0x2f)
     }
     if m1 {
-      // do something with version %c
+      out = append(out, "version %c")
     }
 
     // >0x9    bytele    2f    \b.%c file
@@ -5559,7 +6067,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int8(iv)) > 0x2f)
     }
     if m1 {
-      // do something with \b.%c file
+      out = append(out, "\\b.%c file")
     }
 
   }
@@ -5578,26 +6086,38 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x21401)
     }
     if m1 {
-      // do something with Windows shortcut file
+      out = append(out, "Windows shortcut file")
     }
 
   }
   // 0x171    string    "MICROSOFT PIFEX\x00"    Windows Program Information File
   off = pageOff + 369
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows Program Information File")
+  }
 
   if m0 {
     // >0x24    string    ">\x00"    \b for %.63s
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b for %.63s")
+    }
 
     // >0x65    string    ">\x00"    \b, directory=%.64s
     off = pageOff + 101
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, directory=%.64s")
+    }
 
     // >0xa5    string    ">\x00"    \b, parameters=%.64s
     off = pageOff + 165
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, parameters=%.64s")
+    }
 
     // >0x187    search/0xb55    "WINDOWS VMM 4.0\x00"    
     off = pageOff + 391
@@ -5615,10 +6135,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x-1    string    "<PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, icon=%s")
+        }
 
         // >>>&0x-1    string    ">PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, icon=%s")
+        }
 
       }
       // >>&0xf0    ubytele    0    
@@ -5632,10 +6158,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x-1    string    "<Terminal"    \b, font=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, font=%.32s")
+        }
 
         // >>>&0x-1    string    ">Terminal"    \b, font=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, font=%.32s")
+        }
 
       }
       // >>&0x110    ubytele    0    
@@ -5649,24 +6181,39 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x-1    string    "<Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, TrueTypeFont=%.32s")
+        }
 
         // >>>&0x-1    string    ">Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, TrueTypeFont=%.32s")
+        }
 
       }
     }
     // >0x187    search/0xb55    "WINDOWS NT  3.1\x00"    \b, Windows NT-style
     off = pageOff + 391
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, Windows NT-style")
+    }
 
     // >0x187    search/0xb55    "CONFIG  SYS 4.0\x00"    \b +CONFIG.SYS
     off = pageOff + 391
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b +CONFIG.SYS")
+    }
 
     // >0x187    search/0xb55    "AUTOEXECBAT 4.0\x00"    \b +AUTOEXEC.BAT
     off = pageOff + 391
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b +AUTOEXEC.BAT")
+    }
 
   }
   // 0x0    longbe    c5d0d3c6    DOS EPS Binary File
@@ -5676,7 +6223,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0xc5d0d3c6)
   }
   if m0 {
-    // do something with DOS EPS Binary File
+    out = append(out, "DOS EPS Binary File")
   }
 
   if m0 {
@@ -5687,7 +6234,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int32(iv)) > 0x0)
     }
     if m1 {
-      // do something with Postscript starts at byte %d
+      out = append(out, "Postscript starts at byte %d")
     }
 
     if m1 {
@@ -5698,7 +6245,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int32(iv)) > 0x0)
       }
       if m2 {
-        // do something with length %d
+        out = append(out, "length %d")
       }
 
       if m2 {
@@ -5709,7 +6256,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) > 0x0)
         }
         if m3 {
-          // do something with Metafile starts at byte %d
+          out = append(out, "Metafile starts at byte %d")
         }
 
         if m3 {
@@ -5720,7 +6267,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with length %d
+            out = append(out, "length %d")
           }
 
         }
@@ -5731,7 +6278,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) > 0x0)
         }
         if m3 {
-          // do something with TIFF starts at byte %d
+          out = append(out, "TIFF starts at byte %d")
         }
 
         if m3 {
@@ -5742,7 +6289,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with length %d
+            out = append(out, "length %d")
           }
 
         }
@@ -5756,7 +6303,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x223e9f78)
   }
   if m0 {
-    // do something with TNEF
+    out = append(out, "TNEF")
   }
 
   // 0x0    string    "NG\x00\x01"    
@@ -5771,21 +6318,30 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x100)
     }
     if m1 {
-      // do something with Norton Guide
+      out = append(out, "Norton Guide")
     }
 
     if m1 {
       // >>0x8    string    ">\x00"    "%-.40s"
       off = pageOff + 8
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\"%-.40s\"")
+      }
 
       // >>0x30    string    ">\x00"    \b, %-.66s
       off = pageOff + 48
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, %-.66s")
+      }
 
       // >>0x72    string    ">\x00"    %-.66s
       off = pageOff + 114
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "%-.66s")
+      }
 
     }
   }
@@ -5796,13 +6352,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x48443408)
   }
   if m0 {
-    // do something with 4DOS help file
+    out = append(out, "4DOS help file")
   }
 
   if m0 {
     // >0x4    string    "x"    \b, version %-4.4s
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, version %-4.4s")
+    }
 
   }
   // 0x0    uquadle    3a000000024e4c    MS Advisor help file
@@ -5812,20 +6371,29 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x3a000000024e4c)
   }
   if m0 {
-    // do something with MS Advisor help file
+    out = append(out, "MS Advisor help file")
   }
 
   // 0x0    string    "ITSF\x03\x00\x00\x00`\x00\x00\x00"    MS Windows HtmlHelp Data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MS Windows HtmlHelp Data")
+  }
 
   // 0x2    string    "GFA-BASIC3"    GFA-BASIC 3 data
   off = pageOff + 2
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "GFA-BASIC 3 data")
+  }
 
   // 0x0    string    "MSCF\x00\x00\x00\x00"    Microsoft Cabinet archive data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Cabinet archive data")
+  }
 
   if m0 {
     // >0x8    longle    0    \b, %u bytes
@@ -5835,7 +6403,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, %u bytes
+      out = append(out, "\\b, %u bytes")
     }
 
     // >0x1c    shortle    1    \b, 1 file
@@ -5845,7 +6413,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with \b, 1 file
+      out = append(out, "\\b, 1 file")
     }
 
     // >0x1c    shortle    1    \b, %u files
@@ -5855,13 +6423,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %u files
+      out = append(out, "\\b, %u files")
     }
 
   }
   // 0x0    string    "ISc("    InstallShield Cabinet archive data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "InstallShield Cabinet archive data")
+  }
 
   if m0 {
     // >0x5    bytele    60&0xf0    version 6,
@@ -5871,7 +6442,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x60)
     }
     if m1 {
-      // do something with version 6,
+      out = append(out, "version 6,")
     }
 
     // >0x5    bytele    60&0xf0    version 4/5,
@@ -5881,7 +6452,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0x60)
     }
     if m1 {
-      // do something with version 4/5,
+      out = append(out, "version 4/5,")
     }
 
     // >(0xc.longle+40)    longle    0    %u files
@@ -5891,13 +6462,16 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with %u files
+      out = append(out, "%u files")
     }
 
   }
   // 0x0    string    "MSCE\x00\x00\x00\x00"    Microsoft WinCE install header
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft WinCE install header")
+  }
 
   if m0 {
     // >0x14    longle    0    \b, architecture-independent
@@ -5907,7 +6481,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, architecture-independent
+      out = append(out, "\\b, architecture-independent")
     }
 
     // >0x14    longle    67    \b, Hitachi SH3
@@ -5917,7 +6491,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x67)
     }
     if m1 {
-      // do something with \b, Hitachi SH3
+      out = append(out, "\\b, Hitachi SH3")
     }
 
     // >0x14    longle    68    \b, Hitachi SH4
@@ -5927,7 +6501,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x68)
     }
     if m1 {
-      // do something with \b, Hitachi SH4
+      out = append(out, "\\b, Hitachi SH4")
     }
 
     // >0x14    longle    a11    \b, StrongARM
@@ -5937,7 +6511,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa11)
     }
     if m1 {
-      // do something with \b, StrongARM
+      out = append(out, "\\b, StrongARM")
     }
 
     // >0x14    longle    fa0    \b, MIPS R4000
@@ -5947,7 +6521,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfa0)
     }
     if m1 {
-      // do something with \b, MIPS R4000
+      out = append(out, "\\b, MIPS R4000")
     }
 
     // >0x14    longle    2713    \b, Hitachi SH3
@@ -5957,7 +6531,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2713)
     }
     if m1 {
-      // do something with \b, Hitachi SH3
+      out = append(out, "\\b, Hitachi SH3")
     }
 
     // >0x14    longle    2714    \b, Hitachi SH3E
@@ -5967,7 +6541,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2714)
     }
     if m1 {
-      // do something with \b, Hitachi SH3E
+      out = append(out, "\\b, Hitachi SH3E")
     }
 
     // >0x14    longle    2715    \b, Hitachi SH4
@@ -5977,7 +6551,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2715)
     }
     if m1 {
-      // do something with \b, Hitachi SH4
+      out = append(out, "\\b, Hitachi SH4")
     }
 
     // >0x14    longle    11171    \b, ARM 7TDMI
@@ -5987,7 +6561,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x11171)
     }
     if m1 {
-      // do something with \b, ARM 7TDMI
+      out = append(out, "\\b, ARM 7TDMI")
     }
 
     // >0x34    shortle    1    \b, 1 file
@@ -5997,7 +6571,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with \b, 1 file
+      out = append(out, "\\b, 1 file")
     }
 
     // >0x34    shortle    1    \b, %u files
@@ -6007,7 +6581,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %u files
+      out = append(out, "\\b, %u files")
     }
 
     // >0x38    shortle    1    \b, 1 registry entry
@@ -6017,7 +6591,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with \b, 1 registry entry
+      out = append(out, "\\b, 1 registry entry")
     }
 
     // >0x38    shortle    1    \b, %u registry entries
@@ -6027,7 +6601,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %u registry entries
+      out = append(out, "\\b, %u registry entries")
     }
 
   }
@@ -6042,6 +6616,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >0x28    string    " EMF"    Windows Enhanced Metafile (EMF) image data
     off = pageOff + 40
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Windows Enhanced Metafile (EMF) image data")
+    }
 
     if m1 {
       // >>0x2c    ulongle    0    version 0x%x
@@ -6051,7 +6628,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with version 0x%x
+        out = append(out, "version 0x%x")
       }
 
     }
@@ -6059,24 +6636,39 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1"    Microsoft Office Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Office Document")
+  }
 
   if m0 {
     // >0x222    string    "bjbj"    Microsoft Word Document
     off = pageOff + 546
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Microsoft Word Document")
+    }
 
     // >0x222    string    "jbjb"    Microsoft Word Document
     off = pageOff + 546
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Microsoft Word Document")
+    }
 
   }
   // 0x0    string    "\x94\xa6."    Microsoft Word Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word Document")
+  }
 
   // 0x200    string    "R\x00o\x00o\x00t\x00 \x00E\x00n\x00t\x00r\x00y"    Microsoft Word Document
   off = pageOff + 512
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word Document")
+  }
 
   // 0x0    string    "$RBU"    
   off = pageOff + 0
@@ -6086,6 +6678,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
     // >0x17    string    "Dell"    %s system BIOS
     off = pageOff + 23
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%s system BIOS")
+    }
 
     // >0x5    bytele    2    
     off = pageOff + 5
@@ -6102,7 +6697,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with version %d.
+        out = append(out, "version %d.")
       }
 
       // >>0x31    bytele    0    \b%d.
@@ -6112,7 +6707,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with \b%d.
+        out = append(out, "\\b%d.")
       }
 
       // >>0x32    bytele    0    \b%d
@@ -6122,7 +6717,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with \b%d
+        out = append(out, "\\b%d")
       }
 
     }
@@ -6137,12 +6732,18 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x30    string    "x"    version %.3s
       off = pageOff + 48
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "version %.3s")
+      }
 
     }
   }
   // 0x0    string    "DDS |\x00\x00\x00"    Microsoft DirectDraw Surface (DDS),
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft DirectDraw Surface (DDS),")
+  }
 
   if m0 {
     // >0x10    longle    0    %d x
@@ -6152,7 +6753,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int32(iv)) > 0x0)
     }
     if m1 {
-      // do something with %d x
+      out = append(out, "%d x")
     }
 
     // >0xc    longle    0    %d,
@@ -6162,17 +6763,23 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int32(iv)) > 0x0)
     }
     if m1 {
-      // do something with %d,
+      out = append(out, "%d,")
     }
 
     // >0x54    string    "x"    %.4s
     off = pageOff + 84
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%.4s")
+    }
 
   }
   // 0x0    string    "ITOLITLS"    Microsoft Reader eBook Data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Reader eBook Data")
+  }
 
   if m0 {
     // >0x8    longle    0    \b, version %u
@@ -6182,45 +6789,72 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, version %u
+      out = append(out, "\\b, version %u")
     }
 
   }
   // 0x0    string    "B000FF\n"    Windows Embedded CE binary image
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows Embedded CE binary image")
+  }
 
   // 0x0    string    "MSWIM\x00\x00\x00"    Windows imaging (WIM) image
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows imaging (WIM) image")
+  }
 
   // 0x0    string    "WLPWM\x00\x00\x00"    Windows imaging (WIM) image, wimlib pipable format
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows imaging (WIM) image, wimlib pipable format")
+  }
 
   // 0x0    string    "\xfc\x03\x00"    Mallard BASIC program data (v1.11)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC program data (v1.11)")
+  }
 
   // 0x0    string    "\xfc\x04\x00"    Mallard BASIC program data (v1.29+)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC program data (v1.29+)")
+  }
 
   // 0x0    string    "\xfc\x03\x01"    Mallard BASIC protected program data (v1.11)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC protected program data (v1.11)")
+  }
 
   // 0x0    string    "\xfc\x04\x01"    Mallard BASIC protected program data (v1.29+)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC protected program data (v1.29+)")
+  }
 
   // 0x0    string    "MIOPEN"    Mallard BASIC Jetsam data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC Jetsam data")
+  }
 
   // 0x0    string    "Jetsam0"    Mallard BASIC Jetsam index data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC Jetsam index data")
+  }
 
   // 0x3    ushortle    7bb    
   off = pageOff + 3
@@ -6258,7 +6892,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with DOS 2.0 backup id file, sequence %d
+            out = append(out, "DOS 2.0 backup id file, sequence %d")
           }
 
           // >>>>0x0    ubytele    ff    \b, last disk
@@ -6268,7 +6902,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0xff)
           }
           if m4 {
-            // do something with \b, last disk
+            out = append(out, "\\b, last disk")
           }
 
         }
@@ -6291,6 +6925,9 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
       // >>0x5    string    "x"    DOS 2.0 backed up file %s,
       off = pageOff + 5
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "DOS 2.0 backed up file %s,")
+      }
 
       // >>0x0    ubytele    ff    complete file
       off = pageOff + 0
@@ -6299,7 +6936,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xff)
       }
       if m2 {
-        // do something with complete file
+        out = append(out, "complete file")
       }
 
       // >>0x0    ubytele    ff    
@@ -6317,7 +6954,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with split file, sequence %d
+          out = append(out, "split file, sequence %d")
         }
 
       }
@@ -6340,7 +6977,7 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with DOS 3.3 backup control file, sequence %d
+        out = append(out, "DOS 3.3 backup control file, sequence %d")
       }
 
       // >>0x8a    ubytele    ff    \b, last disk
@@ -6350,19 +6987,17 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xff)
       }
       if m2 {
-        // do something with \b, last disk
+        out = append(out, "\\b, last disk")
       }
 
     }
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
@@ -6375,6 +7010,9 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
     // >0x28    search/0x7    "UPX!"    \bUPX compressed
     off = pageOff + 40
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\bUPX compressed")
+    }
 
     // >0x4    ushortle    0&0x8000    \bblock device driver
     off = pageOff + 4
@@ -6383,7 +7021,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \bblock device driver
+      out = append(out, "\\bblock device driver")
     }
 
     // >0x4    ushortle    8000&0x8000    \b
@@ -6393,7 +7031,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8000)
     }
     if m1 {
-      // do something with \b
+      out = append(out, "\\b")
     }
 
     if m1 {
@@ -6404,7 +7042,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x8)
       }
       if m2 {
-        // do something with \bclock
+        out = append(out, "\\bclock")
       }
 
       // >>0x4    ushortle    10&0x10    \bfast
@@ -6414,7 +7052,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x10)
       }
       if m2 {
-        // do something with \bfast
+        out = append(out, "\\bfast")
       }
 
       // >>0x4    ushortle    0&0x3    \bstandard
@@ -6424,7 +7062,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int16(iv)) > 0x0)
       }
       if m2 {
-        // do something with \bstandard
+        out = append(out, "\\bstandard")
       }
 
       if m2 {
@@ -6435,7 +7073,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with \binput
+          out = append(out, "\\binput")
         }
 
         // >>>0x4    ushortle    3&0x3    \b/
@@ -6445,7 +7083,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with \b/
+          out = append(out, "\\b/")
         }
 
         // >>>0x4    ushortle    2&0x2    \boutput
@@ -6455,7 +7093,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with \boutput
+          out = append(out, "\\boutput")
         }
 
       }
@@ -6466,7 +7104,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x8000)
       }
       if m2 {
-        // do something with \bcharacter device driver
+        out = append(out, "\\bcharacter device driver")
       }
 
     }
@@ -6494,7 +7132,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int8(iv)) > 0x2e)
         }
         if m3 {
-          // do something with \b
+          out = append(out, "\\b")
         }
 
         if m3 {
@@ -6521,7 +7159,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
                 m6 = ok && (uint64(iv) != 0x2a)
               }
               if m6 {
-                // do something with \b%c
+                out = append(out, "\\b%c")
               }
 
             }
@@ -6541,7 +7179,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) != 0x2e)
             }
             if m5 {
-              // do something with \b%c
+              out = append(out, "\\b%c")
             }
 
           }
@@ -6568,7 +7206,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
                 m6 = ok && (uint64(iv) != 0x2e)
               }
               if m6 {
-                // do something with \b%c
+                out = append(out, "\\b%c")
               }
 
             }
@@ -6589,7 +7227,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) != 0x2e)
           }
           if m4 {
-            // do something with \b%c
+            out = append(out, "\\b%c")
           }
 
           // >>>>0xe    ubytele    20    
@@ -6607,7 +7245,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) != 0x2e)
             }
             if m5 {
-              // do something with \b%c
+              out = append(out, "\\b%c")
             }
 
           }
@@ -6626,7 +7264,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) != 0x2e)
             }
             if m5 {
-              // do something with \b%c
+              out = append(out, "\\b%c")
             }
 
           }
@@ -6653,7 +7291,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
                 m6 = ok && (int64(int8(iv)) < 0xcb)
               }
               if m6 {
-                // do something with \b%c
+                out = append(out, "\\b%c")
               }
 
             }
@@ -6681,7 +7319,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
                 m6 = ok && (int64(int8(iv)) < 0x90)
               }
               if m6 {
-                // do something with \b%c
+                out = append(out, "\\b%c")
               }
 
             }
@@ -6698,6 +7336,9 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
           // >>>>0x16    string    ">."    %-.6s
           off = pageOff + 22
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "%-.6s")
+          }
 
         }
       }
@@ -6717,7 +7358,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x2)
       }
       if m2 {
-        // do something with \b,32-bit sector-
+        out = append(out, "\\b,32-bit sector-")
       }
 
     }
@@ -6728,7 +7369,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x40)
     }
     if m1 {
-      // do something with \b,IOCTL-
+      out = append(out, "\\b,IOCTL-")
     }
 
     // >0x4    ushortle    800&0x800    \b,close media-
@@ -6738,7 +7379,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x800)
     }
     if m1 {
-      // do something with \b,close media-
+      out = append(out, "\\b,close media-")
     }
 
     // >0x4    ushortle    8000&0x8000    
@@ -6756,7 +7397,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x2000)
       }
       if m2 {
-        // do something with \b,until busy-
+        out = append(out, "\\b,until busy-")
       }
 
     }
@@ -6767,7 +7408,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4000)
     }
     if m1 {
-      // do something with \b,control strings-
+      out = append(out, "\\b,control strings-")
     }
 
     // >0x4    ushortle    8000&0x8000    
@@ -6785,7 +7426,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int16(iv)) > 0x0)
       }
       if m2 {
-        // do something with \bsupport
+        out = append(out, "\\bsupport")
       }
 
     }
@@ -6804,7 +7445,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int16(iv)) > 0x0)
       }
       if m2 {
-        // do something with \bsupport
+        out = append(out, "\\bsupport")
       }
 
     }
@@ -6815,18 +7456,16 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b)
+      out = append(out, "\\b)")
     }
 
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyMsdosCom(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
 
@@ -6838,12 +7477,15 @@ func IdentifyMsdosCom(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with DOS executable (COM)
+      out = append(out, "DOS executable (COM)")
     }
 
     // >0x6    string    "SFX of LHarc"    \b, %s
     off = pageOff + 6
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, %s")
+    }
 
     // >0x1fe    shortle    aa55    \b, boot code
     off = pageOff + 510
@@ -6852,42 +7494,125 @@ func IdentifyMsdosCom(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xaa55)
     }
     if m1 {
-      // do something with \b, boot code
+      out = append(out, "\\b, boot code")
     }
 
     // >0x55    string    "UPX"    \b, UPX compressed
     off = pageOff + 85
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, UPX compressed")
+    }
 
     // >0x4    string    " $ARX"    \b, ARX self-extracting archive
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
 
     // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
 
     // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
     off = pageOff + 526
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LARC self-extracting archive")
+    }
 
   }
-  return outStrings, nil
+  return out, nil
+}
+
+func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+  m2 := false
+  m3 := false
+
+  if m0 {
+    // >0x0    ulongbe    6000800    \b, cell range
+    off = pageOff + 0
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (uint64(iv) == 0x6000800)
+    }
+    if m1 {
+      out = append(out, "\\b, cell range")
+    }
+
+    if m1 {
+      // >>0x4    ulongle    0    
+      off = pageOff + 4
+      {
+        iv, ok := readUint32be(tb, off)
+        m2 = ok && (uint64(iv) != 0x0)
+      }
+
+      if m2 {
+        // >>>0x4    ushortle    0    \b%d,
+        off = pageOff + 4
+        {
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "\\b%d,")
+        }
+
+        // >>>0x6    ushortle    0    \b%d-
+        off = pageOff + 6
+        {
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "\\b%d-")
+        }
+
+      }
+      // >>0x8    ushortle    0    \b%d,
+      off = pageOff + 8
+      {
+        iv, ok := readUint16be(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "\\b%d,")
+      }
+
+      // >>0xa    ushortle    0    \b%d
+      off = pageOff + 10
+      {
+        iv, ok := readUint16be(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "\\b%d")
+      }
+
+    }
+  }
+  return out, nil
 }
 
 func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
   m3 := false
   m4 := false
-  m5 := false
 
-  if m1 {
+  if m0 {
     if m1 {
       // >>(0x12.longle)    ulongle    0    MS Windows
       // uh oh indirect offset
@@ -6896,7 +7621,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with MS Windows
+        out = append(out, "MS Windows")
       }
 
       if m2 {
@@ -6907,7 +7632,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x100)
         }
         if m3 {
-          // do something with icon resource
+          out = append(out, "icon resource")
         }
 
         if m3 {
@@ -6918,7 +7643,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with - %d icon
+            out = append(out, "- %d icon")
           }
 
           // >>>>0x4    ushortle    1    \bs
@@ -6928,7 +7653,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int16(iv)) > 0x1)
           }
           if m4 {
-            // do something with \bs
+            out = append(out, "\\bs")
           }
 
           // >>>>0x6    use   ico-entry    
@@ -6956,7 +7681,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with cursor resource
+          out = append(out, "cursor resource")
         }
 
         if m3 {
@@ -6967,7 +7692,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with - %d icon
+            out = append(out, "- %d icon")
           }
 
           // >>>>0x4    ushortle    1    \bs
@@ -6977,7 +7702,7 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int16(iv)) > 0x1)
           }
           if m4 {
-            // do something with \bs
+            out = append(out, "\\bs")
           }
 
           // >>>>0x6    use   cur-entry    
@@ -6988,14 +7713,12 @@ func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
       }
     }
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyCurEntry(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
 
@@ -7011,7 +7734,7 @@ func IdentifyCurEntry(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, hotspot @%dx
+      out = append(out, "\\b, hotspot @%dx")
     }
 
     // >0x6    ushortle    0    \b%d
@@ -7021,620 +7744,97 @@ func IdentifyCurEntry(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b%d
+      out = append(out, "\\b%d")
     }
 
   }
-  return outStrings, nil
+  return out, nil
 }
 
-func IdentifyCurIcoEntry(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+func IdentifyLotusCells__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
   var off int64
-  var err error
-  var ok bool
-  m0 := false
-  m1 := false
-
-  if m0 {
-    // >0x0    bytele    0    \b, 256x
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      // do something with \b, 256x
-    }
-
-    // >0x0    bytele    0    \b, %dx
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      // do something with \b, %dx
-    }
-
-    // >0x1    bytele    0    \b256
-    off = pageOff + 1
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      // do something with \b256
-    }
-
-    // >0x1    bytele    0    \b%d
-    off = pageOff + 1
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      // do something with \b%d
-    }
-
-    // >0x2    ubytele    0    \b, %d colors
-    off = pageOff + 2
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      // do something with \b, %d colors
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x89504e47)
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) != 0x89504e47)
-    }
-
-  }
-  return outStrings, nil
-}
-
-func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
-  var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
   m3 := false
-  m4 := false
-  m5 := false
-  m6 := false
 
   if m0 {
-    // >0x28    search/0x7    "UPX!"    \bUPX compressed
-    off = pageOff + 40
-    // uh oh unhandled kind
-
-    // >0x4    ushortle    0&0x8000    \bblock device driver
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      // do something with \bblock device driver
-    }
-
-    // >0x4    ushortle    8000&0x8000    \b
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
-    }
-    if m1 {
-      // do something with \b
-    }
-
-    if m1 {
-      // >>0x4    ushortle    8&0x8    \bclock
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8)
-      }
-      if m2 {
-        // do something with \bclock
-      }
-
-      // >>0x4    ushortle    10&0x10    \bfast
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x10)
-      }
-      if m2 {
-        // do something with \bfast
-      }
-
-      // >>0x4    ushortle    0&0x3    \bstandard
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
-      }
-      if m2 {
-        // do something with \bstandard
-      }
-
-      if m2 {
-        // >>>0x4    ushortle    1&0x1    \binput
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
-        }
-        if m3 {
-          // do something with \binput
-        }
-
-        // >>>0x4    ushortle    3&0x3    \b/
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
-        }
-        if m3 {
-          // do something with \b/
-        }
-
-        // >>>0x4    ushortle    2&0x2    \boutput
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
-        }
-        if m3 {
-          // do something with \boutput
-        }
-
-      }
-      // >>0x4    ushortle    8000&0x8000    \bcharacter device driver
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8000)
-      }
-      if m2 {
-        // do something with \bcharacter device driver
-      }
-
-    }
-    // >0x0    ubytele    0    
+    // >0x0    ulongbe    6000800    \b, cell range
     off = pageOff + 0
     {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6000800)
+    }
+    if m1 {
+      out = append(out, "\\b, cell range")
     }
 
     if m1 {
-      // >>0x28    search/0x7    "UPX!"    
-      off = pageOff + 40
-      // uh oh unhandled kind
-
-      // >>0x28    default    
-      off = pageOff + 40
-      // uh oh unhandled kind
+      // >>0x4    ulongle    0    
+      off = pageOff + 4
+      {
+        iv, ok := readUint32le(tb, off)
+        m2 = ok && (uint64(iv) != 0x0)
+      }
 
       if m2 {
-        // >>>0xc    ubytele    2e    \b
-        off = pageOff + 12
+        // >>>0x4    ushortle    0    \b%d,
+        off = pageOff + 4
         {
-          iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x2e)
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with \b
+          out = append(out, "\\b%d,")
         }
 
-        if m3 {
-          // >>>>0xa    ubytele    20    
-          off = pageOff + 10
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xa    ubytele    2e    
-            off = pageOff + 10
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-
-            if m5 {
-              // >>>>>>0xa    ubytele    2a    \b%c
-              off = pageOff + 10
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (uint64(iv) != 0x2a)
-              }
-              if m6 {
-                // do something with \b%c
-              }
-
-            }
-          }
-          // >>>>0xb    ubytele    20    
-          off = pageOff + 11
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xb    ubytele    2e    \b%c
-            off = pageOff + 11
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-            if m5 {
-              // do something with \b%c
-            }
-
-          }
-          // >>>>0xc    ubytele    20    
-          off = pageOff + 12
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xc    ubytele    39    
-            off = pageOff + 12
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x39)
-            }
-
-            if m5 {
-              // >>>>>>0xc    ubytele    2e    \b%c
-              off = pageOff + 12
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (uint64(iv) != 0x2e)
-              }
-              if m6 {
-                // do something with \b%c
-              }
-
-            }
-          }
-        }
-        // >>>0xd    ubytele    20    
-        off = pageOff + 13
+        // >>>0x6    ushortle    0    \b%d-
+        off = pageOff + 6
         {
-          iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x20)
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
         }
-
         if m3 {
-          // >>>>0xd    ubytele    2e    \b%c
-          off = pageOff + 13
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) != 0x2e)
-          }
-          if m4 {
-            // do something with \b%c
-          }
-
-          // >>>>0xe    ubytele    20    
-          off = pageOff + 14
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xe    ubytele    2e    \b%c
-            off = pageOff + 14
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-            if m5 {
-              // do something with \b%c
-            }
-
-          }
-          // >>>>0xf    ubytele    20    
-          off = pageOff + 15
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xf    ubytele    2e    \b%c
-            off = pageOff + 15
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-            if m5 {
-              // do something with \b%c
-            }
-
-          }
-          // >>>>0x10    ubytele    20    
-          off = pageOff + 16
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0x10    ubytele    2e    
-            off = pageOff + 16
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-
-            if m5 {
-              // >>>>>>0x10    ubytele    cb    \b%c
-              off = pageOff + 16
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0xcb)
-              }
-              if m6 {
-                // do something with \b%c
-              }
-
-            }
-          }
-          // >>>>0x11    ubytele    20    
-          off = pageOff + 17
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0x11    ubytele    2e    
-            off = pageOff + 17
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-
-            if m5 {
-              // >>>>>>0x11    ubytele    90    \b%c
-              off = pageOff + 17
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0x90)
-              }
-              if m6 {
-                // do something with \b%c
-              }
-
-            }
-          }
-        }
-        // >>>0xc    ubytele    2f    
-        off = pageOff + 12
-        {
-          iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) < 0x2f)
+          out = append(out, "\\b%d-")
         }
 
-        if m3 {
-          // >>>>0x16    string    ">."    %-.6s
-          off = pageOff + 22
-          // uh oh unhandled kind
-
-        }
       }
-    }
-    // >0x4    ushortle    0&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    2&0x2    \b,32-bit sector-
-      off = pageOff + 4
+      // >>0x8    ushortle    0    \b%d,
+      off = pageOff + 8
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
+        m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with \b,32-bit sector-
+        out = append(out, "\\b%d,")
       }
 
-    }
-    // >0x4    ushortle    40&0x40    \b,IOCTL-
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
-    }
-    if m1 {
-      // do something with \b,IOCTL-
-    }
-
-    // >0x4    ushortle    800&0x800    \b,close media-
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x800)
-    }
-    if m1 {
-      // do something with \b,close media-
-    }
-
-    // >0x4    ushortle    8000&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    2000&0x2000    \b,until busy-
-      off = pageOff + 4
+      // >>0xa    ushortle    0    \b%d
+      off = pageOff + 10
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2000)
+        m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with \b,until busy-
+        out = append(out, "\\b%d")
       }
 
     }
-    // >0x4    ushortle    4000&0x4000    \b,control strings-
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4000)
-    }
-    if m1 {
-      // do something with \b,control strings-
-    }
-
-    // >0x4    ushortle    8000&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    0&0x6840    \bsupport
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
-      }
-      if m2 {
-        // do something with \bsupport
-      }
-
-    }
-    // >0x4    ushortle    0&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    0&0x4842    \bsupport
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
-      }
-      if m2 {
-        // do something with \bsupport
-      }
-
-    }
-    // >0x0    ubytele    0    \b)
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      // do something with \b)
-    }
-
   }
-  return outStrings, nil
-}
-
-func IdentifyMsdosCom__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
-  var off int64
-  var err error
-  var ok bool
-  m0 := false
-  m1 := false
-
-  if m0 {
-    // >0x0    bytele    0    DOS executable (COM)
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      // do something with DOS executable (COM)
-    }
-
-    // >0x6    string    "SFX of LHarc"    \b, %s
-    off = pageOff + 6
-    // uh oh unhandled kind
-
-    // >0x1fe    shortle    aa55    \b, boot code
-    off = pageOff + 510
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa55)
-    }
-    if m1 {
-      // do something with \b, boot code
-    }
-
-    // >0x55    string    "UPX"    \b, UPX compressed
-    off = pageOff + 85
-    // uh oh unhandled kind
-
-    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
-    off = pageOff + 4
-    // uh oh unhandled kind
-
-    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
-    off = pageOff + 4
-    // uh oh unhandled kind
-
-    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
-    off = pageOff + 526
-    // uh oh unhandled kind
-
-  }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
   m3 := false
   m4 := false
-  m5 := false
 
-  if m1 {
+  if m0 {
     if m1 {
       // >>(0x12.longle)    ulongle    0    MS Windows
       // uh oh indirect offset
@@ -7643,7 +7843,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with MS Windows
+        out = append(out, "MS Windows")
       }
 
       if m2 {
@@ -7654,7 +7854,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x100)
         }
         if m3 {
-          // do something with icon resource
+          out = append(out, "icon resource")
         }
 
         if m3 {
@@ -7665,7 +7865,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with - %d icon
+            out = append(out, "- %d icon")
           }
 
           // >>>>0x4    ushortle    1    \bs
@@ -7675,7 +7875,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int16(iv)) > 0x1)
           }
           if m4 {
-            // do something with \bs
+            out = append(out, "\\bs")
           }
 
           // >>>>0x6    use   ico-entry    
@@ -7703,7 +7903,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with cursor resource
+          out = append(out, "cursor resource")
         }
 
         if m3 {
@@ -7714,7 +7914,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with - %d icon
+            out = append(out, "- %d icon")
           }
 
           // >>>>0x4    ushortle    1    \bs
@@ -7724,7 +7924,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int16(iv)) > 0x1)
           }
           if m4 {
-            // do something with \bs
+            out = append(out, "\\bs")
           }
 
           // >>>>0x6    use   cur-entry    
@@ -7735,14 +7935,12 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
       }
     }
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
 
@@ -7758,7 +7956,7 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, hotspot @%dx
+      out = append(out, "\\b, hotspot @%dx")
     }
 
     // >0x6    ushortle    0    \b%d
@@ -7768,18 +7966,16 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b%d
+      out = append(out, "\\b%d")
     }
 
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
 
@@ -7791,7 +7987,7 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, 256x
+      out = append(out, "\\b, 256x")
     }
 
     // >0x0    bytele    0    \b, %dx
@@ -7801,7 +7997,7 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0x0)
     }
     if m1 {
-      // do something with \b, %dx
+      out = append(out, "\\b, %dx")
     }
 
     // >0x1    bytele    0    \b256
@@ -7811,7 +8007,7 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b256
+      out = append(out, "\\b256")
     }
 
     // >0x1    bytele    0    \b%d
@@ -7821,7 +8017,7 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0x0)
     }
     if m1 {
-      // do something with \b%d
+      out = append(out, "\\b%d")
     }
 
     // >0x2    ubytele    0    \b, %d colors
@@ -7831,7 +8027,7 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0x0)
     }
     if m1 {
-      // do something with \b, %d colors
+      out = append(out, "\\b, %d colors")
     }
 
     // >(0xc.longle)    ulongbe    89504e47    
@@ -7849,14 +8045,12 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
     }
 
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
@@ -7868,6 +8062,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "\u007fELF"    ELF
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ELF")
+  }
 
   if m0 {
     // >0x4    bytele    0    invalid class
@@ -7877,7 +8074,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with invalid class
+      out = append(out, "invalid class")
     }
 
     // >0x4    bytele    1    32-bit
@@ -7887,7 +8084,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with 32-bit
+      out = append(out, "32-bit")
     }
 
     // >0x4    bytele    2    64-bit
@@ -7897,7 +8094,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with 64-bit
+      out = append(out, "64-bit")
     }
 
     // >0x5    bytele    0    invalid byte order
@@ -7907,7 +8104,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with invalid byte order
+      out = append(out, "invalid byte order")
     }
 
     // >0x5    bytele    1    LSB
@@ -7917,7 +8114,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with LSB
+      out = append(out, "LSB")
     }
 
     if m1 {
@@ -7933,7 +8130,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with MSB
+      out = append(out, "MSB")
     }
 
     if m1 {
@@ -7953,6 +8150,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x8    string    ">\x00"    (%s)
       off = pageOff + 8
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "(%s)")
+      }
 
     }
     // >0x8    string    "\x00"    
@@ -7967,7 +8167,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with (SYSV)
+        out = append(out, "(SYSV)")
       }
 
       // >>0x7    bytele    1    (HP-UX)
@@ -7977,7 +8177,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x1)
       }
       if m2 {
-        // do something with (HP-UX)
+        out = append(out, "(HP-UX)")
       }
 
       // >>0x7    bytele    2    (NetBSD)
@@ -7987,7 +8187,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x2)
       }
       if m2 {
-        // do something with (NetBSD)
+        out = append(out, "(NetBSD)")
       }
 
       // >>0x7    bytele    3    (GNU/Linux)
@@ -7997,7 +8197,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x3)
       }
       if m2 {
-        // do something with (GNU/Linux)
+        out = append(out, "(GNU/Linux)")
       }
 
       // >>0x7    bytele    4    (GNU/Hurd)
@@ -8007,7 +8207,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x4)
       }
       if m2 {
-        // do something with (GNU/Hurd)
+        out = append(out, "(GNU/Hurd)")
       }
 
       // >>0x7    bytele    5    (86Open)
@@ -8017,7 +8217,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x5)
       }
       if m2 {
-        // do something with (86Open)
+        out = append(out, "(86Open)")
       }
 
       // >>0x7    bytele    6    (Solaris)
@@ -8027,7 +8227,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x6)
       }
       if m2 {
-        // do something with (Solaris)
+        out = append(out, "(Solaris)")
       }
 
       // >>0x7    bytele    7    (Monterey)
@@ -8037,7 +8237,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x7)
       }
       if m2 {
-        // do something with (Monterey)
+        out = append(out, "(Monterey)")
       }
 
       // >>0x7    bytele    8    (IRIX)
@@ -8047,7 +8247,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x8)
       }
       if m2 {
-        // do something with (IRIX)
+        out = append(out, "(IRIX)")
       }
 
       // >>0x7    bytele    9    (FreeBSD)
@@ -8057,7 +8257,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x9)
       }
       if m2 {
-        // do something with (FreeBSD)
+        out = append(out, "(FreeBSD)")
       }
 
       // >>0x7    bytele    a    (Tru64)
@@ -8067,7 +8267,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xa)
       }
       if m2 {
-        // do something with (Tru64)
+        out = append(out, "(Tru64)")
       }
 
       // >>0x7    bytele    b    (Novell Modesto)
@@ -8077,7 +8277,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xb)
       }
       if m2 {
-        // do something with (Novell Modesto)
+        out = append(out, "(Novell Modesto)")
       }
 
       // >>0x7    bytele    c    (OpenBSD)
@@ -8087,7 +8287,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xc)
       }
       if m2 {
-        // do something with (OpenBSD)
+        out = append(out, "(OpenBSD)")
       }
 
     }
@@ -8103,7 +8303,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xd)
       }
       if m2 {
-        // do something with (OpenVMS)
+        out = append(out, "(OpenVMS)")
       }
 
       // >>0x7    bytele    61    (ARM)
@@ -8113,7 +8313,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x61)
       }
       if m2 {
-        // do something with (ARM)
+        out = append(out, "(ARM)")
       }
 
       // >>0x7    bytele    ff    (embedded)
@@ -8123,7 +8323,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xff)
       }
       if m2 {
-        // do something with (embedded)
+        out = append(out, "(embedded)")
       }
 
     }
@@ -8136,18 +8336,30 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x1    string    " echo off"    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
     // >0x1    string    "echo off"    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
     // >0x1    string    "rem"    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
     // >0x1    string    "set "    DOS batch file text
     off = pageOff + 1
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "DOS batch file text")
+    }
 
   }
   // 0x64    search/0xffff    "rxfuncadd"    
@@ -8165,7 +8377,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x166)
   }
   if m0 {
-    // do something with MS Windows COFF MIPS R4000 object file
+    out = append(out, "MS Windows COFF MIPS R4000 object file")
   }
 
   // 0x0    shortle    184    MS Windows COFF Alpha object file
@@ -8175,7 +8387,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x184)
   }
   if m0 {
-    // do something with MS Windows COFF Alpha object file
+    out = append(out, "MS Windows COFF Alpha object file")
   }
 
   // 0x0    shortle    268    MS Windows COFF Motorola 68000 object file
@@ -8185,7 +8397,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x268)
   }
   if m0 {
-    // do something with MS Windows COFF Motorola 68000 object file
+    out = append(out, "MS Windows COFF Motorola 68000 object file")
   }
 
   // 0x0    shortle    1f0    MS Windows COFF PowerPC object file
@@ -8195,7 +8407,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x1f0)
   }
   if m0 {
-    // do something with MS Windows COFF PowerPC object file
+    out = append(out, "MS Windows COFF PowerPC object file")
   }
 
   // 0x0    shortle    290    MS Windows COFF PA-RISC object file
@@ -8205,7 +8417,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x290)
   }
   if m0 {
-    // do something with MS Windows COFF PA-RISC object file
+    out = append(out, "MS Windows COFF PA-RISC object file")
   }
 
   // 0x0    string    "MZ"    
@@ -8220,7 +8432,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) < 0x40)
     }
     if m1 {
-      // do something with MS-DOS executable
+      out = append(out, "MS-DOS executable")
     }
 
     // >0x18    shortle    3f    
@@ -8234,6 +8446,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>(0x3c.longle)    string    "PE\x00\x00"    PE
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "PE")
+      }
 
       if m2 {
         // >>>(0x3c.longle+24)    shortle    10b    \b32 executable
@@ -8243,7 +8458,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x10b)
         }
         if m3 {
-          // do something with \b32 executable
+          out = append(out, "\\b32 executable")
         }
 
         // >>>(0x3c.longle+24)    shortle    20b    \b32+ executable
@@ -8253,7 +8468,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x20b)
         }
         if m3 {
-          // do something with \b32+ executable
+          out = append(out, "\\b32+ executable")
         }
 
         // >>>(0x3c.longle+24)    shortle    107    ROM image
@@ -8263,12 +8478,15 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x107)
         }
         if m3 {
-          // do something with ROM image
+          out = append(out, "ROM image")
         }
 
         // >>>(0x3c.longle+24)    default    Unknown PE signature
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "Unknown PE signature")
+        }
 
         if m3 {
           // >>>>&0x0    shortle    0    0x%x
@@ -8278,7 +8496,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with 0x%x
+            out = append(out, "0x%x")
           }
 
         }
@@ -8289,7 +8507,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x0)
         }
         if m3 {
-          // do something with (DLL)
+          out = append(out, "(DLL)")
         }
 
         // >>>(0x3c.longle+92)    shortle    1    (native)
@@ -8299,7 +8517,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with (native)
+          out = append(out, "(native)")
         }
 
         // >>>(0x3c.longle+92)    shortle    2    (GUI)
@@ -8309,7 +8527,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with (GUI)
+          out = append(out, "(GUI)")
         }
 
         // >>>(0x3c.longle+92)    shortle    3    (console)
@@ -8319,7 +8537,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with (console)
+          out = append(out, "(console)")
         }
 
         // >>>(0x3c.longle+92)    shortle    7    (POSIX)
@@ -8329,7 +8547,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x7)
         }
         if m3 {
-          // do something with (POSIX)
+          out = append(out, "(POSIX)")
         }
 
         // >>>(0x3c.longle+92)    shortle    9    (Windows CE)
@@ -8339,7 +8557,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x9)
         }
         if m3 {
-          // do something with (Windows CE)
+          out = append(out, "(Windows CE)")
         }
 
         // >>>(0x3c.longle+92)    shortle    a    (EFI application)
@@ -8349,7 +8567,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xa)
         }
         if m3 {
-          // do something with (EFI application)
+          out = append(out, "(EFI application)")
         }
 
         // >>>(0x3c.longle+92)    shortle    b    (EFI boot service driver)
@@ -8359,7 +8577,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xb)
         }
         if m3 {
-          // do something with (EFI boot service driver)
+          out = append(out, "(EFI boot service driver)")
         }
 
         // >>>(0x3c.longle+92)    shortle    c    (EFI runtime driver)
@@ -8369,7 +8587,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xc)
         }
         if m3 {
-          // do something with (EFI runtime driver)
+          out = append(out, "(EFI runtime driver)")
         }
 
         // >>>(0x3c.longle+92)    shortle    d    (EFI ROM)
@@ -8379,7 +8597,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xd)
         }
         if m3 {
-          // do something with (EFI ROM)
+          out = append(out, "(EFI ROM)")
         }
 
         // >>>(0x3c.longle+92)    shortle    e    (XBOX)
@@ -8389,7 +8607,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xe)
         }
         if m3 {
-          // do something with (XBOX)
+          out = append(out, "(XBOX)")
         }
 
         // >>>(0x3c.longle+92)    shortle    f    (Windows boot application)
@@ -8399,12 +8617,15 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xf)
         }
         if m3 {
-          // do something with (Windows boot application)
+          out = append(out, "(Windows boot application)")
         }
 
         // >>>(0x3c.longle+92)    default    (Unknown subsystem
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "(Unknown subsystem")
+        }
 
         if m3 {
           // >>>>&0x0    shortle    0    0x%x)
@@ -8414,7 +8635,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with 0x%x)
+            out = append(out, "0x%x)")
           }
 
         }
@@ -8425,7 +8646,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x14c)
         }
         if m3 {
-          // do something with Intel 80386
+          out = append(out, "Intel 80386")
         }
 
         // >>>(0x3c.longle+4)    shortle    166    MIPS R4000
@@ -8435,7 +8656,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x166)
         }
         if m3 {
-          // do something with MIPS R4000
+          out = append(out, "MIPS R4000")
         }
 
         // >>>(0x3c.longle+4)    shortle    168    MIPS R10000
@@ -8445,7 +8666,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x168)
         }
         if m3 {
-          // do something with MIPS R10000
+          out = append(out, "MIPS R10000")
         }
 
         // >>>(0x3c.longle+4)    shortle    184    Alpha
@@ -8455,7 +8676,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x184)
         }
         if m3 {
-          // do something with Alpha
+          out = append(out, "Alpha")
         }
 
         // >>>(0x3c.longle+4)    shortle    1a2    Hitachi SH3
@@ -8465,7 +8686,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1a2)
         }
         if m3 {
-          // do something with Hitachi SH3
+          out = append(out, "Hitachi SH3")
         }
 
         // >>>(0x3c.longle+4)    shortle    1a6    Hitachi SH4
@@ -8475,7 +8696,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1a6)
         }
         if m3 {
-          // do something with Hitachi SH4
+          out = append(out, "Hitachi SH4")
         }
 
         // >>>(0x3c.longle+4)    shortle    1c0    ARM
@@ -8485,7 +8706,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1c0)
         }
         if m3 {
-          // do something with ARM
+          out = append(out, "ARM")
         }
 
         // >>>(0x3c.longle+4)    shortle    1c2    ARM Thumb
@@ -8495,7 +8716,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1c2)
         }
         if m3 {
-          // do something with ARM Thumb
+          out = append(out, "ARM Thumb")
         }
 
         // >>>(0x3c.longle+4)    shortle    1c4    ARMv7 Thumb
@@ -8505,7 +8726,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1c4)
         }
         if m3 {
-          // do something with ARMv7 Thumb
+          out = append(out, "ARMv7 Thumb")
         }
 
         // >>>(0x3c.longle+4)    shortle    1f0    PowerPC
@@ -8515,7 +8736,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1f0)
         }
         if m3 {
-          // do something with PowerPC
+          out = append(out, "PowerPC")
         }
 
         // >>>(0x3c.longle+4)    shortle    200    Intel Itanium
@@ -8525,7 +8746,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with Intel Itanium
+          out = append(out, "Intel Itanium")
         }
 
         // >>>(0x3c.longle+4)    shortle    266    MIPS16
@@ -8535,7 +8756,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x266)
         }
         if m3 {
-          // do something with MIPS16
+          out = append(out, "MIPS16")
         }
 
         // >>>(0x3c.longle+4)    shortle    268    Motorola 68000
@@ -8545,7 +8766,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x268)
         }
         if m3 {
-          // do something with Motorola 68000
+          out = append(out, "Motorola 68000")
         }
 
         // >>>(0x3c.longle+4)    shortle    290    PA-RISC
@@ -8555,7 +8776,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x290)
         }
         if m3 {
-          // do something with PA-RISC
+          out = append(out, "PA-RISC")
         }
 
         // >>>(0x3c.longle+4)    shortle    366    MIPSIV
@@ -8565,7 +8786,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x366)
         }
         if m3 {
-          // do something with MIPSIV
+          out = append(out, "MIPSIV")
         }
 
         // >>>(0x3c.longle+4)    shortle    466    MIPS16 with FPU
@@ -8575,7 +8796,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x466)
         }
         if m3 {
-          // do something with MIPS16 with FPU
+          out = append(out, "MIPS16 with FPU")
         }
 
         // >>>(0x3c.longle+4)    shortle    ebc    EFI byte code
@@ -8585,7 +8806,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xebc)
         }
         if m3 {
-          // do something with EFI byte code
+          out = append(out, "EFI byte code")
         }
 
         // >>>(0x3c.longle+4)    shortle    8664    x86-64
@@ -8595,7 +8816,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8664)
         }
         if m3 {
-          // do something with x86-64
+          out = append(out, "x86-64")
         }
 
         // >>>(0x3c.longle+4)    shortle    c0ee    MSIL
@@ -8605,12 +8826,15 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xc0ee)
         }
         if m3 {
-          // do something with MSIL
+          out = append(out, "MSIL")
         }
 
         // >>>(0x3c.longle+4)    default    Unknown processor type
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "Unknown processor type")
+        }
 
         if m3 {
           // >>>>&0x0    shortle    0    0x%x
@@ -8620,7 +8844,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with 0x%x
+            out = append(out, "0x%x")
           }
 
         }
@@ -8631,7 +8855,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x0)
         }
         if m3 {
-          // do something with (stripped to external PDB)
+          out = append(out, "(stripped to external PDB)")
         }
 
         // >>>(0x3c.longle+22)    shortle    0&0x1000    system file
@@ -8641,7 +8865,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x0)
         }
         if m3 {
-          // do something with system file
+          out = append(out, "system file")
         }
 
         // >>>(0x3c.longle+24)    shortle    10b    
@@ -8659,7 +8883,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with Mono/.Net assembly
+            out = append(out, "Mono/.Net assembly")
           }
 
         }
@@ -8678,25 +8902,37 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with Mono/.Net assembly
+            out = append(out, "Mono/.Net assembly")
           }
 
         }
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, 32rtm DOS extender
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, 32rtm DOS extender")
+        }
 
         // >>>(0x8.shortle*16)    string    "32STUB"    \b, for MS Windows
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, for MS Windows")
+        }
 
         // >>>(0x3c.longle+248)    string    "UPX0"    \b, UPX compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UPX compressed")
+        }
 
         // >>>(0x3c.longle+248)    search/0x140    "PEC2"    \b, PECompact2 compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, PECompact2 compressed")
+        }
 
         // >>>(0x3c.longle+248)    search/0x140    "UPX2"    
         // uh oh indirect offset
@@ -8706,6 +8942,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0x10.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".idata"    
@@ -8716,14 +8955,23 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0xe.longle+(-4))    string    "PK\x03\x04"    \b, ZIP self-extracting archive (Info-Zip)
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+          }
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ0"    \b, ZZip self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZZip self-extracting archive")
+          }
 
           // >>>>(&0xe.longle+(-4))    string    "ZZ1"    \b, ZZip self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, ZZip self-extracting archive")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".rsrc"    
@@ -8734,18 +8982,30 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0xf.longle+(-4))    string    "a\\\x04\x05"    \b, WinHKI self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, WinHKI self-extracting archive")
+          }
 
           // >>>>(&0xf.longle+(-4))    string    "Rar!"    \b, RAR self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, RAR self-extracting archive")
+          }
 
           // >>>>(&0xf.longle+(-4))    search/0x3000    "MSCF"    \b, InstallShield self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, InstallShield self-extracting archive")
+          }
 
           // >>>>(&0xf.longle+(-4))    search/0x20    "Nullsoft"    \b, Nullsoft Installer self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".data"    
@@ -8756,11 +9016,17 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // >>>>(&0xf.longle)    string    "WEXTRACT"    \b, MS CAB-Installer self-extracting archive
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, MS CAB-Installer self-extracting archive")
+          }
 
         }
         // >>>(0x3c.longle+248)    search/0x140    ".petite\x00"    \b, Petite compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, Petite compressed")
+        }
 
         if m3 {
           // >>>>(0x3c.longle+247)    bytele    0    
@@ -8774,37 +9040,61 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>(&0x104.longle+(-4))    string    "=!sfx!"    \b, ACE self-extracting archive
             // uh oh indirect offset
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, ACE self-extracting archive")
+            }
 
           }
         }
         // >>>(0x3c.longle+248)    search/0x140    ".WISE"    \b, WISE installer self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, WISE installer self-extracting archive")
+        }
 
         // >>>(0x3c.longle+248)    search/0x140    ".dz\x00\x00\x00"    \b, Dzip self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, Dzip self-extracting archive")
+        }
 
         // >>>&(0x3c.longle+248)    search/0x100    "_winzip_"    \b, ZIP self-extracting archive (WinZip)
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+        }
 
         // >>>&(0x3c.longle+248)    search/0x100    "SharedD"    \b, Microsoft Installer self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, Microsoft Installer self-extracting archive")
+        }
 
         // >>>0x30    string    "Inno"    \b, InnoSetup self-extracting archive
         off = pageOff + 48
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, InnoSetup self-extracting archive")
+        }
 
       }
       // >>(0x3c.longle)    string    "PE\x00\x00"    MS-DOS executable
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "MS-DOS executable")
+      }
 
       // >>(0x3c.longle)    string    "NE"    \b, NE
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, NE")
+      }
 
       if m2 {
         // >>>(0x3c.longle+54)    bytele    1    for OS/2 1.x
@@ -8814,7 +9104,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with for OS/2 1.x
+          out = append(out, "for OS/2 1.x")
         }
 
         // >>>(0x3c.longle+54)    bytele    2    for MS Windows 3.x
@@ -8824,7 +9114,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with for MS Windows 3.x
+          out = append(out, "for MS Windows 3.x")
         }
 
         // >>>(0x3c.longle+54)    bytele    3    for MS-DOS
@@ -8834,7 +9124,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with for MS-DOS
+          out = append(out, "for MS-DOS")
         }
 
         // >>>(0x3c.longle+54)    bytele    4    for Windows 386
@@ -8844,7 +9134,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4)
         }
         if m3 {
-          // do something with for Windows 386
+          out = append(out, "for Windows 386")
         }
 
         // >>>(0x3c.longle+54)    bytele    5    for Borland Operating System Services
@@ -8854,7 +9144,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x5)
         }
         if m3 {
-          // do something with for Borland Operating System Services
+          out = append(out, "for Borland Operating System Services")
         }
 
         // >>>(0x3c.longle+54)    default    
@@ -8869,7 +9159,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with (unknown OS %x)
+            out = append(out, "(unknown OS %x)")
           }
 
         }
@@ -8880,7 +9170,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x81)
         }
         if m3 {
-          // do something with for MS-DOS, Phar Lap DOS extender
+          out = append(out, "for MS-DOS, Phar Lap DOS extender")
         }
 
         // >>>(0x3c.longle+12)    shortle    8002&0x8003    (DLL)
@@ -8890,7 +9180,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8002)
         }
         if m3 {
-          // do something with (DLL)
+          out = append(out, "(DLL)")
         }
 
         // >>>(0x3c.longle+12)    shortle    8001&0x8003    (driver)
@@ -8900,21 +9190,30 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8001)
         }
         if m3 {
-          // do something with (driver)
+          out = append(out, "(driver)")
         }
 
         // >>>&(&0x24.shortle-1)    string    "ARJSFX"    \b, ARJ self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ARJ self-extracting archive")
+        }
 
         // >>>(0x3c.longle+112)    search/0x80    "WinZip(R) Self-Extractor"    \b, ZIP self-extracting archive (WinZip)
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+        }
 
       }
       // >>(0x3c.longle)    string    "LX\x00\x00"    \b, LX
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, LX")
+      }
 
       if m2 {
         // >>>(0x3c.longle+10)    shortle    1    (unknown OS)
@@ -8924,7 +9223,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) < 0x1)
         }
         if m3 {
-          // do something with (unknown OS)
+          out = append(out, "(unknown OS)")
         }
 
         // >>>(0x3c.longle+10)    shortle    1    for OS/2
@@ -8934,7 +9233,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with for OS/2
+          out = append(out, "for OS/2")
         }
 
         // >>>(0x3c.longle+10)    shortle    2    for MS Windows
@@ -8944,7 +9243,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with for MS Windows
+          out = append(out, "for MS Windows")
         }
 
         // >>>(0x3c.longle+10)    shortle    3    for DOS
@@ -8954,7 +9253,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with for DOS
+          out = append(out, "for DOS")
         }
 
         // >>>(0x3c.longle+10)    shortle    3    (unknown OS)
@@ -8964,7 +9263,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int16(iv)) > 0x3)
         }
         if m3 {
-          // do something with (unknown OS)
+          out = append(out, "(unknown OS)")
         }
 
         // >>>(0x3c.longle+16)    longle    8000&0x28000    (DLL)
@@ -8974,7 +9273,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8000)
         }
         if m3 {
-          // do something with (DLL)
+          out = append(out, "(DLL)")
         }
 
         // >>>(0x3c.longle+16)    longle    0&0x20000    (device driver)
@@ -8984,7 +9283,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) > 0x0)
         }
         if m3 {
-          // do something with (device driver)
+          out = append(out, "(device driver)")
         }
 
         // >>>(0x3c.longle+16)    longle    300&0x300    (GUI)
@@ -8994,7 +9293,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x300)
         }
         if m3 {
-          // do something with (GUI)
+          out = append(out, "(GUI)")
         }
 
         // >>>(0x3c.longle+16)    longle    300&0x28300    (console)
@@ -9004,7 +9303,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) < 0x300)
         }
         if m3 {
-          // do something with (console)
+          out = append(out, "(console)")
         }
 
         // >>>(0x3c.longle+8)    shortle    1    i80286
@@ -9014,7 +9313,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with i80286
+          out = append(out, "i80286")
         }
 
         // >>>(0x3c.longle+8)    shortle    2    i80386
@@ -9024,7 +9323,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with i80386
+          out = append(out, "i80386")
         }
 
         // >>>(0x3c.longle+8)    shortle    3    i80486
@@ -9034,31 +9333,46 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with i80486
+          out = append(out, "i80486")
         }
 
         // >>>(0x8.shortle*16)    string    "emx"    \b, emx
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, emx")
+        }
 
         if m3 {
           // >>>>&0x1    string    "x"    %s
           off = pageOff + 1
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "%s")
+          }
 
         }
         // >>>&(&0x54.longle-3)    string    "arjsfx"    \b, ARJ self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ARJ self-extracting archive")
+        }
 
       }
       // >>(0x3c.longle)    string    "W3"    \b, W3 for MS Windows
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, W3 for MS Windows")
+      }
 
       // >>(0x3c.longle)    string    "LE\x00\x00"    \b, LE executable
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, LE executable")
+      }
 
       if m2 {
         // >>>(0x3c.longle+10)    shortle    1    
@@ -9072,30 +9386,51 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           // >>>>0x240    search/0x100    "DOS/4G"    for MS-DOS, DOS4GW DOS extender
           off = pageOff + 576
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x240    search/0x200    "WATCOM C/C++"    for MS-DOS, DOS4GW DOS extender
           off = pageOff + 576
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS4GW DOS extender")
+          }
 
           // >>>>0x440    search/0x100    "CauseWay DOS Extender"    for MS-DOS, CauseWay DOS extender
           off = pageOff + 1088
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, CauseWay DOS extender")
+          }
 
           // >>>>0x40    search/0x40    "PMODE/W"    for MS-DOS, PMODE/W DOS extender
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, PMODE/W DOS extender")
+          }
 
           // >>>>0x40    search/0x40    "STUB/32A"    for MS-DOS, DOS/32A DOS extender (stub)
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (stub)")
+          }
 
           // >>>>0x40    search/0x80    "STUB/32C"    for MS-DOS, DOS/32A DOS extender (configurable stub)
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (configurable stub)")
+          }
 
           // >>>>0x40    search/0x80    "DOS/32A"    for MS-DOS, DOS/32A DOS extender (embedded)
           off = pageOff + 64
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "for MS-DOS, DOS/32A DOS extender (embedded)")
+          }
 
           // >>>>&0x24    longle    50    
           off = pageOff + 36
@@ -9113,6 +9448,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
               // >>>>>>&0x0    search/0x8    "3\xdbf\xb9"    \b, 32Lite compressed
               off = pageOff + 0
               // uh oh unhandled kind
+              if m6 {
+                out = append(out, "\\b, 32Lite compressed")
+              }
 
             }
           }
@@ -9124,7 +9462,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with for MS Windows
+          out = append(out, "for MS Windows")
         }
 
         // >>>(0x3c.longle+10)    shortle    3    for DOS
@@ -9134,7 +9472,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with for DOS
+          out = append(out, "for DOS")
         }
 
         // >>>(0x3c.longle+10)    shortle    4    for MS Windows (VxD)
@@ -9144,16 +9482,22 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4)
         }
         if m3 {
-          // do something with for MS Windows (VxD)
+          out = append(out, "for MS Windows (VxD)")
         }
 
         // >>>(&0x7c.longle+38)    string    "UPX"    \b, UPX compressed
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UPX compressed")
+        }
 
         // >>>&(&0x54.longle-3)    string    "UNACE"    \b, ACE self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ACE self-extracting archive")
+        }
 
       }
       // >>0x3c    longle    20000000    
@@ -9171,7 +9515,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) != 0x14c)
         }
         if m3 {
-          // do something with \b, MZ for MS-DOS
+          out = append(out, "\\b, MZ for MS-DOS")
         }
 
       }
@@ -9208,16 +9552,25 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>&0x-2    string    "BW"    \b, MZ for MS-DOS
             off = pageOff + -2
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, MZ for MS-DOS")
+            }
 
           }
           // >>>>&(0x2.shortle-514)    string    "LE"    \b, LE
           // uh oh indirect offset
           // uh oh unhandled kind
+          if m4 {
+            out = append(out, "\\b, LE")
+          }
 
           if m4 {
             // >>>>>0x240    search/0x100    "DOS/4G"    for MS-DOS, DOS4GW DOS extender
             off = pageOff + 576
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "for MS-DOS, DOS4GW DOS extender")
+            }
 
           }
           // >>>>&(0x2.shortle-514)    string    "BW"    
@@ -9228,10 +9581,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>0x240    search/0x100    "DOS/4G"    \b, LE for MS-DOS, DOS4GW DOS extender (embedded)
             off = pageOff + 576
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+            }
 
             // >>>>>0x240    search/0x100    "!DOS/4G"    \b, BW collection for MS-DOS
             off = pageOff + 576
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, BW collection for MS-DOS")
+            }
 
           }
         }
@@ -9244,13 +9603,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x14c)
     }
     if m1 {
-      // do something with \b, COFF
+      out = append(out, "\\b, COFF")
     }
 
     if m1 {
       // >>(0x8.shortle*16)    string    "go32stub"    for MS-DOS, DJGPP go32 DOS extender
       // uh oh indirect offset
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
+      }
 
       // >>(0x8.shortle*16)    string    "emx"    
       // uh oh indirect offset
@@ -9260,6 +9622,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x1    string    "x"    for DOS, Win or OS/2, emx %s
         off = pageOff + 1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "for DOS, Win or OS/2, emx %s")
+        }
 
       }
       // >>&(&0x42.longle-3)    bytele    0    
@@ -9273,6 +9638,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x26    string    "UPX"    \b, UPX compressed
         off = pageOff + 38
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UPX compressed")
+        }
 
       }
       // >>&0x2c    search/0xa0    ".text"    
@@ -9295,7 +9663,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x6000)
           }
           if m4 {
-            // do something with \b, 32lite compressed
+            out = append(out, "\\b, 32lite compressed")
           }
 
         }
@@ -9304,54 +9672,93 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >(0x8.shortle*16)    string    "$WdX"    \b, WDos/X DOS extender
     // uh oh indirect offset
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, WDos/X DOS extender")
+    }
 
     // >0x35    string    "\x8e\xc0\xb9\b\x00\xf3\xa5Ju\xeb\x8eÎ\xd83\xff\xbe0\x00\x05"    \b, aPack compressed
     off = pageOff + 53
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, aPack compressed")
+    }
 
     // >0xe7    string    "LH/2 "    Self-Extract \b, %s
     off = pageOff + 231
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Self-Extract \\b, %s")
+    }
 
     // >0x1c    string    "UC2X"    \b, UCEXE compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, UCEXE compressed")
+    }
 
     // >0x1c    string    "WWP "    \b, WWPACK compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, WWPACK compressed")
+    }
 
     // >0x1c    string    "RJSX"    \b, ARJ self-extracting archive
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARJ self-extracting archive")
+    }
 
     // >0x1c    string    "diet"    \b, diet compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, diet compressed")
+    }
 
     // >0x1c    string    "LZ09"    \b, LZEXE v0.90 compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LZEXE v0.90 compressed")
+    }
 
     // >0x1c    string    "LZ91"    \b, LZEXE v0.91 compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LZEXE v0.91 compressed")
+    }
 
     // >0x1c    string    "tz"    \b, TinyProg compressed
     off = pageOff + 28
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, TinyProg compressed")
+    }
 
     // >0x1e    string    "Copyright 1989-1990 PKWARE Inc."    Self-extracting PKZIP archive
     off = pageOff + 30
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Self-extracting PKZIP archive")
+    }
 
     // >0x1e    string    "PKLITE Copr."    Self-extracting PKZIP archive
     off = pageOff + 30
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Self-extracting PKZIP archive")
+    }
 
     // >0x20    search/0xe0    "aRJsfX"    \b, ARJ self-extracting archive
     off = pageOff + 32
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARJ self-extracting archive")
+    }
 
     // >0x20    string    "AIN"    
     off = pageOff + 32
@@ -9361,47 +9768,80 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x23    string    "2"    \b, AIN 2.x compressed
       off = pageOff + 35
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, AIN 2.x compressed")
+      }
 
       // >>0x23    string    "<2"    \b, AIN 1.x compressed
       off = pageOff + 35
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, AIN 1.x compressed")
+      }
 
       // >>0x23    string    ">2"    \b, AIN 1.x compressed
       off = pageOff + 35
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, AIN 1.x compressed")
+      }
 
     }
     // >0x24    string    "LHa's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHa self-extracting archive")
+    }
 
     // >0x24    string    "LHA's SFX"    \b, LHa self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHa self-extracting archive")
+    }
 
     // >0x24    string    " $ARX"    \b, ARX self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
 
     // >0x24    string    " $LHarc"    \b, LHarc self-extracting archive
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
 
     // >0x20    string    "SFX by LARC"    \b, LARC self-extracting archive
     off = pageOff + 32
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LARC self-extracting archive")
+    }
 
     // >0x40    string    "aPKG"    \b, aPackage self-extracting archive
     off = pageOff + 64
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, aPackage self-extracting archive")
+    }
 
     // >0x64    string    "W Collis\x00\x00"    \b, Compack compressed
     off = pageOff + 100
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, Compack compressed")
+    }
 
     // >0x7a    string    "Windows self-extracting ZIP"    \b, ZIP self-extracting archive
     off = pageOff + 122
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ZIP self-extracting archive")
+    }
 
     if m1 {
       // >>&0xf4    search/0x140    "\x00@\x01\x00"    
@@ -9412,16 +9852,25 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>(&0x0.longle+(4))    string    "MSCF"    \b, WinHKI CAB self-extracting archive
         // uh oh indirect offset
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, WinHKI CAB self-extracting archive")
+        }
 
       }
     }
     // >0x666    string    "-lh5-"    \b, LHa self-extracting archive v2.13S
     off = pageOff + 1638
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHa self-extracting archive v2.13S")
+    }
 
     // >0x17888    string    "Rar!"    \b, RAR self-extracting archive
     off = pageOff + 96392
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, RAR self-extracting archive")
+    }
 
     // >(0x4.shortle*512)    longle    0    
     // uh oh indirect offset
@@ -9442,44 +9891,74 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x0    string    "PK\x03\x04"    \b, ZIP self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ZIP self-extracting archive")
+        }
 
         // >>>&0x0    string    "Rar!"    \b, RAR self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, RAR self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x11"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 2.x self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x12"    \b, AIN 2.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 2.x self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x17"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 1.x self-extracting archive")
+        }
 
         // >>>&0x0    string    "=!\x18"    \b, AIN 1.x self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, AIN 1.x self-extracting archive")
+        }
 
         // >>>&0x7    search/0x190    "**ACE**"    \b, ACE self-extracting archive
         off = pageOff + 7
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, ACE self-extracting archive")
+        }
 
         // >>>&0x0    search/0x480    "UC2SFX Header"    \b, UC2 self-extracting archive
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, UC2 self-extracting archive")
+        }
 
       }
     }
     // >(0x8.shortle*16)    search/0x20    "PKSFX"    \b, ZIP self-extracting archive (PKZIP)
     // uh oh indirect offset
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+    }
 
     // >0xc289    string    "y\xff\x80\xffv\xff"    \b, CODEC archive v3.21
     off = pageOff + 49801
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, CODEC archive v3.21")
+    }
 
     if m1 {
       // >>0xc2a0    shortle    1    \b, 1 file
@@ -9489,7 +9968,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x1)
       }
       if m2 {
-        // do something with \b, 1 file
+        out = append(out, "\\b, 1 file")
       }
 
       // >>0xc2a0    shortle    1    \b, %u files
@@ -9499,7 +9978,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int16(iv)) > 0x1)
       }
       if m2 {
-        // do something with \b, %u files
+        out = append(out, "\\b, %u files")
       }
 
     }
@@ -9507,6 +9986,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "KCF"    FreeDOS KEYBoard Layout collection
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FreeDOS KEYBoard Layout collection")
+  }
 
   if m0 {
     // >0x3    ushortle    0    \b, version 0x%x
@@ -9516,7 +9998,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, version 0x%x
+      out = append(out, "\\b, version 0x%x")
     }
 
     // >0x6    ubytele    0    
@@ -9530,15 +10012,24 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x7    string    ">\x00"    \b, author=%-.14s
       off = pageOff + 7
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, author=%-.14s")
+      }
 
       // >>0x7    search/0xfe    "\xff"    \b, info=
       off = pageOff + 7
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, info=")
+      }
 
       if m2 {
         // >>>&0x0    string    "x"    \b%-.15s
         off = pageOff + 0
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b%-.15s")
+        }
 
       }
     }
@@ -9546,6 +10037,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "KLF"    FreeDOS KEYBoard Layout file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FreeDOS KEYBoard Layout file")
+  }
 
   if m0 {
     // >0x3    ushortle    0    \b, version 0x%x
@@ -9555,7 +10049,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, version 0x%x
+      out = append(out, "\\b, version 0x%x")
     }
 
     // >0x5    ubytele    0    
@@ -9569,6 +10063,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x8    string    "x"    \b, name=%-.2s
       off = pageOff + 8
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, name=%-.2s")
+      }
 
     }
   }
@@ -9580,6 +10077,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0xc    string    "\x00\x00\x00\x00`\x04\xf0"    MS-DOS KEYBoard Layout file
     off = pageOff + 12
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "MS-DOS KEYBoard Layout file")
+    }
 
   }
   // 0x0    uquadle    ffffffff&0x7a0ffffffff    
@@ -9698,7 +10198,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int8(iv)) > 0xd)
         }
         if m3 {
-          // do something with DOS executable (COM, 0x8C-variant)
+          out = append(out, "DOS executable (COM, 0x8C-variant)")
         }
 
       }
@@ -9711,7 +10211,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0xffff10eb)
   }
   if m0 {
-    // do something with DR-DOS executable (COM)
+    out = append(out, "DR-DOS executable (COM)")
   }
 
   // 0x0    ushortbe    eb00&0xeb8d    
@@ -9825,7 +10325,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x21cd4cfe)
       }
       if m2 {
-        // do something with COM executable (32-bit COMBOOT
+        out = append(out, "COM executable (32-bit COMBOOT")
       }
 
       if m2 {
@@ -9836,7 +10336,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x21cd4cff)
         }
         if m3 {
-          // do something with \b)
+          out = append(out, "\\b)")
         }
 
         // >>>0x1    longle    21cd4cfe    \b, relocatable)
@@ -9846,13 +10346,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x21cd4cfe)
         }
         if m3 {
-          // do something with \b, relocatable)
+          out = append(out, "\\b, relocatable)")
         }
 
       }
       // >>0x1    default    COM executable for DOS
       off = pageOff + 1
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "COM executable for DOS")
+      }
 
     }
   }
@@ -9869,32 +10372,53 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x24    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
       off = pageOff + 36
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "FREE-DOS executable (COM), UPX compressed")
+      }
 
     }
   }
   // 0xfc    string    "Must have DOS version"    DR-DOS executable (COM)
   off = pageOff + 252
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "DR-DOS executable (COM)")
+  }
 
   // 0x22    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 34
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  }
 
   // 0x23    string    "UPX!"    FREE-DOS executable (COM), UPX compressed
   off = pageOff + 35
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  }
 
   // 0x2    string    "\xcd!"    COM executable for DOS
   off = pageOff + 2
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x4    string    "\xcd!"    COM executable for DOS
   off = pageOff + 4
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x5    string    "\xcd!"    COM executable for DOS
   off = pageOff + 5
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x7    string    "\xcd!"    
   off = pageOff + 7
@@ -9908,7 +10432,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0xb8)
     }
     if m1 {
-      // do something with COM executable for DOS
+      out = append(out, "COM executable for DOS")
     }
 
   }
@@ -9920,53 +10444,89 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x5    string    "\xcd!"    COM executable for DOS
     off = pageOff + 5
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "COM executable for DOS")
+    }
 
   }
   // 0xd    string    "\xcd!"    COM executable for DOS
   off = pageOff + 13
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x12    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 18
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x17    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 23
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x1e    string    "\xcd!"    COM executable for MS-DOS
   off = pageOff + 30
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x46    string    "\xcd!"    COM executable for DOS
   off = pageOff + 70
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   // 0x6    search/0xa    "\xfcW\xf3\xa5\xc3"    COM executable for MS-DOS
   off = pageOff + 6
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS")
+  }
 
   // 0x6    search/0xa    "\xfcW\xf3\xa4\xc3"    COM executable for DOS
   off = pageOff + 6
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for DOS")
+  }
 
   if m0 {
     // >0x18    search/0x10    "P\xa4\xff\xd5s"    \b, aPack compressed
     off = pageOff + 24
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, aPack compressed")
+    }
 
   }
   // 0x3c    string    "W Collis\x00\x00"    COM executable for MS-DOS, Compack compressed
   off = pageOff + 60
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "COM executable for MS-DOS, Compack compressed")
+  }
 
   // 0x0    string    "LZ"    MS-DOS executable (built-in)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MS-DOS executable (built-in)")
+  }
 
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1AAFB\r\x00OM\x06\x0e+4\x01\x01\x01\xff"    AAF legacy file using MS Structured Storage
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "AAF legacy file using MS Structured Storage")
+  }
 
   if m0 {
     // >0x1e    bytele    9    (512B sectors)
@@ -9976,7 +10536,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9)
     }
     if m1 {
-      // do something with (512B sectors)
+      out = append(out, "(512B sectors)")
     }
 
     // >0x1e    bytele    c    (4kB sectors)
@@ -9986,13 +10546,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc)
     }
     if m1 {
-      // do something with (4kB sectors)
+      out = append(out, "(4kB sectors)")
     }
 
   }
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1\x01\x02\x01\r\x00\x02\x00\x00\x06\x0e+4\x03\x02\x01\x01"    AAF file using MS Structured Storage
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "AAF file using MS Structured Storage")
+  }
 
   if m0 {
     // >0x1e    bytele    9    (512B sectors)
@@ -10002,7 +10565,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9)
     }
     if m1 {
-      // do something with (512B sectors)
+      out = append(out, "(512B sectors)")
     }
 
     // >0x1e    bytele    c    (4kB sectors)
@@ -10012,21 +10575,30 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc)
     }
     if m1 {
-      // do something with (4kB sectors)
+      out = append(out, "(4kB sectors)")
     }
 
   }
   // 0x820    string    "Microsoft Word 6.0 Document"    %s
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "%s")
+  }
 
   // 0x820    string    "Documento Microsoft Word 6"    Spanish Microsoft Word 6 document data
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Spanish Microsoft Word 6 document data")
+  }
 
   // 0x840    string    "MSWordDoc"    Microsoft Word document data
   off = pageOff + 2112
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word document data")
+  }
 
   // 0x0    longbe    31be0000    Microsoft Word Document
   off = pageOff + 0
@@ -10035,12 +10607,15 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x31be0000)
   }
   if m0 {
-    // do something with Microsoft Word Document
+    out = append(out, "Microsoft Word Document")
   }
 
   // 0x0    string    "PO^Q`"    Microsoft Word 6.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word 6.0 Document")
+  }
 
   // 0x4    longle    0    
   off = pageOff + 4
@@ -10057,7 +10632,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe320000)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 1.0
+      out = append(out, "Microsoft Word for Macintosh 1.0")
     }
 
     // >0x0    longbe    fe340000    Microsoft Word for Macintosh 3.0
@@ -10067,7 +10642,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe340000)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 3.0
+      out = append(out, "Microsoft Word for Macintosh 3.0")
     }
 
     // >0x0    longbe    fe37001c    Microsoft Word for Macintosh 4.0
@@ -10077,7 +10652,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe37001c)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 4.0
+      out = append(out, "Microsoft Word for Macintosh 4.0")
     }
 
     // >0x0    longbe    fe370023    Microsoft Word for Macintosh 5.0
@@ -10087,45 +10662,72 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfe370023)
     }
     if m1 {
-      // do something with Microsoft Word for Macintosh 5.0
+      out = append(out, "Microsoft Word for Macintosh 5.0")
     }
 
   }
   // 0x0    string    "ۥ-\x00\x00\x00"    Microsoft Word 2.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word 2.0 Document")
+  }
 
   // 0x200    string    "\xec\xa5\xc1"    Microsoft Word Document
   off = pageOff + 512
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word Document")
+  }
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft WinWord 2.0 Document")
+  }
 
   // 0x820    string    "Microsoft Excel 5.0 Worksheet"    %s
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "%s")
+  }
 
   // 0x0    string    "ۥ-\x00"    Microsoft WinWord 2.0 Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft WinWord 2.0 Document")
+  }
 
   // 0x820    string    "Foglio di lavoro Microsoft Exce"    %s
   off = pageOff + 2080
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "%s")
+  }
 
   // 0x842    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2114
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Excel 5.0 Worksheet")
+  }
 
   // 0x849    string    "Biff5"    Microsoft Excel 5.0 Worksheet
   off = pageOff + 2121
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Excel 5.0 Worksheet")
+  }
 
   // 0x0    string    "\t\x04\x06\x00\x00\x00\x10\x00"    Microsoft Excel Worksheet
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Excel Worksheet")
+  }
 
   // 0x0    longbe    1a00    
   off = pageOff + 0
@@ -10150,7 +10752,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int8(iv)) < 0x20)
       }
       if m2 {
-        // do something with Lotus 1-2-3
+        out = append(out, "Lotus 1-2-3")
       }
 
       if m2 {
@@ -10161,7 +10763,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1000)
         }
         if m3 {
-          // do something with WorKsheet, version 3
+          out = append(out, "WorKsheet, version 3")
         }
 
         // >>>0x4    ushortle    1002    WorKsheet, version 4
@@ -10171,7 +10773,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1002)
         }
         if m3 {
-          // do something with WorKsheet, version 4
+          out = append(out, "WorKsheet, version 4")
         }
 
         // >>>0x4    ushortle    1003    WorKsheet, version 97
@@ -10181,7 +10783,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1003)
         }
         if m3 {
-          // do something with WorKsheet, version 97
+          out = append(out, "WorKsheet, version 97")
         }
 
         // >>>0x4    ushortle    1005    WorKsheet, version 9.8 Millennium
@@ -10191,7 +10793,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1005)
         }
         if m3 {
-          // do something with WorKsheet, version 9.8 Millennium
+          out = append(out, "WorKsheet, version 9.8 Millennium")
         }
 
         // >>>0x4    ushortle    8001    FoRMatting data
@@ -10201,7 +10803,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8001)
         }
         if m3 {
-          // do something with FoRMatting data
+          out = append(out, "FoRMatting data")
         }
 
         // >>>0x4    ushortle    8007    ForMatting data, version 3
@@ -10211,12 +10813,15 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8007)
         }
         if m3 {
-          // do something with ForMatting data, version 3
+          out = append(out, "ForMatting data, version 3")
         }
 
         // >>>0x4    default    unknown
         off = pageOff + 4
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "unknown")
+        }
 
         if m3 {
           // >>>>0x6    ushortle    4    worksheet
@@ -10226,7 +10831,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x4)
           }
           if m4 {
-            // do something with worksheet
+            out = append(out, "worksheet")
           }
 
           // >>>>0x6    ushortle    4    formatting data
@@ -10236,7 +10841,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) != 0x4)
           }
           if m4 {
-            // do something with formatting data
+            out = append(out, "formatting data")
           }
 
           // >>>>0x4    ushortle    0    \b, revision 0x%x
@@ -10246,7 +10851,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b, revision 0x%x
+            out = append(out, "\\b, revision 0x%x")
           }
 
         }
@@ -10257,7 +10862,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4)
         }
         if m3 {
-          // do something with \b, cell range
+          out = append(out, "\\b, cell range")
         }
 
         if m3 {
@@ -10276,7 +10881,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (int64(int8(iv)) > 0x0)
             }
             if m5 {
-              // do something with \b%d*
+              out = append(out, "\\b%d*")
             }
 
             // >>>>>0x8    ushortle    0    \b%d,
@@ -10286,7 +10891,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) == 0x0)
             }
             if m5 {
-              // do something with \b%d,
+              out = append(out, "\\b%d,")
             }
 
             // >>>>>0xb    ubytele    0    \b%d-
@@ -10296,7 +10901,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
               m5 = ok && (uint64(iv) == 0x0)
             }
             if m5 {
-              // do something with \b%d-
+              out = append(out, "\\b%d-")
             }
 
           }
@@ -10307,7 +10912,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int8(iv)) > 0x0)
           }
           if m4 {
-            // do something with \b%d*
+            out = append(out, "\\b%d*")
           }
 
           // >>>>0xc    ushortle    0    \b%d,
@@ -10317,7 +10922,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b%d,
+            out = append(out, "\\b%d,")
           }
 
           // >>>>0xf    ubytele    0    \b%d
@@ -10327,7 +10932,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b%d
+            out = append(out, "\\b%d")
           }
 
           // >>>>0x14    ubytele    1    \b, character set 0x%x
@@ -10337,7 +10942,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int8(iv)) > 0x1)
           }
           if m4 {
-            // do something with \b, character set 0x%x
+            out = append(out, "\\b, character set 0x%x")
           }
 
           // >>>>0x15    ubytele    0    \b, flags 0x%x
@@ -10347,7 +10952,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b, flags 0x%x
+            out = append(out, "\\b, flags 0x%x")
           }
 
         }
@@ -10367,6 +10972,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             // >>>>>&0x4    string    ">\x00"    \b, 1st font "%s"
             off = pageOff + 4
             // uh oh unhandled kind
+            if m5 {
+              out = append(out, "\\b, 1st font \"%s\"")
+            }
 
           }
         }
@@ -10396,7 +11004,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int8(iv)) > 0x0)
       }
       if m2 {
-        // do something with Lotus
+        out = append(out, "Lotus")
       }
 
       if m2 {
@@ -10407,7 +11015,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x7)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)
+          out = append(out, "1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
         }
 
         // >>>0x4    ushortle    c05    1-2-3 CoNFiguration, version 2.4J
@@ -10417,7 +11025,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0xc05)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.4J
+          out = append(out, "1-2-3 CoNFiguration, version 2.4J")
         }
 
         // >>>0x4    ushortle    801    1-2-3 CoNFiguration, version 1-2.1
@@ -10427,7 +11035,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x801)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 1-2.1
+          out = append(out, "1-2-3 CoNFiguration, version 1-2.1")
         }
 
         // >>>0x4    ushortle    802    Symphony CoNFiguration
@@ -10437,7 +11045,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x802)
         }
         if m3 {
-          // do something with Symphony CoNFiguration
+          out = append(out, "Symphony CoNFiguration")
         }
 
         // >>>0x4    ushortle    804    1-2-3 CoNFiguration, version 2.2
@@ -10447,7 +11055,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x804)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.2
+          out = append(out, "1-2-3 CoNFiguration, version 2.2")
         }
 
         // >>>0x4    ushortle    80a    1-2-3 CoNFiguration, version 2.3-2.4
@@ -10457,7 +11065,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x80a)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 2.3-2.4
+          out = append(out, "1-2-3 CoNFiguration, version 2.3-2.4")
         }
 
         // >>>0x4    ushortle    1402    1-2-3 CoNFiguration, version 3.x
@@ -10467,7 +11075,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1402)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 3.x
+          out = append(out, "1-2-3 CoNFiguration, version 3.x")
         }
 
         // >>>0x4    ushortle    1450    1-2-3 CoNFiguration, version 4.x
@@ -10477,7 +11085,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1450)
         }
         if m3 {
-          // do something with 1-2-3 CoNFiguration, version 4.x
+          out = append(out, "1-2-3 CoNFiguration, version 4.x")
         }
 
         // >>>0x4    ushortle    404    1-2-3 WorKSheet, version 1
@@ -10487,7 +11095,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x404)
         }
         if m3 {
-          // do something with 1-2-3 WorKSheet, version 1
+          out = append(out, "1-2-3 WorKSheet, version 1")
         }
 
         // >>>0x4    ushortle    405    Symphony WoRksheet, version 1.0
@@ -10497,7 +11105,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x405)
         }
         if m3 {
-          // do something with Symphony WoRksheet, version 1.0
+          out = append(out, "Symphony WoRksheet, version 1.0")
         }
 
         // >>>0x4    ushortle    406    1-2-3/Symphony worksheet, version 2
@@ -10507,7 +11115,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x406)
         }
         if m3 {
-          // do something with 1-2-3/Symphony worksheet, version 2
+          out = append(out, "1-2-3/Symphony worksheet, version 2")
         }
 
         // >>>0x4    ushortle    600    1-2-3 WorKsheet, version 1.xJ
@@ -10517,7 +11125,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x600)
         }
         if m3 {
-          // do something with 1-2-3 WorKsheet, version 1.xJ
+          out = append(out, "1-2-3 WorKsheet, version 1.xJ")
         }
 
         // >>>0x4    ushortle    602    1-2-3 worksheet, version 2.4J
@@ -10527,7 +11135,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x602)
         }
         if m3 {
-          // do something with 1-2-3 worksheet, version 2.4J
+          out = append(out, "1-2-3 worksheet, version 2.4J")
         }
 
         // >>>0x4    ushortle    8006    1-2-3 ForMaTting data, version 2.x
@@ -10537,7 +11145,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8006)
         }
         if m3 {
-          // do something with 1-2-3 ForMaTting data, version 2.x
+          out = append(out, "1-2-3 ForMaTting data, version 2.x")
         }
 
         // >>>0x4    ushortle    8007    1-2-3 FoRMatting data, version 2.0
@@ -10547,12 +11155,15 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x8007)
         }
         if m3 {
-          // do something with 1-2-3 FoRMatting data, version 2.0
+          out = append(out, "1-2-3 FoRMatting data, version 2.0")
         }
 
         // >>>0x4    default    unknown worksheet or configuration
         off = pageOff + 4
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "unknown worksheet or configuration")
+        }
 
         if m3 {
           // >>>>0x4    ushortle    0    \b, revision 0x%x
@@ -10562,7 +11173,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with \b, revision 0x%x
+            out = append(out, "\\b, revision 0x%x")
           }
 
         }
@@ -10580,10 +11191,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "WordPro\x00"    Lotus WordPro
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Lotus WordPro")
+  }
 
   // 0x0    string    "WordPro\r\xfb"    Lotus WordPro
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Lotus WordPro")
+  }
 
   // 0x0    string    "q\xa8\x00\x00\x01\x02"    
   off = pageOff + 0
@@ -10593,67 +11210,115 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0xc    string    "Stirling Technologies,"    InstallShield Uninstall Script
     off = pageOff + 12
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "InstallShield Uninstall Script")
+    }
 
   }
   // 0x0    string    "Nullsoft AVS Preset "    Winamp plug in
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Winamp plug in")
+  }
 
   // 0x0    string    "\xd7\xcdƚ"    ms-windows metafont .wmf
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ms-windows metafont .wmf")
+  }
 
   // 0x0    string    "\x02\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ms-windows metafont .wmf")
+  }
 
   // 0x0    string    "\x01\x00\t\x00"    ms-windows metafont .wmf
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "ms-windows metafont .wmf")
+  }
 
   // 0x0    string    "\x03\x01\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "tz3 ms-works file")
+  }
 
   // 0x0    string    "\x03\x02\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "tz3 ms-works file")
+  }
 
   // 0x0    string    "\x03\x03\x01\x048\x01\x00\x00"    tz3 ms-works file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "tz3 ms-works file")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW5\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW6\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW7\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW8\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00?\x03\x05\x003\x9fW9\x17\xb6i4\x05%A\x9b\x11\x02"    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "\x89\x00\x95\x03\x05\x002R\x87\xc4@\xe5\""    PGP sig
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "PGP sig")
+  }
 
   // 0x0    string    "MDIF\x1a\x00\b\x00\x00\x00\xfa&@}\x01\x00\x01\x1e\x01\x00"    MS Windows special zipped file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MS Windows special zipped file")
+  }
 
   // 0x0    string    "BA(\x00\x00\x00.\x00\x00\x00\x00\x00\x00\x00"    Icon for MS Windows
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Icon for MS Windows")
+  }
 
   // 0x0    longbe    100    
   off = pageOff + 0
@@ -10742,21 +11407,33 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "PK\b\bBGI"    Borland font
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Borland font")
+  }
 
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%s")
+    }
 
   }
   // 0x0    string    "pk\b\bBGI"    Borland device
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Borland device")
+  }
 
   if m0 {
     // >0x4    string    ">\x00"    %s
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%s")
+    }
 
   }
   // 0x0    longle    4    
@@ -10774,7 +11451,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x118)
     }
     if m1 {
-      // do something with Windows Recycle Bin INFO2 file (Win98 or below)
+      out = append(out, "Windows Recycle Bin INFO2 file (Win98 or below)")
     }
 
   }
@@ -10793,41 +11470,65 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x320)
     }
     if m1 {
-      // do something with Windows Recycle Bin INFO2 file (Win2k - WinXP)
+      out = append(out, "Windows Recycle Bin INFO2 file (Win2k - WinXP)")
     }
 
   }
   // 0x9    string    "GERBILDOC"    First Choice document
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice document")
+  }
 
   // 0x9    string    "GERBILDB"    First Choice database
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice database")
+  }
 
   // 0x9    string    "GERBILCLIP"    First Choice database
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice database")
+  }
 
   // 0x0    string    "GERBIL"    First Choice device file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "First Choice device file")
+  }
 
   // 0x9    string    "RABBITGRAPH"    RabbitGraph file
   off = pageOff + 9
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "RabbitGraph file")
+  }
 
   // 0x0    string    "DCU1"    Borland Delphi .DCU file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Borland Delphi .DCU file")
+  }
 
   // 0x0    string    "=!<spell>"    MKS Spell hash list (old format)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MKS Spell hash list (old format)")
+  }
 
   // 0x0    string    "=!<spell2>"    MKS Spell hash list
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MKS Spell hash list")
+  }
 
   // 0x0    longle    8086b70    TurboC BGI file
   off = pageOff + 0
@@ -10836,7 +11537,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x8086b70)
   }
   if m0 {
-    // do something with TurboC BGI file
+    out = append(out, "TurboC BGI file")
   }
 
   // 0x0    longle    8084b50    TurboC Font file
@@ -10846,7 +11547,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x8084b50)
   }
   if m0 {
-    // do something with TurboC Font file
+    out = append(out, "TurboC Font file")
   }
 
   // 0x0    string    "TPF0"    
@@ -10856,10 +11557,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "PMCC"    Windows 3.x .GRP file
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows 3.x .GRP file")
+  }
 
   // 0x1    string    "RDC-meg"    MegaDots
   off = pageOff + 1
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MegaDots")
+  }
 
   if m0 {
     // >0x8    bytele    2f    version %c
@@ -10869,7 +11576,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int8(iv)) > 0x2f)
     }
     if m1 {
-      // do something with version %c
+      out = append(out, "version %c")
     }
 
     // >0x9    bytele    2f    \b.%c file
@@ -10879,7 +11586,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int8(iv)) > 0x2f)
     }
     if m1 {
-      // do something with \b.%c file
+      out = append(out, "\\b.%c file")
     }
 
   }
@@ -10898,26 +11605,38 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x21401)
     }
     if m1 {
-      // do something with Windows shortcut file
+      out = append(out, "Windows shortcut file")
     }
 
   }
   // 0x171    string    "MICROSOFT PIFEX\x00"    Windows Program Information File
   off = pageOff + 369
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows Program Information File")
+  }
 
   if m0 {
     // >0x24    string    ">\x00"    \b for %.63s
     off = pageOff + 36
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b for %.63s")
+    }
 
     // >0x65    string    ">\x00"    \b, directory=%.64s
     off = pageOff + 101
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, directory=%.64s")
+    }
 
     // >0xa5    string    ">\x00"    \b, parameters=%.64s
     off = pageOff + 165
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, parameters=%.64s")
+    }
 
     // >0x187    search/0xb55    "WINDOWS VMM 4.0\x00"    
     off = pageOff + 391
@@ -10935,10 +11654,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x-1    string    "<PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, icon=%s")
+        }
 
         // >>>&0x-1    string    ">PIFMGR.DLL"    \b, icon=%s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, icon=%s")
+        }
 
       }
       // >>&0xf0    ubytele    0    
@@ -10952,10 +11677,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x-1    string    "<Terminal"    \b, font=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, font=%.32s")
+        }
 
         // >>>&0x-1    string    ">Terminal"    \b, font=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, font=%.32s")
+        }
 
       }
       // >>&0x110    ubytele    0    
@@ -10969,24 +11700,39 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         // >>>&0x-1    string    "<Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, TrueTypeFont=%.32s")
+        }
 
         // >>>&0x-1    string    ">Lucida Console"    \b, TrueTypeFont=%.32s
         off = pageOff + -1
         // uh oh unhandled kind
+        if m3 {
+          out = append(out, "\\b, TrueTypeFont=%.32s")
+        }
 
       }
     }
     // >0x187    search/0xb55    "WINDOWS NT  3.1\x00"    \b, Windows NT-style
     off = pageOff + 391
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, Windows NT-style")
+    }
 
     // >0x187    search/0xb55    "CONFIG  SYS 4.0\x00"    \b +CONFIG.SYS
     off = pageOff + 391
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b +CONFIG.SYS")
+    }
 
     // >0x187    search/0xb55    "AUTOEXECBAT 4.0\x00"    \b +AUTOEXEC.BAT
     off = pageOff + 391
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b +AUTOEXEC.BAT")
+    }
 
   }
   // 0x0    longbe    c5d0d3c6    DOS EPS Binary File
@@ -10996,7 +11742,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0xc5d0d3c6)
   }
   if m0 {
-    // do something with DOS EPS Binary File
+    out = append(out, "DOS EPS Binary File")
   }
 
   if m0 {
@@ -11007,7 +11753,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int32(iv)) > 0x0)
     }
     if m1 {
-      // do something with Postscript starts at byte %d
+      out = append(out, "Postscript starts at byte %d")
     }
 
     if m1 {
@@ -11018,7 +11764,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (int64(int32(iv)) > 0x0)
       }
       if m2 {
-        // do something with length %d
+        out = append(out, "length %d")
       }
 
       if m2 {
@@ -11029,7 +11775,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) > 0x0)
         }
         if m3 {
-          // do something with Metafile starts at byte %d
+          out = append(out, "Metafile starts at byte %d")
         }
 
         if m3 {
@@ -11040,7 +11786,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with length %d
+            out = append(out, "length %d")
           }
 
         }
@@ -11051,7 +11797,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (int64(int32(iv)) > 0x0)
         }
         if m3 {
-          // do something with TIFF starts at byte %d
+          out = append(out, "TIFF starts at byte %d")
         }
 
         if m3 {
@@ -11062,7 +11808,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (int64(int32(iv)) > 0x0)
           }
           if m4 {
-            // do something with length %d
+            out = append(out, "length %d")
           }
 
         }
@@ -11076,7 +11822,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x223e9f78)
   }
   if m0 {
-    // do something with TNEF
+    out = append(out, "TNEF")
   }
 
   // 0x0    string    "NG\x00\x01"    
@@ -11091,21 +11837,30 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x100)
     }
     if m1 {
-      // do something with Norton Guide
+      out = append(out, "Norton Guide")
     }
 
     if m1 {
       // >>0x8    string    ">\x00"    "%-.40s"
       off = pageOff + 8
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\"%-.40s\"")
+      }
 
       // >>0x30    string    ">\x00"    \b, %-.66s
       off = pageOff + 48
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "\\b, %-.66s")
+      }
 
       // >>0x72    string    ">\x00"    %-.66s
       off = pageOff + 114
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "%-.66s")
+      }
 
     }
   }
@@ -11116,13 +11871,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x48443408)
   }
   if m0 {
-    // do something with 4DOS help file
+    out = append(out, "4DOS help file")
   }
 
   if m0 {
     // >0x4    string    "x"    \b, version %-4.4s
     off = pageOff + 4
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, version %-4.4s")
+    }
 
   }
   // 0x0    uquadle    3a000000024e4c    MS Advisor help file
@@ -11132,20 +11890,29 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     m0 = ok && (uint64(iv) == 0x3a000000024e4c)
   }
   if m0 {
-    // do something with MS Advisor help file
+    out = append(out, "MS Advisor help file")
   }
 
   // 0x0    string    "ITSF\x03\x00\x00\x00`\x00\x00\x00"    MS Windows HtmlHelp Data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "MS Windows HtmlHelp Data")
+  }
 
   // 0x2    string    "GFA-BASIC3"    GFA-BASIC 3 data
   off = pageOff + 2
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "GFA-BASIC 3 data")
+  }
 
   // 0x0    string    "MSCF\x00\x00\x00\x00"    Microsoft Cabinet archive data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Cabinet archive data")
+  }
 
   if m0 {
     // >0x8    longle    0    \b, %u bytes
@@ -11155,7 +11922,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, %u bytes
+      out = append(out, "\\b, %u bytes")
     }
 
     // >0x1c    shortle    1    \b, 1 file
@@ -11165,7 +11932,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with \b, 1 file
+      out = append(out, "\\b, 1 file")
     }
 
     // >0x1c    shortle    1    \b, %u files
@@ -11175,13 +11942,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %u files
+      out = append(out, "\\b, %u files")
     }
 
   }
   // 0x0    string    "ISc("    InstallShield Cabinet archive data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "InstallShield Cabinet archive data")
+  }
 
   if m0 {
     // >0x5    bytele    60&0xf0    version 6,
@@ -11191,7 +11961,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x60)
     }
     if m1 {
-      // do something with version 6,
+      out = append(out, "version 6,")
     }
 
     // >0x5    bytele    60&0xf0    version 4/5,
@@ -11201,7 +11971,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) != 0x60)
     }
     if m1 {
-      // do something with version 4/5,
+      out = append(out, "version 4/5,")
     }
 
     // >(0xc.longle+40)    longle    0    %u files
@@ -11211,13 +11981,16 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with %u files
+      out = append(out, "%u files")
     }
 
   }
   // 0x0    string    "MSCE\x00\x00\x00\x00"    Microsoft WinCE install header
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft WinCE install header")
+  }
 
   if m0 {
     // >0x14    longle    0    \b, architecture-independent
@@ -11227,7 +12000,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, architecture-independent
+      out = append(out, "\\b, architecture-independent")
     }
 
     // >0x14    longle    67    \b, Hitachi SH3
@@ -11237,7 +12010,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x67)
     }
     if m1 {
-      // do something with \b, Hitachi SH3
+      out = append(out, "\\b, Hitachi SH3")
     }
 
     // >0x14    longle    68    \b, Hitachi SH4
@@ -11247,7 +12020,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x68)
     }
     if m1 {
-      // do something with \b, Hitachi SH4
+      out = append(out, "\\b, Hitachi SH4")
     }
 
     // >0x14    longle    a11    \b, StrongARM
@@ -11257,7 +12030,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa11)
     }
     if m1 {
-      // do something with \b, StrongARM
+      out = append(out, "\\b, StrongARM")
     }
 
     // >0x14    longle    fa0    \b, MIPS R4000
@@ -11267,7 +12040,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfa0)
     }
     if m1 {
-      // do something with \b, MIPS R4000
+      out = append(out, "\\b, MIPS R4000")
     }
 
     // >0x14    longle    2713    \b, Hitachi SH3
@@ -11277,7 +12050,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2713)
     }
     if m1 {
-      // do something with \b, Hitachi SH3
+      out = append(out, "\\b, Hitachi SH3")
     }
 
     // >0x14    longle    2714    \b, Hitachi SH3E
@@ -11287,7 +12060,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2714)
     }
     if m1 {
-      // do something with \b, Hitachi SH3E
+      out = append(out, "\\b, Hitachi SH3E")
     }
 
     // >0x14    longle    2715    \b, Hitachi SH4
@@ -11297,7 +12070,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2715)
     }
     if m1 {
-      // do something with \b, Hitachi SH4
+      out = append(out, "\\b, Hitachi SH4")
     }
 
     // >0x14    longle    11171    \b, ARM 7TDMI
@@ -11307,7 +12080,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x11171)
     }
     if m1 {
-      // do something with \b, ARM 7TDMI
+      out = append(out, "\\b, ARM 7TDMI")
     }
 
     // >0x34    shortle    1    \b, 1 file
@@ -11317,7 +12090,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with \b, 1 file
+      out = append(out, "\\b, 1 file")
     }
 
     // >0x34    shortle    1    \b, %u files
@@ -11327,7 +12100,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %u files
+      out = append(out, "\\b, %u files")
     }
 
     // >0x38    shortle    1    \b, 1 registry entry
@@ -11337,7 +12110,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with \b, 1 registry entry
+      out = append(out, "\\b, 1 registry entry")
     }
 
     // >0x38    shortle    1    \b, %u registry entries
@@ -11347,7 +12120,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      // do something with \b, %u registry entries
+      out = append(out, "\\b, %u registry entries")
     }
 
   }
@@ -11362,6 +12135,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x28    string    " EMF"    Windows Enhanced Metafile (EMF) image data
     off = pageOff + 40
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Windows Enhanced Metafile (EMF) image data")
+    }
 
     if m1 {
       // >>0x2c    ulongle    0    version 0x%x
@@ -11371,7 +12147,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with version 0x%x
+        out = append(out, "version 0x%x")
       }
 
     }
@@ -11379,24 +12155,39 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   // 0x0    string    "\xd0\xcf\x11\u0871\x1a\xe1"    Microsoft Office Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Office Document")
+  }
 
   if m0 {
     // >0x222    string    "bjbj"    Microsoft Word Document
     off = pageOff + 546
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Microsoft Word Document")
+    }
 
     // >0x222    string    "jbjb"    Microsoft Word Document
     off = pageOff + 546
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "Microsoft Word Document")
+    }
 
   }
   // 0x0    string    "\x94\xa6."    Microsoft Word Document
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word Document")
+  }
 
   // 0x200    string    "R\x00o\x00o\x00t\x00 \x00E\x00n\x00t\x00r\x00y"    Microsoft Word Document
   off = pageOff + 512
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Word Document")
+  }
 
   // 0x0    string    "$RBU"    
   off = pageOff + 0
@@ -11406,6 +12197,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // >0x17    string    "Dell"    %s system BIOS
     off = pageOff + 23
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%s system BIOS")
+    }
 
     // >0x5    bytele    2    
     off = pageOff + 5
@@ -11422,7 +12216,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with version %d.
+        out = append(out, "version %d.")
       }
 
       // >>0x31    bytele    0    \b%d.
@@ -11432,7 +12226,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with \b%d.
+        out = append(out, "\\b%d.")
       }
 
       // >>0x32    bytele    0    \b%d
@@ -11442,7 +12236,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with \b%d
+        out = append(out, "\\b%d")
       }
 
     }
@@ -11457,12 +12251,18 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x30    string    "x"    version %.3s
       off = pageOff + 48
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "version %.3s")
+      }
 
     }
   }
   // 0x0    string    "DDS |\x00\x00\x00"    Microsoft DirectDraw Surface (DDS),
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft DirectDraw Surface (DDS),")
+  }
 
   if m0 {
     // >0x10    longle    0    %d x
@@ -11472,7 +12272,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int32(iv)) > 0x0)
     }
     if m1 {
-      // do something with %d x
+      out = append(out, "%d x")
     }
 
     // >0xc    longle    0    %d,
@@ -11482,17 +12282,23 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (int64(int32(iv)) > 0x0)
     }
     if m1 {
-      // do something with %d,
+      out = append(out, "%d,")
     }
 
     // >0x54    string    "x"    %.4s
     off = pageOff + 84
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "%.4s")
+    }
 
   }
   // 0x0    string    "ITOLITLS"    Microsoft Reader eBook Data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Microsoft Reader eBook Data")
+  }
 
   if m0 {
     // >0x8    longle    0    \b, version %u
@@ -11502,45 +12308,72 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, version %u
+      out = append(out, "\\b, version %u")
     }
 
   }
   // 0x0    string    "B000FF\n"    Windows Embedded CE binary image
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows Embedded CE binary image")
+  }
 
   // 0x0    string    "MSWIM\x00\x00\x00"    Windows imaging (WIM) image
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows imaging (WIM) image")
+  }
 
   // 0x0    string    "WLPWM\x00\x00\x00"    Windows imaging (WIM) image, wimlib pipable format
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Windows imaging (WIM) image, wimlib pipable format")
+  }
 
   // 0x0    string    "\xfc\x03\x00"    Mallard BASIC program data (v1.11)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC program data (v1.11)")
+  }
 
   // 0x0    string    "\xfc\x04\x00"    Mallard BASIC program data (v1.29+)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC program data (v1.29+)")
+  }
 
   // 0x0    string    "\xfc\x03\x01"    Mallard BASIC protected program data (v1.11)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC protected program data (v1.11)")
+  }
 
   // 0x0    string    "\xfc\x04\x01"    Mallard BASIC protected program data (v1.29+)
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC protected program data (v1.29+)")
+  }
 
   // 0x0    string    "MIOPEN"    Mallard BASIC Jetsam data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC Jetsam data")
+  }
 
   // 0x0    string    "Jetsam0"    Mallard BASIC Jetsam index data
   off = pageOff + 0
   // uh oh unhandled kind
+  if m0 {
+    out = append(out, "Mallard BASIC Jetsam index data")
+  }
 
   // 0x3    ushortle    7bb    
   off = pageOff + 3
@@ -11578,7 +12411,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0x0)
           }
           if m4 {
-            // do something with DOS 2.0 backup id file, sequence %d
+            out = append(out, "DOS 2.0 backup id file, sequence %d")
           }
 
           // >>>>0x0    ubytele    ff    \b, last disk
@@ -11588,7 +12421,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
             m4 = ok && (uint64(iv) == 0xff)
           }
           if m4 {
-            // do something with \b, last disk
+            out = append(out, "\\b, last disk")
           }
 
         }
@@ -11611,6 +12444,9 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
       // >>0x5    string    "x"    DOS 2.0 backed up file %s,
       off = pageOff + 5
       // uh oh unhandled kind
+      if m2 {
+        out = append(out, "DOS 2.0 backed up file %s,")
+      }
 
       // >>0x0    ubytele    ff    complete file
       off = pageOff + 0
@@ -11619,7 +12455,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xff)
       }
       if m2 {
-        // do something with complete file
+        out = append(out, "complete file")
       }
 
       // >>0x0    ubytele    ff    
@@ -11637,7 +12473,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with split file, sequence %d
+          out = append(out, "split file, sequence %d")
         }
 
       }
@@ -11660,7 +12496,7 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with DOS 3.3 backup control file, sequence %d
+        out = append(out, "DOS 3.3 backup control file, sequence %d")
       }
 
       // >>0x8a    ubytele    ff    \b, last disk
@@ -11670,132 +12506,551 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0xff)
       }
       if m2 {
-        // do something with \b, last disk
+        out = append(out, "\\b, last disk")
       }
 
     }
   }
-  return outStrings, nil
+  return out, nil
 }
 
-func IdentifyLotusCells__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
   m3 := false
+  m4 := false
+  m5 := false
+  m6 := false
 
   if m0 {
-    // >0x0    ulongbe    6000800    \b, cell range
-    off = pageOff + 0
+    // >0x28    search/0x7    "UPX!"    \bUPX compressed
+    off = pageOff + 40
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\bUPX compressed")
+    }
+
+    // >0x4    ushortle    0&0x8000    \bblock device driver
+    off = pageOff + 4
     {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6000800)
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, cell range
+      out = append(out, "\\bblock device driver")
+    }
+
+    // >0x4    ushortle    8000&0x8000    \b
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x8000)
+    }
+    if m1 {
+      out = append(out, "\\b")
     }
 
     if m1 {
-      // >>0x4    ulongle    0    
+      // >>0x4    ushortle    8&0x8    \bclock
       off = pageOff + 4
       {
-        iv, ok := readUint32le(tb, off)
-        m2 = ok && (uint64(iv) != 0x0)
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x8)
+      }
+      if m2 {
+        out = append(out, "\\bclock")
+      }
+
+      // >>0x4    ushortle    10&0x10    \bfast
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x10)
+      }
+      if m2 {
+        out = append(out, "\\bfast")
+      }
+
+      // >>0x4    ushortle    0&0x3    \bstandard
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (int64(int16(iv)) > 0x0)
+      }
+      if m2 {
+        out = append(out, "\\bstandard")
       }
 
       if m2 {
-        // >>>0x4    ushortle    0    \b%d,
+        // >>>0x4    ushortle    1&0x1    \binput
         off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with \b%d,
+          out = append(out, "\\binput")
         }
 
-        // >>>0x6    ushortle    0    \b%d-
-        off = pageOff + 6
+        // >>>0x4    ushortle    3&0x3    \b/
+        off = pageOff + 4
         {
           iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
+          m3 = ok && (uint64(iv) == 0x3)
         }
         if m3 {
-          // do something with \b%d-
+          out = append(out, "\\b/")
+        }
+
+        // >>>0x4    ushortle    2&0x2    \boutput
+        off = pageOff + 4
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x2)
+        }
+        if m3 {
+          out = append(out, "\\boutput")
         }
 
       }
-      // >>0x8    ushortle    0    \b%d,
-      off = pageOff + 8
+      // >>0x4    ushortle    8000&0x8000    \bcharacter device driver
+      off = pageOff + 4
       {
         iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
+        m2 = ok && (uint64(iv) == 0x8000)
       }
       if m2 {
-        // do something with \b%d,
-      }
-
-      // >>0xa    ushortle    0    \b%d
-      off = pageOff + 10
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        // do something with \b%d
+        out = append(out, "\\bcharacter device driver")
       }
 
     }
+    // >0x0    ubytele    0    
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+
+    if m1 {
+      // >>0x28    search/0x7    "UPX!"    
+      off = pageOff + 40
+      // uh oh unhandled kind
+
+      // >>0x28    default    
+      off = pageOff + 40
+      // uh oh unhandled kind
+
+      if m2 {
+        // >>>0xc    ubytele    2e    \b
+        off = pageOff + 12
+        {
+          iv, ok := readUint8le(tb, off)
+          m3 = ok && (int64(int8(iv)) > 0x2e)
+        }
+        if m3 {
+          out = append(out, "\\b")
+        }
+
+        if m3 {
+          // >>>>0xa    ubytele    20    
+          off = pageOff + 10
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xa    ubytele    2e    
+            off = pageOff + 10
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+
+            if m5 {
+              // >>>>>>0xa    ubytele    2a    \b%c
+              off = pageOff + 10
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (uint64(iv) != 0x2a)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+          // >>>>0xb    ubytele    20    
+          off = pageOff + 11
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xb    ubytele    2e    \b%c
+            off = pageOff + 11
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+            if m5 {
+              out = append(out, "\\b%c")
+            }
+
+          }
+          // >>>>0xc    ubytele    20    
+          off = pageOff + 12
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xc    ubytele    39    
+            off = pageOff + 12
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x39)
+            }
+
+            if m5 {
+              // >>>>>>0xc    ubytele    2e    \b%c
+              off = pageOff + 12
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (uint64(iv) != 0x2e)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+        }
+        // >>>0xd    ubytele    20    
+        off = pageOff + 13
+        {
+          iv, ok := readUint8le(tb, off)
+          m3 = ok && (int64(int8(iv)) > 0x20)
+        }
+
+        if m3 {
+          // >>>>0xd    ubytele    2e    \b%c
+          off = pageOff + 13
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (uint64(iv) != 0x2e)
+          }
+          if m4 {
+            out = append(out, "\\b%c")
+          }
+
+          // >>>>0xe    ubytele    20    
+          off = pageOff + 14
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xe    ubytele    2e    \b%c
+            off = pageOff + 14
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+            if m5 {
+              out = append(out, "\\b%c")
+            }
+
+          }
+          // >>>>0xf    ubytele    20    
+          off = pageOff + 15
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xf    ubytele    2e    \b%c
+            off = pageOff + 15
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+            if m5 {
+              out = append(out, "\\b%c")
+            }
+
+          }
+          // >>>>0x10    ubytele    20    
+          off = pageOff + 16
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0x10    ubytele    2e    
+            off = pageOff + 16
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+
+            if m5 {
+              // >>>>>>0x10    ubytele    cb    \b%c
+              off = pageOff + 16
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (int64(int8(iv)) < 0xcb)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+          // >>>>0x11    ubytele    20    
+          off = pageOff + 17
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0x11    ubytele    2e    
+            off = pageOff + 17
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+
+            if m5 {
+              // >>>>>>0x11    ubytele    90    \b%c
+              off = pageOff + 17
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (int64(int8(iv)) < 0x90)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+        }
+        // >>>0xc    ubytele    2f    
+        off = pageOff + 12
+        {
+          iv, ok := readUint8le(tb, off)
+          m3 = ok && (int64(int8(iv)) < 0x2f)
+        }
+
+        if m3 {
+          // >>>>0x16    string    ">."    %-.6s
+          off = pageOff + 22
+          // uh oh unhandled kind
+          if m4 {
+            out = append(out, "%-.6s")
+          }
+
+        }
+      }
+    }
+    // >0x4    ushortle    0&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    2&0x2    \b,32-bit sector-
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x2)
+      }
+      if m2 {
+        out = append(out, "\\b,32-bit sector-")
+      }
+
+    }
+    // >0x4    ushortle    40&0x40    \b,IOCTL-
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x40)
+    }
+    if m1 {
+      out = append(out, "\\b,IOCTL-")
+    }
+
+    // >0x4    ushortle    800&0x800    \b,close media-
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x800)
+    }
+    if m1 {
+      out = append(out, "\\b,close media-")
+    }
+
+    // >0x4    ushortle    8000&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x8000)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    2000&0x2000    \b,until busy-
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x2000)
+      }
+      if m2 {
+        out = append(out, "\\b,until busy-")
+      }
+
+    }
+    // >0x4    ushortle    4000&0x4000    \b,control strings-
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x4000)
+    }
+    if m1 {
+      out = append(out, "\\b,control strings-")
+    }
+
+    // >0x4    ushortle    8000&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x8000)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    0&0x6840    \bsupport
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (int64(int16(iv)) > 0x0)
+      }
+      if m2 {
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    // >0x4    ushortle    0&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    0&0x4842    \bsupport
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (int64(int16(iv)) > 0x0)
+      }
+      if m2 {
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    // >0x0    ubytele    0    \b)
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b)")
+    }
+
   }
-  return outStrings, nil
+  return out, nil
 }
 
-func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+func IdentifyMsdosCom__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
 
   if m0 {
-    // >0x0    use   cur-ico-entry    
+    // >0x0    bytele    0    DOS executable (COM)
     off = pageOff + 0
-    // uh oh unhandled kind
-
-    // >0x4    ushortle    1    \b, %d planes
-    off = pageOff + 4
     {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with \b, %d planes
+      out = append(out, "DOS executable (COM)")
     }
 
-    // >0x6    ushortle    1    \b, %d bits/pixel
+    // >0x6    string    "SFX of LHarc"    \b, %s
     off = pageOff + 6
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, %s")
+    }
+
+    // >0x1fe    shortle    aa55    \b, boot code
+    off = pageOff + 510
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (uint64(iv) == 0xaa55)
     }
     if m1 {
-      // do something with \b, %d bits/pixel
+      out = append(out, "\\b, boot code")
+    }
+
+    // >0x55    string    "UPX"    \b, UPX compressed
+    off = pageOff + 85
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, UPX compressed")
+    }
+
+    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
+    off = pageOff + 4
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
+
+    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
+    off = pageOff + 4
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
+
+    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
+    off = pageOff + 526
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LARC self-extracting archive")
     }
 
   }
-  return outStrings, nil
+  return out, nil
 }
 
 func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var outStrings []string
+  var out []string
   var off int64
-  var err error
-  var ok bool
   m0 := false
   m1 := false
   m2 := false
@@ -11809,7 +13064,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with no file type,
+      out = append(out, "no file type,")
     }
 
     // >0x10    shortle    1    relocatable,
@@ -11819,7 +13074,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with relocatable,
+      out = append(out, "relocatable,")
     }
 
     // >0x10    shortle    2    executable,
@@ -11829,7 +13084,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with executable,
+      out = append(out, "executable,")
     }
 
     // >0x10    shortle    3    shared object,
@@ -11839,7 +13094,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3)
     }
     if m1 {
-      // do something with shared object,
+      out = append(out, "shared object,")
     }
 
     // >0x10    shortle    4    core file
@@ -11849,7 +13104,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4)
     }
     if m1 {
-      // do something with core file
+      out = append(out, "core file")
     }
 
     // >0x12    clear    
@@ -11863,7 +13118,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with no machine,
+      out = append(out, "no machine,")
     }
 
     // >0x12    shortle    1    AT&T WE32100,
@@ -11873,7 +13128,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with AT&T WE32100,
+      out = append(out, "AT&T WE32100,")
     }
 
     // >0x12    shortle    2    SPARC,
@@ -11883,7 +13138,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2)
     }
     if m1 {
-      // do something with SPARC,
+      out = append(out, "SPARC,")
     }
 
     // >0x12    shortle    3    Intel 80386,
@@ -11893,7 +13148,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3)
     }
     if m1 {
-      // do something with Intel 80386,
+      out = append(out, "Intel 80386,")
     }
 
     // >0x12    shortle    4    Motorola m68k,
@@ -11903,7 +13158,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4)
     }
     if m1 {
-      // do something with Motorola m68k,
+      out = append(out, "Motorola m68k,")
     }
 
     if m1 {
@@ -11922,7 +13177,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with 68020,
+          out = append(out, "68020,")
         }
 
       }
@@ -11934,7 +13189,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5)
     }
     if m1 {
-      // do something with Motorola m88k,
+      out = append(out, "Motorola m88k,")
     }
 
     // >0x12    shortle    6    Intel 80486,
@@ -11944,7 +13199,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6)
     }
     if m1 {
-      // do something with Intel 80486,
+      out = append(out, "Intel 80486,")
     }
 
     // >0x12    shortle    7    Intel 80860,
@@ -11954,7 +13209,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x7)
     }
     if m1 {
-      // do something with Intel 80860,
+      out = append(out, "Intel 80860,")
     }
 
     // >0x12    shortle    8    MIPS,
@@ -11964,7 +13219,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8)
     }
     if m1 {
-      // do something with MIPS,
+      out = append(out, "MIPS,")
     }
 
     if m1 {
@@ -11983,7 +13238,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa)
     }
     if m1 {
-      // do something with MIPS,
+      out = append(out, "MIPS,")
     }
 
     if m1 {
@@ -12018,7 +13273,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with MIPS-I
+          out = append(out, "MIPS-I")
         }
 
         // >>>0x24    longle    10000000&0xf0000000    MIPS-II
@@ -12028,7 +13283,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x10000000)
         }
         if m3 {
-          // do something with MIPS-II
+          out = append(out, "MIPS-II")
         }
 
         // >>>0x24    longle    20000000&0xf0000000    MIPS-III
@@ -12038,7 +13293,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x20000000)
         }
         if m3 {
-          // do something with MIPS-III
+          out = append(out, "MIPS-III")
         }
 
         // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
@@ -12048,7 +13303,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x30000000)
         }
         if m3 {
-          // do something with MIPS-IV
+          out = append(out, "MIPS-IV")
         }
 
         // >>>0x24    longle    40000000&0xf0000000    MIPS-V
@@ -12058,7 +13313,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x40000000)
         }
         if m3 {
-          // do something with MIPS-V
+          out = append(out, "MIPS-V")
         }
 
         // >>>0x24    longle    50000000&0xf0000000    MIPS32
@@ -12068,7 +13323,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x50000000)
         }
         if m3 {
-          // do something with MIPS32
+          out = append(out, "MIPS32")
         }
 
         // >>>0x24    longle    60000000&0xf0000000    MIPS64
@@ -12078,7 +13333,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x60000000)
         }
         if m3 {
-          // do something with MIPS64
+          out = append(out, "MIPS64")
         }
 
         // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
@@ -12088,7 +13343,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x70000000)
         }
         if m3 {
-          // do something with MIPS32 rel2
+          out = append(out, "MIPS32 rel2")
         }
 
         // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
@@ -12098,7 +13353,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x80000000)
         }
         if m3 {
-          // do something with MIPS64 rel2
+          out = append(out, "MIPS64 rel2")
         }
 
       }
@@ -12117,7 +13372,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with MIPS-I
+          out = append(out, "MIPS-I")
         }
 
         // >>>0x30    longle    10000000&0xf0000000    MIPS-II
@@ -12127,7 +13382,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x10000000)
         }
         if m3 {
-          // do something with MIPS-II
+          out = append(out, "MIPS-II")
         }
 
         // >>>0x30    longle    20000000&0xf0000000    MIPS-III
@@ -12137,7 +13392,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x20000000)
         }
         if m3 {
-          // do something with MIPS-III
+          out = append(out, "MIPS-III")
         }
 
         // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
@@ -12147,7 +13402,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x30000000)
         }
         if m3 {
-          // do something with MIPS-IV
+          out = append(out, "MIPS-IV")
         }
 
         // >>>0x30    longle    40000000&0xf0000000    MIPS-V
@@ -12157,7 +13412,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x40000000)
         }
         if m3 {
-          // do something with MIPS-V
+          out = append(out, "MIPS-V")
         }
 
         // >>>0x30    longle    50000000&0xf0000000    MIPS32
@@ -12167,7 +13422,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x50000000)
         }
         if m3 {
-          // do something with MIPS32
+          out = append(out, "MIPS32")
         }
 
         // >>>0x30    longle    60000000&0xf0000000    MIPS64
@@ -12177,7 +13432,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x60000000)
         }
         if m3 {
-          // do something with MIPS64
+          out = append(out, "MIPS64")
         }
 
         // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
@@ -12187,7 +13442,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x70000000)
         }
         if m3 {
-          // do something with MIPS32 rel2
+          out = append(out, "MIPS32 rel2")
         }
 
         // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
@@ -12197,7 +13452,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x80000000)
         }
         if m3 {
-          // do something with MIPS64 rel2
+          out = append(out, "MIPS64 rel2")
         }
 
       }
@@ -12209,7 +13464,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9)
     }
     if m1 {
-      // do something with Amdahl,
+      out = append(out, "Amdahl,")
     }
 
     // >0x12    shortle    a    MIPS (deprecated),
@@ -12219,7 +13474,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa)
     }
     if m1 {
-      // do something with MIPS (deprecated),
+      out = append(out, "MIPS (deprecated),")
     }
 
     // >0x12    shortle    b    RS6000,
@@ -12229,7 +13484,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb)
     }
     if m1 {
-      // do something with RS6000,
+      out = append(out, "RS6000,")
     }
 
     // >0x12    shortle    f    PA-RISC,
@@ -12239,7 +13494,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xf)
     }
     if m1 {
-      // do something with PA-RISC,
+      out = append(out, "PA-RISC,")
     }
 
     if m1 {
@@ -12258,7 +13513,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x214)
         }
         if m3 {
-          // do something with 2.0
+          out = append(out, "2.0")
         }
 
       }
@@ -12277,7 +13532,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x214)
         }
         if m3 {
-          // do something with 2.0
+          out = append(out, "2.0")
         }
 
       }
@@ -12289,7 +13544,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x10)
     }
     if m1 {
-      // do something with nCUBE,
+      out = append(out, "nCUBE,")
     }
 
     // >0x12    shortle    11    Fujitsu VPP500,
@@ -12299,7 +13554,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x11)
     }
     if m1 {
-      // do something with Fujitsu VPP500,
+      out = append(out, "Fujitsu VPP500,")
     }
 
     // >0x12    shortle    12    SPARC32PLUS,
@@ -12309,7 +13564,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x12)
     }
     if m1 {
-      // do something with SPARC32PLUS,
+      out = append(out, "SPARC32PLUS,")
     }
 
     if m1 {
@@ -12328,7 +13583,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x100)
         }
         if m3 {
-          // do something with V8+ Required,
+          out = append(out, "V8+ Required,")
         }
 
         // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
@@ -12338,7 +13593,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with Sun UltraSPARC1 Extensions Required,
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
         }
 
         // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
@@ -12348,7 +13603,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x400)
         }
         if m3 {
-          // do something with HaL R1 Extensions Required,
+          out = append(out, "HaL R1 Extensions Required,")
         }
 
         // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
@@ -12358,7 +13613,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x800)
         }
         if m3 {
-          // do something with Sun UltraSPARC3 Extensions Required,
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
         }
 
       }
@@ -12370,7 +13625,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x13)
     }
     if m1 {
-      // do something with Intel 80960,
+      out = append(out, "Intel 80960,")
     }
 
     // >0x12    shortle    14    PowerPC or cisco 4500,
@@ -12380,7 +13635,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x14)
     }
     if m1 {
-      // do something with PowerPC or cisco 4500,
+      out = append(out, "PowerPC or cisco 4500,")
     }
 
     // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
@@ -12390,7 +13645,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x15)
     }
     if m1 {
-      // do something with 64-bit PowerPC or cisco 7500,
+      out = append(out, "64-bit PowerPC or cisco 7500,")
     }
 
     // >0x12    shortle    16    IBM S/390,
@@ -12400,7 +13655,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x16)
     }
     if m1 {
-      // do something with IBM S/390,
+      out = append(out, "IBM S/390,")
     }
 
     // >0x12    shortle    17    Cell SPU,
@@ -12410,7 +13665,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x17)
     }
     if m1 {
-      // do something with Cell SPU,
+      out = append(out, "Cell SPU,")
     }
 
     // >0x12    shortle    18    cisco SVIP,
@@ -12420,7 +13675,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x18)
     }
     if m1 {
-      // do something with cisco SVIP,
+      out = append(out, "cisco SVIP,")
     }
 
     // >0x12    shortle    19    cisco 7200,
@@ -12430,7 +13685,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x19)
     }
     if m1 {
-      // do something with cisco 7200,
+      out = append(out, "cisco 7200,")
     }
 
     // >0x12    shortle    24    NEC V800 or cisco 12000,
@@ -12440,7 +13695,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x24)
     }
     if m1 {
-      // do something with NEC V800 or cisco 12000,
+      out = append(out, "NEC V800 or cisco 12000,")
     }
 
     // >0x12    shortle    25    Fujitsu FR20,
@@ -12450,7 +13705,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x25)
     }
     if m1 {
-      // do something with Fujitsu FR20,
+      out = append(out, "Fujitsu FR20,")
     }
 
     // >0x12    shortle    26    TRW RH-32,
@@ -12460,7 +13715,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x26)
     }
     if m1 {
-      // do something with TRW RH-32,
+      out = append(out, "TRW RH-32,")
     }
 
     // >0x12    shortle    27    Motorola RCE,
@@ -12470,7 +13725,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x27)
     }
     if m1 {
-      // do something with Motorola RCE,
+      out = append(out, "Motorola RCE,")
     }
 
     // >0x12    shortle    28    ARM,
@@ -12480,7 +13735,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x28)
     }
     if m1 {
-      // do something with ARM,
+      out = append(out, "ARM,")
     }
 
     if m1 {
@@ -12499,7 +13754,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x4000000)
         }
         if m3 {
-          // do something with EABI4
+          out = append(out, "EABI4")
         }
 
         // >>>0x24    longle    5000000&0xff000000    EABI5
@@ -12509,7 +13764,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x5000000)
         }
         if m3 {
-          // do something with EABI5
+          out = append(out, "EABI5")
         }
 
       }
@@ -12521,7 +13776,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x29)
     }
     if m1 {
-      // do something with Alpha,
+      out = append(out, "Alpha,")
     }
 
     // >0x12    shortle    2a    Renesas SH,
@@ -12531,7 +13786,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2a)
     }
     if m1 {
-      // do something with Renesas SH,
+      out = append(out, "Renesas SH,")
     }
 
     // >0x12    shortle    2b    SPARC V9,
@@ -12541,7 +13796,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2b)
     }
     if m1 {
-      // do something with SPARC V9,
+      out = append(out, "SPARC V9,")
     }
 
     if m1 {
@@ -12560,7 +13815,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x200)
         }
         if m3 {
-          // do something with Sun UltraSPARC1 Extensions Required,
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
         }
 
         // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
@@ -12570,7 +13825,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x400)
         }
         if m3 {
-          // do something with HaL R1 Extensions Required,
+          out = append(out, "HaL R1 Extensions Required,")
         }
 
         // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
@@ -12580,7 +13835,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x800)
         }
         if m3 {
-          // do something with Sun UltraSPARC3 Extensions Required,
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
         }
 
         // >>>0x30    longle    0&0x3    total store ordering,
@@ -12590,7 +13845,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x0)
         }
         if m3 {
-          // do something with total store ordering,
+          out = append(out, "total store ordering,")
         }
 
         // >>>0x30    longle    1&0x3    partial store ordering,
@@ -12600,7 +13855,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x1)
         }
         if m3 {
-          // do something with partial store ordering,
+          out = append(out, "partial store ordering,")
         }
 
         // >>>0x30    longle    2&0x3    relaxed memory ordering,
@@ -12610,7 +13865,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
           m3 = ok && (uint64(iv) == 0x2)
         }
         if m3 {
-          // do something with relaxed memory ordering,
+          out = append(out, "relaxed memory ordering,")
         }
 
       }
@@ -12622,7 +13877,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2c)
     }
     if m1 {
-      // do something with Siemens Tricore Embedded Processor,
+      out = append(out, "Siemens Tricore Embedded Processor,")
     }
 
     // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
@@ -12632,7 +13887,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2d)
     }
     if m1 {
-      // do something with Argonaut RISC Core, Argonaut Technologies Inc.,
+      out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
     }
 
     // >0x12    shortle    2e    Renesas H8/300,
@@ -12642,7 +13897,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2e)
     }
     if m1 {
-      // do something with Renesas H8/300,
+      out = append(out, "Renesas H8/300,")
     }
 
     // >0x12    shortle    2f    Renesas H8/300H,
@@ -12652,7 +13907,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2f)
     }
     if m1 {
-      // do something with Renesas H8/300H,
+      out = append(out, "Renesas H8/300H,")
     }
 
     // >0x12    shortle    30    Renesas H8S,
@@ -12662,7 +13917,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x30)
     }
     if m1 {
-      // do something with Renesas H8S,
+      out = append(out, "Renesas H8S,")
     }
 
     // >0x12    shortle    31    Renesas H8/500,
@@ -12672,7 +13927,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x31)
     }
     if m1 {
-      // do something with Renesas H8/500,
+      out = append(out, "Renesas H8/500,")
     }
 
     // >0x12    shortle    32    IA-64,
@@ -12682,7 +13937,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x32)
     }
     if m1 {
-      // do something with IA-64,
+      out = append(out, "IA-64,")
     }
 
     // >0x12    shortle    33    Stanford MIPS-X,
@@ -12692,7 +13947,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x33)
     }
     if m1 {
-      // do something with Stanford MIPS-X,
+      out = append(out, "Stanford MIPS-X,")
     }
 
     // >0x12    shortle    34    Motorola Coldfire,
@@ -12702,7 +13957,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x34)
     }
     if m1 {
-      // do something with Motorola Coldfire,
+      out = append(out, "Motorola Coldfire,")
     }
 
     // >0x12    shortle    35    Motorola M68HC12,
@@ -12712,7 +13967,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x35)
     }
     if m1 {
-      // do something with Motorola M68HC12,
+      out = append(out, "Motorola M68HC12,")
     }
 
     // >0x12    shortle    36    Fujitsu MMA,
@@ -12722,7 +13977,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x36)
     }
     if m1 {
-      // do something with Fujitsu MMA,
+      out = append(out, "Fujitsu MMA,")
     }
 
     // >0x12    shortle    37    Siemens PCP,
@@ -12732,7 +13987,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x37)
     }
     if m1 {
-      // do something with Siemens PCP,
+      out = append(out, "Siemens PCP,")
     }
 
     // >0x12    shortle    38    Sony nCPU,
@@ -12742,7 +13997,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x38)
     }
     if m1 {
-      // do something with Sony nCPU,
+      out = append(out, "Sony nCPU,")
     }
 
     // >0x12    shortle    39    Denso NDR1,
@@ -12752,7 +14007,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x39)
     }
     if m1 {
-      // do something with Denso NDR1,
+      out = append(out, "Denso NDR1,")
     }
 
     // >0x12    shortle    3a    Start*Core,
@@ -12762,7 +14017,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3a)
     }
     if m1 {
-      // do something with Start*Core,
+      out = append(out, "Start*Core,")
     }
 
     // >0x12    shortle    3b    Toyota ME16,
@@ -12772,7 +14027,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3b)
     }
     if m1 {
-      // do something with Toyota ME16,
+      out = append(out, "Toyota ME16,")
     }
 
     // >0x12    shortle    3c    ST100,
@@ -12782,7 +14037,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3c)
     }
     if m1 {
-      // do something with ST100,
+      out = append(out, "ST100,")
     }
 
     // >0x12    shortle    3d    Tinyj emb.,
@@ -12792,7 +14047,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3d)
     }
     if m1 {
-      // do something with Tinyj emb.,
+      out = append(out, "Tinyj emb.,")
     }
 
     // >0x12    shortle    3e    x86-64,
@@ -12802,7 +14057,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3e)
     }
     if m1 {
-      // do something with x86-64,
+      out = append(out, "x86-64,")
     }
 
     // >0x12    shortle    3f    Sony DSP,
@@ -12812,7 +14067,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3f)
     }
     if m1 {
-      // do something with Sony DSP,
+      out = append(out, "Sony DSP,")
     }
 
     // >0x12    shortle    40    DEC PDP-10,
@@ -12822,7 +14077,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x40)
     }
     if m1 {
-      // do something with DEC PDP-10,
+      out = append(out, "DEC PDP-10,")
     }
 
     // >0x12    shortle    41    DEC PDP-11,
@@ -12832,7 +14087,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x41)
     }
     if m1 {
-      // do something with DEC PDP-11,
+      out = append(out, "DEC PDP-11,")
     }
 
     // >0x12    shortle    42    FX66,
@@ -12842,7 +14097,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x42)
     }
     if m1 {
-      // do something with FX66,
+      out = append(out, "FX66,")
     }
 
     // >0x12    shortle    43    ST9+ 8/16 bit,
@@ -12852,7 +14107,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x43)
     }
     if m1 {
-      // do something with ST9+ 8/16 bit,
+      out = append(out, "ST9+ 8/16 bit,")
     }
 
     // >0x12    shortle    44    ST7 8 bit,
@@ -12862,7 +14117,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x44)
     }
     if m1 {
-      // do something with ST7 8 bit,
+      out = append(out, "ST7 8 bit,")
     }
 
     // >0x12    shortle    45    MC68HC16,
@@ -12872,7 +14127,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x45)
     }
     if m1 {
-      // do something with MC68HC16,
+      out = append(out, "MC68HC16,")
     }
 
     // >0x12    shortle    46    MC68HC11,
@@ -12882,7 +14137,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x46)
     }
     if m1 {
-      // do something with MC68HC11,
+      out = append(out, "MC68HC11,")
     }
 
     // >0x12    shortle    47    MC68HC08,
@@ -12892,7 +14147,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x47)
     }
     if m1 {
-      // do something with MC68HC08,
+      out = append(out, "MC68HC08,")
     }
 
     // >0x12    shortle    48    MC68HC05,
@@ -12902,7 +14157,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x48)
     }
     if m1 {
-      // do something with MC68HC05,
+      out = append(out, "MC68HC05,")
     }
 
     // >0x12    shortle    49    SGI SVx or Cray NV1,
@@ -12912,7 +14167,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x49)
     }
     if m1 {
-      // do something with SGI SVx or Cray NV1,
+      out = append(out, "SGI SVx or Cray NV1,")
     }
 
     // >0x12    shortle    4a    ST19 8 bit,
@@ -12922,7 +14177,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4a)
     }
     if m1 {
-      // do something with ST19 8 bit,
+      out = append(out, "ST19 8 bit,")
     }
 
     // >0x12    shortle    4b    Digital VAX,
@@ -12932,7 +14187,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4b)
     }
     if m1 {
-      // do something with Digital VAX,
+      out = append(out, "Digital VAX,")
     }
 
     // >0x12    shortle    4c    Axis cris,
@@ -12942,7 +14197,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4c)
     }
     if m1 {
-      // do something with Axis cris,
+      out = append(out, "Axis cris,")
     }
 
     // >0x12    shortle    4d    Infineon 32-bit embedded,
@@ -12952,7 +14207,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4d)
     }
     if m1 {
-      // do something with Infineon 32-bit embedded,
+      out = append(out, "Infineon 32-bit embedded,")
     }
 
     // >0x12    shortle    4e    Element 14 64-bit DSP,
@@ -12962,7 +14217,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4e)
     }
     if m1 {
-      // do something with Element 14 64-bit DSP,
+      out = append(out, "Element 14 64-bit DSP,")
     }
 
     // >0x12    shortle    4f    LSI Logic 16-bit DSP,
@@ -12972,7 +14227,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4f)
     }
     if m1 {
-      // do something with LSI Logic 16-bit DSP,
+      out = append(out, "LSI Logic 16-bit DSP,")
     }
 
     // >0x12    shortle    50    MMIX,
@@ -12982,7 +14237,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x50)
     }
     if m1 {
-      // do something with MMIX,
+      out = append(out, "MMIX,")
     }
 
     // >0x12    shortle    51    Harvard machine-independent,
@@ -12992,7 +14247,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x51)
     }
     if m1 {
-      // do something with Harvard machine-independent,
+      out = append(out, "Harvard machine-independent,")
     }
 
     // >0x12    shortle    52    SiTera Prism,
@@ -13002,7 +14257,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x52)
     }
     if m1 {
-      // do something with SiTera Prism,
+      out = append(out, "SiTera Prism,")
     }
 
     // >0x12    shortle    53    Atmel AVR 8-bit,
@@ -13012,7 +14267,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x53)
     }
     if m1 {
-      // do something with Atmel AVR 8-bit,
+      out = append(out, "Atmel AVR 8-bit,")
     }
 
     // >0x12    shortle    54    Fujitsu FR30,
@@ -13022,7 +14277,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x54)
     }
     if m1 {
-      // do something with Fujitsu FR30,
+      out = append(out, "Fujitsu FR30,")
     }
 
     // >0x12    shortle    55    Mitsubishi D10V,
@@ -13032,7 +14287,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x55)
     }
     if m1 {
-      // do something with Mitsubishi D10V,
+      out = append(out, "Mitsubishi D10V,")
     }
 
     // >0x12    shortle    56    Mitsubishi D30V,
@@ -13042,7 +14297,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x56)
     }
     if m1 {
-      // do something with Mitsubishi D30V,
+      out = append(out, "Mitsubishi D30V,")
     }
 
     // >0x12    shortle    57    NEC v850,
@@ -13052,7 +14307,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x57)
     }
     if m1 {
-      // do something with NEC v850,
+      out = append(out, "NEC v850,")
     }
 
     // >0x12    shortle    58    Renesas M32R,
@@ -13062,7 +14317,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x58)
     }
     if m1 {
-      // do something with Renesas M32R,
+      out = append(out, "Renesas M32R,")
     }
 
     // >0x12    shortle    59    Matsushita MN10300,
@@ -13072,7 +14327,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x59)
     }
     if m1 {
-      // do something with Matsushita MN10300,
+      out = append(out, "Matsushita MN10300,")
     }
 
     // >0x12    shortle    5a    Matsushita MN10200,
@@ -13082,7 +14337,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5a)
     }
     if m1 {
-      // do something with Matsushita MN10200,
+      out = append(out, "Matsushita MN10200,")
     }
 
     // >0x12    shortle    5b    picoJava,
@@ -13092,7 +14347,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5b)
     }
     if m1 {
-      // do something with picoJava,
+      out = append(out, "picoJava,")
     }
 
     // >0x12    shortle    5c    OpenRISC,
@@ -13102,7 +14357,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5c)
     }
     if m1 {
-      // do something with OpenRISC,
+      out = append(out, "OpenRISC,")
     }
 
     // >0x12    shortle    5d    ARC Cores Tangent-A5,
@@ -13112,7 +14367,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5d)
     }
     if m1 {
-      // do something with ARC Cores Tangent-A5,
+      out = append(out, "ARC Cores Tangent-A5,")
     }
 
     // >0x12    shortle    5e    Tensilica Xtensa,
@@ -13122,7 +14377,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5e)
     }
     if m1 {
-      // do something with Tensilica Xtensa,
+      out = append(out, "Tensilica Xtensa,")
     }
 
     // >0x12    shortle    5f    Alphamosaic VideoCore,
@@ -13132,7 +14387,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5f)
     }
     if m1 {
-      // do something with Alphamosaic VideoCore,
+      out = append(out, "Alphamosaic VideoCore,")
     }
 
     // >0x12    shortle    60    Thompson Multimedia,
@@ -13142,7 +14397,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x60)
     }
     if m1 {
-      // do something with Thompson Multimedia,
+      out = append(out, "Thompson Multimedia,")
     }
 
     // >0x12    shortle    61    NatSemi 32k,
@@ -13152,7 +14407,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x61)
     }
     if m1 {
-      // do something with NatSemi 32k,
+      out = append(out, "NatSemi 32k,")
     }
 
     // >0x12    shortle    62    Tenor Network TPC,
@@ -13162,7 +14417,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x62)
     }
     if m1 {
-      // do something with Tenor Network TPC,
+      out = append(out, "Tenor Network TPC,")
     }
 
     // >0x12    shortle    63    Trebia SNP 1000,
@@ -13172,7 +14427,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x63)
     }
     if m1 {
-      // do something with Trebia SNP 1000,
+      out = append(out, "Trebia SNP 1000,")
     }
 
     // >0x12    shortle    64    STMicroelectronics ST200,
@@ -13182,7 +14437,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x64)
     }
     if m1 {
-      // do something with STMicroelectronics ST200,
+      out = append(out, "STMicroelectronics ST200,")
     }
 
     // >0x12    shortle    65    Ubicom IP2022,
@@ -13192,7 +14447,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x65)
     }
     if m1 {
-      // do something with Ubicom IP2022,
+      out = append(out, "Ubicom IP2022,")
     }
 
     // >0x12    shortle    66    MAX Processor,
@@ -13202,7 +14457,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x66)
     }
     if m1 {
-      // do something with MAX Processor,
+      out = append(out, "MAX Processor,")
     }
 
     // >0x12    shortle    67    NatSemi CompactRISC,
@@ -13212,7 +14467,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x67)
     }
     if m1 {
-      // do something with NatSemi CompactRISC,
+      out = append(out, "NatSemi CompactRISC,")
     }
 
     // >0x12    shortle    68    Fujitsu F2MC16,
@@ -13222,7 +14477,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x68)
     }
     if m1 {
-      // do something with Fujitsu F2MC16,
+      out = append(out, "Fujitsu F2MC16,")
     }
 
     // >0x12    shortle    69    TI msp430,
@@ -13232,7 +14487,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x69)
     }
     if m1 {
-      // do something with TI msp430,
+      out = append(out, "TI msp430,")
     }
 
     // >0x12    shortle    6a    Analog Devices Blackfin,
@@ -13242,7 +14497,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6a)
     }
     if m1 {
-      // do something with Analog Devices Blackfin,
+      out = append(out, "Analog Devices Blackfin,")
     }
 
     // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
@@ -13252,7 +14507,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6b)
     }
     if m1 {
-      // do something with S1C33 Family of Seiko Epson,
+      out = append(out, "S1C33 Family of Seiko Epson,")
     }
 
     // >0x12    shortle    6c    Sharp embedded,
@@ -13262,7 +14517,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6c)
     }
     if m1 {
-      // do something with Sharp embedded,
+      out = append(out, "Sharp embedded,")
     }
 
     // >0x12    shortle    6d    Arca RISC,
@@ -13272,7 +14527,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6d)
     }
     if m1 {
-      // do something with Arca RISC,
+      out = append(out, "Arca RISC,")
     }
 
     // >0x12    shortle    6e    PKU-Unity Ltd.,
@@ -13282,7 +14537,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6e)
     }
     if m1 {
-      // do something with PKU-Unity Ltd.,
+      out = append(out, "PKU-Unity Ltd.,")
     }
 
     // >0x12    shortle    6f    eXcess: 16/32/64-bit,
@@ -13292,7 +14547,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x6f)
     }
     if m1 {
-      // do something with eXcess: 16/32/64-bit,
+      out = append(out, "eXcess: 16/32/64-bit,")
     }
 
     // >0x12    shortle    70    Icera Deep Execution Processor,
@@ -13302,7 +14557,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x70)
     }
     if m1 {
-      // do something with Icera Deep Execution Processor,
+      out = append(out, "Icera Deep Execution Processor,")
     }
 
     // >0x12    shortle    71    Altera Nios II,
@@ -13312,7 +14567,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x71)
     }
     if m1 {
-      // do something with Altera Nios II,
+      out = append(out, "Altera Nios II,")
     }
 
     // >0x12    shortle    72    NatSemi CRX,
@@ -13322,7 +14577,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x72)
     }
     if m1 {
-      // do something with NatSemi CRX,
+      out = append(out, "NatSemi CRX,")
     }
 
     // >0x12    shortle    73    Motorola XGATE,
@@ -13332,7 +14587,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x73)
     }
     if m1 {
-      // do something with Motorola XGATE,
+      out = append(out, "Motorola XGATE,")
     }
 
     // >0x12    shortle    74    Infineon C16x/XC16x,
@@ -13342,7 +14597,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x74)
     }
     if m1 {
-      // do something with Infineon C16x/XC16x,
+      out = append(out, "Infineon C16x/XC16x,")
     }
 
     // >0x12    shortle    75    Renesas M16C series,
@@ -13352,7 +14607,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x75)
     }
     if m1 {
-      // do something with Renesas M16C series,
+      out = append(out, "Renesas M16C series,")
     }
 
     // >0x12    shortle    76    Microchip dsPIC30F,
@@ -13362,7 +14617,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x76)
     }
     if m1 {
-      // do something with Microchip dsPIC30F,
+      out = append(out, "Microchip dsPIC30F,")
     }
 
     // >0x12    shortle    77    Freescale RISC core,
@@ -13372,7 +14627,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x77)
     }
     if m1 {
-      // do something with Freescale RISC core,
+      out = append(out, "Freescale RISC core,")
     }
 
     // >0x12    shortle    78    Renesas M32C series,
@@ -13382,7 +14637,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x78)
     }
     if m1 {
-      // do something with Renesas M32C series,
+      out = append(out, "Renesas M32C series,")
     }
 
     // >0x12    shortle    83    Altium TSK3000 core,
@@ -13392,7 +14647,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x83)
     }
     if m1 {
-      // do something with Altium TSK3000 core,
+      out = append(out, "Altium TSK3000 core,")
     }
 
     // >0x12    shortle    84    Freescale RS08,
@@ -13402,7 +14657,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x84)
     }
     if m1 {
-      // do something with Freescale RS08,
+      out = append(out, "Freescale RS08,")
     }
 
     // >0x12    shortle    86    Cyan Technology eCOG2,
@@ -13412,7 +14667,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x86)
     }
     if m1 {
-      // do something with Cyan Technology eCOG2,
+      out = append(out, "Cyan Technology eCOG2,")
     }
 
     // >0x12    shortle    87    Sunplus S+core7 RISC,
@@ -13422,7 +14677,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x87)
     }
     if m1 {
-      // do something with Sunplus S+core7 RISC,
+      out = append(out, "Sunplus S+core7 RISC,")
     }
 
     // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
@@ -13432,7 +14687,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x88)
     }
     if m1 {
-      // do something with New Japan Radio (NJR) 24-bit DSP,
+      out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
     }
 
     // >0x12    shortle    89    Broadcom VideoCore III,
@@ -13442,7 +14697,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x89)
     }
     if m1 {
-      // do something with Broadcom VideoCore III,
+      out = append(out, "Broadcom VideoCore III,")
     }
 
     // >0x12    shortle    8a    LatticeMico32,
@@ -13452,7 +14707,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8a)
     }
     if m1 {
-      // do something with LatticeMico32,
+      out = append(out, "LatticeMico32,")
     }
 
     // >0x12    shortle    8b    Seiko Epson C17 family,
@@ -13462,7 +14717,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8b)
     }
     if m1 {
-      // do something with Seiko Epson C17 family,
+      out = append(out, "Seiko Epson C17 family,")
     }
 
     // >0x12    shortle    8c    TI TMS320C6000 DSP family,
@@ -13472,7 +14727,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8c)
     }
     if m1 {
-      // do something with TI TMS320C6000 DSP family,
+      out = append(out, "TI TMS320C6000 DSP family,")
     }
 
     // >0x12    shortle    8d    TI TMS320C2000 DSP family,
@@ -13482,7 +14737,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8d)
     }
     if m1 {
-      // do something with TI TMS320C2000 DSP family,
+      out = append(out, "TI TMS320C2000 DSP family,")
     }
 
     // >0x12    shortle    8e    TI TMS320C55x DSP family,
@@ -13492,7 +14747,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8e)
     }
     if m1 {
-      // do something with TI TMS320C55x DSP family,
+      out = append(out, "TI TMS320C55x DSP family,")
     }
 
     // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
@@ -13502,7 +14757,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa0)
     }
     if m1 {
-      // do something with STMicroelectronics 64bit VLIW DSP,
+      out = append(out, "STMicroelectronics 64bit VLIW DSP,")
     }
 
     // >0x12    shortle    a1    Cypress M8C,
@@ -13512,7 +14767,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa1)
     }
     if m1 {
-      // do something with Cypress M8C,
+      out = append(out, "Cypress M8C,")
     }
 
     // >0x12    shortle    a2    Renesas R32C series,
@@ -13522,7 +14777,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa2)
     }
     if m1 {
-      // do something with Renesas R32C series,
+      out = append(out, "Renesas R32C series,")
     }
 
     // >0x12    shortle    a3    NXP TriMedia family,
@@ -13532,7 +14787,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa3)
     }
     if m1 {
-      // do something with NXP TriMedia family,
+      out = append(out, "NXP TriMedia family,")
     }
 
     // >0x12    shortle    a4    QUALCOMM DSP6,
@@ -13542,7 +14797,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa4)
     }
     if m1 {
-      // do something with QUALCOMM DSP6,
+      out = append(out, "QUALCOMM DSP6,")
     }
 
     // >0x12    shortle    a5    Intel 8051 and variants,
@@ -13552,7 +14807,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa5)
     }
     if m1 {
-      // do something with Intel 8051 and variants,
+      out = append(out, "Intel 8051 and variants,")
     }
 
     // >0x12    shortle    a6    STMicroelectronics STxP7x family,
@@ -13562,7 +14817,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa6)
     }
     if m1 {
-      // do something with STMicroelectronics STxP7x family,
+      out = append(out, "STMicroelectronics STxP7x family,")
     }
 
     // >0x12    shortle    a7    Andes embedded RISC,
@@ -13572,7 +14827,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa7)
     }
     if m1 {
-      // do something with Andes embedded RISC,
+      out = append(out, "Andes embedded RISC,")
     }
 
     // >0x12    shortle    a8    Cyan eCOG1X family,
@@ -13582,7 +14837,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa8)
     }
     if m1 {
-      // do something with Cyan eCOG1X family,
+      out = append(out, "Cyan eCOG1X family,")
     }
 
     // >0x12    shortle    a9    Dallas MAXQ30,
@@ -13592,7 +14847,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa9)
     }
     if m1 {
-      // do something with Dallas MAXQ30,
+      out = append(out, "Dallas MAXQ30,")
     }
 
     // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
@@ -13602,7 +14857,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xaa)
     }
     if m1 {
-      // do something with New Japan Radio (NJR) 16-bit DSP,
+      out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
     }
 
     // >0x12    shortle    ab    M2000 Reconfigurable RISC,
@@ -13612,7 +14867,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xab)
     }
     if m1 {
-      // do something with M2000 Reconfigurable RISC,
+      out = append(out, "M2000 Reconfigurable RISC,")
     }
 
     // >0x12    shortle    ac    Cray NV2 vector architecture,
@@ -13622,7 +14877,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xac)
     }
     if m1 {
-      // do something with Cray NV2 vector architecture,
+      out = append(out, "Cray NV2 vector architecture,")
     }
 
     // >0x12    shortle    ad    Renesas RX family,
@@ -13632,7 +14887,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xad)
     }
     if m1 {
-      // do something with Renesas RX family,
+      out = append(out, "Renesas RX family,")
     }
 
     // >0x12    shortle    ae    META,
@@ -13642,7 +14897,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xae)
     }
     if m1 {
-      // do something with META,
+      out = append(out, "META,")
     }
 
     // >0x12    shortle    af    MCST Elbrus,
@@ -13652,7 +14907,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xaf)
     }
     if m1 {
-      // do something with MCST Elbrus,
+      out = append(out, "MCST Elbrus,")
     }
 
     // >0x12    shortle    b0    Cyan Technology eCOG16 family,
@@ -13662,7 +14917,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb0)
     }
     if m1 {
-      // do something with Cyan Technology eCOG16 family,
+      out = append(out, "Cyan Technology eCOG16 family,")
     }
 
     // >0x12    shortle    b1    NatSemi CompactRISC,
@@ -13672,7 +14927,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb1)
     }
     if m1 {
-      // do something with NatSemi CompactRISC,
+      out = append(out, "NatSemi CompactRISC,")
     }
 
     // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
@@ -13682,7 +14937,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb2)
     }
     if m1 {
-      // do something with Freescale Extended Time Processing Unit,
+      out = append(out, "Freescale Extended Time Processing Unit,")
     }
 
     // >0x12    shortle    b3    Infineon SLE9X,
@@ -13692,7 +14947,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb3)
     }
     if m1 {
-      // do something with Infineon SLE9X,
+      out = append(out, "Infineon SLE9X,")
     }
 
     // >0x12    shortle    b4    Intel L1OM,
@@ -13702,7 +14957,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb4)
     }
     if m1 {
-      // do something with Intel L1OM,
+      out = append(out, "Intel L1OM,")
     }
 
     // >0x12    shortle    b5    Intel K1OM,
@@ -13712,7 +14967,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb5)
     }
     if m1 {
-      // do something with Intel K1OM,
+      out = append(out, "Intel K1OM,")
     }
 
     // >0x12    shortle    b7    ARM aarch64,
@@ -13722,7 +14977,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb7)
     }
     if m1 {
-      // do something with ARM aarch64,
+      out = append(out, "ARM aarch64,")
     }
 
     // >0x12    shortle    b9    Atmel 32-bit family,
@@ -13732,7 +14987,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xb9)
     }
     if m1 {
-      // do something with Atmel 32-bit family,
+      out = append(out, "Atmel 32-bit family,")
     }
 
     // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
@@ -13742,7 +14997,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xba)
     }
     if m1 {
-      // do something with STMicroeletronics STM8 8-bit,
+      out = append(out, "STMicroeletronics STM8 8-bit,")
     }
 
     // >0x12    shortle    bb    Tilera TILE64,
@@ -13752,7 +15007,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbb)
     }
     if m1 {
-      // do something with Tilera TILE64,
+      out = append(out, "Tilera TILE64,")
     }
 
     // >0x12    shortle    bc    Tilera TILEPro,
@@ -13762,7 +15017,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbc)
     }
     if m1 {
-      // do something with Tilera TILEPro,
+      out = append(out, "Tilera TILEPro,")
     }
 
     // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
@@ -13772,7 +15027,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbd)
     }
     if m1 {
-      // do something with Xilinx MicroBlaze 32-bit RISC,
+      out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
     }
 
     // >0x12    shortle    be    NVIDIA CUDA architecture,
@@ -13782,7 +15037,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbe)
     }
     if m1 {
-      // do something with NVIDIA CUDA architecture,
+      out = append(out, "NVIDIA CUDA architecture,")
     }
 
     // >0x12    shortle    bf    Tilera TILE-Gx,
@@ -13792,7 +15047,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbf)
     }
     if m1 {
-      // do something with Tilera TILE-Gx,
+      out = append(out, "Tilera TILE-Gx,")
     }
 
     // >0x12    shortle    c5    Renesas RL78 family,
@@ -13802,7 +15057,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc5)
     }
     if m1 {
-      // do something with Renesas RL78 family,
+      out = append(out, "Renesas RL78 family,")
     }
 
     // >0x12    shortle    c7    Renesas 78K0R,
@@ -13812,7 +15067,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xc7)
     }
     if m1 {
-      // do something with Renesas 78K0R,
+      out = append(out, "Renesas 78K0R,")
     }
 
     // >0x12    shortle    1057    AVR (unofficial),
@@ -13822,7 +15077,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1057)
     }
     if m1 {
-      // do something with AVR (unofficial),
+      out = append(out, "AVR (unofficial),")
     }
 
     // >0x12    shortle    1059    MSP430 (unofficial),
@@ -13832,7 +15087,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1059)
     }
     if m1 {
-      // do something with MSP430 (unofficial),
+      out = append(out, "MSP430 (unofficial),")
     }
 
     // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
@@ -13842,7 +15097,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1223)
     }
     if m1 {
-      // do something with Adapteva Epiphany (unofficial),
+      out = append(out, "Adapteva Epiphany (unofficial),")
     }
 
     // >0x12    shortle    2530    Morpho MT (unofficial),
@@ -13852,7 +15107,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x2530)
     }
     if m1 {
-      // do something with Morpho MT (unofficial),
+      out = append(out, "Morpho MT (unofficial),")
     }
 
     // >0x12    shortle    3330    FR30 (unofficial),
@@ -13862,7 +15117,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3330)
     }
     if m1 {
-      // do something with FR30 (unofficial),
+      out = append(out, "FR30 (unofficial),")
     }
 
     // >0x12    shortle    3426    OpenRISC (obsolete),
@@ -13872,7 +15127,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x3426)
     }
     if m1 {
-      // do something with OpenRISC (obsolete),
+      out = append(out, "OpenRISC (obsolete),")
     }
 
     // >0x12    shortle    4688    Infineon C166 (unofficial),
@@ -13882,7 +15137,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x4688)
     }
     if m1 {
-      // do something with Infineon C166 (unofficial),
+      out = append(out, "Infineon C166 (unofficial),")
     }
 
     // >0x12    shortle    5441    Cygnus FRV (unofficial),
@@ -13892,7 +15147,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5441)
     }
     if m1 {
-      // do something with Cygnus FRV (unofficial),
+      out = append(out, "Cygnus FRV (unofficial),")
     }
 
     // >0x12    shortle    5aa5    DLX (unofficial),
@@ -13902,7 +15157,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x5aa5)
     }
     if m1 {
-      // do something with DLX (unofficial),
+      out = append(out, "DLX (unofficial),")
     }
 
     // >0x12    shortle    7650    Cygnus D10V (unofficial),
@@ -13912,7 +15167,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x7650)
     }
     if m1 {
-      // do something with Cygnus D10V (unofficial),
+      out = append(out, "Cygnus D10V (unofficial),")
     }
 
     // >0x12    shortle    7676    Cygnus D30V (unofficial),
@@ -13922,7 +15177,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x7676)
     }
     if m1 {
-      // do something with Cygnus D30V (unofficial),
+      out = append(out, "Cygnus D30V (unofficial),")
     }
 
     // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
@@ -13932,7 +15187,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8217)
     }
     if m1 {
-      // do something with Ubicom IP2xxx (unofficial),
+      out = append(out, "Ubicom IP2xxx (unofficial),")
     }
 
     // >0x12    shortle    8472    OpenRISC (obsolete),
@@ -13942,7 +15197,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x8472)
     }
     if m1 {
-      // do something with OpenRISC (obsolete),
+      out = append(out, "OpenRISC (obsolete),")
     }
 
     // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
@@ -13952,7 +15207,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9025)
     }
     if m1 {
-      // do something with Cygnus PowerPC (unofficial),
+      out = append(out, "Cygnus PowerPC (unofficial),")
     }
 
     // >0x12    shortle    9026    Alpha (unofficial),
@@ -13962,7 +15217,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9026)
     }
     if m1 {
-      // do something with Alpha (unofficial),
+      out = append(out, "Alpha (unofficial),")
     }
 
     // >0x12    shortle    9041    Cygnus M32R (unofficial),
@@ -13972,7 +15227,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9041)
     }
     if m1 {
-      // do something with Cygnus M32R (unofficial),
+      out = append(out, "Cygnus M32R (unofficial),")
     }
 
     // >0x12    shortle    9080    Cygnus V850 (unofficial),
@@ -13982,7 +15237,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x9080)
     }
     if m1 {
-      // do something with Cygnus V850 (unofficial),
+      out = append(out, "Cygnus V850 (unofficial),")
     }
 
     // >0x12    shortle    a390    IBM S/390 (obsolete),
@@ -13992,7 +15247,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xa390)
     }
     if m1 {
-      // do something with IBM S/390 (obsolete),
+      out = append(out, "IBM S/390 (obsolete),")
     }
 
     // >0x12    shortle    abc7    Old Xtensa (unofficial),
@@ -14002,7 +15257,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xabc7)
     }
     if m1 {
-      // do something with Old Xtensa (unofficial),
+      out = append(out, "Old Xtensa (unofficial),")
     }
 
     // >0x12    shortle    ad45    xstormy16 (unofficial),
@@ -14012,7 +15267,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xad45)
     }
     if m1 {
-      // do something with xstormy16 (unofficial),
+      out = append(out, "xstormy16 (unofficial),")
     }
 
     // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
@@ -14022,7 +15277,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbaab)
     }
     if m1 {
-      // do something with Old MicroBlaze (unofficial),,
+      out = append(out, "Old MicroBlaze (unofficial),,")
     }
 
     // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
@@ -14032,7 +15287,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xbeef)
     }
     if m1 {
-      // do something with Cygnus MN10300 (unofficial),
+      out = append(out, "Cygnus MN10300 (unofficial),")
     }
 
     // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
@@ -14042,7 +15297,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xdead)
     }
     if m1 {
-      // do something with Cygnus MN10200 (unofficial),
+      out = append(out, "Cygnus MN10200 (unofficial),")
     }
 
     // >0x12    shortle    f00d    Toshiba MeP (unofficial),
@@ -14052,7 +15307,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xf00d)
     }
     if m1 {
-      // do something with Toshiba MeP (unofficial),
+      out = append(out, "Toshiba MeP (unofficial),")
     }
 
     // >0x12    shortle    feb0    Renesas M32C (unofficial),
@@ -14062,7 +15317,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfeb0)
     }
     if m1 {
-      // do something with Renesas M32C (unofficial),
+      out = append(out, "Renesas M32C (unofficial),")
     }
 
     // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
@@ -14072,7 +15327,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfeba)
     }
     if m1 {
-      // do something with Vitesse IQ2000 (unofficial),
+      out = append(out, "Vitesse IQ2000 (unofficial),")
     }
 
     // >0x12    shortle    febb    NIOS (unofficial),
@@ -14082,7 +15337,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfebb)
     }
     if m1 {
-      // do something with NIOS (unofficial),
+      out = append(out, "NIOS (unofficial),")
     }
 
     // >0x12    shortle    feed    Moxie (unofficial),
@@ -14092,7 +15347,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0xfeed)
     }
     if m1 {
-      // do something with Moxie (unofficial),
+      out = append(out, "Moxie (unofficial),")
     }
 
     // >0x12    default    
@@ -14107,7 +15362,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        // do something with *unknown arch 0x%x*
+        out = append(out, "*unknown arch 0x%x*")
       }
 
     }
@@ -14118,7 +15373,7 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      // do something with invalid version
+      out = append(out, "invalid version")
     }
 
     // >0x14    longle    1    version 1
@@ -14128,10 +15383,45 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
       m1 = ok && (uint64(iv) == 0x1)
     }
     if m1 {
-      // do something with version 1
+      out = append(out, "version 1")
     }
 
   }
-  return outStrings, nil
+  return out, nil
+}
+
+func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    use   cur-ico-entry    
+    off = pageOff + 0
+    // uh oh unhandled kind
+
+    // >0x4    ushortle    1    \b, %d planes
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (int64(int16(iv)) > 0x1)
+    }
+    if m1 {
+      out = append(out, "\\b, %d planes")
+    }
+
+    // >0x6    ushortle    1    \b, %d bits/pixel
+    off = pageOff + 6
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (int64(int16(iv)) > 0x1)
+    }
+    if m1 {
+      out = append(out, "\\b, %d bits/pixel")
+    }
+
+  }
+  return out, nil
 }
 

@@ -73,6 +73,9 @@ func Compile(book wizparser.Spellbook) error {
 	emit(")")
 	emit("")
 
+	emit("// silence import errors, if we don't use string/search etc.")
+	emit("var _ wizardry.StringTestFlags")
+
 	emit("var le binary.ByteOrder = binary.LittleEndian")
 	emit("var be binary.ByteOrder = binary.BigEndian")
 	emit("")
@@ -109,14 +112,12 @@ func Compile(book wizparser.Spellbook) error {
 
 			emit("func Identify%s(tb []byte, pageOff int64) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
-				emit("var outStrings []string")
+				emit("var out []string")
 				emit("var off int64") // lookupOffset
-				emit("var err error")
-				emit("var ok bool")
 
 				maxLevel := 0
 				for _, rule := range rules {
-					if rule.Level > maxLevel {
+					if rule.Level > maxLevel && len(rule.Description) > 0 {
 						maxLevel = rule.Level
 					}
 				}
@@ -135,12 +136,8 @@ func Compile(book wizparser.Spellbook) error {
 					rule := rules[ruleIndex]
 
 					for currentLevel < rule.Level {
+						emit("if m%d {", currentLevel)
 						currentLevel++
-						if rule.Level > 0 {
-							emit("if m%d {", rule.Level-1)
-						} else {
-							emit("{")
-						}
 						indent()
 					}
 
@@ -196,16 +193,16 @@ func Compile(book wizparser.Spellbook) error {
 						})
 						emit("}")
 
-						if len(rule.Description) > 0 {
-							emit("if m%d {", rule.Level)
-							withIndent(func() {
-								emit("// do something with %s", rule.Description)
-							})
-							emit("}")
-						}
-
 					default:
 						emit("// uh oh unhandled kind")
+					}
+
+					if len(rule.Description) > 0 {
+						emit("if m%d {", rule.Level)
+						withIndent(func() {
+							emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
+						})
+						emit("}")
 					}
 
 					emit("")
@@ -219,7 +216,7 @@ func Compile(book wizparser.Spellbook) error {
 					emit("}")
 				}
 
-				emit("return outStrings, nil")
+				emit("return out, nil")
 			})
 			emit("}")
 			emit("")
