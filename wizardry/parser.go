@@ -4,7 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
+
+	"github.com/go-errors/errors"
 )
 
 // LogFunc prints a debug message
@@ -13,6 +18,37 @@ type LogFunc func(format string, args ...interface{})
 // ParseContext holds state for the parser
 type ParseContext struct {
 	Logf LogFunc
+}
+
+func (ctx *ParseContext) ParseAll(magdir string, book Spellbook) error {
+	files, err := ioutil.ReadDir(magdir)
+	if err != nil {
+		return errors.Wrap(err, 0)
+	}
+
+	for _, magicFile := range files {
+		err = func() error {
+			f, err := os.Open(filepath.Join(magdir, magicFile.Name()))
+			if err != nil {
+				return errors.Wrap(err, 0)
+			}
+
+			defer f.Close()
+
+			err = ctx.Parse(f, book)
+			if err != nil {
+				return errors.Wrap(err, 0)
+			}
+
+			return nil
+		}()
+
+		if err != nil {
+			return errors.Wrap(err, 0)
+		}
+	}
+
+	return nil
 }
 
 // Parse reads a magic rule file and puts it into a spell book

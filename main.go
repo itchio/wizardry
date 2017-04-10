@@ -1,87 +1,70 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"os"
 
-	"github.com/fasterthanlime/wizardry/wizardry"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/go-errors/errors"
+	"github.com/itchio/butler/comm"
 )
 
+var (
+	app = kingpin.New("wizardry", "A magic parser/interpreter/compiler")
+
+	compileCmd  = app.Command("compile", "Compile a set of magic files into one .go file")
+	identifyCmd = app.Command("identify", "Use a magic file to identify a target file")
+)
+
+var appArgs = struct {
+	debugParser      *bool
+	debugInterpreter *bool
+}{
+	app.Flag("debug-parser", "Turn on verbose parser output").Bool(),
+	app.Flag("debug-interpreter", "Turn on verbose interpreter output").Bool(),
+}
+
+var identifyArgs = struct {
+	magdir *string
+	target *string
+}{
+	identifyCmd.Arg("magdir", "the folder of magic files to compile").Required().String(),
+	identifyCmd.Arg("target", "path of the the file to identify").Required().String(),
+}
+
+var compileArgs = struct {
+	magdir *string
+	output *string
+}{
+	compileCmd.Arg("magdir", "the folder of magic files to compile").Required().String(),
+	compileCmd.Arg("output", "where to output the file").Required().String(),
+}
+
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Println("Usage: wizardry RULES TARGET")
-	}
+	app.HelpFlag.Short('h')
+	app.Author("Amos Wenger <amos@itch.io>")
 
-	rule := os.Args[1]
-	ruleReader, err := os.Open(rule)
+	cmd, err := app.Parse(os.Args[1:])
 	if err != nil {
-		panic(err)
+		ctx, _ := app.ParseContext(os.Args[1:])
+		app.FatalUsageContext(ctx, "%s\n", err.Error())
 	}
 
-	defer ruleReader.Close()
+	switch kingpin.MustParse(cmd, err) {
+	case compileCmd.FullCommand():
+		must(doCompile())
+	case identifyCmd.FullCommand():
+		must(doIdentify())
+	}
+}
 
-	target := os.Args[2]
-	targetReader, err := os.Open(target)
+func must(err error) {
 	if err != nil {
-		panic(err)
-	}
-
-	defer targetReader.Close()
-
-	readAll := os.Getenv("WIZARDRY_FULL_FILE") != "0"
-
-	var targetSlice []byte
-	if readAll {
-		stat, _ := targetReader.Stat()
-		targetSlice = make([]byte, stat.Size())
-	} else {
-		targetSlice = make([]byte, 2048)
-	}
-	n, err := io.ReadFull(targetReader, targetSlice)
-	if err != nil {
-		if err == io.ErrUnexpectedEOF {
-			// ok then
-		} else {
-			panic(err)
+		switch err := err.(type) {
+		case *errors.Error:
+			comm.Die(err.ErrorStack())
+		default:
+			comm.Die(err.Error())
 		}
 	}
-
-	NoLogf := func(format string, args ...interface{}) {}
-
-	Logf := func(format string, args ...interface{}) {
-		fmt.Println(fmt.Sprintf(format, args...))
-	}
-
-	pctx := &wizardry.ParseContext{
-		Logf: NoLogf,
-	}
-
-	debugParser := os.Getenv("WIZARDRY_DEBUG_PARSER") == "1"
-	if debugParser {
-		pctx.Logf = Logf
-	}
-
-	book := make(wizardry.Spellbook)
-	err = pctx.Parse(ruleReader, book)
-	if err != nil {
-		panic(err)
-	}
-
-	ictx := &wizardry.InterpretContext{
-		Logf: Logf,
-		Book: book,
-	}
-
-	silentInterpreter := os.Getenv("WIZARDRY_SILENT_INTERPRETER") == "1"
-	if silentInterpreter {
-		ictx.Logf = NoLogf
-	}
-
-	result, err := ictx.Identify(targetSlice[:n])
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Printf("%s: %s\n", target, result)
 }
