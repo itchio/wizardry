@@ -67,6 +67,7 @@ func Compile(book wizparser.Spellbook) error {
 	emit("")
 	emit("import (")
 	withIndent(func() {
+		emit(strconv.Quote("fmt"))
 		emit(strconv.Quote("encoding/binary"))
 		emit(strconv.Quote("github.com/fasterthanlime/wizardry/wizardry"))
 	})
@@ -75,6 +76,7 @@ func Compile(book wizparser.Spellbook) error {
 
 	emit("// silence import errors, if we don't use string/search etc.")
 	emit("var _ wizardry.StringTestFlags")
+	emit("var _ fmt.State")
 
 	emit("var le binary.ByteOrder = binary.LittleEndian")
 	emit("var be binary.ByteOrder = binary.BigEndian")
@@ -114,6 +116,7 @@ func Compile(book wizparser.Spellbook) error {
 			withIndent(func() {
 				emit("var out []string")
 				emit("var off int64") // lookupOffset
+				emit("var ml int64")  // matchLength
 
 				maxLevel := 0
 				for _, rule := range rules {
@@ -123,6 +126,7 @@ func Compile(book wizparser.Spellbook) error {
 				}
 				for i := 0; i <= maxLevel; i++ {
 					emit("m%d := false", i)
+					emit("m%d = !!m%d", i, i)
 				}
 				emit("")
 
@@ -132,8 +136,8 @@ func Compile(book wizparser.Spellbook) error {
 					if ruleIndex >= len(rules) {
 						break
 					}
-
 					rule := rules[ruleIndex]
+					ruleIndex++
 
 					for currentLevel < rule.Level {
 						emit("if m%d {", currentLevel)
@@ -145,6 +149,8 @@ func Compile(book wizparser.Spellbook) error {
 						currentLevel--
 						outdent()
 						emit("}")
+
+						emit("m%d = false", currentLevel)
 					}
 
 					emit("// %s", rule)
@@ -190,24 +196,31 @@ func Compile(book wizparser.Spellbook) error {
 
 							ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, quoteNumber(ik.Value))
 							emit("m%d = %s", rule.Level, ruleTest)
+							emit("ml = %d", ik.ByteWidth)
 						})
 						emit("}")
+
+					case wizparser.KindFamilyString:
+						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
+						emit("ml = int64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
+						emit("m%d = ml >= 0", rule.Level)
 
 					default:
 						emit("// uh oh unhandled kind")
+						continue
 					}
 
-					if len(rule.Description) > 0 {
-						emit("if m%d {", rule.Level)
-						withIndent(func() {
+					emit("if m%d {", rule.Level)
+					withIndent(func() {
+						emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.String()))
+						emit("off += ml")
+						if len(rule.Description) > 0 {
 							emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
-						})
-						emit("}")
-					}
+						}
+					})
+					emit("}")
 
 					emit("")
-
-					ruleIndex++
 				}
 
 				for currentLevel > 0 {
