@@ -7,6 +7,7 @@ import (
 
 	"github.com/fasterthanlime/wizardry/wizardry/wizinterpreter"
 	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
+	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
 	"github.com/go-errors/errors"
 )
 
@@ -64,7 +65,7 @@ func doIdentify() error {
 		panic(err)
 	}
 
-	fmt.Printf("%s: %s\n", target, result)
+	fmt.Printf("%s: %s\n", target, wizutil.MergeStrings(result))
 
 	return nil
 }

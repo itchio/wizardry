@@ -1,5 +1,10 @@
 package wizutil
 
+import (
+	"regexp"
+	"strings"
+)
+
 // IsWhitespace tests if a byte is either a space or a tab
 func IsWhitespace(b byte) bool {
 	return b == ' ' || b == '\t'
@@ -44,4 +49,16 @@ func ToUpper(b byte) byte {
 		return b - ('a' - 'A')
 	}
 	return b
+}
+
+// MergeStrings concatenates a set of strings return by Identify into
+// a string that file(1) would print. For example, it handles \b.
+func MergeStrings(outStrings []string) string {
+	outString := strings.Join(outStrings, " ")
+
+	re := regexp.MustCompile(`.\\b`)
+	outString = re.ReplaceAllString(outString, "")
+	outString = strings.TrimSpace(outString)
+
+	return outString
 }

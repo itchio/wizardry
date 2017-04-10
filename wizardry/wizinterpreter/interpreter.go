@@ -2,8 +2,6 @@ package wizinterpreter
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
 
 	"github.com/fasterthanlime/wizardry/wizardry"
 	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
@@ -22,19 +20,13 @@ type InterpretContext struct {
 }
 
 // Identify follows the rules in a spellbook to find out the type of a file
-func (ctx *InterpretContext) Identify(target []byte) (string, error) {
+func (ctx *InterpretContext) Identify(target []byte) ([]string, error) {
 	outStrings, err := ctx.identifyInternal(target, 0, "", false)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	outString := strings.Join(outStrings, " ")
-
-	re := regexp.MustCompile(`.\\b`)
-	outString = re.ReplaceAllString(outString, "")
-	outString = strings.TrimSpace(outString)
-
-	return outString, nil
+	return outStrings, nil
 }
 
 func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, page string, swapEndian bool) ([]string, error) {

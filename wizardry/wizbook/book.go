@@ -77,2344 +77,115 @@ func readUint64le(tb []byte, off int64) (uint64, bool) {
   return pi, true
 }
 
-func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
   var out []string
   var off int64
   m0 := false
   m1 := false
   m2 := false
   m3 := false
+  m4 := false
 
   if m0 {
-    // >0x10    shortle    0    no file type,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
     if m1 {
-      out = append(out, "no file type,")
-    }
-
-    // >0x10    shortle    1    relocatable,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
-    }
-    if m1 {
-      out = append(out, "relocatable,")
-    }
-
-    // >0x10    shortle    2    executable,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
-    }
-    if m1 {
-      out = append(out, "executable,")
-    }
-
-    // >0x10    shortle    3    shared object,
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3)
-    }
-    if m1 {
-      out = append(out, "shared object,")
-    }
-
-    // >0x10    shortle    4    core file
-    off = pageOff + 16
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4)
-    }
-    if m1 {
-      out = append(out, "core file")
-    }
-
-    // >0x12    clear    
-    off = pageOff + 18
-    // uh oh unhandled kind
-
-    // >0x12    shortle    0    no machine,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "no machine,")
-    }
-
-    // >0x12    shortle    1    AT&T WE32100,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
-    }
-    if m1 {
-      out = append(out, "AT&T WE32100,")
-    }
-
-    // >0x12    shortle    2    SPARC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2)
-    }
-    if m1 {
-      out = append(out, "SPARC,")
-    }
-
-    // >0x12    shortle    3    Intel 80386,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3)
-    }
-    if m1 {
-      out = append(out, "Intel 80386,")
-    }
-
-    // >0x12    shortle    4    Motorola m68k,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4)
-    }
-    if m1 {
-      out = append(out, "Motorola m68k,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
+      // >>(0x12.longle)    ulongle    0    MS Windows
+      // uh oh indirect offset
       {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-      if m2 {
-        // >>>0x24    longle    0    68020,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "68020,")
-        }
-
-      }
-    }
-    // >0x12    shortle    5    Motorola m88k,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5)
-    }
-    if m1 {
-      out = append(out, "Motorola m88k,")
-    }
-
-    // >0x12    shortle    6    Intel 80486,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6)
-    }
-    if m1 {
-      out = append(out, "Intel 80486,")
-    }
-
-    // >0x12    shortle    7    Intel 80860,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x7)
-    }
-    if m1 {
-      out = append(out, "Intel 80860,")
-    }
-
-    // >0x12    shortle    8    MIPS,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8)
-    }
-    if m1 {
-      out = append(out, "MIPS,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-    }
-    // >0x12    shortle    a    MIPS,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa)
-    }
-    if m1 {
-      out = append(out, "MIPS,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-    }
-    // >0x12    shortle    8    
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8)
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-      if m2 {
-        // >>>0x24    longle    0&0xf0000000    MIPS-I
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "MIPS-I")
-        }
-
-        // >>>0x24    longle    10000000&0xf0000000    MIPS-II
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x10000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-II")
-        }
-
-        // >>>0x24    longle    20000000&0xf0000000    MIPS-III
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x20000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-III")
-        }
-
-        // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x30000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-IV")
-        }
-
-        // >>>0x24    longle    40000000&0xf0000000    MIPS-V
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x40000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-V")
-        }
-
-        // >>>0x24    longle    50000000&0xf0000000    MIPS32
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x50000000)
-        }
-        if m3 {
-          out = append(out, "MIPS32")
-        }
-
-        // >>>0x24    longle    60000000&0xf0000000    MIPS64
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x60000000)
-        }
-        if m3 {
-          out = append(out, "MIPS64")
-        }
-
-        // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x70000000)
-        }
-        if m3 {
-          out = append(out, "MIPS32 rel2")
-        }
-
-        // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x80000000)
-        }
-        if m3 {
-          out = append(out, "MIPS64 rel2")
-        }
-
-      }
-      // >>0x4    bytele    2    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-      }
-
-      if m2 {
-        // >>>0x30    longle    0&0xf0000000    MIPS-I
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "MIPS-I")
-        }
-
-        // >>>0x30    longle    10000000&0xf0000000    MIPS-II
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x10000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-II")
-        }
-
-        // >>>0x30    longle    20000000&0xf0000000    MIPS-III
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x20000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-III")
-        }
-
-        // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x30000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-IV")
-        }
-
-        // >>>0x30    longle    40000000&0xf0000000    MIPS-V
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x40000000)
-        }
-        if m3 {
-          out = append(out, "MIPS-V")
-        }
-
-        // >>>0x30    longle    50000000&0xf0000000    MIPS32
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x50000000)
-        }
-        if m3 {
-          out = append(out, "MIPS32")
-        }
-
-        // >>>0x30    longle    60000000&0xf0000000    MIPS64
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x60000000)
-        }
-        if m3 {
-          out = append(out, "MIPS64")
-        }
-
-        // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x70000000)
-        }
-        if m3 {
-          out = append(out, "MIPS32 rel2")
-        }
-
-        // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x80000000)
-        }
-        if m3 {
-          out = append(out, "MIPS64 rel2")
-        }
-
-      }
-    }
-    // >0x12    shortle    9    Amdahl,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9)
-    }
-    if m1 {
-      out = append(out, "Amdahl,")
-    }
-
-    // >0x12    shortle    a    MIPS (deprecated),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa)
-    }
-    if m1 {
-      out = append(out, "MIPS (deprecated),")
-    }
-
-    // >0x12    shortle    b    RS6000,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb)
-    }
-    if m1 {
-      out = append(out, "RS6000,")
-    }
-
-    // >0x12    shortle    f    PA-RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xf)
-    }
-    if m1 {
-      out = append(out, "PA-RISC,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-      if m2 {
-        // >>>0x26    shortle    214    2.0
-        off = pageOff + 38
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x214)
-        }
-        if m3 {
-          out = append(out, "2.0")
-        }
-
-      }
-      // >>0x4    bytele    2    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-      }
-
-      if m2 {
-        // >>>0x32    shortle    214    2.0
-        off = pageOff + 50
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x214)
-        }
-        if m3 {
-          out = append(out, "2.0")
-        }
-
-      }
-    }
-    // >0x12    shortle    10    nCUBE,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x10)
-    }
-    if m1 {
-      out = append(out, "nCUBE,")
-    }
-
-    // >0x12    shortle    11    Fujitsu VPP500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x11)
-    }
-    if m1 {
-      out = append(out, "Fujitsu VPP500,")
-    }
-
-    // >0x12    shortle    12    SPARC32PLUS,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x12)
-    }
-    if m1 {
-      out = append(out, "SPARC32PLUS,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-      if m2 {
-        // >>>0x24    longle    100&0xffff00    V8+ Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x100)
-        }
-        if m3 {
-          out = append(out, "V8+ Required,")
-        }
-
-        // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
-        }
-        if m3 {
-          out = append(out, "Sun UltraSPARC1 Extensions Required,")
-        }
-
-        // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x400)
-        }
-        if m3 {
-          out = append(out, "HaL R1 Extensions Required,")
-        }
-
-        // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x800)
-        }
-        if m3 {
-          out = append(out, "Sun UltraSPARC3 Extensions Required,")
-        }
-
-      }
-    }
-    // >0x12    shortle    13    Intel 80960,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x13)
-    }
-    if m1 {
-      out = append(out, "Intel 80960,")
-    }
-
-    // >0x12    shortle    14    PowerPC or cisco 4500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x14)
-    }
-    if m1 {
-      out = append(out, "PowerPC or cisco 4500,")
-    }
-
-    // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x15)
-    }
-    if m1 {
-      out = append(out, "64-bit PowerPC or cisco 7500,")
-    }
-
-    // >0x12    shortle    16    IBM S/390,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x16)
-    }
-    if m1 {
-      out = append(out, "IBM S/390,")
-    }
-
-    // >0x12    shortle    17    Cell SPU,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x17)
-    }
-    if m1 {
-      out = append(out, "Cell SPU,")
-    }
-
-    // >0x12    shortle    18    cisco SVIP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x18)
-    }
-    if m1 {
-      out = append(out, "cisco SVIP,")
-    }
-
-    // >0x12    shortle    19    cisco 7200,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x19)
-    }
-    if m1 {
-      out = append(out, "cisco 7200,")
-    }
-
-    // >0x12    shortle    24    NEC V800 or cisco 12000,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x24)
-    }
-    if m1 {
-      out = append(out, "NEC V800 or cisco 12000,")
-    }
-
-    // >0x12    shortle    25    Fujitsu FR20,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x25)
-    }
-    if m1 {
-      out = append(out, "Fujitsu FR20,")
-    }
-
-    // >0x12    shortle    26    TRW RH-32,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x26)
-    }
-    if m1 {
-      out = append(out, "TRW RH-32,")
-    }
-
-    // >0x12    shortle    27    Motorola RCE,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x27)
-    }
-    if m1 {
-      out = append(out, "Motorola RCE,")
-    }
-
-    // >0x12    shortle    28    ARM,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x28)
-    }
-    if m1 {
-      out = append(out, "ARM,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    1    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x1)
-      }
-
-      if m2 {
-        // >>>0x24    longle    4000000&0xff000000    EABI4
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x4000000)
-        }
-        if m3 {
-          out = append(out, "EABI4")
-        }
-
-        // >>>0x24    longle    5000000&0xff000000    EABI5
-        off = pageOff + 36
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x5000000)
-        }
-        if m3 {
-          out = append(out, "EABI5")
-        }
-
-      }
-    }
-    // >0x12    shortle    29    Alpha,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x29)
-    }
-    if m1 {
-      out = append(out, "Alpha,")
-    }
-
-    // >0x12    shortle    2a    Renesas SH,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2a)
-    }
-    if m1 {
-      out = append(out, "Renesas SH,")
-    }
-
-    // >0x12    shortle    2b    SPARC V9,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2b)
-    }
-    if m1 {
-      out = append(out, "SPARC V9,")
-    }
-
-    if m1 {
-      // >>0x4    bytele    2    
-      off = pageOff + 4
-      {
-        iv, ok := readUint8be(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-      }
-
-      if m2 {
-        // >>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
-        }
-        if m3 {
-          out = append(out, "Sun UltraSPARC1 Extensions Required,")
-        }
-
-        // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x400)
-        }
-        if m3 {
-          out = append(out, "HaL R1 Extensions Required,")
-        }
-
-        // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x800)
-        }
-        if m3 {
-          out = append(out, "Sun UltraSPARC3 Extensions Required,")
-        }
-
-        // >>>0x30    longle    0&0x3    total store ordering,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "total store ordering,")
-        }
-
-        // >>>0x30    longle    1&0x3    partial store ordering,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
-        }
-        if m3 {
-          out = append(out, "partial store ordering,")
-        }
-
-        // >>>0x30    longle    2&0x3    relaxed memory ordering,
-        off = pageOff + 48
-        {
-          iv, ok := readUint32be(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
-        }
-        if m3 {
-          out = append(out, "relaxed memory ordering,")
-        }
-
-      }
-    }
-    // >0x12    shortle    2c    Siemens Tricore Embedded Processor,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2c)
-    }
-    if m1 {
-      out = append(out, "Siemens Tricore Embedded Processor,")
-    }
-
-    // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2d)
-    }
-    if m1 {
-      out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
-    }
-
-    // >0x12    shortle    2e    Renesas H8/300,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2e)
-    }
-    if m1 {
-      out = append(out, "Renesas H8/300,")
-    }
-
-    // >0x12    shortle    2f    Renesas H8/300H,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2f)
-    }
-    if m1 {
-      out = append(out, "Renesas H8/300H,")
-    }
-
-    // >0x12    shortle    30    Renesas H8S,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x30)
-    }
-    if m1 {
-      out = append(out, "Renesas H8S,")
-    }
-
-    // >0x12    shortle    31    Renesas H8/500,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x31)
-    }
-    if m1 {
-      out = append(out, "Renesas H8/500,")
-    }
-
-    // >0x12    shortle    32    IA-64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x32)
-    }
-    if m1 {
-      out = append(out, "IA-64,")
-    }
-
-    // >0x12    shortle    33    Stanford MIPS-X,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x33)
-    }
-    if m1 {
-      out = append(out, "Stanford MIPS-X,")
-    }
-
-    // >0x12    shortle    34    Motorola Coldfire,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x34)
-    }
-    if m1 {
-      out = append(out, "Motorola Coldfire,")
-    }
-
-    // >0x12    shortle    35    Motorola M68HC12,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x35)
-    }
-    if m1 {
-      out = append(out, "Motorola M68HC12,")
-    }
-
-    // >0x12    shortle    36    Fujitsu MMA,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x36)
-    }
-    if m1 {
-      out = append(out, "Fujitsu MMA,")
-    }
-
-    // >0x12    shortle    37    Siemens PCP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x37)
-    }
-    if m1 {
-      out = append(out, "Siemens PCP,")
-    }
-
-    // >0x12    shortle    38    Sony nCPU,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x38)
-    }
-    if m1 {
-      out = append(out, "Sony nCPU,")
-    }
-
-    // >0x12    shortle    39    Denso NDR1,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x39)
-    }
-    if m1 {
-      out = append(out, "Denso NDR1,")
-    }
-
-    // >0x12    shortle    3a    Start*Core,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3a)
-    }
-    if m1 {
-      out = append(out, "Start*Core,")
-    }
-
-    // >0x12    shortle    3b    Toyota ME16,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3b)
-    }
-    if m1 {
-      out = append(out, "Toyota ME16,")
-    }
-
-    // >0x12    shortle    3c    ST100,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3c)
-    }
-    if m1 {
-      out = append(out, "ST100,")
-    }
-
-    // >0x12    shortle    3d    Tinyj emb.,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3d)
-    }
-    if m1 {
-      out = append(out, "Tinyj emb.,")
-    }
-
-    // >0x12    shortle    3e    x86-64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3e)
-    }
-    if m1 {
-      out = append(out, "x86-64,")
-    }
-
-    // >0x12    shortle    3f    Sony DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3f)
-    }
-    if m1 {
-      out = append(out, "Sony DSP,")
-    }
-
-    // >0x12    shortle    40    DEC PDP-10,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
-    }
-    if m1 {
-      out = append(out, "DEC PDP-10,")
-    }
-
-    // >0x12    shortle    41    DEC PDP-11,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x41)
-    }
-    if m1 {
-      out = append(out, "DEC PDP-11,")
-    }
-
-    // >0x12    shortle    42    FX66,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x42)
-    }
-    if m1 {
-      out = append(out, "FX66,")
-    }
-
-    // >0x12    shortle    43    ST9+ 8/16 bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x43)
-    }
-    if m1 {
-      out = append(out, "ST9+ 8/16 bit,")
-    }
-
-    // >0x12    shortle    44    ST7 8 bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x44)
-    }
-    if m1 {
-      out = append(out, "ST7 8 bit,")
-    }
-
-    // >0x12    shortle    45    MC68HC16,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x45)
-    }
-    if m1 {
-      out = append(out, "MC68HC16,")
-    }
-
-    // >0x12    shortle    46    MC68HC11,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x46)
-    }
-    if m1 {
-      out = append(out, "MC68HC11,")
-    }
-
-    // >0x12    shortle    47    MC68HC08,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x47)
-    }
-    if m1 {
-      out = append(out, "MC68HC08,")
-    }
-
-    // >0x12    shortle    48    MC68HC05,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x48)
-    }
-    if m1 {
-      out = append(out, "MC68HC05,")
-    }
-
-    // >0x12    shortle    49    SGI SVx or Cray NV1,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x49)
-    }
-    if m1 {
-      out = append(out, "SGI SVx or Cray NV1,")
-    }
-
-    // >0x12    shortle    4a    ST19 8 bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4a)
-    }
-    if m1 {
-      out = append(out, "ST19 8 bit,")
-    }
-
-    // >0x12    shortle    4b    Digital VAX,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4b)
-    }
-    if m1 {
-      out = append(out, "Digital VAX,")
-    }
-
-    // >0x12    shortle    4c    Axis cris,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4c)
-    }
-    if m1 {
-      out = append(out, "Axis cris,")
-    }
-
-    // >0x12    shortle    4d    Infineon 32-bit embedded,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4d)
-    }
-    if m1 {
-      out = append(out, "Infineon 32-bit embedded,")
-    }
-
-    // >0x12    shortle    4e    Element 14 64-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4e)
-    }
-    if m1 {
-      out = append(out, "Element 14 64-bit DSP,")
-    }
-
-    // >0x12    shortle    4f    LSI Logic 16-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4f)
-    }
-    if m1 {
-      out = append(out, "LSI Logic 16-bit DSP,")
-    }
-
-    // >0x12    shortle    50    MMIX,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x50)
-    }
-    if m1 {
-      out = append(out, "MMIX,")
-    }
-
-    // >0x12    shortle    51    Harvard machine-independent,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x51)
-    }
-    if m1 {
-      out = append(out, "Harvard machine-independent,")
-    }
-
-    // >0x12    shortle    52    SiTera Prism,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x52)
-    }
-    if m1 {
-      out = append(out, "SiTera Prism,")
-    }
-
-    // >0x12    shortle    53    Atmel AVR 8-bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x53)
-    }
-    if m1 {
-      out = append(out, "Atmel AVR 8-bit,")
-    }
-
-    // >0x12    shortle    54    Fujitsu FR30,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x54)
-    }
-    if m1 {
-      out = append(out, "Fujitsu FR30,")
-    }
-
-    // >0x12    shortle    55    Mitsubishi D10V,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x55)
-    }
-    if m1 {
-      out = append(out, "Mitsubishi D10V,")
-    }
-
-    // >0x12    shortle    56    Mitsubishi D30V,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x56)
-    }
-    if m1 {
-      out = append(out, "Mitsubishi D30V,")
-    }
-
-    // >0x12    shortle    57    NEC v850,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x57)
-    }
-    if m1 {
-      out = append(out, "NEC v850,")
-    }
-
-    // >0x12    shortle    58    Renesas M32R,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x58)
-    }
-    if m1 {
-      out = append(out, "Renesas M32R,")
-    }
-
-    // >0x12    shortle    59    Matsushita MN10300,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x59)
-    }
-    if m1 {
-      out = append(out, "Matsushita MN10300,")
-    }
-
-    // >0x12    shortle    5a    Matsushita MN10200,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5a)
-    }
-    if m1 {
-      out = append(out, "Matsushita MN10200,")
-    }
-
-    // >0x12    shortle    5b    picoJava,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5b)
-    }
-    if m1 {
-      out = append(out, "picoJava,")
-    }
-
-    // >0x12    shortle    5c    OpenRISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5c)
-    }
-    if m1 {
-      out = append(out, "OpenRISC,")
-    }
-
-    // >0x12    shortle    5d    ARC Cores Tangent-A5,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5d)
-    }
-    if m1 {
-      out = append(out, "ARC Cores Tangent-A5,")
-    }
-
-    // >0x12    shortle    5e    Tensilica Xtensa,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5e)
-    }
-    if m1 {
-      out = append(out, "Tensilica Xtensa,")
-    }
-
-    // >0x12    shortle    5f    Alphamosaic VideoCore,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5f)
-    }
-    if m1 {
-      out = append(out, "Alphamosaic VideoCore,")
-    }
-
-    // >0x12    shortle    60    Thompson Multimedia,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x60)
-    }
-    if m1 {
-      out = append(out, "Thompson Multimedia,")
-    }
-
-    // >0x12    shortle    61    NatSemi 32k,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x61)
-    }
-    if m1 {
-      out = append(out, "NatSemi 32k,")
-    }
-
-    // >0x12    shortle    62    Tenor Network TPC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x62)
-    }
-    if m1 {
-      out = append(out, "Tenor Network TPC,")
-    }
-
-    // >0x12    shortle    63    Trebia SNP 1000,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x63)
-    }
-    if m1 {
-      out = append(out, "Trebia SNP 1000,")
-    }
-
-    // >0x12    shortle    64    STMicroelectronics ST200,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x64)
-    }
-    if m1 {
-      out = append(out, "STMicroelectronics ST200,")
-    }
-
-    // >0x12    shortle    65    Ubicom IP2022,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x65)
-    }
-    if m1 {
-      out = append(out, "Ubicom IP2022,")
-    }
-
-    // >0x12    shortle    66    MAX Processor,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x66)
-    }
-    if m1 {
-      out = append(out, "MAX Processor,")
-    }
-
-    // >0x12    shortle    67    NatSemi CompactRISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x67)
-    }
-    if m1 {
-      out = append(out, "NatSemi CompactRISC,")
-    }
-
-    // >0x12    shortle    68    Fujitsu F2MC16,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x68)
-    }
-    if m1 {
-      out = append(out, "Fujitsu F2MC16,")
-    }
-
-    // >0x12    shortle    69    TI msp430,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x69)
-    }
-    if m1 {
-      out = append(out, "TI msp430,")
-    }
-
-    // >0x12    shortle    6a    Analog Devices Blackfin,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6a)
-    }
-    if m1 {
-      out = append(out, "Analog Devices Blackfin,")
-    }
-
-    // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6b)
-    }
-    if m1 {
-      out = append(out, "S1C33 Family of Seiko Epson,")
-    }
-
-    // >0x12    shortle    6c    Sharp embedded,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6c)
-    }
-    if m1 {
-      out = append(out, "Sharp embedded,")
-    }
-
-    // >0x12    shortle    6d    Arca RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6d)
-    }
-    if m1 {
-      out = append(out, "Arca RISC,")
-    }
-
-    // >0x12    shortle    6e    PKU-Unity Ltd.,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6e)
-    }
-    if m1 {
-      out = append(out, "PKU-Unity Ltd.,")
-    }
-
-    // >0x12    shortle    6f    eXcess: 16/32/64-bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6f)
-    }
-    if m1 {
-      out = append(out, "eXcess: 16/32/64-bit,")
-    }
-
-    // >0x12    shortle    70    Icera Deep Execution Processor,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x70)
-    }
-    if m1 {
-      out = append(out, "Icera Deep Execution Processor,")
-    }
-
-    // >0x12    shortle    71    Altera Nios II,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x71)
-    }
-    if m1 {
-      out = append(out, "Altera Nios II,")
-    }
-
-    // >0x12    shortle    72    NatSemi CRX,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x72)
-    }
-    if m1 {
-      out = append(out, "NatSemi CRX,")
-    }
-
-    // >0x12    shortle    73    Motorola XGATE,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x73)
-    }
-    if m1 {
-      out = append(out, "Motorola XGATE,")
-    }
-
-    // >0x12    shortle    74    Infineon C16x/XC16x,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x74)
-    }
-    if m1 {
-      out = append(out, "Infineon C16x/XC16x,")
-    }
-
-    // >0x12    shortle    75    Renesas M16C series,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x75)
-    }
-    if m1 {
-      out = append(out, "Renesas M16C series,")
-    }
-
-    // >0x12    shortle    76    Microchip dsPIC30F,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x76)
-    }
-    if m1 {
-      out = append(out, "Microchip dsPIC30F,")
-    }
-
-    // >0x12    shortle    77    Freescale RISC core,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x77)
-    }
-    if m1 {
-      out = append(out, "Freescale RISC core,")
-    }
-
-    // >0x12    shortle    78    Renesas M32C series,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x78)
-    }
-    if m1 {
-      out = append(out, "Renesas M32C series,")
-    }
-
-    // >0x12    shortle    83    Altium TSK3000 core,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x83)
-    }
-    if m1 {
-      out = append(out, "Altium TSK3000 core,")
-    }
-
-    // >0x12    shortle    84    Freescale RS08,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x84)
-    }
-    if m1 {
-      out = append(out, "Freescale RS08,")
-    }
-
-    // >0x12    shortle    86    Cyan Technology eCOG2,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x86)
-    }
-    if m1 {
-      out = append(out, "Cyan Technology eCOG2,")
-    }
-
-    // >0x12    shortle    87    Sunplus S+core7 RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x87)
-    }
-    if m1 {
-      out = append(out, "Sunplus S+core7 RISC,")
-    }
-
-    // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x88)
-    }
-    if m1 {
-      out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
-    }
-
-    // >0x12    shortle    89    Broadcom VideoCore III,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x89)
-    }
-    if m1 {
-      out = append(out, "Broadcom VideoCore III,")
-    }
-
-    // >0x12    shortle    8a    LatticeMico32,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8a)
-    }
-    if m1 {
-      out = append(out, "LatticeMico32,")
-    }
-
-    // >0x12    shortle    8b    Seiko Epson C17 family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8b)
-    }
-    if m1 {
-      out = append(out, "Seiko Epson C17 family,")
-    }
-
-    // >0x12    shortle    8c    TI TMS320C6000 DSP family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8c)
-    }
-    if m1 {
-      out = append(out, "TI TMS320C6000 DSP family,")
-    }
-
-    // >0x12    shortle    8d    TI TMS320C2000 DSP family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8d)
-    }
-    if m1 {
-      out = append(out, "TI TMS320C2000 DSP family,")
-    }
-
-    // >0x12    shortle    8e    TI TMS320C55x DSP family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8e)
-    }
-    if m1 {
-      out = append(out, "TI TMS320C55x DSP family,")
-    }
-
-    // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa0)
-    }
-    if m1 {
-      out = append(out, "STMicroelectronics 64bit VLIW DSP,")
-    }
-
-    // >0x12    shortle    a1    Cypress M8C,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa1)
-    }
-    if m1 {
-      out = append(out, "Cypress M8C,")
-    }
-
-    // >0x12    shortle    a2    Renesas R32C series,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa2)
-    }
-    if m1 {
-      out = append(out, "Renesas R32C series,")
-    }
-
-    // >0x12    shortle    a3    NXP TriMedia family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa3)
-    }
-    if m1 {
-      out = append(out, "NXP TriMedia family,")
-    }
-
-    // >0x12    shortle    a4    QUALCOMM DSP6,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa4)
-    }
-    if m1 {
-      out = append(out, "QUALCOMM DSP6,")
-    }
-
-    // >0x12    shortle    a5    Intel 8051 and variants,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa5)
-    }
-    if m1 {
-      out = append(out, "Intel 8051 and variants,")
-    }
-
-    // >0x12    shortle    a6    STMicroelectronics STxP7x family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa6)
-    }
-    if m1 {
-      out = append(out, "STMicroelectronics STxP7x family,")
-    }
-
-    // >0x12    shortle    a7    Andes embedded RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa7)
-    }
-    if m1 {
-      out = append(out, "Andes embedded RISC,")
-    }
-
-    // >0x12    shortle    a8    Cyan eCOG1X family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa8)
-    }
-    if m1 {
-      out = append(out, "Cyan eCOG1X family,")
-    }
-
-    // >0x12    shortle    a9    Dallas MAXQ30,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa9)
-    }
-    if m1 {
-      out = append(out, "Dallas MAXQ30,")
-    }
-
-    // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa)
-    }
-    if m1 {
-      out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
-    }
-
-    // >0x12    shortle    ab    M2000 Reconfigurable RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xab)
-    }
-    if m1 {
-      out = append(out, "M2000 Reconfigurable RISC,")
-    }
-
-    // >0x12    shortle    ac    Cray NV2 vector architecture,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xac)
-    }
-    if m1 {
-      out = append(out, "Cray NV2 vector architecture,")
-    }
-
-    // >0x12    shortle    ad    Renesas RX family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xad)
-    }
-    if m1 {
-      out = append(out, "Renesas RX family,")
-    }
-
-    // >0x12    shortle    ae    META,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xae)
-    }
-    if m1 {
-      out = append(out, "META,")
-    }
-
-    // >0x12    shortle    af    MCST Elbrus,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xaf)
-    }
-    if m1 {
-      out = append(out, "MCST Elbrus,")
-    }
-
-    // >0x12    shortle    b0    Cyan Technology eCOG16 family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb0)
-    }
-    if m1 {
-      out = append(out, "Cyan Technology eCOG16 family,")
-    }
-
-    // >0x12    shortle    b1    NatSemi CompactRISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb1)
-    }
-    if m1 {
-      out = append(out, "NatSemi CompactRISC,")
-    }
-
-    // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb2)
-    }
-    if m1 {
-      out = append(out, "Freescale Extended Time Processing Unit,")
-    }
-
-    // >0x12    shortle    b3    Infineon SLE9X,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb3)
-    }
-    if m1 {
-      out = append(out, "Infineon SLE9X,")
-    }
-
-    // >0x12    shortle    b4    Intel L1OM,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb4)
-    }
-    if m1 {
-      out = append(out, "Intel L1OM,")
-    }
-
-    // >0x12    shortle    b5    Intel K1OM,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb5)
-    }
-    if m1 {
-      out = append(out, "Intel K1OM,")
-    }
-
-    // >0x12    shortle    b7    ARM aarch64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb7)
-    }
-    if m1 {
-      out = append(out, "ARM aarch64,")
-    }
-
-    // >0x12    shortle    b9    Atmel 32-bit family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xb9)
-    }
-    if m1 {
-      out = append(out, "Atmel 32-bit family,")
-    }
-
-    // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xba)
-    }
-    if m1 {
-      out = append(out, "STMicroeletronics STM8 8-bit,")
-    }
-
-    // >0x12    shortle    bb    Tilera TILE64,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbb)
-    }
-    if m1 {
-      out = append(out, "Tilera TILE64,")
-    }
-
-    // >0x12    shortle    bc    Tilera TILEPro,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbc)
-    }
-    if m1 {
-      out = append(out, "Tilera TILEPro,")
-    }
-
-    // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbd)
-    }
-    if m1 {
-      out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
-    }
-
-    // >0x12    shortle    be    NVIDIA CUDA architecture,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbe)
-    }
-    if m1 {
-      out = append(out, "NVIDIA CUDA architecture,")
-    }
-
-    // >0x12    shortle    bf    Tilera TILE-Gx,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbf)
-    }
-    if m1 {
-      out = append(out, "Tilera TILE-Gx,")
-    }
-
-    // >0x12    shortle    c5    Renesas RL78 family,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xc5)
-    }
-    if m1 {
-      out = append(out, "Renesas RL78 family,")
-    }
-
-    // >0x12    shortle    c7    Renesas 78K0R,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xc7)
-    }
-    if m1 {
-      out = append(out, "Renesas 78K0R,")
-    }
-
-    // >0x12    shortle    1057    AVR (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1057)
-    }
-    if m1 {
-      out = append(out, "AVR (unofficial),")
-    }
-
-    // >0x12    shortle    1059    MSP430 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1059)
-    }
-    if m1 {
-      out = append(out, "MSP430 (unofficial),")
-    }
-
-    // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1223)
-    }
-    if m1 {
-      out = append(out, "Adapteva Epiphany (unofficial),")
-    }
-
-    // >0x12    shortle    2530    Morpho MT (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x2530)
-    }
-    if m1 {
-      out = append(out, "Morpho MT (unofficial),")
-    }
-
-    // >0x12    shortle    3330    FR30 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3330)
-    }
-    if m1 {
-      out = append(out, "FR30 (unofficial),")
-    }
-
-    // >0x12    shortle    3426    OpenRISC (obsolete),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x3426)
-    }
-    if m1 {
-      out = append(out, "OpenRISC (obsolete),")
-    }
-
-    // >0x12    shortle    4688    Infineon C166 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x4688)
-    }
-    if m1 {
-      out = append(out, "Infineon C166 (unofficial),")
-    }
-
-    // >0x12    shortle    5441    Cygnus FRV (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5441)
-    }
-    if m1 {
-      out = append(out, "Cygnus FRV (unofficial),")
-    }
-
-    // >0x12    shortle    5aa5    DLX (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x5aa5)
-    }
-    if m1 {
-      out = append(out, "DLX (unofficial),")
-    }
-
-    // >0x12    shortle    7650    Cygnus D10V (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x7650)
-    }
-    if m1 {
-      out = append(out, "Cygnus D10V (unofficial),")
-    }
-
-    // >0x12    shortle    7676    Cygnus D30V (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x7676)
-    }
-    if m1 {
-      out = append(out, "Cygnus D30V (unofficial),")
-    }
-
-    // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8217)
-    }
-    if m1 {
-      out = append(out, "Ubicom IP2xxx (unofficial),")
-    }
-
-    // >0x12    shortle    8472    OpenRISC (obsolete),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x8472)
-    }
-    if m1 {
-      out = append(out, "OpenRISC (obsolete),")
-    }
-
-    // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9025)
-    }
-    if m1 {
-      out = append(out, "Cygnus PowerPC (unofficial),")
-    }
-
-    // >0x12    shortle    9026    Alpha (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9026)
-    }
-    if m1 {
-      out = append(out, "Alpha (unofficial),")
-    }
-
-    // >0x12    shortle    9041    Cygnus M32R (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9041)
-    }
-    if m1 {
-      out = append(out, "Cygnus M32R (unofficial),")
-    }
-
-    // >0x12    shortle    9080    Cygnus V850 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x9080)
-    }
-    if m1 {
-      out = append(out, "Cygnus V850 (unofficial),")
-    }
-
-    // >0x12    shortle    a390    IBM S/390 (obsolete),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xa390)
-    }
-    if m1 {
-      out = append(out, "IBM S/390 (obsolete),")
-    }
-
-    // >0x12    shortle    abc7    Old Xtensa (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xabc7)
-    }
-    if m1 {
-      out = append(out, "Old Xtensa (unofficial),")
-    }
-
-    // >0x12    shortle    ad45    xstormy16 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xad45)
-    }
-    if m1 {
-      out = append(out, "xstormy16 (unofficial),")
-    }
-
-    // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbaab)
-    }
-    if m1 {
-      out = append(out, "Old MicroBlaze (unofficial),,")
-    }
-
-    // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xbeef)
-    }
-    if m1 {
-      out = append(out, "Cygnus MN10300 (unofficial),")
-    }
-
-    // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xdead)
-    }
-    if m1 {
-      out = append(out, "Cygnus MN10200 (unofficial),")
-    }
-
-    // >0x12    shortle    f00d    Toshiba MeP (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xf00d)
-    }
-    if m1 {
-      out = append(out, "Toshiba MeP (unofficial),")
-    }
-
-    // >0x12    shortle    feb0    Renesas M32C (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeb0)
-    }
-    if m1 {
-      out = append(out, "Renesas M32C (unofficial),")
-    }
-
-    // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeba)
-    }
-    if m1 {
-      out = append(out, "Vitesse IQ2000 (unofficial),")
-    }
-
-    // >0x12    shortle    febb    NIOS (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfebb)
-    }
-    if m1 {
-      out = append(out, "NIOS (unofficial),")
-    }
-
-    // >0x12    shortle    feed    Moxie (unofficial),
-    off = pageOff + 18
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xfeed)
-    }
-    if m1 {
-      out = append(out, "Moxie (unofficial),")
-    }
-
-    // >0x12    default    
-    off = pageOff + 18
-    // uh oh unhandled kind
-
-    if m1 {
-      // >>0x12    shortle    0    *unknown arch 0x%x*
-      off = pageOff + 18
-      {
-        iv, ok := readUint16be(tb, off)
+        iv, ok := readUint32be(tb, off)
         m2 = ok && (uint64(iv) == 0x0)
       }
       if m2 {
-        out = append(out, "*unknown arch 0x%x*")
+        out = append(out, "MS Windows")
       }
 
-    }
-    // >0x14    longle    0    invalid version
-    off = pageOff + 20
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "invalid version")
-    }
+      if m2 {
+        // >>>0x0    ulongbe    100    icon resource
+        off = pageOff + 0
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (uint64(iv) == 0x100)
+        }
+        if m3 {
+          out = append(out, "icon resource")
+        }
 
-    // >0x14    longle    1    version 1
-    off = pageOff + 20
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x1)
-    }
-    if m1 {
-      out = append(out, "version 1")
-    }
+        if m3 {
+          // >>>>0x4    ushortle    0    - %d icon
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (uint64(iv) == 0x0)
+          }
+          if m4 {
+            out = append(out, "- %d icon")
+          }
 
+          // >>>>0x4    ushortle    1    \bs
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (int64(int16(iv)) > 0x1)
+          }
+          if m4 {
+            out = append(out, "\\bs")
+          }
+
+          // >>>>0x6    use   ico-entry    
+          off = pageOff + 6
+          // uh oh unhandled kind
+
+          // >>>>0x4    ushortle    1    
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (int64(int16(iv)) > 0x1)
+          }
+
+          if m4 {
+            // >>>>>0x16    use   ico-entry    
+            off = pageOff + 22
+            // uh oh unhandled kind
+
+          }
+        }
+        // >>>0x0    ulongbe    200    cursor resource
+        off = pageOff + 0
+        {
+          iv, ok := readUint32le(tb, off)
+          m3 = ok && (uint64(iv) == 0x200)
+        }
+        if m3 {
+          out = append(out, "cursor resource")
+        }
+
+        if m3 {
+          // >>>>0x4    ushortle    0    - %d icon
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (uint64(iv) == 0x0)
+          }
+          if m4 {
+            out = append(out, "- %d icon")
+          }
+
+          // >>>>0x4    ushortle    1    \bs
+          off = pageOff + 4
+          {
+            iv, ok := readUint16be(tb, off)
+            m4 = ok && (int64(int16(iv)) > 0x1)
+          }
+          if m4 {
+            out = append(out, "\\bs")
+          }
+
+          // >>>>0x6    use   cur-entry    
+          off = pageOff + 6
+          // uh oh unhandled kind
+
+        }
+      }
+    }
   }
   return out, nil
 }
@@ -2448,81 +219,6 @@ func IdentifyIcoEntry(tb []byte, pageOff int64) ([]string, error) {
     }
     if m1 {
       out = append(out, "\\b, %d bits/pixel")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyCurIcoEntry(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-
-  if m0 {
-    // >0x0    bytele    0    \b, 256x
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, 256x")
-    }
-
-    // >0x0    bytele    0    \b, %dx
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, %dx")
-    }
-
-    // >0x1    bytele    0    \b256
-    off = pageOff + 1
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b256")
-    }
-
-    // >0x1    bytele    0    \b%d
-    off = pageOff + 1
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b%d")
-    }
-
-    // >0x2    ubytele    0    \b, %d colors
-    off = pageOff + 2
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, %d colors")
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x89504e47)
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) != 0x89504e47)
     }
 
   }
@@ -6995,6 +4691,2598 @@ func Identify(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
+func IdentifyMsdosCom(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    bytele    0    DOS executable (COM)
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "DOS executable (COM)")
+    }
+
+    // >0x6    string    "SFX of LHarc"    \b, %s
+    off = pageOff + 6
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, %s")
+    }
+
+    // >0x1fe    shortle    aa55    \b, boot code
+    off = pageOff + 510
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xaa55)
+    }
+    if m1 {
+      out = append(out, "\\b, boot code")
+    }
+
+    // >0x55    string    "UPX"    \b, UPX compressed
+    off = pageOff + 85
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, UPX compressed")
+    }
+
+    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
+    off = pageOff + 4
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, ARX self-extracting archive")
+    }
+
+    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
+    off = pageOff + 4
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LHarc self-extracting archive")
+    }
+
+    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
+    off = pageOff + 526
+    // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\b, LARC self-extracting archive")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+  m2 := false
+  m3 := false
+
+  if m0 {
+    // >0x0    ulongbe    6000800    \b, cell range
+    off = pageOff + 0
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (uint64(iv) == 0x6000800)
+    }
+    if m1 {
+      out = append(out, "\\b, cell range")
+    }
+
+    if m1 {
+      // >>0x4    ulongle    0    
+      off = pageOff + 4
+      {
+        iv, ok := readUint32be(tb, off)
+        m2 = ok && (uint64(iv) != 0x0)
+      }
+
+      if m2 {
+        // >>>0x4    ushortle    0    \b%d,
+        off = pageOff + 4
+        {
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "\\b%d,")
+        }
+
+        // >>>0x6    ushortle    0    \b%d-
+        off = pageOff + 6
+        {
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "\\b%d-")
+        }
+
+      }
+      // >>0x8    ushortle    0    \b%d,
+      off = pageOff + 8
+      {
+        iv, ok := readUint16be(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "\\b%d,")
+      }
+
+      // >>0xa    ushortle    0    \b%d
+      off = pageOff + 10
+      {
+        iv, ok := readUint16be(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "\\b%d")
+      }
+
+    }
+  }
+  return out, nil
+}
+
+func IdentifyCurEntry(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    use   cur-ico-entry    
+    off = pageOff + 0
+    // uh oh unhandled kind
+
+    // >0x4    ushortle    0    \b, hotspot @%dx
+    off = pageOff + 4
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, hotspot @%dx")
+    }
+
+    // >0x6    ushortle    0    \b%d
+    off = pageOff + 6
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b%d")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyCurIcoEntry(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    bytele    0    \b, 256x
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, 256x")
+    }
+
+    // >0x0    bytele    0    \b, %dx
+    off = pageOff + 0
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, %dx")
+    }
+
+    // >0x1    bytele    0    \b256
+    off = pageOff + 1
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b256")
+    }
+
+    // >0x1    bytele    0    \b%d
+    off = pageOff + 1
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b%d")
+    }
+
+    // >0x2    ubytele    0    \b, %d colors
+    off = pageOff + 2
+    {
+      iv, ok := readUint8be(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, %d colors")
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (uint64(iv) == 0x89504e47)
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32le(tb, off)
+      m1 = ok && (uint64(iv) != 0x89504e47)
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyElfLe(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+  m2 := false
+  m3 := false
+
+  if m0 {
+    // >0x10    shortle    0    no file type,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "no file type,")
+    }
+
+    // >0x10    shortle    1    relocatable,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x1)
+    }
+    if m1 {
+      out = append(out, "relocatable,")
+    }
+
+    // >0x10    shortle    2    executable,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2)
+    }
+    if m1 {
+      out = append(out, "executable,")
+    }
+
+    // >0x10    shortle    3    shared object,
+    off = pageOff + 16
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3)
+    }
+    if m1 {
+      out = append(out, "shared object,")
+    }
+
+    // >0x10    shortle    4    core file
+    off = pageOff + 16
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4)
+    }
+    if m1 {
+      out = append(out, "core file")
+    }
+
+    // >0x12    clear    
+    off = pageOff + 18
+    // uh oh unhandled kind
+
+    // >0x12    shortle    0    no machine,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "no machine,")
+    }
+
+    // >0x12    shortle    1    AT&T WE32100,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x1)
+    }
+    if m1 {
+      out = append(out, "AT&T WE32100,")
+    }
+
+    // >0x12    shortle    2    SPARC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2)
+    }
+    if m1 {
+      out = append(out, "SPARC,")
+    }
+
+    // >0x12    shortle    3    Intel 80386,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3)
+    }
+    if m1 {
+      out = append(out, "Intel 80386,")
+    }
+
+    // >0x12    shortle    4    Motorola m68k,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4)
+    }
+    if m1 {
+      out = append(out, "Motorola m68k,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+      if m2 {
+        // >>>0x24    longle    0    68020,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "68020,")
+        }
+
+      }
+    }
+    // >0x12    shortle    5    Motorola m88k,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5)
+    }
+    if m1 {
+      out = append(out, "Motorola m88k,")
+    }
+
+    // >0x12    shortle    6    Intel 80486,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6)
+    }
+    if m1 {
+      out = append(out, "Intel 80486,")
+    }
+
+    // >0x12    shortle    7    Intel 80860,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x7)
+    }
+    if m1 {
+      out = append(out, "Intel 80860,")
+    }
+
+    // >0x12    shortle    8    MIPS,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8)
+    }
+    if m1 {
+      out = append(out, "MIPS,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+    }
+    // >0x12    shortle    a    MIPS,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa)
+    }
+    if m1 {
+      out = append(out, "MIPS,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+    }
+    // >0x12    shortle    8    
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8)
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+      if m2 {
+        // >>>0x24    longle    0&0xf0000000    MIPS-I
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "MIPS-I")
+        }
+
+        // >>>0x24    longle    10000000&0xf0000000    MIPS-II
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x10000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-II")
+        }
+
+        // >>>0x24    longle    20000000&0xf0000000    MIPS-III
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x20000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-III")
+        }
+
+        // >>>0x24    longle    30000000&0xf0000000    MIPS-IV
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x30000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-IV")
+        }
+
+        // >>>0x24    longle    40000000&0xf0000000    MIPS-V
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x40000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-V")
+        }
+
+        // >>>0x24    longle    50000000&0xf0000000    MIPS32
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x50000000)
+        }
+        if m3 {
+          out = append(out, "MIPS32")
+        }
+
+        // >>>0x24    longle    60000000&0xf0000000    MIPS64
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x60000000)
+        }
+        if m3 {
+          out = append(out, "MIPS64")
+        }
+
+        // >>>0x24    longle    70000000&0xf0000000    MIPS32 rel2
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x70000000)
+        }
+        if m3 {
+          out = append(out, "MIPS32 rel2")
+        }
+
+        // >>>0x24    longle    80000000&0xf0000000    MIPS64 rel2
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x80000000)
+        }
+        if m3 {
+          out = append(out, "MIPS64 rel2")
+        }
+
+      }
+      // >>0x4    bytele    2    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x2)
+      }
+
+      if m2 {
+        // >>>0x30    longle    0&0xf0000000    MIPS-I
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "MIPS-I")
+        }
+
+        // >>>0x30    longle    10000000&0xf0000000    MIPS-II
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x10000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-II")
+        }
+
+        // >>>0x30    longle    20000000&0xf0000000    MIPS-III
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x20000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-III")
+        }
+
+        // >>>0x30    longle    30000000&0xf0000000    MIPS-IV
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x30000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-IV")
+        }
+
+        // >>>0x30    longle    40000000&0xf0000000    MIPS-V
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x40000000)
+        }
+        if m3 {
+          out = append(out, "MIPS-V")
+        }
+
+        // >>>0x30    longle    50000000&0xf0000000    MIPS32
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x50000000)
+        }
+        if m3 {
+          out = append(out, "MIPS32")
+        }
+
+        // >>>0x30    longle    60000000&0xf0000000    MIPS64
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x60000000)
+        }
+        if m3 {
+          out = append(out, "MIPS64")
+        }
+
+        // >>>0x30    longle    70000000&0xf0000000    MIPS32 rel2
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x70000000)
+        }
+        if m3 {
+          out = append(out, "MIPS32 rel2")
+        }
+
+        // >>>0x30    longle    80000000&0xf0000000    MIPS64 rel2
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x80000000)
+        }
+        if m3 {
+          out = append(out, "MIPS64 rel2")
+        }
+
+      }
+    }
+    // >0x12    shortle    9    Amdahl,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x9)
+    }
+    if m1 {
+      out = append(out, "Amdahl,")
+    }
+
+    // >0x12    shortle    a    MIPS (deprecated),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa)
+    }
+    if m1 {
+      out = append(out, "MIPS (deprecated),")
+    }
+
+    // >0x12    shortle    b    RS6000,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb)
+    }
+    if m1 {
+      out = append(out, "RS6000,")
+    }
+
+    // >0x12    shortle    f    PA-RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xf)
+    }
+    if m1 {
+      out = append(out, "PA-RISC,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+      if m2 {
+        // >>>0x26    shortle    214    2.0
+        off = pageOff + 38
+        {
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (uint64(iv) == 0x214)
+        }
+        if m3 {
+          out = append(out, "2.0")
+        }
+
+      }
+      // >>0x4    bytele    2    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x2)
+      }
+
+      if m2 {
+        // >>>0x32    shortle    214    2.0
+        off = pageOff + 50
+        {
+          iv, ok := readUint16be(tb, off)
+          m3 = ok && (uint64(iv) == 0x214)
+        }
+        if m3 {
+          out = append(out, "2.0")
+        }
+
+      }
+    }
+    // >0x12    shortle    10    nCUBE,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x10)
+    }
+    if m1 {
+      out = append(out, "nCUBE,")
+    }
+
+    // >0x12    shortle    11    Fujitsu VPP500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x11)
+    }
+    if m1 {
+      out = append(out, "Fujitsu VPP500,")
+    }
+
+    // >0x12    shortle    12    SPARC32PLUS,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x12)
+    }
+    if m1 {
+      out = append(out, "SPARC32PLUS,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+      if m2 {
+        // >>>0x24    longle    100&0xffff00    V8+ Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x100)
+        }
+        if m3 {
+          out = append(out, "V8+ Required,")
+        }
+
+        // >>>0x24    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x200)
+        }
+        if m3 {
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
+        }
+
+        // >>>0x24    longle    400&0xffff00    HaL R1 Extensions Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x400)
+        }
+        if m3 {
+          out = append(out, "HaL R1 Extensions Required,")
+        }
+
+        // >>>0x24    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x800)
+        }
+        if m3 {
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
+        }
+
+      }
+    }
+    // >0x12    shortle    13    Intel 80960,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x13)
+    }
+    if m1 {
+      out = append(out, "Intel 80960,")
+    }
+
+    // >0x12    shortle    14    PowerPC or cisco 4500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x14)
+    }
+    if m1 {
+      out = append(out, "PowerPC or cisco 4500,")
+    }
+
+    // >0x12    shortle    15    64-bit PowerPC or cisco 7500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x15)
+    }
+    if m1 {
+      out = append(out, "64-bit PowerPC or cisco 7500,")
+    }
+
+    // >0x12    shortle    16    IBM S/390,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x16)
+    }
+    if m1 {
+      out = append(out, "IBM S/390,")
+    }
+
+    // >0x12    shortle    17    Cell SPU,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x17)
+    }
+    if m1 {
+      out = append(out, "Cell SPU,")
+    }
+
+    // >0x12    shortle    18    cisco SVIP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x18)
+    }
+    if m1 {
+      out = append(out, "cisco SVIP,")
+    }
+
+    // >0x12    shortle    19    cisco 7200,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x19)
+    }
+    if m1 {
+      out = append(out, "cisco 7200,")
+    }
+
+    // >0x12    shortle    24    NEC V800 or cisco 12000,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x24)
+    }
+    if m1 {
+      out = append(out, "NEC V800 or cisco 12000,")
+    }
+
+    // >0x12    shortle    25    Fujitsu FR20,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x25)
+    }
+    if m1 {
+      out = append(out, "Fujitsu FR20,")
+    }
+
+    // >0x12    shortle    26    TRW RH-32,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x26)
+    }
+    if m1 {
+      out = append(out, "TRW RH-32,")
+    }
+
+    // >0x12    shortle    27    Motorola RCE,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x27)
+    }
+    if m1 {
+      out = append(out, "Motorola RCE,")
+    }
+
+    // >0x12    shortle    28    ARM,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x28)
+    }
+    if m1 {
+      out = append(out, "ARM,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    1    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x1)
+      }
+
+      if m2 {
+        // >>>0x24    longle    4000000&0xff000000    EABI4
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x4000000)
+        }
+        if m3 {
+          out = append(out, "EABI4")
+        }
+
+        // >>>0x24    longle    5000000&0xff000000    EABI5
+        off = pageOff + 36
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x5000000)
+        }
+        if m3 {
+          out = append(out, "EABI5")
+        }
+
+      }
+    }
+    // >0x12    shortle    29    Alpha,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x29)
+    }
+    if m1 {
+      out = append(out, "Alpha,")
+    }
+
+    // >0x12    shortle    2a    Renesas SH,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2a)
+    }
+    if m1 {
+      out = append(out, "Renesas SH,")
+    }
+
+    // >0x12    shortle    2b    SPARC V9,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2b)
+    }
+    if m1 {
+      out = append(out, "SPARC V9,")
+    }
+
+    if m1 {
+      // >>0x4    bytele    2    
+      off = pageOff + 4
+      {
+        iv, ok := readUint8be(tb, off)
+        m2 = ok && (uint64(iv) == 0x2)
+      }
+
+      if m2 {
+        // >>>0x30    longle    200&0xffff00    Sun UltraSPARC1 Extensions Required,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x200)
+        }
+        if m3 {
+          out = append(out, "Sun UltraSPARC1 Extensions Required,")
+        }
+
+        // >>>0x30    longle    400&0xffff00    HaL R1 Extensions Required,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x400)
+        }
+        if m3 {
+          out = append(out, "HaL R1 Extensions Required,")
+        }
+
+        // >>>0x30    longle    800&0xffff00    Sun UltraSPARC3 Extensions Required,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x800)
+        }
+        if m3 {
+          out = append(out, "Sun UltraSPARC3 Extensions Required,")
+        }
+
+        // >>>0x30    longle    0&0x3    total store ordering,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "total store ordering,")
+        }
+
+        // >>>0x30    longle    1&0x3    partial store ordering,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x1)
+        }
+        if m3 {
+          out = append(out, "partial store ordering,")
+        }
+
+        // >>>0x30    longle    2&0x3    relaxed memory ordering,
+        off = pageOff + 48
+        {
+          iv, ok := readUint32be(tb, off)
+          m3 = ok && (uint64(iv) == 0x2)
+        }
+        if m3 {
+          out = append(out, "relaxed memory ordering,")
+        }
+
+      }
+    }
+    // >0x12    shortle    2c    Siemens Tricore Embedded Processor,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2c)
+    }
+    if m1 {
+      out = append(out, "Siemens Tricore Embedded Processor,")
+    }
+
+    // >0x12    shortle    2d    Argonaut RISC Core, Argonaut Technologies Inc.,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2d)
+    }
+    if m1 {
+      out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
+    }
+
+    // >0x12    shortle    2e    Renesas H8/300,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2e)
+    }
+    if m1 {
+      out = append(out, "Renesas H8/300,")
+    }
+
+    // >0x12    shortle    2f    Renesas H8/300H,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2f)
+    }
+    if m1 {
+      out = append(out, "Renesas H8/300H,")
+    }
+
+    // >0x12    shortle    30    Renesas H8S,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x30)
+    }
+    if m1 {
+      out = append(out, "Renesas H8S,")
+    }
+
+    // >0x12    shortle    31    Renesas H8/500,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x31)
+    }
+    if m1 {
+      out = append(out, "Renesas H8/500,")
+    }
+
+    // >0x12    shortle    32    IA-64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x32)
+    }
+    if m1 {
+      out = append(out, "IA-64,")
+    }
+
+    // >0x12    shortle    33    Stanford MIPS-X,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x33)
+    }
+    if m1 {
+      out = append(out, "Stanford MIPS-X,")
+    }
+
+    // >0x12    shortle    34    Motorola Coldfire,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x34)
+    }
+    if m1 {
+      out = append(out, "Motorola Coldfire,")
+    }
+
+    // >0x12    shortle    35    Motorola M68HC12,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x35)
+    }
+    if m1 {
+      out = append(out, "Motorola M68HC12,")
+    }
+
+    // >0x12    shortle    36    Fujitsu MMA,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x36)
+    }
+    if m1 {
+      out = append(out, "Fujitsu MMA,")
+    }
+
+    // >0x12    shortle    37    Siemens PCP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x37)
+    }
+    if m1 {
+      out = append(out, "Siemens PCP,")
+    }
+
+    // >0x12    shortle    38    Sony nCPU,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x38)
+    }
+    if m1 {
+      out = append(out, "Sony nCPU,")
+    }
+
+    // >0x12    shortle    39    Denso NDR1,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x39)
+    }
+    if m1 {
+      out = append(out, "Denso NDR1,")
+    }
+
+    // >0x12    shortle    3a    Start*Core,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3a)
+    }
+    if m1 {
+      out = append(out, "Start*Core,")
+    }
+
+    // >0x12    shortle    3b    Toyota ME16,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3b)
+    }
+    if m1 {
+      out = append(out, "Toyota ME16,")
+    }
+
+    // >0x12    shortle    3c    ST100,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3c)
+    }
+    if m1 {
+      out = append(out, "ST100,")
+    }
+
+    // >0x12    shortle    3d    Tinyj emb.,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3d)
+    }
+    if m1 {
+      out = append(out, "Tinyj emb.,")
+    }
+
+    // >0x12    shortle    3e    x86-64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3e)
+    }
+    if m1 {
+      out = append(out, "x86-64,")
+    }
+
+    // >0x12    shortle    3f    Sony DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3f)
+    }
+    if m1 {
+      out = append(out, "Sony DSP,")
+    }
+
+    // >0x12    shortle    40    DEC PDP-10,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x40)
+    }
+    if m1 {
+      out = append(out, "DEC PDP-10,")
+    }
+
+    // >0x12    shortle    41    DEC PDP-11,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x41)
+    }
+    if m1 {
+      out = append(out, "DEC PDP-11,")
+    }
+
+    // >0x12    shortle    42    FX66,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x42)
+    }
+    if m1 {
+      out = append(out, "FX66,")
+    }
+
+    // >0x12    shortle    43    ST9+ 8/16 bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x43)
+    }
+    if m1 {
+      out = append(out, "ST9+ 8/16 bit,")
+    }
+
+    // >0x12    shortle    44    ST7 8 bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x44)
+    }
+    if m1 {
+      out = append(out, "ST7 8 bit,")
+    }
+
+    // >0x12    shortle    45    MC68HC16,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x45)
+    }
+    if m1 {
+      out = append(out, "MC68HC16,")
+    }
+
+    // >0x12    shortle    46    MC68HC11,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x46)
+    }
+    if m1 {
+      out = append(out, "MC68HC11,")
+    }
+
+    // >0x12    shortle    47    MC68HC08,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x47)
+    }
+    if m1 {
+      out = append(out, "MC68HC08,")
+    }
+
+    // >0x12    shortle    48    MC68HC05,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x48)
+    }
+    if m1 {
+      out = append(out, "MC68HC05,")
+    }
+
+    // >0x12    shortle    49    SGI SVx or Cray NV1,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x49)
+    }
+    if m1 {
+      out = append(out, "SGI SVx or Cray NV1,")
+    }
+
+    // >0x12    shortle    4a    ST19 8 bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4a)
+    }
+    if m1 {
+      out = append(out, "ST19 8 bit,")
+    }
+
+    // >0x12    shortle    4b    Digital VAX,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4b)
+    }
+    if m1 {
+      out = append(out, "Digital VAX,")
+    }
+
+    // >0x12    shortle    4c    Axis cris,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4c)
+    }
+    if m1 {
+      out = append(out, "Axis cris,")
+    }
+
+    // >0x12    shortle    4d    Infineon 32-bit embedded,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4d)
+    }
+    if m1 {
+      out = append(out, "Infineon 32-bit embedded,")
+    }
+
+    // >0x12    shortle    4e    Element 14 64-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4e)
+    }
+    if m1 {
+      out = append(out, "Element 14 64-bit DSP,")
+    }
+
+    // >0x12    shortle    4f    LSI Logic 16-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4f)
+    }
+    if m1 {
+      out = append(out, "LSI Logic 16-bit DSP,")
+    }
+
+    // >0x12    shortle    50    MMIX,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x50)
+    }
+    if m1 {
+      out = append(out, "MMIX,")
+    }
+
+    // >0x12    shortle    51    Harvard machine-independent,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x51)
+    }
+    if m1 {
+      out = append(out, "Harvard machine-independent,")
+    }
+
+    // >0x12    shortle    52    SiTera Prism,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x52)
+    }
+    if m1 {
+      out = append(out, "SiTera Prism,")
+    }
+
+    // >0x12    shortle    53    Atmel AVR 8-bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x53)
+    }
+    if m1 {
+      out = append(out, "Atmel AVR 8-bit,")
+    }
+
+    // >0x12    shortle    54    Fujitsu FR30,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x54)
+    }
+    if m1 {
+      out = append(out, "Fujitsu FR30,")
+    }
+
+    // >0x12    shortle    55    Mitsubishi D10V,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x55)
+    }
+    if m1 {
+      out = append(out, "Mitsubishi D10V,")
+    }
+
+    // >0x12    shortle    56    Mitsubishi D30V,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x56)
+    }
+    if m1 {
+      out = append(out, "Mitsubishi D30V,")
+    }
+
+    // >0x12    shortle    57    NEC v850,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x57)
+    }
+    if m1 {
+      out = append(out, "NEC v850,")
+    }
+
+    // >0x12    shortle    58    Renesas M32R,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x58)
+    }
+    if m1 {
+      out = append(out, "Renesas M32R,")
+    }
+
+    // >0x12    shortle    59    Matsushita MN10300,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x59)
+    }
+    if m1 {
+      out = append(out, "Matsushita MN10300,")
+    }
+
+    // >0x12    shortle    5a    Matsushita MN10200,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5a)
+    }
+    if m1 {
+      out = append(out, "Matsushita MN10200,")
+    }
+
+    // >0x12    shortle    5b    picoJava,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5b)
+    }
+    if m1 {
+      out = append(out, "picoJava,")
+    }
+
+    // >0x12    shortle    5c    OpenRISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5c)
+    }
+    if m1 {
+      out = append(out, "OpenRISC,")
+    }
+
+    // >0x12    shortle    5d    ARC Cores Tangent-A5,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5d)
+    }
+    if m1 {
+      out = append(out, "ARC Cores Tangent-A5,")
+    }
+
+    // >0x12    shortle    5e    Tensilica Xtensa,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5e)
+    }
+    if m1 {
+      out = append(out, "Tensilica Xtensa,")
+    }
+
+    // >0x12    shortle    5f    Alphamosaic VideoCore,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5f)
+    }
+    if m1 {
+      out = append(out, "Alphamosaic VideoCore,")
+    }
+
+    // >0x12    shortle    60    Thompson Multimedia,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x60)
+    }
+    if m1 {
+      out = append(out, "Thompson Multimedia,")
+    }
+
+    // >0x12    shortle    61    NatSemi 32k,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x61)
+    }
+    if m1 {
+      out = append(out, "NatSemi 32k,")
+    }
+
+    // >0x12    shortle    62    Tenor Network TPC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x62)
+    }
+    if m1 {
+      out = append(out, "Tenor Network TPC,")
+    }
+
+    // >0x12    shortle    63    Trebia SNP 1000,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x63)
+    }
+    if m1 {
+      out = append(out, "Trebia SNP 1000,")
+    }
+
+    // >0x12    shortle    64    STMicroelectronics ST200,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x64)
+    }
+    if m1 {
+      out = append(out, "STMicroelectronics ST200,")
+    }
+
+    // >0x12    shortle    65    Ubicom IP2022,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x65)
+    }
+    if m1 {
+      out = append(out, "Ubicom IP2022,")
+    }
+
+    // >0x12    shortle    66    MAX Processor,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x66)
+    }
+    if m1 {
+      out = append(out, "MAX Processor,")
+    }
+
+    // >0x12    shortle    67    NatSemi CompactRISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x67)
+    }
+    if m1 {
+      out = append(out, "NatSemi CompactRISC,")
+    }
+
+    // >0x12    shortle    68    Fujitsu F2MC16,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x68)
+    }
+    if m1 {
+      out = append(out, "Fujitsu F2MC16,")
+    }
+
+    // >0x12    shortle    69    TI msp430,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x69)
+    }
+    if m1 {
+      out = append(out, "TI msp430,")
+    }
+
+    // >0x12    shortle    6a    Analog Devices Blackfin,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6a)
+    }
+    if m1 {
+      out = append(out, "Analog Devices Blackfin,")
+    }
+
+    // >0x12    shortle    6b    S1C33 Family of Seiko Epson,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6b)
+    }
+    if m1 {
+      out = append(out, "S1C33 Family of Seiko Epson,")
+    }
+
+    // >0x12    shortle    6c    Sharp embedded,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6c)
+    }
+    if m1 {
+      out = append(out, "Sharp embedded,")
+    }
+
+    // >0x12    shortle    6d    Arca RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6d)
+    }
+    if m1 {
+      out = append(out, "Arca RISC,")
+    }
+
+    // >0x12    shortle    6e    PKU-Unity Ltd.,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6e)
+    }
+    if m1 {
+      out = append(out, "PKU-Unity Ltd.,")
+    }
+
+    // >0x12    shortle    6f    eXcess: 16/32/64-bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6f)
+    }
+    if m1 {
+      out = append(out, "eXcess: 16/32/64-bit,")
+    }
+
+    // >0x12    shortle    70    Icera Deep Execution Processor,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x70)
+    }
+    if m1 {
+      out = append(out, "Icera Deep Execution Processor,")
+    }
+
+    // >0x12    shortle    71    Altera Nios II,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x71)
+    }
+    if m1 {
+      out = append(out, "Altera Nios II,")
+    }
+
+    // >0x12    shortle    72    NatSemi CRX,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x72)
+    }
+    if m1 {
+      out = append(out, "NatSemi CRX,")
+    }
+
+    // >0x12    shortle    73    Motorola XGATE,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x73)
+    }
+    if m1 {
+      out = append(out, "Motorola XGATE,")
+    }
+
+    // >0x12    shortle    74    Infineon C16x/XC16x,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x74)
+    }
+    if m1 {
+      out = append(out, "Infineon C16x/XC16x,")
+    }
+
+    // >0x12    shortle    75    Renesas M16C series,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x75)
+    }
+    if m1 {
+      out = append(out, "Renesas M16C series,")
+    }
+
+    // >0x12    shortle    76    Microchip dsPIC30F,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x76)
+    }
+    if m1 {
+      out = append(out, "Microchip dsPIC30F,")
+    }
+
+    // >0x12    shortle    77    Freescale RISC core,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x77)
+    }
+    if m1 {
+      out = append(out, "Freescale RISC core,")
+    }
+
+    // >0x12    shortle    78    Renesas M32C series,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x78)
+    }
+    if m1 {
+      out = append(out, "Renesas M32C series,")
+    }
+
+    // >0x12    shortle    83    Altium TSK3000 core,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x83)
+    }
+    if m1 {
+      out = append(out, "Altium TSK3000 core,")
+    }
+
+    // >0x12    shortle    84    Freescale RS08,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x84)
+    }
+    if m1 {
+      out = append(out, "Freescale RS08,")
+    }
+
+    // >0x12    shortle    86    Cyan Technology eCOG2,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x86)
+    }
+    if m1 {
+      out = append(out, "Cyan Technology eCOG2,")
+    }
+
+    // >0x12    shortle    87    Sunplus S+core7 RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x87)
+    }
+    if m1 {
+      out = append(out, "Sunplus S+core7 RISC,")
+    }
+
+    // >0x12    shortle    88    New Japan Radio (NJR) 24-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x88)
+    }
+    if m1 {
+      out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
+    }
+
+    // >0x12    shortle    89    Broadcom VideoCore III,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x89)
+    }
+    if m1 {
+      out = append(out, "Broadcom VideoCore III,")
+    }
+
+    // >0x12    shortle    8a    LatticeMico32,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8a)
+    }
+    if m1 {
+      out = append(out, "LatticeMico32,")
+    }
+
+    // >0x12    shortle    8b    Seiko Epson C17 family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8b)
+    }
+    if m1 {
+      out = append(out, "Seiko Epson C17 family,")
+    }
+
+    // >0x12    shortle    8c    TI TMS320C6000 DSP family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8c)
+    }
+    if m1 {
+      out = append(out, "TI TMS320C6000 DSP family,")
+    }
+
+    // >0x12    shortle    8d    TI TMS320C2000 DSP family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8d)
+    }
+    if m1 {
+      out = append(out, "TI TMS320C2000 DSP family,")
+    }
+
+    // >0x12    shortle    8e    TI TMS320C55x DSP family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8e)
+    }
+    if m1 {
+      out = append(out, "TI TMS320C55x DSP family,")
+    }
+
+    // >0x12    shortle    a0    STMicroelectronics 64bit VLIW DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa0)
+    }
+    if m1 {
+      out = append(out, "STMicroelectronics 64bit VLIW DSP,")
+    }
+
+    // >0x12    shortle    a1    Cypress M8C,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa1)
+    }
+    if m1 {
+      out = append(out, "Cypress M8C,")
+    }
+
+    // >0x12    shortle    a2    Renesas R32C series,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa2)
+    }
+    if m1 {
+      out = append(out, "Renesas R32C series,")
+    }
+
+    // >0x12    shortle    a3    NXP TriMedia family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa3)
+    }
+    if m1 {
+      out = append(out, "NXP TriMedia family,")
+    }
+
+    // >0x12    shortle    a4    QUALCOMM DSP6,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa4)
+    }
+    if m1 {
+      out = append(out, "QUALCOMM DSP6,")
+    }
+
+    // >0x12    shortle    a5    Intel 8051 and variants,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa5)
+    }
+    if m1 {
+      out = append(out, "Intel 8051 and variants,")
+    }
+
+    // >0x12    shortle    a6    STMicroelectronics STxP7x family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa6)
+    }
+    if m1 {
+      out = append(out, "STMicroelectronics STxP7x family,")
+    }
+
+    // >0x12    shortle    a7    Andes embedded RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa7)
+    }
+    if m1 {
+      out = append(out, "Andes embedded RISC,")
+    }
+
+    // >0x12    shortle    a8    Cyan eCOG1X family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa8)
+    }
+    if m1 {
+      out = append(out, "Cyan eCOG1X family,")
+    }
+
+    // >0x12    shortle    a9    Dallas MAXQ30,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa9)
+    }
+    if m1 {
+      out = append(out, "Dallas MAXQ30,")
+    }
+
+    // >0x12    shortle    aa    New Japan Radio (NJR) 16-bit DSP,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xaa)
+    }
+    if m1 {
+      out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
+    }
+
+    // >0x12    shortle    ab    M2000 Reconfigurable RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xab)
+    }
+    if m1 {
+      out = append(out, "M2000 Reconfigurable RISC,")
+    }
+
+    // >0x12    shortle    ac    Cray NV2 vector architecture,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xac)
+    }
+    if m1 {
+      out = append(out, "Cray NV2 vector architecture,")
+    }
+
+    // >0x12    shortle    ad    Renesas RX family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xad)
+    }
+    if m1 {
+      out = append(out, "Renesas RX family,")
+    }
+
+    // >0x12    shortle    ae    META,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xae)
+    }
+    if m1 {
+      out = append(out, "META,")
+    }
+
+    // >0x12    shortle    af    MCST Elbrus,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xaf)
+    }
+    if m1 {
+      out = append(out, "MCST Elbrus,")
+    }
+
+    // >0x12    shortle    b0    Cyan Technology eCOG16 family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb0)
+    }
+    if m1 {
+      out = append(out, "Cyan Technology eCOG16 family,")
+    }
+
+    // >0x12    shortle    b1    NatSemi CompactRISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb1)
+    }
+    if m1 {
+      out = append(out, "NatSemi CompactRISC,")
+    }
+
+    // >0x12    shortle    b2    Freescale Extended Time Processing Unit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb2)
+    }
+    if m1 {
+      out = append(out, "Freescale Extended Time Processing Unit,")
+    }
+
+    // >0x12    shortle    b3    Infineon SLE9X,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb3)
+    }
+    if m1 {
+      out = append(out, "Infineon SLE9X,")
+    }
+
+    // >0x12    shortle    b4    Intel L1OM,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb4)
+    }
+    if m1 {
+      out = append(out, "Intel L1OM,")
+    }
+
+    // >0x12    shortle    b5    Intel K1OM,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb5)
+    }
+    if m1 {
+      out = append(out, "Intel K1OM,")
+    }
+
+    // >0x12    shortle    b7    ARM aarch64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb7)
+    }
+    if m1 {
+      out = append(out, "ARM aarch64,")
+    }
+
+    // >0x12    shortle    b9    Atmel 32-bit family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xb9)
+    }
+    if m1 {
+      out = append(out, "Atmel 32-bit family,")
+    }
+
+    // >0x12    shortle    ba    STMicroeletronics STM8 8-bit,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xba)
+    }
+    if m1 {
+      out = append(out, "STMicroeletronics STM8 8-bit,")
+    }
+
+    // >0x12    shortle    bb    Tilera TILE64,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbb)
+    }
+    if m1 {
+      out = append(out, "Tilera TILE64,")
+    }
+
+    // >0x12    shortle    bc    Tilera TILEPro,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbc)
+    }
+    if m1 {
+      out = append(out, "Tilera TILEPro,")
+    }
+
+    // >0x12    shortle    bd    Xilinx MicroBlaze 32-bit RISC,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbd)
+    }
+    if m1 {
+      out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
+    }
+
+    // >0x12    shortle    be    NVIDIA CUDA architecture,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbe)
+    }
+    if m1 {
+      out = append(out, "NVIDIA CUDA architecture,")
+    }
+
+    // >0x12    shortle    bf    Tilera TILE-Gx,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbf)
+    }
+    if m1 {
+      out = append(out, "Tilera TILE-Gx,")
+    }
+
+    // >0x12    shortle    c5    Renesas RL78 family,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xc5)
+    }
+    if m1 {
+      out = append(out, "Renesas RL78 family,")
+    }
+
+    // >0x12    shortle    c7    Renesas 78K0R,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xc7)
+    }
+    if m1 {
+      out = append(out, "Renesas 78K0R,")
+    }
+
+    // >0x12    shortle    1057    AVR (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x1057)
+    }
+    if m1 {
+      out = append(out, "AVR (unofficial),")
+    }
+
+    // >0x12    shortle    1059    MSP430 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x1059)
+    }
+    if m1 {
+      out = append(out, "MSP430 (unofficial),")
+    }
+
+    // >0x12    shortle    1223    Adapteva Epiphany (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x1223)
+    }
+    if m1 {
+      out = append(out, "Adapteva Epiphany (unofficial),")
+    }
+
+    // >0x12    shortle    2530    Morpho MT (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x2530)
+    }
+    if m1 {
+      out = append(out, "Morpho MT (unofficial),")
+    }
+
+    // >0x12    shortle    3330    FR30 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3330)
+    }
+    if m1 {
+      out = append(out, "FR30 (unofficial),")
+    }
+
+    // >0x12    shortle    3426    OpenRISC (obsolete),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x3426)
+    }
+    if m1 {
+      out = append(out, "OpenRISC (obsolete),")
+    }
+
+    // >0x12    shortle    4688    Infineon C166 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x4688)
+    }
+    if m1 {
+      out = append(out, "Infineon C166 (unofficial),")
+    }
+
+    // >0x12    shortle    5441    Cygnus FRV (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5441)
+    }
+    if m1 {
+      out = append(out, "Cygnus FRV (unofficial),")
+    }
+
+    // >0x12    shortle    5aa5    DLX (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x5aa5)
+    }
+    if m1 {
+      out = append(out, "DLX (unofficial),")
+    }
+
+    // >0x12    shortle    7650    Cygnus D10V (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x7650)
+    }
+    if m1 {
+      out = append(out, "Cygnus D10V (unofficial),")
+    }
+
+    // >0x12    shortle    7676    Cygnus D30V (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x7676)
+    }
+    if m1 {
+      out = append(out, "Cygnus D30V (unofficial),")
+    }
+
+    // >0x12    shortle    8217    Ubicom IP2xxx (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8217)
+    }
+    if m1 {
+      out = append(out, "Ubicom IP2xxx (unofficial),")
+    }
+
+    // >0x12    shortle    8472    OpenRISC (obsolete),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x8472)
+    }
+    if m1 {
+      out = append(out, "OpenRISC (obsolete),")
+    }
+
+    // >0x12    shortle    9025    Cygnus PowerPC (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x9025)
+    }
+    if m1 {
+      out = append(out, "Cygnus PowerPC (unofficial),")
+    }
+
+    // >0x12    shortle    9026    Alpha (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x9026)
+    }
+    if m1 {
+      out = append(out, "Alpha (unofficial),")
+    }
+
+    // >0x12    shortle    9041    Cygnus M32R (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x9041)
+    }
+    if m1 {
+      out = append(out, "Cygnus M32R (unofficial),")
+    }
+
+    // >0x12    shortle    9080    Cygnus V850 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0x9080)
+    }
+    if m1 {
+      out = append(out, "Cygnus V850 (unofficial),")
+    }
+
+    // >0x12    shortle    a390    IBM S/390 (obsolete),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xa390)
+    }
+    if m1 {
+      out = append(out, "IBM S/390 (obsolete),")
+    }
+
+    // >0x12    shortle    abc7    Old Xtensa (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xabc7)
+    }
+    if m1 {
+      out = append(out, "Old Xtensa (unofficial),")
+    }
+
+    // >0x12    shortle    ad45    xstormy16 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xad45)
+    }
+    if m1 {
+      out = append(out, "xstormy16 (unofficial),")
+    }
+
+    // >0x12    shortle    baab    Old MicroBlaze (unofficial),,
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbaab)
+    }
+    if m1 {
+      out = append(out, "Old MicroBlaze (unofficial),,")
+    }
+
+    // >0x12    shortle    beef    Cygnus MN10300 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xbeef)
+    }
+    if m1 {
+      out = append(out, "Cygnus MN10300 (unofficial),")
+    }
+
+    // >0x12    shortle    dead    Cygnus MN10200 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xdead)
+    }
+    if m1 {
+      out = append(out, "Cygnus MN10200 (unofficial),")
+    }
+
+    // >0x12    shortle    f00d    Toshiba MeP (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xf00d)
+    }
+    if m1 {
+      out = append(out, "Toshiba MeP (unofficial),")
+    }
+
+    // >0x12    shortle    feb0    Renesas M32C (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xfeb0)
+    }
+    if m1 {
+      out = append(out, "Renesas M32C (unofficial),")
+    }
+
+    // >0x12    shortle    feba    Vitesse IQ2000 (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xfeba)
+    }
+    if m1 {
+      out = append(out, "Vitesse IQ2000 (unofficial),")
+    }
+
+    // >0x12    shortle    febb    NIOS (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xfebb)
+    }
+    if m1 {
+      out = append(out, "NIOS (unofficial),")
+    }
+
+    // >0x12    shortle    feed    Moxie (unofficial),
+    off = pageOff + 18
+    {
+      iv, ok := readUint16be(tb, off)
+      m1 = ok && (uint64(iv) == 0xfeed)
+    }
+    if m1 {
+      out = append(out, "Moxie (unofficial),")
+    }
+
+    // >0x12    default    
+    off = pageOff + 18
+    // uh oh unhandled kind
+
+    if m1 {
+      // >>0x12    shortle    0    *unknown arch 0x%x*
+      off = pageOff + 18
+      {
+        iv, ok := readUint16be(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "*unknown arch 0x%x*")
+      }
+
+    }
+    // >0x14    longle    0    invalid version
+    off = pageOff + 20
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "invalid version")
+    }
+
+    // >0x14    longle    1    version 1
+    off = pageOff + 20
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (uint64(iv) == 0x1)
+    }
+    if m1 {
+      out = append(out, "version 1")
+    }
+
+  }
+  return out, nil
+}
+
 func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
   var out []string
   var off int64
@@ -7463,368 +7751,6 @@ func IdentifyMsdosDriver(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosCom(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-
-  if m0 {
-    // >0x0    bytele    0    DOS executable (COM)
-    off = pageOff + 0
-    {
-      iv, ok := readUint8be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "DOS executable (COM)")
-    }
-
-    // >0x6    string    "SFX of LHarc"    \b, %s
-    off = pageOff + 6
-    // uh oh unhandled kind
-    if m1 {
-      out = append(out, "\\b, %s")
-    }
-
-    // >0x1fe    shortle    aa55    \b, boot code
-    off = pageOff + 510
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0xaa55)
-    }
-    if m1 {
-      out = append(out, "\\b, boot code")
-    }
-
-    // >0x55    string    "UPX"    \b, UPX compressed
-    off = pageOff + 85
-    // uh oh unhandled kind
-    if m1 {
-      out = append(out, "\\b, UPX compressed")
-    }
-
-    // >0x4    string    " $ARX"    \b, ARX self-extracting archive
-    off = pageOff + 4
-    // uh oh unhandled kind
-    if m1 {
-      out = append(out, "\\b, ARX self-extracting archive")
-    }
-
-    // >0x4    string    " $LHarc"    \b, LHarc self-extracting archive
-    off = pageOff + 4
-    // uh oh unhandled kind
-    if m1 {
-      out = append(out, "\\b, LHarc self-extracting archive")
-    }
-
-    // >0x20e    string    "SFX by LARC"    \b, LARC self-extracting archive
-    off = pageOff + 526
-    // uh oh unhandled kind
-    if m1 {
-      out = append(out, "\\b, LARC self-extracting archive")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyLotusCells(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-  m2 := false
-  m3 := false
-
-  if m0 {
-    // >0x0    ulongbe    6000800    \b, cell range
-    off = pageOff + 0
-    {
-      iv, ok := readUint32le(tb, off)
-      m1 = ok && (uint64(iv) == 0x6000800)
-    }
-    if m1 {
-      out = append(out, "\\b, cell range")
-    }
-
-    if m1 {
-      // >>0x4    ulongle    0    
-      off = pageOff + 4
-      {
-        iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) != 0x0)
-      }
-
-      if m2 {
-        // >>>0x4    ushortle    0    \b%d,
-        off = pageOff + 4
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "\\b%d,")
-        }
-
-        // >>>0x6    ushortle    0    \b%d-
-        off = pageOff + 6
-        {
-          iv, ok := readUint16be(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "\\b%d-")
-        }
-
-      }
-      // >>0x8    ushortle    0    \b%d,
-      off = pageOff + 8
-      {
-        iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        out = append(out, "\\b%d,")
-      }
-
-      // >>0xa    ushortle    0    \b%d
-      off = pageOff + 10
-      {
-        iv, ok := readUint16be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        out = append(out, "\\b%d")
-      }
-
-    }
-  }
-  return out, nil
-}
-
-func IdentifyCurIcoDir(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-  m2 := false
-  m3 := false
-  m4 := false
-
-  if m0 {
-    if m1 {
-      // >>(0x12.longle)    ulongle    0    MS Windows
-      // uh oh indirect offset
-      {
-        iv, ok := readUint32be(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        out = append(out, "MS Windows")
-      }
-
-      if m2 {
-        // >>>0x0    ulongbe    100    icon resource
-        off = pageOff + 0
-        {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x100)
-        }
-        if m3 {
-          out = append(out, "icon resource")
-        }
-
-        if m3 {
-          // >>>>0x4    ushortle    0    - %d icon
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
-          }
-          if m4 {
-            out = append(out, "- %d icon")
-          }
-
-          // >>>>0x4    ushortle    1    \bs
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
-          }
-          if m4 {
-            out = append(out, "\\bs")
-          }
-
-          // >>>>0x6    use   ico-entry    
-          off = pageOff + 6
-          // uh oh unhandled kind
-
-          // >>>>0x4    ushortle    1    
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
-          }
-
-          if m4 {
-            // >>>>>0x16    use   ico-entry    
-            off = pageOff + 22
-            // uh oh unhandled kind
-
-          }
-        }
-        // >>>0x0    ulongbe    200    cursor resource
-        off = pageOff + 0
-        {
-          iv, ok := readUint32le(tb, off)
-          m3 = ok && (uint64(iv) == 0x200)
-        }
-        if m3 {
-          out = append(out, "cursor resource")
-        }
-
-        if m3 {
-          // >>>>0x4    ushortle    0    - %d icon
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (uint64(iv) == 0x0)
-          }
-          if m4 {
-            out = append(out, "- %d icon")
-          }
-
-          // >>>>0x4    ushortle    1    \bs
-          off = pageOff + 4
-          {
-            iv, ok := readUint16be(tb, off)
-            m4 = ok && (int64(int16(iv)) > 0x1)
-          }
-          if m4 {
-            out = append(out, "\\bs")
-          }
-
-          // >>>>0x6    use   cur-entry    
-          off = pageOff + 6
-          // uh oh unhandled kind
-
-        }
-      }
-    }
-  }
-  return out, nil
-}
-
-func IdentifyCurEntry(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-
-  if m0 {
-    // >0x0    use   cur-ico-entry    
-    off = pageOff + 0
-    // uh oh unhandled kind
-
-    // >0x4    ushortle    0    \b, hotspot @%dx
-    off = pageOff + 4
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, hotspot @%dx")
-    }
-
-    // >0x6    ushortle    0    \b%d
-    off = pageOff + 6
-    {
-      iv, ok := readUint16be(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b%d")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyLotusCells__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-  m2 := false
-  m3 := false
-
-  if m0 {
-    // >0x0    ulongbe    6000800    \b, cell range
-    off = pageOff + 0
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x6000800)
-    }
-    if m1 {
-      out = append(out, "\\b, cell range")
-    }
-
-    if m1 {
-      // >>0x4    ulongle    0    
-      off = pageOff + 4
-      {
-        iv, ok := readUint32le(tb, off)
-        m2 = ok && (uint64(iv) != 0x0)
-      }
-
-      if m2 {
-        // >>>0x4    ushortle    0    \b%d,
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "\\b%d,")
-        }
-
-        // >>>0x6    ushortle    0    \b%d-
-        off = pageOff + 6
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x0)
-        }
-        if m3 {
-          out = append(out, "\\b%d-")
-        }
-
-      }
-      // >>0x8    ushortle    0    \b%d,
-      off = pageOff + 8
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        out = append(out, "\\b%d,")
-      }
-
-      // >>0xa    ushortle    0    \b%d
-      off = pageOff + 10
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x0)
-      }
-      if m2 {
-        out = append(out, "\\b%d")
-      }
-
-    }
-  }
-  return out, nil
-}
-
 func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
   var out []string
   var off int64
@@ -7938,7 +7864,7 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
   var out []string
   var off int64
   m0 := false
@@ -7949,99 +7875,24 @@ func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
     off = pageOff + 0
     // uh oh unhandled kind
 
-    // >0x4    ushortle    0    \b, hotspot @%dx
+    // >0x4    ushortle    1    \b, %d planes
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      out = append(out, "\\b, hotspot @%dx")
+      out = append(out, "\\b, %d planes")
     }
 
-    // >0x6    ushortle    0    \b%d
+    // >0x6    ushortle    1    \b, %d bits/pixel
     off = pageOff + 6
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
+      m1 = ok && (int64(int16(iv)) > 0x1)
     }
     if m1 {
-      out = append(out, "\\b%d")
-    }
-
-  }
-  return out, nil
-}
-
-func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-
-  if m0 {
-    // >0x0    bytele    0    \b, 256x
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, 256x")
-    }
-
-    // >0x0    bytele    0    \b, %dx
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, %dx")
-    }
-
-    // >0x1    bytele    0    \b256
-    off = pageOff + 1
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b256")
-    }
-
-    // >0x1    bytele    0    \b%d
-    off = pageOff + 1
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b%d")
-    }
-
-    // >0x2    ubytele    0    \b, %d colors
-    off = pageOff + 2
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) != 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b, %d colors")
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) == 0x89504e47)
-    }
-
-    // >(0xc.longle)    ulongbe    89504e47    
-    // uh oh indirect offset
-    {
-      iv, ok := readUint32be(tb, off)
-      m1 = ok && (uint64(iv) != 0x89504e47)
+      out = append(out, "\\b, %d bits/pixel")
     }
 
   }
@@ -12514,474 +12365,6 @@ func Identify__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
-  var out []string
-  var off int64
-  m0 := false
-  m1 := false
-  m2 := false
-  m3 := false
-  m4 := false
-  m5 := false
-  m6 := false
-
-  if m0 {
-    // >0x28    search/0x7    "UPX!"    \bUPX compressed
-    off = pageOff + 40
-    // uh oh unhandled kind
-    if m1 {
-      out = append(out, "\\bUPX compressed")
-    }
-
-    // >0x4    ushortle    0&0x8000    \bblock device driver
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\bblock device driver")
-    }
-
-    // >0x4    ushortle    8000&0x8000    \b
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
-    }
-    if m1 {
-      out = append(out, "\\b")
-    }
-
-    if m1 {
-      // >>0x4    ushortle    8&0x8    \bclock
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8)
-      }
-      if m2 {
-        out = append(out, "\\bclock")
-      }
-
-      // >>0x4    ushortle    10&0x10    \bfast
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x10)
-      }
-      if m2 {
-        out = append(out, "\\bfast")
-      }
-
-      // >>0x4    ushortle    0&0x3    \bstandard
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
-      }
-      if m2 {
-        out = append(out, "\\bstandard")
-      }
-
-      if m2 {
-        // >>>0x4    ushortle    1&0x1    \binput
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x1)
-        }
-        if m3 {
-          out = append(out, "\\binput")
-        }
-
-        // >>>0x4    ushortle    3&0x3    \b/
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x3)
-        }
-        if m3 {
-          out = append(out, "\\b/")
-        }
-
-        // >>>0x4    ushortle    2&0x2    \boutput
-        off = pageOff + 4
-        {
-          iv, ok := readUint16le(tb, off)
-          m3 = ok && (uint64(iv) == 0x2)
-        }
-        if m3 {
-          out = append(out, "\\boutput")
-        }
-
-      }
-      // >>0x4    ushortle    8000&0x8000    \bcharacter device driver
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x8000)
-      }
-      if m2 {
-        out = append(out, "\\bcharacter device driver")
-      }
-
-    }
-    // >0x0    ubytele    0    
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-
-    if m1 {
-      // >>0x28    search/0x7    "UPX!"    
-      off = pageOff + 40
-      // uh oh unhandled kind
-
-      // >>0x28    default    
-      off = pageOff + 40
-      // uh oh unhandled kind
-
-      if m2 {
-        // >>>0xc    ubytele    2e    \b
-        off = pageOff + 12
-        {
-          iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x2e)
-        }
-        if m3 {
-          out = append(out, "\\b")
-        }
-
-        if m3 {
-          // >>>>0xa    ubytele    20    
-          off = pageOff + 10
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xa    ubytele    2e    
-            off = pageOff + 10
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-
-            if m5 {
-              // >>>>>>0xa    ubytele    2a    \b%c
-              off = pageOff + 10
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (uint64(iv) != 0x2a)
-              }
-              if m6 {
-                out = append(out, "\\b%c")
-              }
-
-            }
-          }
-          // >>>>0xb    ubytele    20    
-          off = pageOff + 11
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xb    ubytele    2e    \b%c
-            off = pageOff + 11
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-            if m5 {
-              out = append(out, "\\b%c")
-            }
-
-          }
-          // >>>>0xc    ubytele    20    
-          off = pageOff + 12
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xc    ubytele    39    
-            off = pageOff + 12
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x39)
-            }
-
-            if m5 {
-              // >>>>>>0xc    ubytele    2e    \b%c
-              off = pageOff + 12
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (uint64(iv) != 0x2e)
-              }
-              if m6 {
-                out = append(out, "\\b%c")
-              }
-
-            }
-          }
-        }
-        // >>>0xd    ubytele    20    
-        off = pageOff + 13
-        {
-          iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) > 0x20)
-        }
-
-        if m3 {
-          // >>>>0xd    ubytele    2e    \b%c
-          off = pageOff + 13
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (uint64(iv) != 0x2e)
-          }
-          if m4 {
-            out = append(out, "\\b%c")
-          }
-
-          // >>>>0xe    ubytele    20    
-          off = pageOff + 14
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xe    ubytele    2e    \b%c
-            off = pageOff + 14
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-            if m5 {
-              out = append(out, "\\b%c")
-            }
-
-          }
-          // >>>>0xf    ubytele    20    
-          off = pageOff + 15
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0xf    ubytele    2e    \b%c
-            off = pageOff + 15
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-            if m5 {
-              out = append(out, "\\b%c")
-            }
-
-          }
-          // >>>>0x10    ubytele    20    
-          off = pageOff + 16
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0x10    ubytele    2e    
-            off = pageOff + 16
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-
-            if m5 {
-              // >>>>>>0x10    ubytele    cb    \b%c
-              off = pageOff + 16
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0xcb)
-              }
-              if m6 {
-                out = append(out, "\\b%c")
-              }
-
-            }
-          }
-          // >>>>0x11    ubytele    20    
-          off = pageOff + 17
-          {
-            iv, ok := readUint8le(tb, off)
-            m4 = ok && (int64(int8(iv)) > 0x20)
-          }
-
-          if m4 {
-            // >>>>>0x11    ubytele    2e    
-            off = pageOff + 17
-            {
-              iv, ok := readUint8le(tb, off)
-              m5 = ok && (uint64(iv) != 0x2e)
-            }
-
-            if m5 {
-              // >>>>>>0x11    ubytele    90    \b%c
-              off = pageOff + 17
-              {
-                iv, ok := readUint8le(tb, off)
-                m6 = ok && (int64(int8(iv)) < 0x90)
-              }
-              if m6 {
-                out = append(out, "\\b%c")
-              }
-
-            }
-          }
-        }
-        // >>>0xc    ubytele    2f    
-        off = pageOff + 12
-        {
-          iv, ok := readUint8le(tb, off)
-          m3 = ok && (int64(int8(iv)) < 0x2f)
-        }
-
-        if m3 {
-          // >>>>0x16    string    ">."    %-.6s
-          off = pageOff + 22
-          // uh oh unhandled kind
-          if m4 {
-            out = append(out, "%-.6s")
-          }
-
-        }
-      }
-    }
-    // >0x4    ushortle    0&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    2&0x2    \b,32-bit sector-
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2)
-      }
-      if m2 {
-        out = append(out, "\\b,32-bit sector-")
-      }
-
-    }
-    // >0x4    ushortle    40&0x40    \b,IOCTL-
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x40)
-    }
-    if m1 {
-      out = append(out, "\\b,IOCTL-")
-    }
-
-    // >0x4    ushortle    800&0x800    \b,close media-
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x800)
-    }
-    if m1 {
-      out = append(out, "\\b,close media-")
-    }
-
-    // >0x4    ushortle    8000&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    2000&0x2000    \b,until busy-
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (uint64(iv) == 0x2000)
-      }
-      if m2 {
-        out = append(out, "\\b,until busy-")
-      }
-
-    }
-    // >0x4    ushortle    4000&0x4000    \b,control strings-
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x4000)
-    }
-    if m1 {
-      out = append(out, "\\b,control strings-")
-    }
-
-    // >0x4    ushortle    8000&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x8000)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    0&0x6840    \bsupport
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
-      }
-      if m2 {
-        out = append(out, "\\bsupport")
-      }
-
-    }
-    // >0x4    ushortle    0&0x8000    
-    off = pageOff + 4
-    {
-      iv, ok := readUint16le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-
-    if m1 {
-      // >>0x4    ushortle    0&0x4842    \bsupport
-      off = pageOff + 4
-      {
-        iv, ok := readUint16le(tb, off)
-        m2 = ok && (int64(int16(iv)) > 0x0)
-      }
-      if m2 {
-        out = append(out, "\\bsupport")
-      }
-
-    }
-    // >0x0    ubytele    0    \b)
-    off = pageOff + 0
-    {
-      iv, ok := readUint8le(tb, off)
-      m1 = ok && (uint64(iv) == 0x0)
-    }
-    if m1 {
-      out = append(out, "\\b)")
-    }
-
-  }
-  return out, nil
-}
-
 func IdentifyMsdosCom__Swapped(tb []byte, pageOff int64) ([]string, error) {
   var out []string
   var off int64
@@ -13042,6 +12425,190 @@ func IdentifyMsdosCom__Swapped(tb []byte, pageOff int64) ([]string, error) {
     // uh oh unhandled kind
     if m1 {
       out = append(out, "\\b, LARC self-extracting archive")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyLotusCells__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+  m2 := false
+  m3 := false
+
+  if m0 {
+    // >0x0    ulongbe    6000800    \b, cell range
+    off = pageOff + 0
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (uint64(iv) == 0x6000800)
+    }
+    if m1 {
+      out = append(out, "\\b, cell range")
+    }
+
+    if m1 {
+      // >>0x4    ulongle    0    
+      off = pageOff + 4
+      {
+        iv, ok := readUint32le(tb, off)
+        m2 = ok && (uint64(iv) != 0x0)
+      }
+
+      if m2 {
+        // >>>0x4    ushortle    0    \b%d,
+        off = pageOff + 4
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "\\b%d,")
+        }
+
+        // >>>0x6    ushortle    0    \b%d-
+        off = pageOff + 6
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x0)
+        }
+        if m3 {
+          out = append(out, "\\b%d-")
+        }
+
+      }
+      // >>0x8    ushortle    0    \b%d,
+      off = pageOff + 8
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "\\b%d,")
+      }
+
+      // >>0xa    ushortle    0    \b%d
+      off = pageOff + 10
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x0)
+      }
+      if m2 {
+        out = append(out, "\\b%d")
+      }
+
+    }
+  }
+  return out, nil
+}
+
+func IdentifyCurEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    use   cur-ico-entry    
+    off = pageOff + 0
+    // uh oh unhandled kind
+
+    // >0x4    ushortle    0    \b, hotspot @%dx
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, hotspot @%dx")
+    }
+
+    // >0x6    ushortle    0    \b%d
+    off = pageOff + 6
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b%d")
+    }
+
+  }
+  return out, nil
+}
+
+func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+  var out []string
+  var off int64
+  m0 := false
+  m1 := false
+
+  if m0 {
+    // >0x0    bytele    0    \b, 256x
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, 256x")
+    }
+
+    // >0x0    bytele    0    \b, %dx
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, %dx")
+    }
+
+    // >0x1    bytele    0    \b256
+    off = pageOff + 1
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b256")
+    }
+
+    // >0x1    bytele    0    \b%d
+    off = pageOff + 1
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b%d")
+    }
+
+    // >0x2    ubytele    0    \b, %d colors
+    off = pageOff + 2
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) != 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b, %d colors")
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (uint64(iv) == 0x89504e47)
+    }
+
+    // >(0xc.longle)    ulongbe    89504e47    
+    // uh oh indirect offset
+    {
+      iv, ok := readUint32be(tb, off)
+      m1 = ok && (uint64(iv) != 0x89504e47)
     }
 
   }
@@ -15390,35 +14957,468 @@ func IdentifyElfLe__Swapped(tb []byte, pageOff int64) ([]string, error) {
   return out, nil
 }
 
-func IdentifyIcoEntry__Swapped(tb []byte, pageOff int64) ([]string, error) {
+func IdentifyMsdosDriver__Swapped(tb []byte, pageOff int64) ([]string, error) {
   var out []string
   var off int64
   m0 := false
   m1 := false
+  m2 := false
+  m3 := false
+  m4 := false
+  m5 := false
+  m6 := false
 
   if m0 {
-    // >0x0    use   cur-ico-entry    
-    off = pageOff + 0
+    // >0x28    search/0x7    "UPX!"    \bUPX compressed
+    off = pageOff + 40
     // uh oh unhandled kind
+    if m1 {
+      out = append(out, "\\bUPX compressed")
+    }
 
-    // >0x4    ushortle    1    \b, %d planes
+    // >0x4    ushortle    0&0x8000    \bblock device driver
     off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (uint64(iv) == 0x0)
     }
     if m1 {
-      out = append(out, "\\b, %d planes")
+      out = append(out, "\\bblock device driver")
     }
 
-    // >0x6    ushortle    1    \b, %d bits/pixel
-    off = pageOff + 6
+    // >0x4    ushortle    8000&0x8000    \b
+    off = pageOff + 4
     {
       iv, ok := readUint16le(tb, off)
-      m1 = ok && (int64(int16(iv)) > 0x1)
+      m1 = ok && (uint64(iv) == 0x8000)
     }
     if m1 {
-      out = append(out, "\\b, %d bits/pixel")
+      out = append(out, "\\b")
+    }
+
+    if m1 {
+      // >>0x4    ushortle    8&0x8    \bclock
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x8)
+      }
+      if m2 {
+        out = append(out, "\\bclock")
+      }
+
+      // >>0x4    ushortle    10&0x10    \bfast
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x10)
+      }
+      if m2 {
+        out = append(out, "\\bfast")
+      }
+
+      // >>0x4    ushortle    0&0x3    \bstandard
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (int64(int16(iv)) > 0x0)
+      }
+      if m2 {
+        out = append(out, "\\bstandard")
+      }
+
+      if m2 {
+        // >>>0x4    ushortle    1&0x1    \binput
+        off = pageOff + 4
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x1)
+        }
+        if m3 {
+          out = append(out, "\\binput")
+        }
+
+        // >>>0x4    ushortle    3&0x3    \b/
+        off = pageOff + 4
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x3)
+        }
+        if m3 {
+          out = append(out, "\\b/")
+        }
+
+        // >>>0x4    ushortle    2&0x2    \boutput
+        off = pageOff + 4
+        {
+          iv, ok := readUint16le(tb, off)
+          m3 = ok && (uint64(iv) == 0x2)
+        }
+        if m3 {
+          out = append(out, "\\boutput")
+        }
+
+      }
+      // >>0x4    ushortle    8000&0x8000    \bcharacter device driver
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x8000)
+      }
+      if m2 {
+        out = append(out, "\\bcharacter device driver")
+      }
+
+    }
+    // >0x0    ubytele    0    
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+
+    if m1 {
+      // >>0x28    search/0x7    "UPX!"    
+      off = pageOff + 40
+      // uh oh unhandled kind
+
+      // >>0x28    default    
+      off = pageOff + 40
+      // uh oh unhandled kind
+
+      if m2 {
+        // >>>0xc    ubytele    2e    \b
+        off = pageOff + 12
+        {
+          iv, ok := readUint8le(tb, off)
+          m3 = ok && (int64(int8(iv)) > 0x2e)
+        }
+        if m3 {
+          out = append(out, "\\b")
+        }
+
+        if m3 {
+          // >>>>0xa    ubytele    20    
+          off = pageOff + 10
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xa    ubytele    2e    
+            off = pageOff + 10
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+
+            if m5 {
+              // >>>>>>0xa    ubytele    2a    \b%c
+              off = pageOff + 10
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (uint64(iv) != 0x2a)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+          // >>>>0xb    ubytele    20    
+          off = pageOff + 11
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xb    ubytele    2e    \b%c
+            off = pageOff + 11
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+            if m5 {
+              out = append(out, "\\b%c")
+            }
+
+          }
+          // >>>>0xc    ubytele    20    
+          off = pageOff + 12
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xc    ubytele    39    
+            off = pageOff + 12
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x39)
+            }
+
+            if m5 {
+              // >>>>>>0xc    ubytele    2e    \b%c
+              off = pageOff + 12
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (uint64(iv) != 0x2e)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+        }
+        // >>>0xd    ubytele    20    
+        off = pageOff + 13
+        {
+          iv, ok := readUint8le(tb, off)
+          m3 = ok && (int64(int8(iv)) > 0x20)
+        }
+
+        if m3 {
+          // >>>>0xd    ubytele    2e    \b%c
+          off = pageOff + 13
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (uint64(iv) != 0x2e)
+          }
+          if m4 {
+            out = append(out, "\\b%c")
+          }
+
+          // >>>>0xe    ubytele    20    
+          off = pageOff + 14
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xe    ubytele    2e    \b%c
+            off = pageOff + 14
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+            if m5 {
+              out = append(out, "\\b%c")
+            }
+
+          }
+          // >>>>0xf    ubytele    20    
+          off = pageOff + 15
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0xf    ubytele    2e    \b%c
+            off = pageOff + 15
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+            if m5 {
+              out = append(out, "\\b%c")
+            }
+
+          }
+          // >>>>0x10    ubytele    20    
+          off = pageOff + 16
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0x10    ubytele    2e    
+            off = pageOff + 16
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+
+            if m5 {
+              // >>>>>>0x10    ubytele    cb    \b%c
+              off = pageOff + 16
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (int64(int8(iv)) < 0xcb)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+          // >>>>0x11    ubytele    20    
+          off = pageOff + 17
+          {
+            iv, ok := readUint8le(tb, off)
+            m4 = ok && (int64(int8(iv)) > 0x20)
+          }
+
+          if m4 {
+            // >>>>>0x11    ubytele    2e    
+            off = pageOff + 17
+            {
+              iv, ok := readUint8le(tb, off)
+              m5 = ok && (uint64(iv) != 0x2e)
+            }
+
+            if m5 {
+              // >>>>>>0x11    ubytele    90    \b%c
+              off = pageOff + 17
+              {
+                iv, ok := readUint8le(tb, off)
+                m6 = ok && (int64(int8(iv)) < 0x90)
+              }
+              if m6 {
+                out = append(out, "\\b%c")
+              }
+
+            }
+          }
+        }
+        // >>>0xc    ubytele    2f    
+        off = pageOff + 12
+        {
+          iv, ok := readUint8le(tb, off)
+          m3 = ok && (int64(int8(iv)) < 0x2f)
+        }
+
+        if m3 {
+          // >>>>0x16    string    ">."    %-.6s
+          off = pageOff + 22
+          // uh oh unhandled kind
+          if m4 {
+            out = append(out, "%-.6s")
+          }
+
+        }
+      }
+    }
+    // >0x4    ushortle    0&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    2&0x2    \b,32-bit sector-
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x2)
+      }
+      if m2 {
+        out = append(out, "\\b,32-bit sector-")
+      }
+
+    }
+    // >0x4    ushortle    40&0x40    \b,IOCTL-
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x40)
+    }
+    if m1 {
+      out = append(out, "\\b,IOCTL-")
+    }
+
+    // >0x4    ushortle    800&0x800    \b,close media-
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x800)
+    }
+    if m1 {
+      out = append(out, "\\b,close media-")
+    }
+
+    // >0x4    ushortle    8000&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x8000)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    2000&0x2000    \b,until busy-
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (uint64(iv) == 0x2000)
+      }
+      if m2 {
+        out = append(out, "\\b,until busy-")
+      }
+
+    }
+    // >0x4    ushortle    4000&0x4000    \b,control strings-
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x4000)
+    }
+    if m1 {
+      out = append(out, "\\b,control strings-")
+    }
+
+    // >0x4    ushortle    8000&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x8000)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    0&0x6840    \bsupport
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (int64(int16(iv)) > 0x0)
+      }
+      if m2 {
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    // >0x4    ushortle    0&0x8000    
+    off = pageOff + 4
+    {
+      iv, ok := readUint16le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+
+    if m1 {
+      // >>0x4    ushortle    0&0x4842    \bsupport
+      off = pageOff + 4
+      {
+        iv, ok := readUint16le(tb, off)
+        m2 = ok && (int64(int16(iv)) > 0x0)
+      }
+      if m2 {
+        out = append(out, "\\bsupport")
+      }
+
+    }
+    // >0x0    ubytele    0    \b)
+    off = pageOff + 0
+    {
+      iv, ok := readUint8le(tb, off)
+      m1 = ok && (uint64(iv) == 0x0)
+    }
+    if m1 {
+      out = append(out, "\\b)")
     }
 
   }
