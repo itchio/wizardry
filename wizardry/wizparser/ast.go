@@ -65,17 +65,17 @@ func (o Offset) String() string {
 		}
 
 		switch indirect.OffsetAdjustmentType {
-		case OffsetAdjustmentAdd:
+		case AdjustmentAdd:
 			s += "+"
-		case OffsetAdjustmentSub:
+		case AdjustmentSub:
 			s += "-"
-		case OffsetAdjustmentMul:
+		case AdjustmentMul:
 			s += "*"
-		case OffsetAdjustmentDiv:
+		case AdjustmentDiv:
 			s += "/"
 		}
 
-		if indirect.OffsetAdjustmentType != OffsetAdjustmentNone {
+		if indirect.OffsetAdjustmentType != AdjustmentNone {
 			if indirect.OffsetAdjustmentIsRelative {
 				s += "("
 			}
@@ -188,14 +188,16 @@ type Kind struct {
 
 // IntegerKind describes how to perform a test on an integer
 type IntegerKind struct {
-	ByteWidth   int
-	Endianness  Endianness
-	Signed      bool
-	DoAnd       bool
-	AndValue    uint64
-	IntegerTest IntegerTest
-	Value       int64
-	MatchAny    bool
+	ByteWidth       int
+	Endianness      Endianness
+	Signed          bool
+	DoAnd           bool
+	AndValue        uint64
+	IntegerTest     IntegerTest
+	Value           int64
+	MatchAny        bool
+	AdjustmentType  Adjustment
+	AdjustmentValue int64
 }
 
 // IntegerTest describes which comparison to perform on an integer
@@ -267,25 +269,25 @@ type IndirectOffset struct {
 	ByteWidth                  int
 	Endianness                 Endianness
 	OffsetAddress              int64
-	OffsetAdjustmentType       OffsetAdjustment
+	OffsetAdjustmentType       Adjustment
 	OffsetAdjustmentIsRelative bool
 	OffsetAdjustmentValue      int64
 }
 
-// OffsetAdjustment describes which operation to apply to an offset
-type OffsetAdjustment int
+// Adjustment describes which operation to apply to an offset
+type Adjustment int
 
 const (
-	// OffsetAdjustmentNone is a no-op
-	OffsetAdjustmentNone OffsetAdjustment = iota
-	// OffsetAdjustmentAdd adds a value
-	OffsetAdjustmentAdd = iota
-	// OffsetAdjustmentSub subtracts a value
-	OffsetAdjustmentSub = iota
-	// OffsetAdjustmentMul multiplies by a value
-	OffsetAdjustmentMul = iota
-	// OffsetAdjustmentDiv divides by a value
-	OffsetAdjustmentDiv = iota
+	// AdjustmentNone is a no-op
+	AdjustmentNone Adjustment = iota
+	// AdjustmentAdd adds a value
+	AdjustmentAdd = iota
+	// AdjustmentSub subtracts a value
+	AdjustmentSub = iota
+	// AdjustmentMul multiplies by a value
+	AdjustmentMul = iota
+	// AdjustmentDiv divides by a value
+	AdjustmentDiv = iota
 )
 
 // UseKind describes which page of the spellbook to use, and whether or not to swap endianness

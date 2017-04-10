@@ -213,16 +213,16 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 				}
 
 				if offsetBytes[j] == '+' {
-					indirect.OffsetAdjustmentType = OffsetAdjustmentAdd
+					indirect.OffsetAdjustmentType = AdjustmentAdd
 				} else if offsetBytes[j] == '-' {
-					indirect.OffsetAdjustmentType = OffsetAdjustmentSub
+					indirect.OffsetAdjustmentType = AdjustmentSub
 				} else if offsetBytes[j] == '*' {
-					indirect.OffsetAdjustmentType = OffsetAdjustmentMul
+					indirect.OffsetAdjustmentType = AdjustmentMul
 				} else if offsetBytes[j] == '/' {
-					indirect.OffsetAdjustmentType = OffsetAdjustmentDiv
+					indirect.OffsetAdjustmentType = AdjustmentDiv
 				}
 
-				if indirect.OffsetAdjustmentType != OffsetAdjustmentNone {
+				if indirect.OffsetAdjustmentType != AdjustmentNone {
 					j++
 					// it's a relative pair
 					if offsetBytes[j] == '(' {
@@ -317,6 +317,33 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 				}
 
 				ik.DoAnd = false
+
+				if j < len(kind) {
+					switch kind[j] {
+					case '+':
+						ik.AdjustmentType = AdjustmentAdd
+						j++
+					case '-':
+						ik.AdjustmentType = AdjustmentSub
+						j++
+					case '*':
+						ik.AdjustmentType = AdjustmentMul
+						j++
+					case '/':
+						ik.AdjustmentType = AdjustmentDiv
+						j++
+					}
+
+					if ik.AdjustmentType != AdjustmentNone {
+						pi, err := parseInt(kind, j)
+						if err != nil {
+							ctx.Logf("couldn't parser integer kind adjustment in %s, skipping rule %s", kind[j:], line)
+							continue
+						}
+						ik.AdjustmentValue = pi.Value
+						j = pi.NewIndex
+					}
+				}
 
 				if j < len(kind) && kind[j] == '&' {
 					j++

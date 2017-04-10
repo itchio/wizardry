@@ -103,13 +103,13 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 			}
 
 			switch indirect.OffsetAdjustmentType {
-			case wizparser.OffsetAdjustmentAdd:
+			case wizparser.AdjustmentAdd:
 				lookupOffset = lookupOffset + offsetAdjustValue
-			case wizparser.OffsetAdjustmentSub:
+			case wizparser.AdjustmentSub:
 				lookupOffset = lookupOffset - offsetAdjustValue
-			case wizparser.OffsetAdjustmentMul:
+			case wizparser.AdjustmentMul:
 				lookupOffset = lookupOffset * offsetAdjustValue
-			case wizparser.OffsetAdjustmentDiv:
+			case wizparser.AdjustmentDiv:
 				lookupOffset = lookupOffset / offsetAdjustValue
 			}
 
@@ -130,60 +130,71 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 
 		switch rule.Kind.Family {
 		case wizparser.KindFamilyInteger:
-			ki, _ := rule.Kind.Data.(*wizparser.IntegerKind)
+			ik, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
-			if ki.MatchAny {
+			if ik.MatchAny {
 				success = true
 			} else {
-				targetValue, err := readAnyUint(target, int(lookupOffset), ki.ByteWidth, ki.Endianness)
+				targetValue, err := readAnyUint(target, int(lookupOffset), ik.ByteWidth, ik.Endianness)
 				if err != nil {
 					ctx.Logf("in integer test, while reading target value: %s", err.Error())
 					continue
 				}
 
-				if ki.DoAnd {
-					targetValue &= ki.AndValue
+				if ik.DoAnd {
+					targetValue &= ik.AndValue
 				}
 
-				switch ki.IntegerTest {
+				switch ik.AdjustmentType {
+				case wizparser.AdjustmentAdd:
+					targetValue = uint64(int64(targetValue) + ik.AdjustmentValue)
+				case wizparser.AdjustmentSub:
+					targetValue = uint64(int64(targetValue) - ik.AdjustmentValue)
+				case wizparser.AdjustmentMul:
+					targetValue = uint64(int64(targetValue) * ik.AdjustmentValue)
+				case wizparser.AdjustmentDiv:
+					targetValue = uint64(int64(targetValue) / ik.AdjustmentValue)
+				}
+
+				switch ik.IntegerTest {
 				case wizparser.IntegerTestEqual:
-					success = targetValue == uint64(ki.Value)
+					success = targetValue == uint64(ik.Value)
 				case wizparser.IntegerTestNotEqual:
-					success = targetValue != uint64(ki.Value)
+					success = targetValue != uint64(ik.Value)
 				case wizparser.IntegerTestLessThan:
-					if ki.Signed {
-						switch ki.ByteWidth {
+					if ik.Signed {
+						switch ik.ByteWidth {
 						case 1:
-							success = int8(targetValue) < int8(ki.Value)
+							success = int8(targetValue) < int8(ik.Value)
 						case 2:
-							success = int16(targetValue) < int16(ki.Value)
+							success = int16(targetValue) < int16(ik.Value)
 						case 4:
-							success = int32(targetValue) < int32(ki.Value)
+							success = int32(targetValue) < int32(ik.Value)
 						case 8:
-							success = int64(targetValue) < int64(ki.Value)
+							success = int64(targetValue) < int64(ik.Value)
 						}
 					} else {
-						success = targetValue < uint64(ki.Value)
+						success = targetValue < uint64(ik.Value)
 					}
 				case wizparser.IntegerTestGreaterThan:
-					if ki.Signed {
-						switch ki.ByteWidth {
+					if ik.Signed {
+						switch ik.ByteWidth {
 						case 1:
-							success = int8(targetValue) > int8(ki.Value)
+							success = int8(targetValue) > int8(ik.Value)
 						case 2:
-							success = int16(targetValue) > int16(ki.Value)
+							success = int16(targetValue) > int16(ik.Value)
 						case 4:
-							success = int32(targetValue) > int32(ki.Value)
+							success = int32(targetValue) > int32(ik.Value)
 						case 8:
-							success = int64(targetValue) > int64(ki.Value)
+							success = int64(targetValue) > int64(ik.Value)
 						}
 					} else {
-						success = targetValue > uint64(ki.Value)
+						success = targetValue > uint64(ik.Value)
 					}
 				}
 
 				if success {
-					globalOffset = lookupOffset + int64(ki.ByteWidth)
+					globalOffset = lookupOffset + int64(ik.ByteWidth)
 				}
 			}
 

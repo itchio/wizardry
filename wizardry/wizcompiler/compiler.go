@@ -205,13 +205,13 @@ func Compile(book wizparser.Spellbook) error {
 							emit("off = i64(ra)")
 
 							switch indirect.OffsetAdjustmentType {
-							case wizparser.OffsetAdjustmentAdd:
+							case wizparser.AdjustmentAdd:
 								emit("off = off + %s", offsetAdjustValue)
-							case wizparser.OffsetAdjustmentDiv:
+							case wizparser.AdjustmentDiv:
 								emit("off = off / %s", offsetAdjustValue)
-							case wizparser.OffsetAdjustmentMul:
+							case wizparser.AdjustmentMul:
 								emit("off = off * %s", offsetAdjustValue)
-							case wizparser.OffsetAdjustmentSub:
+							case wizparser.AdjustmentSub:
 								emit("off = off * %s", quoteNumber(indirect.OffsetAdjustmentValue))
 							}
 
@@ -226,44 +226,69 @@ func Compile(book wizparser.Spellbook) error {
 					case wizparser.KindFamilyInteger:
 						ik, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
-						emit("{")
-						withIndent(func() {
-							emit("iv, ok := readU%d%s(tb, %s)",
-								ik.ByteWidth*8,
-								endiannessString(ik.Endianness, swapEndian),
-								"off",
-							)
-
-							lhs := "iv"
-
-							operator := "=="
-							switch ik.IntegerTest {
-							case wizparser.IntegerTestEqual:
-								operator = "=="
-							case wizparser.IntegerTestNotEqual:
-								operator = "!="
-							case wizparser.IntegerTestLessThan:
-								operator = "<"
-							case wizparser.IntegerTestGreaterThan:
-								operator = ">"
-							}
-
-							if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
-								lhs = fmt.Sprintf("i64(i%d(iv))", ik.ByteWidth*8)
-							} else {
-								lhs = fmt.Sprintf("u64(iv)")
-							}
-
-							ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, quoteNumber(ik.Value))
-							emit("m%d = %s", rule.Level, ruleTest)
+						if ik.MatchAny {
 							emit("ml = %d", ik.ByteWidth)
-						})
-						emit("}")
+						} else {
+							emit("{")
+							withIndent(func() {
+								emit("iv, ok := readU%d%s(tb, %s)",
+									ik.ByteWidth*8,
+									endiannessString(ik.Endianness, swapEndian),
+									"off",
+								)
 
+								lhs := "iv"
+
+								operator := "=="
+								switch ik.IntegerTest {
+								case wizparser.IntegerTestEqual:
+									operator = "=="
+								case wizparser.IntegerTestNotEqual:
+									operator = "!="
+								case wizparser.IntegerTestLessThan:
+									operator = "<"
+								case wizparser.IntegerTestGreaterThan:
+									operator = ">"
+								}
+
+								if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
+									lhs = fmt.Sprintf("i64(i%d(iv))", ik.ByteWidth*8)
+								} else {
+									lhs = fmt.Sprintf("u64(iv)")
+								}
+
+								if ik.DoAnd {
+									lhs = fmt.Sprintf("%s&%s", lhs, quoteNumber(int64(ik.AndValue)))
+								}
+
+								switch ik.AdjustmentType {
+								case wizparser.AdjustmentAdd:
+									lhs = fmt.Sprintf("(%s+%s)", lhs, quoteNumber(ik.AdjustmentValue))
+								case wizparser.AdjustmentSub:
+									lhs = fmt.Sprintf("(%s-%s)", lhs, quoteNumber(ik.AdjustmentValue))
+								case wizparser.AdjustmentMul:
+									lhs = fmt.Sprintf("(%s*%s)", lhs, quoteNumber(ik.AdjustmentValue))
+								case wizparser.AdjustmentDiv:
+									lhs = fmt.Sprintf("(%s/%s)", lhs, quoteNumber(ik.AdjustmentValue))
+								}
+
+								rhs := quoteNumber(ik.Value)
+
+								ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, rhs)
+								emit("m%d = %s", rule.Level, ruleTest)
+								emit("ml = %d", ik.ByteWidth)
+							})
+							emit("}")
+
+						}
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
 						emit("ml = i64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
-						emit("m%d = ml >= 0", rule.Level)
+						if sk.Negate {
+							emit("m%d = ml < 0", rule.Level)
+						} else {
+							emit("m%d = ml >= 0", rule.Level)
+						}
 
 					default:
 						emit("// uh oh unhandled kind")
