@@ -90,7 +90,7 @@ func Compile(book wizparser.Spellbook) error {
 		for _, endianness := range []wizparser.Endianness{wizparser.LittleEndian, wizparser.BigEndian} {
 			retType := fmt.Sprintf("u%d", byteWidth*8)
 
-			emit("func readUint%d%s(tb []byte, off i64) (%s, bool) {", byteWidth*8, endiannessString(endianness, false), retType)
+			emit("func readU%d%s(tb []byte, off i64) (%s, bool) {", byteWidth*8, endiannessString(endianness, false), retType)
 			withIndent(func() {
 				emit("if i64(len(tb)) < off+%d {", byteWidth)
 				withIndent(func() {
@@ -119,6 +119,8 @@ func Compile(book wizparser.Spellbook) error {
 			emit("func Identify%s(tb []byte, pageOff i64) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
 				emit("var out []string")
+				emit("var gof i64") // globalOffset
+				emit("gof &= gof")
 				emit("var off i64") // lookupOffset
 				emit("var ml i64")  // matchLength
 
@@ -157,13 +159,67 @@ func Compile(book wizparser.Spellbook) error {
 						emit("m%d = false", currentLevel)
 					}
 
-					emit("// %s", rule)
+					emit("// %s", rule.Line)
+
+					needsBreak := false
+					if rule.Offset.OffsetType == wizparser.OffsetTypeIndirect {
+						needsBreak = true
+					}
+
+					emitted := true
+
+					if needsBreak {
+						emit("for {")
+						indent()
+					}
 
 					switch rule.Offset.OffsetType {
 					case wizparser.OffsetTypeDirect:
-						emit("off = pageOff + %d", rule.Offset.Direct)
+						if rule.Offset.IsRelative {
+							emit("off = pageOff + gof + %s", quoteNumber(rule.Offset.Direct))
+						} else {
+							emit("off = pageOff + %s", quoteNumber(rule.Offset.Direct))
+						}
 					case wizparser.OffsetTypeIndirect:
-						emit("// uh oh indirect offset")
+						indirect := rule.Offset.Indirect
+
+						emit("{")
+						withIndent(func() {
+							offsetAddress := quoteNumber(indirect.OffsetAddress)
+							emit("ra, ok := readU%d%s(tb, %s)",
+								indirect.ByteWidth*8,
+								endiannessString(indirect.Endianness, swapEndian),
+								offsetAddress)
+							emit("if !ok { break }")
+							offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
+
+							if indirect.OffsetAdjustmentIsRelative {
+								offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
+								emit("rb, ok := readU%d%s(tb, %s)",
+									indirect.ByteWidth*8,
+									endiannessString(indirect.Endianness, swapEndian),
+									offsetAdjustAddress)
+								offsetAdjustValue = "i64(rb)"
+							}
+
+							emit("off = i64(ra)")
+
+							switch indirect.OffsetAdjustmentType {
+							case wizparser.OffsetAdjustmentAdd:
+								emit("off = off + %s", offsetAdjustValue)
+							case wizparser.OffsetAdjustmentDiv:
+								emit("off = off / %s", offsetAdjustValue)
+							case wizparser.OffsetAdjustmentMul:
+								emit("off = off * %s", offsetAdjustValue)
+							case wizparser.OffsetAdjustmentSub:
+								emit("off = off * %s", quoteNumber(indirect.OffsetAdjustmentValue))
+							}
+
+							if rule.Offset.IsRelative {
+								emit("off += gof")
+							}
+						})
+						emit("}")
 					}
 
 					switch rule.Kind.Family {
@@ -172,7 +228,7 @@ func Compile(book wizparser.Spellbook) error {
 
 						emit("{")
 						withIndent(func() {
-							emit("iv, ok := readUint%d%s(tb, %s)",
+							emit("iv, ok := readU%d%s(tb, %s)",
 								ik.ByteWidth*8,
 								endiannessString(ik.Endianness, swapEndian),
 								"off",
@@ -211,18 +267,26 @@ func Compile(book wizparser.Spellbook) error {
 
 					default:
 						emit("// uh oh unhandled kind")
-						continue
+						emitted = false
 					}
 
-					emit("if m%d {", rule.Level)
-					withIndent(func() {
-						emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.String()))
-						emit("off += ml")
-						if len(rule.Description) > 0 {
-							emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
-						}
-					})
-					emit("}")
+					if emitted {
+						emit("if m%d {", rule.Level)
+						withIndent(func() {
+							emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.Line))
+							emit("gof = off + ml")
+							if len(rule.Description) > 0 {
+								emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
+							}
+						})
+						emit("}")
+					}
+
+					if needsBreak {
+						emit("break")
+						outdent()
+						emit("}")
+					}
 
 					emit("")
 				}
@@ -258,9 +322,9 @@ func pageSymbol(page string, swapEndian bool) string {
 
 func endiannessString(en wizparser.Endianness, swapEndian bool) string {
 	if en.MaybeSwapped(swapEndian) == wizparser.BigEndian {
-		return "le"
+		return "be"
 	}
-	return "be"
+	return "le"
 }
 
 func quoteNumber(number int64) string {

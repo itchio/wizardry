@@ -19,6 +19,7 @@ func (sb Spellbook) AddRule(page string, rule Rule) {
 
 // Rule is a single magic rule
 type Rule struct {
+	Line        string
 	Level       int
 	Offset      Offset
 	Kind        Kind

@@ -82,6 +82,8 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 
 		rule := Rule{}
 
+		rule.Line = line
+
 		// read level
 		for i < numBytes && lineBytes[i] == '>' {
 			rule.Level++
