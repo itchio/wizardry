@@ -1,10 +1,12 @@
-package wizardry
+package wizparser
 
 import (
 	"encoding/binary"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/fasterthanlime/wizardry/wizardry"
 )
 
 // Spellbook contains a set of rules - at least one "" page, potentially others
@@ -213,7 +215,7 @@ const (
 type StringKind struct {
 	Value  []byte
 	Negate bool
-	Flags  stringTestFlags
+	Flags  wizardry.StringTestFlags
 }
 
 // SearchKind describes how to look for a fixed pattern

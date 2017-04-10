@@ -1,47 +1,12 @@
-package wizardry
+package wizparser
 
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/fasterthanlime/wizardry/wizardry"
+	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
 )
-
-func isWhitespace(b byte) bool {
-	return b == ' ' || b == '\t'
-}
-
-func isNumber(b byte) bool {
-	return '0' <= b && b <= '9'
-}
-
-func isOctalNumber(b byte) bool {
-	return '0' <= b && b <= '7'
-}
-
-func isHexNumber(b byte) bool {
-	return ('0' <= b && b <= '9') || ('a' <= b && b <= 'f') || ('A' <= b && b <= 'F')
-}
-
-func isLowerLetter(b byte) bool {
-	return 'a' <= b && b <= 'z'
-}
-
-func isUpperLetter(b byte) bool {
-	return 'A' <= b && b <= 'Z'
-}
-
-func toLower(b byte) byte {
-	if isUpperLetter(b) {
-		return b + ('a' - 'A')
-	}
-	return b
-}
-
-func toUpper(b byte) byte {
-	if isLowerLetter(b) {
-		return b - ('a' - 'A')
-	}
-	return b
-}
 
 type parsedInt struct {
 	Value    int64
@@ -68,20 +33,20 @@ func parseInt(input []byte, j int) (*parsedInt, error) {
 		base = 16
 		j += 2
 		startJ = j
-		for j < inputSize && isHexNumber(input[j]) {
+		for j < inputSize && wizutil.IsHexNumber(input[j]) {
 			j++
 		}
-	} else if j+1 < inputSize && input[j] == '0' && isOctalNumber(input[j+1]) {
+	} else if j+1 < inputSize && input[j] == '0' && wizutil.IsOctalNumber(input[j+1]) {
 		// octal
 		base = 8
 		j++
 		startJ = j
-		for j < inputSize && isOctalNumber(input[j]) {
+		for j < inputSize && wizutil.IsOctalNumber(input[j]) {
 			j++
 		}
 	} else {
 		// decimal
-		for j < inputSize && isNumber(input[j]) {
+		for j < inputSize && wizutil.IsNumber(input[j]) {
 			j++
 		}
 	}
@@ -107,20 +72,20 @@ func parseUint(input []byte, j int) (*parsedUint, error) {
 		base = 16
 		j += 2
 		startJ = j
-		for j < inputSize && isHexNumber(input[j]) {
+		for j < inputSize && wizutil.IsHexNumber(input[j]) {
 			j++
 		}
-	} else if j+1 < inputSize && input[j] == '0' && isOctalNumber(input[j+1]) {
+	} else if j+1 < inputSize && input[j] == '0' && wizutil.IsOctalNumber(input[j+1]) {
 		// octal
 		base = 8
 		j++
 		startJ = j
-		for j < inputSize && isOctalNumber(input[j]) {
+		for j < inputSize && wizutil.IsOctalNumber(input[j]) {
 			j++
 		}
 	} else {
 		// decimal
-		for j < inputSize && isNumber(input[j]) {
+		for j < inputSize && wizutil.IsNumber(input[j]) {
 			j++
 		}
 	}
@@ -145,7 +110,7 @@ func parseKind(input []byte, j int) *parsedKind {
 	inputSize := len(input)
 	startJ := j
 
-	for j < inputSize && (isNumber(input[j]) || isLowerLetter(input[j])) {
+	for j < inputSize && (wizutil.IsNumber(input[j]) || wizutil.IsLowerLetter(input[j])) {
 		j++
 	}
 
@@ -196,9 +161,9 @@ func parseString(input []byte, j int) (*parsedString, error) {
 				j++
 				// hexadecimal escape, e.g. "\x" or "\xeb"
 				hexLen := 0
-				if j < inputSize && isHexNumber(input[j]) {
+				if j < inputSize && wizutil.IsHexNumber(input[j]) {
 					hexLen++
-					if j+1 < inputSize && isHexNumber(input[j+1]) {
+					if j+1 < inputSize && wizutil.IsHexNumber(input[j+1]) {
 						hexLen++
 					}
 				}
@@ -216,10 +181,10 @@ func parseString(input []byte, j int) (*parsedString, error) {
 				result = append(result, byte(val))
 				j += hexLen
 			default:
-				if isOctalNumber(input[j]) {
+				if wizutil.IsOctalNumber(input[j]) {
 					numOctal := 1
 					k := j + 1
-					for k < inputSize && numOctal < 3 && isOctalNumber(input[k]) {
+					for k < inputSize && numOctal < 3 && wizutil.IsOctalNumber(input[k]) {
 						numOctal++
 						k++
 					}
@@ -249,7 +214,7 @@ func parseString(input []byte, j int) (*parsedString, error) {
 }
 
 type parsedStringTestFlags struct {
-	Flags    stringTestFlags
+	Flags    wizardry.StringTestFlags
 	NewIndex int
 }
 

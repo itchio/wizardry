@@ -1,4 +1,4 @@
-package wizardry
+package wizparser
 
 import (
 	"bufio"
@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
 	"github.com/go-errors/errors"
 )
 
@@ -20,6 +21,7 @@ type ParseContext struct {
 	Logf LogFunc
 }
 
+// ParseAll parses all the files in a directory and adds them to the same spellbook
 func (ctx *ParseContext) ParseAll(magdir string, book Spellbook) error {
 	files, err := ioutil.ReadDir(magdir)
 	if err != nil {
@@ -98,33 +100,33 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 
 		// read offset
 		offsetStart := i
-		for i < numBytes && !isWhitespace(lineBytes[i]) {
+		for i < numBytes && !wizutil.IsWhitespace(lineBytes[i]) {
 			i++
 		}
 		offsetEnd := i
 		offset := line[offsetStart:offsetEnd]
 
 		// skip whitespace
-		for i < numBytes && isWhitespace(lineBytes[i]) {
+		for i < numBytes && wizutil.IsWhitespace(lineBytes[i]) {
 			i++
 		}
 
 		// read kind
 		kindStart := i
-		for i < numBytes && !isWhitespace(lineBytes[i]) {
+		for i < numBytes && !wizutil.IsWhitespace(lineBytes[i]) {
 			i++
 		}
 		kindEnd := i
 		kind := lineBytes[kindStart:kindEnd]
 
 		// skip whitespace
-		for i < numBytes && isWhitespace(lineBytes[i]) {
+		for i < numBytes && wizutil.IsWhitespace(lineBytes[i]) {
 			i++
 		}
 
 		// read test
 		testStart := i
-		for i < numBytes && !isWhitespace(lineBytes[i]) {
+		for i < numBytes && !wizutil.IsWhitespace(lineBytes[i]) {
 			// this isn't the greatest trick in the world tbh
 			if lineBytes[i] == '\\' {
 				i += 2
@@ -136,7 +138,7 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 		test := lineBytes[testStart:testEnd]
 
 		// skip whitespace
-		for i < numBytes && isWhitespace(lineBytes[i]) {
+		for i < numBytes && wizutil.IsWhitespace(lineBytes[i]) {
 			i++
 		}
 
@@ -185,9 +187,9 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 
 				indirect.Endianness = LittleEndian
 
-				if isUpperLetter(indirectAddrFormat) {
+				if wizutil.IsUpperLetter(indirectAddrFormat) {
 					indirect.Endianness = BigEndian
-					indirectAddrFormat = toLower(indirectAddrFormat)
+					indirectAddrFormat = wizutil.ToLower(indirectAddrFormat)
 				}
 
 				switch indirectAddrFormat {

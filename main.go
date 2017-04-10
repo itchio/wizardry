@@ -34,10 +34,8 @@ var identifyArgs = struct {
 
 var compileArgs = struct {
 	magdir *string
-	output *string
 }{
 	compileCmd.Arg("magdir", "the folder of magic files to compile").Required().String(),
-	compileCmd.Arg("output", "where to output the file").Required().String(),
 }
 
 func main() {

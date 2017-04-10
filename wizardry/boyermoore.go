@@ -6,12 +6,12 @@ package wizardry
 
 import "strings"
 
-// stringFinder efficiently finds strings in a source text. It's implemented
+// StringFinder efficiently finds strings in a source text. It's implemented
 // using the Boyer-Moore string search algorithm:
 // http://en.wikipedia.org/wiki/Boyer-Moore_string_search_algorithm
 // http://www.cs.utexas.edu/~moore/publications/fstrpos.pdf (note: this aged
 // document uses 1-based indexing)
-type stringFinder struct {
+type StringFinder struct {
 	// pattern is the string that we are searching for in the text.
 	pattern string
 
@@ -47,8 +47,9 @@ type stringFinder struct {
 	goodSuffixSkip []int
 }
 
-func makeStringFinder(pattern string) *stringFinder {
-	f := &stringFinder{
+// MakeStringFinder prepares a finder for a given pattern
+func MakeStringFinder(pattern string) *StringFinder {
+	f := &StringFinder{
 		pattern:        pattern,
 		goodSuffixSkip: make([]int, len(pattern)),
 	}
@@ -101,7 +102,7 @@ func longestCommonSuffix(a, b string) (i int) {
 
 // next returns the index in text of the first occurrence of the pattern. If
 // the pattern is not found, it returns -1.
-func (f *stringFinder) next(text string) int {
+func (f *StringFinder) next(text string) int {
 	i := len(f.pattern) - 1
 	for i < len(text) {
 		// Compare backwards from the end until the first unmatching character.

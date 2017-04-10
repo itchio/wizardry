@@ -5,7 +5,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/fasterthanlime/wizardry/wizardry"
+	"github.com/fasterthanlime/wizardry/wizardry/wizinterpreter"
+	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
 	"github.com/go-errors/errors"
 )
 
@@ -18,7 +19,7 @@ func doIdentify() error {
 		fmt.Println(fmt.Sprintf(format, args...))
 	}
 
-	pctx := &wizardry.ParseContext{
+	pctx := &wizparser.ParseContext{
 		Logf: NoLogf,
 	}
 
@@ -26,7 +27,7 @@ func doIdentify() error {
 		pctx.Logf = Logf
 	}
 
-	book := make(wizardry.Spellbook)
+	book := make(wizparser.Spellbook)
 	err := pctx.ParseAll(magdir, book)
 	if err != nil {
 		return errors.Wrap(err, 0)
@@ -49,7 +50,7 @@ func doIdentify() error {
 		return errors.Wrap(err, 0)
 	}
 
-	ictx := &wizardry.InterpretContext{
+	ictx := &wizinterpreter.InterpretContext{
 		Logf: NoLogf,
 		Book: book,
 	}

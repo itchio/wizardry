@@ -1,18 +1,24 @@
-package wizardry
+package wizinterpreter
 
 import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/fasterthanlime/wizardry/wizardry"
+	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
 )
 
 // MaxLevels is the maximum level of magic rules that are interpreted
 const MaxLevels = 32
 
+// LogFunc logs something somewhere
+type LogFunc func(format string, args ...interface{})
+
 // InterpretContext holds state for the interpreter
 type InterpretContext struct {
 	Logf LogFunc
-	Book Spellbook
+	Book wizparser.Spellbook
 }
 
 // Identify follows the rules in a spellbook to find out the type of a file
@@ -78,7 +84,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 		ctx.Logf("| %s", rule)
 
 		switch rule.Offset.OffsetType {
-		case OffsetTypeIndirect:
+		case wizparser.OffsetTypeIndirect:
 			indirect := rule.Offset.Indirect
 			offsetAddress := indirect.OffsetAddress
 
@@ -105,17 +111,17 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 			}
 
 			switch indirect.OffsetAdjustmentType {
-			case OffsetAdjustmentAdd:
+			case wizparser.OffsetAdjustmentAdd:
 				lookupOffset = lookupOffset + offsetAdjustValue
-			case OffsetAdjustmentSub:
+			case wizparser.OffsetAdjustmentSub:
 				lookupOffset = lookupOffset - offsetAdjustValue
-			case OffsetAdjustmentMul:
+			case wizparser.OffsetAdjustmentMul:
 				lookupOffset = lookupOffset * offsetAdjustValue
-			case OffsetAdjustmentDiv:
+			case wizparser.OffsetAdjustmentDiv:
 				lookupOffset = lookupOffset / offsetAdjustValue
 			}
 
-		case OffsetTypeDirect:
+		case wizparser.OffsetTypeDirect:
 			lookupOffset = rule.Offset.Direct + pageOffset
 		}
 
@@ -131,8 +137,8 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 		success := false
 
 		switch rule.Kind.Family {
-		case KindFamilyInteger:
-			ki, _ := rule.Kind.Data.(*IntegerKind)
+		case wizparser.KindFamilyInteger:
+			ki, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
 			if ki.MatchAny {
 				success = true
@@ -148,11 +154,11 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 				}
 
 				switch ki.IntegerTest {
-				case IntegerTestEqual:
+				case wizparser.IntegerTestEqual:
 					success = targetValue == uint64(ki.Value)
-				case IntegerTestNotEqual:
+				case wizparser.IntegerTestNotEqual:
 					success = targetValue != uint64(ki.Value)
-				case IntegerTestLessThan:
+				case wizparser.IntegerTestLessThan:
 					if ki.Signed {
 						switch ki.ByteWidth {
 						case 1:
@@ -167,7 +173,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 					} else {
 						success = targetValue < uint64(ki.Value)
 					}
-				case IntegerTestGreaterThan:
+				case wizparser.IntegerTestGreaterThan:
 					if ki.Signed {
 						switch ki.ByteWidth {
 						case 1:
@@ -189,10 +195,10 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 				}
 			}
 
-		case KindFamilyString:
-			sk, _ := rule.Kind.Data.(*StringKind)
+		case wizparser.KindFamilyString:
+			sk, _ := rule.Kind.Data.(*wizparser.StringKind)
 
-			matchLen := stringTest(target, int(lookupOffset), sk.Value, sk.Flags)
+			matchLen := wizardry.StringTest(target, int(lookupOffset), sk.Value, sk.Flags)
 			success = matchLen >= 0
 
 			if sk.Negate {
@@ -203,24 +209,24 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 				}
 			}
 
-		case KindFamilySearch:
-			sk, _ := rule.Kind.Data.(*SearchKind)
+		case wizparser.KindFamilySearch:
+			sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
 
-			matchPos := searchTest(target, int(lookupOffset), sk.MaxLen, string(sk.Value))
+			matchPos := wizardry.SearchTest(target, int(lookupOffset), sk.MaxLen, string(sk.Value))
 			success = matchPos >= 0
 
 			if success {
 				globalOffset = int64(matchPos + len(sk.Value))
 			}
 
-		case KindFamilyDefault:
+		case wizparser.KindFamilyDefault:
 			// default tests match if nothing has matched before
 			if !everMatchedLevels[rule.Level] {
 				success = true
 			}
 
-		case KindFamilyUse:
-			uk, _ := rule.Kind.Data.(*UseKind)
+		case wizparser.KindFamilyUse:
+			uk, _ := rule.Kind.Data.(*wizparser.UseKind)
 
 			ctx.Logf("|====> using %s", uk.Page)
 
@@ -230,7 +236,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 			}
 			outStrings = append(outStrings, subStrings...)
 
-		case KindFamilyClear:
+		case wizparser.KindFamilyClear:
 			everMatchedLevels[rule.Level] = false
 		}
 
@@ -254,7 +260,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 	return outStrings, nil
 }
 
-func readAnyUint(input []byte, j int, byteWidth int, endianness Endianness) (uint64, error) {
+func readAnyUint(input []byte, j int, byteWidth int, endianness wizparser.Endianness) (uint64, error) {
 	if j+byteWidth >= len(input) {
 		return 0, fmt.Errorf("not enough bytes in input to read uint (we'd have to read at %d, only got %d)", j+byteWidth, len(input))
 	}

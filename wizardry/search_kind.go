@@ -1,7 +1,8 @@
 package wizardry
 
-func searchTest(target []byte, targetIndex int, maxLen int, pattern string) int {
-	sf := makeStringFinder(pattern)
+// SearchTest looks for a fixed pattern at any position within a certain length
+func SearchTest(target []byte, targetIndex int, maxLen int, pattern string) int {
+	sf := MakeStringFinder(pattern)
 	targetMaxIndex := targetIndex + maxLen
 	if targetMaxIndex > len(target) {
 		targetMaxIndex = len(target)

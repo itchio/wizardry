@@ -1,6 +1,9 @@
 package wizardry
 
-type stringTestFlags struct {
+import "github.com/fasterthanlime/wizardry/wizardry/wizutil"
+
+// StringTestFlags describes how to perform a string test
+type StringTestFlags struct {
 	// the "W" flag compacts whitespace in the target,
 	// which must contain at least one whitespace character
 	CompactWhitespace bool
@@ -20,49 +23,50 @@ type stringTestFlags struct {
 	ForceBinary bool
 }
 
-func stringTest(target []byte, targetIndex int, magic []byte, flags stringTestFlags) int {
+// StringTest looks for a string pattern in target, at given index
+func StringTest(target []byte, targetIndex int, pattern []byte, flags StringTestFlags) int {
 	targetSize := len(target)
-	magicSize := len(magic)
-	magicIndex := 0
+	patternSize := len(pattern)
+	patternIndex := 0
 
 	for targetIndex < targetSize {
-		magicByte := magic[magicIndex]
+		patternByte := pattern[patternIndex]
 		targetByte := target[targetIndex]
 
-		matches := magicByte == targetByte
+		matches := patternByte == targetByte
 		if matches {
 			// perfect match, advance both
 			targetIndex++
-			magicIndex++
-		} else if flags.OptionalBlanks && isWhitespace(magicByte) {
+			patternIndex++
+		} else if flags.OptionalBlanks && wizutil.IsWhitespace(patternByte) {
 			// cool, it's optional then
-			magicIndex++
-		} else if flags.LowerMatchesBoth && isLowerLetter(magicByte) && toLower(targetByte) == magicByte {
+			patternIndex++
+		} else if flags.LowerMatchesBoth && wizutil.IsLowerLetter(patternByte) && wizutil.ToLower(targetByte) == patternByte {
 			// case insensitive match
 			targetIndex++
-			magicIndex++
-		} else if flags.UpperMatchesBoth && isUpperLetter(magicByte) && toUpper(targetByte) == magicByte {
+			patternIndex++
+		} else if flags.UpperMatchesBoth && wizutil.IsUpperLetter(patternByte) && wizutil.ToUpper(targetByte) == patternByte {
 			// case insensitive match
 			targetIndex++
-			magicIndex++
+			patternIndex++
 		} else {
 			// not a match
 			return -1
 		}
 
-		if flags.CompactWhitespace && isWhitespace(targetByte) {
+		if flags.CompactWhitespace && wizutil.IsWhitespace(targetByte) {
 			// if we had whitespace, skip any whitespace coming after it
-			for targetIndex < targetSize && isWhitespace(target[targetIndex]) {
+			for targetIndex < targetSize && wizutil.IsWhitespace(target[targetIndex]) {
 				targetIndex++
 			}
 		}
 
-		if magicIndex >= magicSize {
+		if patternIndex >= patternSize {
 			// hey it matched all the way!
 			return targetIndex
 		}
 	}
 
-	// reached the end of target without matching magic, hence not a match
+	// reached the end of target without matching pattern, hence not a match
 	return -1
 }
