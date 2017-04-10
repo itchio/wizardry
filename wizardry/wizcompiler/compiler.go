@@ -176,6 +176,8 @@ func Compile(book wizparser.Spellbook) error {
 					emitted := true
 
 					if needsBreak {
+						emit("rule%d:", ruleIndex)
+						indent()
 						emit("for {")
 						indent()
 					}
@@ -201,7 +203,7 @@ func Compile(book wizparser.Spellbook) error {
 								indirect.ByteWidth*8,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAddress)
-							emit("if !ok { break }")
+							emit("if !ok { break rule%d }", ruleIndex)
 							offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
 
 							if indirect.OffsetAdjustmentIsRelative {
@@ -210,6 +212,7 @@ func Compile(book wizparser.Spellbook) error {
 									indirect.ByteWidth*8,
 									endiannessString(indirect.Endianness, swapEndian),
 									offsetAdjustAddress)
+								emit("if !ok { break rule%d }", ruleIndex)
 								offsetAdjustValue = "i64(rb)"
 							}
 
@@ -305,7 +308,7 @@ func Compile(book wizparser.Spellbook) error {
 						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
 						emit("ml = i64(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
 						// little trick for gof to be updated correctly
-						emit("if ml >= 0 { ml = ml + %s; m%d = true }",
+						emit("if ml >= 0 { ml += %s; m%d = true }",
 							quoteNumber(int64(len(sk.Value))), rule.Level)
 
 					default:
@@ -326,9 +329,10 @@ func Compile(book wizparser.Spellbook) error {
 					}
 
 					if needsBreak {
-						emit("break")
+						emit("break rule%d", ruleIndex)
 						outdent()
 						emit("}")
+						outdent()
 					}
 
 					emit("")

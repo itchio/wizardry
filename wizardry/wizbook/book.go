@@ -525,7 +525,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
   // 100	search/0xffff   rxfuncadd
   off = pageOff + 0x64
   ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "rxfuncadd"))
-  if ml >= 0 { ml = ml + 0x9; m0 = true }
+  if ml >= 0 { ml += 0x9; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   rxfuncadd")
     gof = off + ml
@@ -534,7 +534,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
   // 100	search/0xffff   say
   off = pageOff + 0x64
   ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "say"))
-  if ml >= 0 { ml = ml + 0x3; m0 = true }
+  if ml >= 0 { ml += 0x3; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   say")
     gof = off + ml
@@ -642,97 +642,102 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(0x3c.l) string PE\0\0 PE
-      for {
-        {
-          ra, ok := readU32le(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule45:
+        for {
+          {
+            ra, ok := readU32le(tb, 0x3c)
+            if !ok { break rule45 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string PE\\0\\0 PE")
+            gof = off + ml
+            out = append(out, "PE")
+          }
+          break rule45
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string PE\\0\\0 PE")
-          gof = off + ml
-          out = append(out, "PE")
-        }
-        break
-      }
 
       if m2 {
         // >>>(0x3c.l+24)	leshort		0x010b	\b32 executable
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule46:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule46 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x10b)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b\t\\b32 executable")
+              gof = off + ml
+              out = append(out, "\\b32 executable")
+            }
+            break rule46
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x10b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b\t\\b32 executable")
-            gof = off + ml
-            out = append(out, "\\b32 executable")
-          }
-          break
-        }
 
         // >>>(0x3c.l+24)	leshort		0x020b	\b32+ executable
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule47:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule47 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x20b)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b\t\\b32+ executable")
+              gof = off + ml
+              out = append(out, "\\b32+ executable")
+            }
+            break rule47
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x20b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b\t\\b32+ executable")
-            gof = off + ml
-            out = append(out, "\\b32+ executable")
-          }
-          break
-        }
 
         // >>>(0x3c.l+24)	leshort		0x0107	ROM image
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule48:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule48 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x107)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x0107\tROM image")
+              gof = off + ml
+              out = append(out, "ROM image")
+            }
+            break rule48
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x107)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x0107\tROM image")
-            gof = off + ml
-            out = append(out, "ROM image")
-          }
-          break
-        }
 
         // >>>(0x3c.l+24)	default		x	Unknown PE signature
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule49:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule49 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            // uh oh unhandled kind
+            break rule49
           }
-          // uh oh unhandled kind
-          break
-        }
 
         if m3 {
           // >>>>&0 		leshort		x	0x%x
@@ -747,268 +752,281 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+22)	leshort&0x2000	>0	(DLL)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x16
+        rule51:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule51 }
+              off = i64(ra)
+              off = off + 0x16
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (i64(i16(iv))&0x2000 > 0x0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x2000\t>0\t(DLL)")
+              gof = off + ml
+              out = append(out, "(DLL)")
+            }
+            break rule51
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (i64(i16(iv))&0x2000 > 0x0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x2000\t>0\t(DLL)")
-            gof = off + ml
-            out = append(out, "(DLL)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		1	(native)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule52:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule52 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t1\t(native)")
+              gof = off + ml
+              out = append(out, "(native)")
+            }
+            break rule52
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t1\t(native)")
-            gof = off + ml
-            out = append(out, "(native)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		2	(GUI)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule53:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule53 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t2\t(GUI)")
+              gof = off + ml
+              out = append(out, "(GUI)")
+            }
+            break rule53
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t2\t(GUI)")
-            gof = off + ml
-            out = append(out, "(GUI)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		3	(console)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule54:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule54 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t3\t(console)")
+              gof = off + ml
+              out = append(out, "(console)")
+            }
+            break rule54
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t3\t(console)")
-            gof = off + ml
-            out = append(out, "(console)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		7	(POSIX)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule55:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule55 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x7)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t7\t(POSIX)")
+              gof = off + ml
+              out = append(out, "(POSIX)")
+            }
+            break rule55
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x7)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t7\t(POSIX)")
-            gof = off + ml
-            out = append(out, "(POSIX)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		9	(Windows CE)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule56:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule56 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x9)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t9\t(Windows CE)")
+              gof = off + ml
+              out = append(out, "(Windows CE)")
+            }
+            break rule56
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x9)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t9\t(Windows CE)")
-            gof = off + ml
-            out = append(out, "(Windows CE)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		10	(EFI application)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule57:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule57 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xa)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t10\t(EFI application)")
+              gof = off + ml
+              out = append(out, "(EFI application)")
+            }
+            break rule57
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xa)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t10\t(EFI application)")
-            gof = off + ml
-            out = append(out, "(EFI application)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		11	(EFI boot service driver)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule58:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule58 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xb)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t11\t(EFI boot service driver)")
+              gof = off + ml
+              out = append(out, "(EFI boot service driver)")
+            }
+            break rule58
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xb)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t11\t(EFI boot service driver)")
-            gof = off + ml
-            out = append(out, "(EFI boot service driver)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		12	(EFI runtime driver)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule59:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule59 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xc)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t12\t(EFI runtime driver)")
+              gof = off + ml
+              out = append(out, "(EFI runtime driver)")
+            }
+            break rule59
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xc)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t12\t(EFI runtime driver)")
-            gof = off + ml
-            out = append(out, "(EFI runtime driver)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		13	(EFI ROM)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule60:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule60 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xd)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t13\t(EFI ROM)")
+              gof = off + ml
+              out = append(out, "(EFI ROM)")
+            }
+            break rule60
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xd)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t13\t(EFI ROM)")
-            gof = off + ml
-            out = append(out, "(EFI ROM)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		14	(XBOX)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule61:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule61 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xe)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t14\t(XBOX)")
+              gof = off + ml
+              out = append(out, "(XBOX)")
+            }
+            break rule61
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xe)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t14\t(XBOX)")
-            gof = off + ml
-            out = append(out, "(XBOX)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		15	(Windows boot application)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule62:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule62 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xf)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t15\t(Windows boot application)")
+              gof = off + ml
+              out = append(out, "(Windows boot application)")
+            }
+            break rule62
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xf)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t15\t(Windows boot application)")
-            gof = off + ml
-            out = append(out, "(Windows boot application)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	default		x	(Unknown subsystem
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule63:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule63 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            // uh oh unhandled kind
+            break rule63
           }
-          // uh oh unhandled kind
-          break
-        }
 
         if m3 {
           // >>>>&0		leshort		x	0x%x)
@@ -1023,415 +1041,435 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+4)	leshort		0x14c	Intel 80386
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule65:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule65 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x14c)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x14c\tIntel 80386")
+              gof = off + ml
+              out = append(out, "Intel 80386")
+            }
+            break rule65
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x14c)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x14c\tIntel 80386")
-            gof = off + ml
-            out = append(out, "Intel 80386")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x166	MIPS R4000
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule66:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule66 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x166)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x166\tMIPS R4000")
+              gof = off + ml
+              out = append(out, "MIPS R4000")
+            }
+            break rule66
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x166)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x166\tMIPS R4000")
-            gof = off + ml
-            out = append(out, "MIPS R4000")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x168	MIPS R10000
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule67:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule67 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x168)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x168\tMIPS R10000")
+              gof = off + ml
+              out = append(out, "MIPS R10000")
+            }
+            break rule67
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x168)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x168\tMIPS R10000")
-            gof = off + ml
-            out = append(out, "MIPS R10000")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x184	Alpha
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule68:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule68 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x184)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x184\tAlpha")
+              gof = off + ml
+              out = append(out, "Alpha")
+            }
+            break rule68
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x184)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x184\tAlpha")
-            gof = off + ml
-            out = append(out, "Alpha")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1a2	Hitachi SH3
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule69:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule69 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1a2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a2\tHitachi SH3")
+              gof = off + ml
+              out = append(out, "Hitachi SH3")
+            }
+            break rule69
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1a2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a2\tHitachi SH3")
-            gof = off + ml
-            out = append(out, "Hitachi SH3")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1a6	Hitachi SH4
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule70:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule70 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1a6)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a6\tHitachi SH4")
+              gof = off + ml
+              out = append(out, "Hitachi SH4")
+            }
+            break rule70
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1a6)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a6\tHitachi SH4")
-            gof = off + ml
-            out = append(out, "Hitachi SH4")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1c0	ARM
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule71:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule71 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1c0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c0\tARM")
+              gof = off + ml
+              out = append(out, "ARM")
+            }
+            break rule71
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1c0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c0\tARM")
-            gof = off + ml
-            out = append(out, "ARM")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1c2	ARM Thumb
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule72:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule72 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1c2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c2\tARM Thumb")
+              gof = off + ml
+              out = append(out, "ARM Thumb")
+            }
+            break rule72
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1c2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c2\tARM Thumb")
-            gof = off + ml
-            out = append(out, "ARM Thumb")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1c4	ARMv7 Thumb
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule73:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule73 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1c4)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c4\tARMv7 Thumb")
+              gof = off + ml
+              out = append(out, "ARMv7 Thumb")
+            }
+            break rule73
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1c4)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c4\tARMv7 Thumb")
-            gof = off + ml
-            out = append(out, "ARMv7 Thumb")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1f0	PowerPC
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule74:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule74 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1f0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1f0\tPowerPC")
+              gof = off + ml
+              out = append(out, "PowerPC")
+            }
+            break rule74
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1f0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1f0\tPowerPC")
-            gof = off + ml
-            out = append(out, "PowerPC")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x200	Intel Itanium
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule75:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule75 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x200)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x200\tIntel Itanium")
+              gof = off + ml
+              out = append(out, "Intel Itanium")
+            }
+            break rule75
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x200)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x200\tIntel Itanium")
-            gof = off + ml
-            out = append(out, "Intel Itanium")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x266	MIPS16
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule76:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule76 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x266)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x266\tMIPS16")
+              gof = off + ml
+              out = append(out, "MIPS16")
+            }
+            break rule76
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x266)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x266\tMIPS16")
-            gof = off + ml
-            out = append(out, "MIPS16")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x268	Motorola 68000
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule77:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule77 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x268)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x268\tMotorola 68000")
+              gof = off + ml
+              out = append(out, "Motorola 68000")
+            }
+            break rule77
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x268)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x268\tMotorola 68000")
-            gof = off + ml
-            out = append(out, "Motorola 68000")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x290	PA-RISC
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule78:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule78 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x290)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x290\tPA-RISC")
+              gof = off + ml
+              out = append(out, "PA-RISC")
+            }
+            break rule78
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x290)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x290\tPA-RISC")
-            gof = off + ml
-            out = append(out, "PA-RISC")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x366	MIPSIV
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule79:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule79 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x366)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x366\tMIPSIV")
+              gof = off + ml
+              out = append(out, "MIPSIV")
+            }
+            break rule79
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x366)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x366\tMIPSIV")
-            gof = off + ml
-            out = append(out, "MIPSIV")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x466	MIPS16 with FPU
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule80:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule80 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x466)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x466\tMIPS16 with FPU")
+              gof = off + ml
+              out = append(out, "MIPS16 with FPU")
+            }
+            break rule80
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x466)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x466\tMIPS16 with FPU")
-            gof = off + ml
-            out = append(out, "MIPS16 with FPU")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0xebc	EFI byte code
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule81:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule81 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xebc)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xebc\tEFI byte code")
+              gof = off + ml
+              out = append(out, "EFI byte code")
+            }
+            break rule81
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xebc)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xebc\tEFI byte code")
-            gof = off + ml
-            out = append(out, "EFI byte code")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x8664	x86-64
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule82:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule82 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x8664)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x8664\tx86-64")
+              gof = off + ml
+              out = append(out, "x86-64")
+            }
+            break rule82
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x8664)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x8664\tx86-64")
-            gof = off + ml
-            out = append(out, "x86-64")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0xc0ee	MSIL
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule83:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule83 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0xc0ee)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xc0ee\tMSIL")
+              gof = off + ml
+              out = append(out, "MSIL")
+            }
+            break rule83
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0xc0ee)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xc0ee\tMSIL")
-            gof = off + ml
-            out = append(out, "MSIL")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	default		x	Unknown processor type
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule84:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule84 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            // uh oh unhandled kind
+            break rule84
           }
-          // uh oh unhandled kind
-          break
-        }
 
         if m3 {
           // >>>>&0		leshort		x	0x%x
@@ -1446,588 +1484,627 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+22)	leshort&0x0200	>0	(stripped to external PDB)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x16
-          }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (i64(i16(iv))&0x200 > 0x0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x0200\t>0\t(stripped to external PDB)")
-            gof = off + ml
-            out = append(out, "(stripped to external PDB)")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+22)	leshort&0x1000	>0	system file
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x16
-          }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (i64(i16(iv))&0x1000 > 0x0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x1000\t>0\tsystem file")
-            gof = off + ml
-            out = append(out, "system file")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+24)	leshort		0x010b
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
-          }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x10b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b")
-            gof = off + ml
-          }
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+232) lelong	>0	Mono/.Net assembly
+        rule86:
           for {
             {
               ra, ok := readU32le(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule86 }
               off = i64(ra)
-              off = off + 0xe8
+              off = off + 0x16
             }
             {
-              iv, ok := readU32le(tb, off)
-              m4 = ok && (i64(i32(iv)) > 0x0)
-              ml = 4
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (i64(i16(iv))&0x200 > 0x0)
+              ml = 2
             }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+232) lelong\t>0\tMono/.Net assembly")
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x0200\t>0\t(stripped to external PDB)")
               gof = off + ml
-              out = append(out, "Mono/.Net assembly")
+              out = append(out, "(stripped to external PDB)")
             }
-            break
+            break rule86
           }
+
+        // >>>(0x3c.l+22)	leshort&0x1000	>0	system file
+        rule87:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule87 }
+              off = i64(ra)
+              off = off + 0x16
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (i64(i16(iv))&0x1000 > 0x0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x1000\t>0\tsystem file")
+              gof = off + ml
+              out = append(out, "system file")
+            }
+            break rule87
+          }
+
+        // >>>(0x3c.l+24)	leshort		0x010b
+        rule88:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule88 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x10b)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b")
+              gof = off + ml
+            }
+            break rule88
+          }
+
+        if m3 {
+          // >>>>(0x3c.l+232) lelong	>0	Mono/.Net assembly
+          rule89:
+            for {
+              {
+                ra, ok := readU32le(tb, 0x3c)
+                if !ok { break rule89 }
+                off = i64(ra)
+                off = off + 0xe8
+              }
+              {
+                iv, ok := readU32le(tb, off)
+                m4 = ok && (i64(i32(iv)) > 0x0)
+                ml = 4
+              }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+232) lelong\t>0\tMono/.Net assembly")
+                gof = off + ml
+                out = append(out, "Mono/.Net assembly")
+              }
+              break rule89
+            }
 
         }
         m3 = false
         // >>>(0x3c.l+24)	leshort		0x020b
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
-          }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x20b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b")
-            gof = off + ml
-          }
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+248) lelong	>0	Mono/.Net assembly
+        rule90:
           for {
             {
               ra, ok := readU32le(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule90 }
               off = i64(ra)
-              off = off + 0xf8
+              off = off + 0x18
             }
             {
-              iv, ok := readU32le(tb, off)
-              m4 = ok && (i64(i32(iv)) > 0x0)
-              ml = 4
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x20b)
+              ml = 2
             }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+248) lelong\t>0\tMono/.Net assembly")
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b")
               gof = off + ml
-              out = append(out, "Mono/.Net assembly")
             }
-            break
+            break rule90
           }
+
+        if m3 {
+          // >>>>(0x3c.l+248) lelong	>0	Mono/.Net assembly
+          rule91:
+            for {
+              {
+                ra, ok := readU32le(tb, 0x3c)
+                if !ok { break rule91 }
+                off = i64(ra)
+                off = off + 0xf8
+              }
+              {
+                iv, ok := readU32le(tb, off)
+                m4 = ok && (i64(i32(iv)) > 0x0)
+                ml = 4
+              }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+248) lelong\t>0\tMono/.Net assembly")
+                gof = off + ml
+                out = append(out, "Mono/.Net assembly")
+              }
+              break rule91
+            }
 
         }
         m3 = false
         // >>>(8.s*16)		string		32STUB	\b, 32rtm DOS extender
-        for {
-          {
-            ra, ok := readU16le(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x10
+        rule92:
+          for {
+            {
+              ra, ok := readU16le(tb, 0x8)
+              if !ok { break rule92 }
+              off = i64(ra)
+              off = off * 0x10
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t32STUB\t\\b, 32rtm DOS extender")
+              gof = off + ml
+              out = append(out, "\\b, 32rtm DOS extender")
+            }
+            break rule92
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t32STUB\t\\b, 32rtm DOS extender")
-            gof = off + ml
-            out = append(out, "\\b, 32rtm DOS extender")
-          }
-          break
-        }
 
         // >>>(8.s*16)		string		!32STUB	\b, for MS Windows
-        for {
-          {
-            ra, ok := readU16le(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x10
+        rule93:
+          for {
+            {
+              ra, ok := readU16le(tb, 0x8)
+              if !ok { break rule93 }
+              off = i64(ra)
+              off = off * 0x10
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml < 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t!32STUB\t\\b, for MS Windows")
+              gof = off + ml
+              out = append(out, "\\b, for MS Windows")
+            }
+            break rule93
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml < 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t!32STUB\t\\b, for MS Windows")
-            gof = off + ml
-            out = append(out, "\\b, for MS Windows")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	string		UPX0 \b, UPX compressed
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule94:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule94 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tstring\t\tUPX0 \\b, UPX compressed")
+              gof = off + ml
+              out = append(out, "\\b, UPX compressed")
+            }
+            break rule94
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tstring\t\tUPX0 \\b, UPX compressed")
-            gof = off + ml
-            out = append(out, "\\b, UPX compressed")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	search/0x140	PEC2 \b, PECompact2 compressed
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule95:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule95 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "PEC2"))
+            if ml >= 0 { ml += 0x4; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
+              gof = off + ml
+              out = append(out, "\\b, PECompact2 compressed")
+            }
+            break rule95
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "PEC2"))
-          if ml >= 0 { ml = ml + 0x4; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
-            gof = off + ml
-            out = append(out, "\\b, PECompact2 compressed")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	search/0x140	UPX2
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule96:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule96 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "UPX2"))
+            if ml >= 0 { ml += 0x4; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tUPX2")
+              gof = off + ml
+            }
+            break rule96
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "UPX2"))
-          if ml >= 0 { ml = ml + 0x4; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tUPX2")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0x10.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0x10))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0x10) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule97:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0x10))
+                if !ok { break rule97 }
+                rb, ok := readU32le(tb, (gof + 0x10) + -4)
+                if !ok { break rule97 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x10.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
+                gof = off + ml
+                out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+              }
+              break rule97
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x10.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-              gof = off + ml
-              out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.idata
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule98:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule98 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".idata"))
+            if ml >= 0 { ml += 0x6; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.idata")
+              gof = off + ml
+            }
+            break rule98
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".idata"))
-          if ml >= 0 { ml = ml + 0x6; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.idata")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0xe.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xe))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xe) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule99:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xe))
+                if !ok { break rule99 }
+                rb, ok := readU32le(tb, (gof + 0xe) + -4)
+                if !ok { break rule99 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
+                gof = off + ml
+                out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+              }
+              break rule99
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-              gof = off + ml
-              out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
-            }
-            break
-          }
 
           // >>>>(&0xe.l+(-4))	string		ZZ0 \b, ZZip self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xe))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xe) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule100:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xe))
+                if !ok { break rule100 }
+                rb, ok := readU32le(tb, (gof + 0xe) + -4)
+                if !ok { break rule100 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ0 \\b, ZZip self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, ZZip self-extracting archive")
+              }
+              break rule100
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ0 \\b, ZZip self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, ZZip self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0xe.l+(-4))	string		ZZ1 \b, ZZip self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xe))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xe) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule101:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xe))
+                if !ok { break rule101 }
+                rb, ok := readU32le(tb, (gof + 0xe) + -4)
+                if !ok { break rule101 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ1 \\b, ZZip self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, ZZip self-extracting archive")
+              }
+              break rule101
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ1 \\b, ZZip self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, ZZip self-extracting archive")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.rsrc
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule102:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule102 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".rsrc"))
+            if ml >= 0 { ml += 0x5; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.rsrc")
+              gof = off + ml
+            }
+            break rule102
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".rsrc"))
-          if ml >= 0 { ml = ml + 0x5; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.rsrc")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0x0f.l+(-4))	string		a\\\4\5 \b, WinHKI self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule103:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xf))
+                if !ok { break rule103 }
+                rb, ok := readU32le(tb, (gof + 0xf) + -4)
+                if !ok { break rule103 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\ta\\\\\\4\\5 \\b, WinHKI self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, WinHKI self-extracting archive")
+              }
+              break rule103
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\ta\\\\\\4\\5 \\b, WinHKI self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, WinHKI self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0x0f.l+(-4))	string		Rar! \b, RAR self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule104:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xf))
+                if !ok { break rule104 }
+                rb, ok := readU32le(tb, (gof + 0xf) + -4)
+                if !ok { break rule104 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\tRar! \\b, RAR self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, RAR self-extracting archive")
+              }
+              break rule104
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\tRar! \\b, RAR self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, RAR self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0x0f.l+(-4))	search/0x3000	MSCF \b, InstallShield self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule105:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xf))
+                if !ok { break rule105 }
+                rb, ok := readU32le(tb, (gof + 0xf) + -4)
+                if !ok { break rule105 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.SearchTest(tb, int(off), 0x3000, "MSCF"))
+              if ml >= 0 { ml += 0x4; m4 = true }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, InstallShield self-extracting archive")
+              }
+              break rule105
             }
-            ml = i64(wizardry.SearchTest(tb, int(off), 0x3000, "MSCF"))
-            if ml >= 0 { ml = ml + 0x4; m4 = true }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, InstallShield self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0x0f.l+(-4))	search/32	Nullsoft \b, Nullsoft Installer self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32le(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule106:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xf))
+                if !ok { break rule106 }
+                rb, ok := readU32le(tb, (gof + 0xf) + -4)
+                if !ok { break rule106 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "Nullsoft"))
+              if ml >= 0 { ml += 0x8; m4 = true }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+              }
+              break rule106
             }
-            ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "Nullsoft"))
-            if ml >= 0 { ml = ml + 0x8; m4 = true }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, Nullsoft Installer self-extracting archive")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.data
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule107:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule107 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".data"))
+            if ml >= 0 { ml += 0x5; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.data")
+              gof = off + ml
+            }
+            break rule107
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".data"))
-          if ml >= 0 { ml = ml + 0x5; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.data")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0x0f.l)		string		WEXTRACT \b, MS CAB-Installer self-extracting archive
-          for {
-            {
-              ra, ok := readU32le(tb, (gof + 0xf))
-              if !ok { break }
-              off = i64(ra)
+          rule108:
+            for {
+              {
+                ra, ok := readU32le(tb, (gof + 0xf))
+                if !ok { break rule108 }
+                off = i64(ra)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l)\t\tstring\t\tWEXTRACT \\b, MS CAB-Installer self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, MS CAB-Installer self-extracting archive")
+              }
+              break rule108
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l)\t\tstring\t\tWEXTRACT \\b, MS CAB-Installer self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, MS CAB-Installer self-extracting archive")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.petite\0 \b, Petite compressed
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
-          }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".petite\x00"))
-          if ml >= 0 { ml = ml + 0x8; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
-            gof = off + ml
-            out = append(out, "\\b, Petite compressed")
-          }
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+0xf7)	byte		x
+        rule109:
           for {
             {
               ra, ok := readU32le(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule109 }
               off = i64(ra)
-              off = off + 0xf7
+              off = off + 0xf8
             }
-            ml = 1
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0xf7)\tbyte\t\tx")
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".petite\x00"))
+            if ml >= 0 { ml += 0x8; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
               gof = off + ml
+              out = append(out, "\\b, Petite compressed")
             }
-            break
+            break rule109
           }
+
+        if m3 {
+          // >>>>(0x3c.l+0xf7)	byte		x
+          rule110:
+            for {
+              {
+                ra, ok := readU32le(tb, 0x3c)
+                if !ok { break rule110 }
+                off = i64(ra)
+                off = off + 0xf7
+              }
+              ml = 1
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0xf7)\tbyte\t\tx")
+                gof = off + ml
+              }
+              break rule110
+            }
 
           if m4 {
             // >>>>>(&0x104.l+(-4))	string		=!sfx! \b, ACE self-extracting archive
-            for {
-              {
-                ra, ok := readU32le(tb, (gof + 0x104))
-                if !ok { break }
-                rb, ok := readU32le(tb, (gof + 0x104) + -4)
-                off = i64(ra)
-                off = off + i64(rb)
+            rule111:
+              for {
+                {
+                  ra, ok := readU32le(tb, (gof + 0x104))
+                  if !ok { break rule111 }
+                  rb, ok := readU32le(tb, (gof + 0x104) + -4)
+                  if !ok { break rule111 }
+                  off = i64(ra)
+                  off = off + i64(rb)
+                }
+                ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+                m5 = ml >= 0
+                if m5 {
+                  fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.l+(-4))\tstring\t\t=!sfx! \\b, ACE self-extracting archive")
+                  gof = off + ml
+                  out = append(out, "\\b, ACE self-extracting archive")
+                }
+                break rule111
               }
-              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-              m5 = ml >= 0
-              if m5 {
-                fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.l+(-4))\tstring\t\t=!sfx! \\b, ACE self-extracting archive")
-                gof = off + ml
-                out = append(out, "\\b, ACE self-extracting archive")
-              }
-              break
-            }
 
           }
           m4 = false
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.WISE \b, WISE installer self-extracting archive
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule112:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule112 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".WISE"))
+            if ml >= 0 { ml += 0x5; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, WISE installer self-extracting archive")
+            }
+            break rule112
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".WISE"))
-          if ml >= 0 { ml = ml + 0x5; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, WISE installer self-extracting archive")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	search/0x140	.dz\0\0\0 \b, Dzip self-extracting archive
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule113:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule113 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".dz\x00\x00\x00"))
+            if ml >= 0 { ml += 0x6; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, Dzip self-extracting archive")
+            }
+            break rule113
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".dz\x00\x00\x00"))
-          if ml >= 0 { ml = ml + 0x6; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, Dzip self-extracting archive")
-          }
-          break
-        }
 
         // >>>&(0x3c.l+0xf8)	search/0x100	_winzip_ \b, ZIP self-extracting archive (WinZip)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
-            off += gof
+        rule114:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule114 }
+              off = i64(ra)
+              off = off + 0xf8
+              off += gof
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "_winzip_"))
+            if ml >= 0 { ml += 0x8; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
+              gof = off + ml
+              out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+            }
+            break rule114
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "_winzip_"))
-          if ml >= 0 { ml = ml + 0x8; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
-            gof = off + ml
-            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
-          }
-          break
-        }
 
         // >>>&(0x3c.l+0xf8)	search/0x100	SharedD \b, Microsoft Installer self-extracting archive
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
-            off += gof
+        rule115:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule115 }
+              off = i64(ra)
+              off = off + 0xf8
+              off += gof
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "SharedD"))
+            if ml >= 0 { ml += 0x7; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, Microsoft Installer self-extracting archive")
+            }
+            break rule115
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "SharedD"))
-          if ml >= 0 { ml = ml + 0x7; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, Microsoft Installer self-extracting archive")
-          }
-          break
-        }
 
         // >>>0x30			string		Inno \b, InnoSetup self-extracting archive
         off = pageOff + 0x30
@@ -2042,566 +2119,594 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       }
       m2 = false
       // >>(0x3c.l) string !PE\0\0 MS-DOS executable
-      for {
-        {
-          ra, ok := readU32le(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule117:
+        for {
+          {
+            ra, ok := readU32le(tb, 0x3c)
+            if !ok { break rule117 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml < 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string !PE\\0\\0 MS-DOS executable")
+            gof = off + ml
+            out = append(out, "MS-DOS executable")
+          }
+          break rule117
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml < 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string !PE\\0\\0 MS-DOS executable")
-          gof = off + ml
-          out = append(out, "MS-DOS executable")
-        }
-        break
-      }
 
       // >>(0x3c.l)		string		NE \b, NE
-      for {
-        {
-          ra, ok := readU32le(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule118:
+        for {
+          {
+            ra, ok := readU32le(tb, 0x3c)
+            if !ok { break rule118 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tNE \\b, NE")
+            gof = off + ml
+            out = append(out, "\\b, NE")
+          }
+          break rule118
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tNE \\b, NE")
-          gof = off + ml
-          out = append(out, "\\b, NE")
-        }
-        break
-      }
 
       if m2 {
         // >>>(0x3c.l+0x36)	byte		1 for OS/2 1.x
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8le(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t1 for OS/2 1.x")
-            gof = off + ml
-            out = append(out, "for OS/2 1.x")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		2 for MS Windows 3.x
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8le(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t2 for MS Windows 3.x")
-            gof = off + ml
-            out = append(out, "for MS Windows 3.x")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		3 for MS-DOS
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8le(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t3 for MS-DOS")
-            gof = off + ml
-            out = append(out, "for MS-DOS")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		4 for Windows 386
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8le(tb, off)
-            m3 = ok && (u64(iv) == 0x4)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t4 for Windows 386")
-            gof = off + ml
-            out = append(out, "for Windows 386")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		5 for Borland Operating System Services
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8le(tb, off)
-            m3 = ok && (u64(iv) == 0x5)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t5 for Borland Operating System Services")
-            gof = off + ml
-            out = append(out, "for Borland Operating System Services")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	default		x
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          // uh oh unhandled kind
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+0x36)	byte		x (unknown OS %x)
+        rule119:
           for {
             {
               ra, ok := readU32le(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule119 }
               off = i64(ra)
               off = off + 0x36
             }
-            ml = 1
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0x36)\tbyte\t\tx (unknown OS %x)")
-              gof = off + ml
-              out = append(out, "(unknown OS %x)")
+            {
+              iv, ok := readU8le(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 1
             }
-            break
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t1 for OS/2 1.x")
+              gof = off + ml
+              out = append(out, "for OS/2 1.x")
+            }
+            break rule119
           }
+
+        // >>>(0x3c.l+0x36)	byte		2 for MS Windows 3.x
+        rule120:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule120 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8le(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t2 for MS Windows 3.x")
+              gof = off + ml
+              out = append(out, "for MS Windows 3.x")
+            }
+            break rule120
+          }
+
+        // >>>(0x3c.l+0x36)	byte		3 for MS-DOS
+        rule121:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule121 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8le(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t3 for MS-DOS")
+              gof = off + ml
+              out = append(out, "for MS-DOS")
+            }
+            break rule121
+          }
+
+        // >>>(0x3c.l+0x36)	byte		4 for Windows 386
+        rule122:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule122 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8le(tb, off)
+              m3 = ok && (u64(iv) == 0x4)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t4 for Windows 386")
+              gof = off + ml
+              out = append(out, "for Windows 386")
+            }
+            break rule122
+          }
+
+        // >>>(0x3c.l+0x36)	byte		5 for Borland Operating System Services
+        rule123:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule123 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8le(tb, off)
+              m3 = ok && (u64(iv) == 0x5)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t5 for Borland Operating System Services")
+              gof = off + ml
+              out = append(out, "for Borland Operating System Services")
+            }
+            break rule123
+          }
+
+        // >>>(0x3c.l+0x36)	default		x
+        rule124:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule124 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            // uh oh unhandled kind
+            break rule124
+          }
+
+        if m3 {
+          // >>>>(0x3c.l+0x36)	byte		x (unknown OS %x)
+          rule125:
+            for {
+              {
+                ra, ok := readU32le(tb, 0x3c)
+                if !ok { break rule125 }
+                off = i64(ra)
+                off = off + 0x36
+              }
+              ml = 1
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0x36)\tbyte\t\tx (unknown OS %x)")
+                gof = off + ml
+                out = append(out, "(unknown OS %x)")
+              }
+              break rule125
+            }
 
         }
         m3 = false
         // >>>(0x3c.l+0x36)	byte		0x81 for MS-DOS, Phar Lap DOS extender
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
+        rule126:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule126 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8le(tb, off)
+              m3 = ok && (u64(iv) == 0x81)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t0x81 for MS-DOS, Phar Lap DOS extender")
+              gof = off + ml
+              out = append(out, "for MS-DOS, Phar Lap DOS extender")
+            }
+            break rule126
           }
-          {
-            iv, ok := readU8le(tb, off)
-            m3 = ok && (u64(iv) == 0x81)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t0x81 for MS-DOS, Phar Lap DOS extender")
-            gof = off + ml
-            out = append(out, "for MS-DOS, Phar Lap DOS extender")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8002 (DLL)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xc
+        rule127:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule127 }
+              off = i64(ra)
+              off = off + 0xc
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv)&0x8003 == 0x8002)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8002 (DLL)")
+              gof = off + ml
+              out = append(out, "(DLL)")
+            }
+            break rule127
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv)&0x8003 == 0x8002)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8002 (DLL)")
-            gof = off + ml
-            out = append(out, "(DLL)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8001 (driver)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xc
+        rule128:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule128 }
+              off = i64(ra)
+              off = off + 0xc
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv)&0x8003 == 0x8001)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8001 (driver)")
+              gof = off + ml
+              out = append(out, "(driver)")
+            }
+            break rule128
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv)&0x8003 == 0x8001)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8001 (driver)")
-            gof = off + ml
-            out = append(out, "(driver)")
-          }
-          break
-        }
 
         // >>>&(&0x24.s-1)		string		ARJSFX \b, ARJ self-extracting archive
-        for {
-          {
-            ra, ok := readU16le(tb, (gof + 0x24))
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x1
-            off += gof
+        rule129:
+          for {
+            {
+              ra, ok := readU16le(tb, (gof + 0x24))
+              if !ok { break rule129 }
+              off = i64(ra)
+              off = off * 0x1
+              off += gof
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(&0x24.s-1)\t\tstring\t\tARJSFX \\b, ARJ self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, ARJ self-extracting archive")
+            }
+            break rule129
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(&0x24.s-1)\t\tstring\t\tARJSFX \\b, ARJ self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, ARJ self-extracting archive")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x70)	search/0x80	WinZip(R)\ Self-Extractor \b, ZIP self-extracting archive (WinZip)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x70
+        rule130:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule130 }
+              off = i64(ra)
+              off = off + 0x70
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "WinZip(R) Self-Extractor"))
+            if ml >= 0 { ml += 0x18; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
+              gof = off + ml
+              out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+            }
+            break rule130
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "WinZip(R) Self-Extractor"))
-          if ml >= 0 { ml = ml + 0x18; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
-            gof = off + ml
-            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
-          }
-          break
-        }
 
       }
       m2 = false
       // >>(0x3c.l)		string		LX\0\0 \b, LX
-      for {
-        {
-          ra, ok := readU32le(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule131:
+        for {
+          {
+            ra, ok := readU32le(tb, 0x3c)
+            if !ok { break rule131 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLX\\0\\0 \\b, LX")
+            gof = off + ml
+            out = append(out, "\\b, LX")
+          }
+          break rule131
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLX\\0\\0 \\b, LX")
-          gof = off + ml
-          out = append(out, "\\b, LX")
-        }
-        break
-      }
 
       if m2 {
         // >>>(0x3c.l+0x0a)	leshort		<1 (unknown OS)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule132:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule132 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (i64(i16(iv)) < 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t<1 (unknown OS)")
+              gof = off + ml
+              out = append(out, "(unknown OS)")
+            }
+            break rule132
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (i64(i16(iv)) < 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t<1 (unknown OS)")
-            gof = off + ml
-            out = append(out, "(unknown OS)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		1 for OS/2
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule133:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule133 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1 for OS/2")
+              gof = off + ml
+              out = append(out, "for OS/2")
+            }
+            break rule133
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1 for OS/2")
-            gof = off + ml
-            out = append(out, "for OS/2")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		2 for MS Windows
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule134:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule134 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
+              gof = off + ml
+              out = append(out, "for MS Windows")
+            }
+            break rule134
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-            gof = off + ml
-            out = append(out, "for MS Windows")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		3 for DOS
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule135:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule135 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
+              gof = off + ml
+              out = append(out, "for DOS")
+            }
+            break rule135
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-            gof = off + ml
-            out = append(out, "for DOS")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		>3 (unknown OS)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule136:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule136 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (i64(i16(iv)) > 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t>3 (unknown OS)")
+              gof = off + ml
+              out = append(out, "(unknown OS)")
+            }
+            break rule136
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (i64(i16(iv)) > 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t>3 (unknown OS)")
-            gof = off + ml
-            out = append(out, "(unknown OS)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x28000	=0x8000 (DLL)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule137:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule137 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32le(tb, off)
+              m3 = ok && (u64(iv)&0x28000 == 0x8000)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28000\t=0x8000 (DLL)")
+              gof = off + ml
+              out = append(out, "(DLL)")
+            }
+            break rule137
           }
-          {
-            iv, ok := readU32le(tb, off)
-            m3 = ok && (u64(iv)&0x28000 == 0x8000)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28000\t=0x8000 (DLL)")
-            gof = off + ml
-            out = append(out, "(DLL)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x20000	>0 (device driver)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule138:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule138 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32le(tb, off)
+              m3 = ok && (i64(i32(iv))&0x20000 > 0x0)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x20000\t>0 (device driver)")
+              gof = off + ml
+              out = append(out, "(device driver)")
+            }
+            break rule138
           }
-          {
-            iv, ok := readU32le(tb, off)
-            m3 = ok && (i64(i32(iv))&0x20000 > 0x0)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x20000\t>0 (device driver)")
-            gof = off + ml
-            out = append(out, "(device driver)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x300	0x300 (GUI)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule139:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule139 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32le(tb, off)
+              m3 = ok && (u64(iv)&0x300 == 0x300)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x300\t0x300 (GUI)")
+              gof = off + ml
+              out = append(out, "(GUI)")
+            }
+            break rule139
           }
-          {
-            iv, ok := readU32le(tb, off)
-            m3 = ok && (u64(iv)&0x300 == 0x300)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x300\t0x300 (GUI)")
-            gof = off + ml
-            out = append(out, "(GUI)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x28300	<0x300 (console)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule140:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule140 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32le(tb, off)
+              m3 = ok && (i64(i32(iv))&0x28300 < 0x300)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28300\t<0x300 (console)")
+              gof = off + ml
+              out = append(out, "(console)")
+            }
+            break rule140
           }
-          {
-            iv, ok := readU32le(tb, off)
-            m3 = ok && (i64(i32(iv))&0x28300 < 0x300)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28300\t<0x300 (console)")
-            gof = off + ml
-            out = append(out, "(console)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x08)	leshort		1 i80286
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x8
+        rule141:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule141 }
+              off = i64(ra)
+              off = off + 0x8
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t1 i80286")
+              gof = off + ml
+              out = append(out, "i80286")
+            }
+            break rule141
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t1 i80286")
-            gof = off + ml
-            out = append(out, "i80286")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x08)	leshort		2 i80386
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x8
+        rule142:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule142 }
+              off = i64(ra)
+              off = off + 0x8
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t2 i80386")
+              gof = off + ml
+              out = append(out, "i80386")
+            }
+            break rule142
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t2 i80386")
-            gof = off + ml
-            out = append(out, "i80386")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x08)	leshort		3 i80486
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x8
+        rule143:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule143 }
+              off = i64(ra)
+              off = off + 0x8
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t3 i80486")
+              gof = off + ml
+              out = append(out, "i80486")
+            }
+            break rule143
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t3 i80486")
-            gof = off + ml
-            out = append(out, "i80486")
-          }
-          break
-        }
 
         // >>>(8.s*16)		string		emx \b, emx
-        for {
-          {
-            ra, ok := readU16le(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x10
+        rule144:
+          for {
+            {
+              ra, ok := readU16le(tb, 0x8)
+              if !ok { break rule144 }
+              off = i64(ra)
+              off = off * 0x10
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\temx \\b, emx")
+              gof = off + ml
+              out = append(out, "\\b, emx")
+            }
+            break rule144
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\temx \\b, emx")
-            gof = off + ml
-            out = append(out, "\\b, emx")
-          }
-          break
-        }
 
         if m3 {
           // >>>>&1			string		x %s
@@ -2617,86 +2722,90 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>&(&0x54.l-3)		string		arjsfx \b, ARJ self-extracting archive
-        for {
-          {
-            ra, ok := readU32le(tb, (gof + 0x54))
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x3
-            off += gof
+        rule146:
+          for {
+            {
+              ra, ok := readU32le(tb, (gof + 0x54))
+              if !ok { break rule146 }
+              off = i64(ra)
+              off = off * 0x3
+              off += gof
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tarjsfx \\b, ARJ self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, ARJ self-extracting archive")
+            }
+            break rule146
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tarjsfx \\b, ARJ self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, ARJ self-extracting archive")
-          }
-          break
-        }
 
       }
       m2 = false
       // >>(0x3c.l)		string		W3 \b, W3 for MS Windows
-      for {
-        {
-          ra, ok := readU32le(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
-        }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tW3 \\b, W3 for MS Windows")
-          gof = off + ml
-          out = append(out, "\\b, W3 for MS Windows")
-        }
-        break
-      }
-
-      // >>(0x3c.l)		string		LE\0\0 \b, LE executable
-      for {
-        {
-          ra, ok := readU32le(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
-        }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLE\\0\\0 \\b, LE executable")
-          gof = off + ml
-          out = append(out, "\\b, LE executable")
-        }
-        break
-      }
-
-      if m2 {
-        // >>>(0x3c.l+0x0a)	leshort		1
+      rule147:
         for {
           {
             ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
+            if !ok { break rule147 }
             off = i64(ra)
-            off = off + 0xa
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1")
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tW3 \\b, W3 for MS Windows")
             gof = off + ml
+            out = append(out, "\\b, W3 for MS Windows")
           }
-          break
+          break rule147
         }
+
+      // >>(0x3c.l)		string		LE\0\0 \b, LE executable
+      rule148:
+        for {
+          {
+            ra, ok := readU32le(tb, 0x3c)
+            if !ok { break rule148 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLE\\0\\0 \\b, LE executable")
+            gof = off + ml
+            out = append(out, "\\b, LE executable")
+          }
+          break rule148
+        }
+
+      if m2 {
+        // >>>(0x3c.l+0x0a)	leshort		1
+        rule149:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule149 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1")
+              gof = off + ml
+            }
+            break rule149
+          }
 
         if m3 {
           // >>>>0x240		search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
           ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
-          if ml >= 0 { ml = ml + 0x6; m4 = true }
+          if ml >= 0 { ml += 0x6; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
             gof = off + ml
@@ -2706,7 +2815,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x240		search/0x200	WATCOM\ C/C++ for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
           ml = i64(wizardry.SearchTest(tb, int(off), 0x200, "WATCOM C/C++"))
-          if ml >= 0 { ml = ml + 0xc; m4 = true }
+          if ml >= 0 { ml += 0xc; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x200\tWATCOM\\ C/C++ for MS-DOS, DOS4GW DOS extender")
             gof = off + ml
@@ -2716,7 +2825,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x440		search/0x100	CauseWay\ DOS\ Extender for MS-DOS, CauseWay DOS extender
           off = pageOff + 0x440
           ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "CauseWay DOS Extender"))
-          if ml >= 0 { ml = ml + 0x15; m4 = true }
+          if ml >= 0 { ml += 0x15; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x440\t\tsearch/0x100\tCauseWay\\ DOS\\ Extender for MS-DOS, CauseWay DOS extender")
             gof = off + ml
@@ -2726,7 +2835,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x40	PMODE/W for MS-DOS, PMODE/W DOS extender
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "PMODE/W"))
-          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if ml >= 0 { ml += 0x7; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tPMODE/W for MS-DOS, PMODE/W DOS extender")
             gof = off + ml
@@ -2736,7 +2845,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x40	STUB/32A for MS-DOS, DOS/32A DOS extender (stub)
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "STUB/32A"))
-          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if ml >= 0 { ml += 0x8; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tSTUB/32A for MS-DOS, DOS/32A DOS extender (stub)")
             gof = off + ml
@@ -2746,7 +2855,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x80	STUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "STUB/32C"))
-          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if ml >= 0 { ml += 0x8; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tSTUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)")
             gof = off + ml
@@ -2756,7 +2865,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x80	DOS/32A for MS-DOS, DOS/32A DOS extender (embedded)
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "DOS/32A"))
-          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if ml >= 0 { ml += 0x7; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tDOS/32A for MS-DOS, DOS/32A DOS extender (embedded)")
             gof = off + ml
@@ -2777,26 +2886,27 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
           if m4 {
             // >>>>>(&0x4c.l)		string		\xfc\xb8WATCOM
-            for {
-              {
-                ra, ok := readU32le(tb, (gof + 0x4c))
-                if !ok { break }
-                off = i64(ra)
+            rule158:
+              for {
+                {
+                  ra, ok := readU32le(tb, (gof + 0x4c))
+                  if !ok { break rule158 }
+                  off = i64(ra)
+                }
+                ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+                m5 = ml >= 0
+                if m5 {
+                  fmt.Printf("matched rule: %s\n", ">>>>>(&0x4c.l)\t\tstring\t\t\\xfc\\xb8WATCOM")
+                  gof = off + ml
+                }
+                break rule158
               }
-              ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-              m5 = ml >= 0
-              if m5 {
-                fmt.Printf("matched rule: %s\n", ">>>>>(&0x4c.l)\t\tstring\t\t\\xfc\\xb8WATCOM")
-                gof = off + ml
-              }
-              break
-            }
 
             if m5 {
               // >>>>>>&0		search/8	3\xdbf\xb9 \b, 32Lite compressed
               off = pageOff + gof + 0x0
               ml = i64(wizardry.SearchTest(tb, int(off), 0x8, "3\xdbf\xb9"))
-              if ml >= 0 { ml = ml + 0x4; m6 = true }
+              if ml >= 0 { ml += 0x4; m6 = true }
               if m6 {
                 fmt.Printf("matched rule: %s\n", ">>>>>>&0\t\tsearch/8\t3\\xdbf\\xb9 \\b, 32Lite compressed")
                 gof = off + ml
@@ -2810,104 +2920,109 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+0x0a)	leshort		2 for MS Windows
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule160:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule160 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
+              gof = off + ml
+              out = append(out, "for MS Windows")
+            }
+            break rule160
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-            gof = off + ml
-            out = append(out, "for MS Windows")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		3 for DOS
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule161:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule161 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
+              gof = off + ml
+              out = append(out, "for DOS")
+            }
+            break rule161
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-            gof = off + ml
-            out = append(out, "for DOS")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		4 for MS Windows (VxD)
-        for {
-          {
-            ra, ok := readU32le(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule162:
+          for {
+            {
+              ra, ok := readU32le(tb, 0x3c)
+              if !ok { break rule162 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) == 0x4)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t4 for MS Windows (VxD)")
+              gof = off + ml
+              out = append(out, "for MS Windows (VxD)")
+            }
+            break rule162
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) == 0x4)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t4 for MS Windows (VxD)")
-            gof = off + ml
-            out = append(out, "for MS Windows (VxD)")
-          }
-          break
-        }
 
         // >>>(&0x7c.l+0x26)	string		UPX \b, UPX compressed
-        for {
-          {
-            ra, ok := readU32le(tb, (gof + 0x7c))
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x26
+        rule163:
+          for {
+            {
+              ra, ok := readU32le(tb, (gof + 0x7c))
+              if !ok { break rule163 }
+              off = i64(ra)
+              off = off + 0x26
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(&0x7c.l+0x26)\tstring\t\tUPX \\b, UPX compressed")
+              gof = off + ml
+              out = append(out, "\\b, UPX compressed")
+            }
+            break rule163
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(&0x7c.l+0x26)\tstring\t\tUPX \\b, UPX compressed")
-            gof = off + ml
-            out = append(out, "\\b, UPX compressed")
-          }
-          break
-        }
 
         // >>>&(&0x54.l-3)		string		UNACE \b, ACE self-extracting archive
-        for {
-          {
-            ra, ok := readU32le(tb, (gof + 0x54))
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x3
-            off += gof
+        rule164:
+          for {
+            {
+              ra, ok := readU32le(tb, (gof + 0x54))
+              if !ok { break rule164 }
+              off = i64(ra)
+              off = off * 0x3
+              off += gof
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tUNACE \\b, ACE self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, ACE self-extracting archive")
+            }
+            break rule164
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tUNACE \\b, ACE self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, ACE self-extracting archive")
-          }
-          break
-        }
 
       }
       m2 = false
@@ -2925,25 +3040,26 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
       if m2 {
         // >>>(4.s*512)	leshort !0x014c \b, MZ for MS-DOS
-        for {
-          {
-            ra, ok := readU16le(tb, 0x4)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x200
+        rule166:
+          for {
+            {
+              ra, ok := readU16le(tb, 0x4)
+              if !ok { break rule166 }
+              off = i64(ra)
+              off = off * 0x200
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) != 0x14c)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c \\b, MZ for MS-DOS")
+              gof = off + ml
+              out = append(out, "\\b, MZ for MS-DOS")
+            }
+            break rule166
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) != 0x14c)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c \\b, MZ for MS-DOS")
-            gof = off + ml
-            out = append(out, "\\b, MZ for MS-DOS")
-          }
-          break
-        }
 
       }
       m2 = false
@@ -2976,43 +3092,45 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
       if m2 {
         // >>>(4.s*512)	leshort !0x014c
-        for {
-          {
-            ra, ok := readU16le(tb, 0x4)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x200
+        rule169:
+          for {
+            {
+              ra, ok := readU16le(tb, 0x4)
+              if !ok { break rule169 }
+              off = i64(ra)
+              off = off * 0x200
+            }
+            {
+              iv, ok := readU16le(tb, off)
+              m3 = ok && (u64(iv) != 0x14c)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c")
+              gof = off + ml
+            }
+            break rule169
           }
-          {
-            iv, ok := readU16le(tb, off)
-            m3 = ok && (u64(iv) != 0x14c)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>&(2.s-514)	string	!LE
-          for {
-            {
-              ra, ok := readU16le(tb, 0x2)
-              if !ok { break }
-              off = i64(ra)
-              off = off * 0x202
-              off += gof
+          rule170:
+            for {
+              {
+                ra, ok := readU16le(tb, 0x2)
+                if !ok { break rule170 }
+                off = i64(ra)
+                off = off * 0x202
+                off += gof
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml < 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\t!LE")
+                gof = off + ml
+              }
+              break rule170
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml < 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\t!LE")
-              gof = off + ml
-            }
-            break
-          }
 
           if m4 {
             // >>>>>&-2	string	!BW \b, MZ for MS-DOS
@@ -3028,29 +3146,30 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           }
           m4 = false
           // >>>>&(2.s-514)	string	LE \b, LE
-          for {
-            {
-              ra, ok := readU16le(tb, 0x2)
-              if !ok { break }
-              off = i64(ra)
-              off = off * 0x202
-              off += gof
+          rule172:
+            for {
+              {
+                ra, ok := readU16le(tb, 0x2)
+                if !ok { break rule172 }
+                off = i64(ra)
+                off = off * 0x202
+                off += gof
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tLE \\b, LE")
+                gof = off + ml
+                out = append(out, "\\b, LE")
+              }
+              break rule172
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tLE \\b, LE")
-              gof = off + ml
-              out = append(out, "\\b, LE")
-            }
-            break
-          }
 
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
             off = pageOff + 0x240
             ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
-            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if ml >= 0 { ml += 0x6; m5 = true }
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
               gof = off + ml
@@ -3060,28 +3179,29 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           }
           m4 = false
           // >>>>&(2.s-514)	string	BW
-          for {
-            {
-              ra, ok := readU16le(tb, 0x2)
-              if !ok { break }
-              off = i64(ra)
-              off = off * 0x202
-              off += gof
+          rule174:
+            for {
+              {
+                ra, ok := readU16le(tb, 0x2)
+                if !ok { break rule174 }
+                off = i64(ra)
+                off = off * 0x202
+                off += gof
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tBW")
+                gof = off + ml
+              }
+              break rule174
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tBW")
-              gof = off + ml
-            }
-            break
-          }
 
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G	\b, LE for MS-DOS, DOS4GW DOS extender (embedded)
             off = pageOff + 0x240
             ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
-            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if ml >= 0 { ml += 0x6; m5 = true }
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G\t\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
               gof = off + ml
@@ -3091,7 +3211,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
             // >>>>>0x240	search/0x100	!DOS/4G	\b, BW collection for MS-DOS
             off = pageOff + 0x240
             ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "!DOS/4G"))
-            if ml >= 0 { ml = ml + 0x7; m5 = true }
+            if ml >= 0 { ml += 0x7; m5 = true }
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\t!DOS/4G\t\\b, BW collection for MS-DOS")
               gof = off + ml
@@ -3107,61 +3227,64 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     }
     m1 = false
     // >(4.s*512)	leshort		0x014c \b, COFF
-    for {
-      {
-        ra, ok := readU16le(tb, 0x4)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x200
+    rule177:
+      for {
+        {
+          ra, ok := readU16le(tb, 0x4)
+          if !ok { break rule177 }
+          off = i64(ra)
+          off = off * 0x200
+        }
+        {
+          iv, ok := readU16le(tb, off)
+          m1 = ok && (u64(iv) == 0x14c)
+          ml = 2
+        }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(4.s*512)\tleshort\t\t0x014c \\b, COFF")
+          gof = off + ml
+          out = append(out, "\\b, COFF")
+        }
+        break rule177
       }
-      {
-        iv, ok := readU16le(tb, off)
-        m1 = ok && (u64(iv) == 0x14c)
-        ml = 2
-      }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(4.s*512)\tleshort\t\t0x014c \\b, COFF")
-        gof = off + ml
-        out = append(out, "\\b, COFF")
-      }
-      break
-    }
 
     if m1 {
       // >>(8.s*16)	string		go32stub for MS-DOS, DJGPP go32 DOS extender
-      for {
-        {
-          ra, ok := readU16le(tb, 0x8)
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x10
+      rule178:
+        for {
+          {
+            ra, ok := readU16le(tb, 0x8)
+            if !ok { break rule178 }
+            off = i64(ra)
+            off = off * 0x10
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\tgo32stub for MS-DOS, DJGPP go32 DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
+          }
+          break rule178
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\tgo32stub for MS-DOS, DJGPP go32 DOS extender")
-          gof = off + ml
-          out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
-        }
-        break
-      }
 
       // >>(8.s*16)	string		emx
-      for {
-        {
-          ra, ok := readU16le(tb, 0x8)
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x10
+      rule179:
+        for {
+          {
+            ra, ok := readU16le(tb, 0x8)
+            if !ok { break rule179 }
+            off = i64(ra)
+            off = off * 0x10
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\temx")
+            gof = off + ml
+          }
+          break rule179
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\temx")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>&1		string		x for DOS, Win or OS/2, emx %s
@@ -3177,21 +3300,22 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       }
       m2 = false
       // >>&(&0x42.l-3)	byte		x
-      for {
-        {
-          ra, ok := readU32le(tb, (gof + 0x42))
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x3
-          off += gof
+      rule181:
+        for {
+          {
+            ra, ok := readU32le(tb, (gof + 0x42))
+            if !ok { break rule181 }
+            off = i64(ra)
+            off = off * 0x3
+            off += gof
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>&(&0x42.l-3)\tbyte\t\tx")
+            gof = off + ml
+          }
+          break rule181
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>&(&0x42.l-3)\tbyte\t\tx")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>&0x26	string		UPX \b, UPX compressed
@@ -3209,7 +3333,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       // >>&0x2c		search/0xa0	.text
       off = pageOff + gof + 0x2c
       ml = i64(wizardry.SearchTest(tb, int(off), 0xa0, ".text"))
-      if ml >= 0 { ml = ml + 0x5; m2 = true }
+      if ml >= 0 { ml += 0x5; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>&0x2c\t\tsearch/0xa0\t.text")
         gof = off + ml
@@ -3249,22 +3373,23 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     }
     m1 = false
     // >(8.s*16) string $WdX \b, WDos/X DOS extender
-    for {
-      {
-        ra, ok := readU16le(tb, 0x8)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x10
+    rule186:
+      for {
+        {
+          ra, ok := readU16le(tb, 0x8)
+          if !ok { break rule186 }
+          off = i64(ra)
+          off = off * 0x10
+        }
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        m1 = ml >= 0
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(8.s*16) string $WdX \\b, WDos/X DOS extender")
+          gof = off + ml
+          out = append(out, "\\b, WDos/X DOS extender")
+        }
+        break rule186
       }
-      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-      m1 = ml >= 0
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(8.s*16) string $WdX \\b, WDos/X DOS extender")
-        gof = off + ml
-        out = append(out, "\\b, WDos/X DOS extender")
-      }
-      break
-    }
 
     // >0x35	string	\x8e\xc0\xb9\x08\x00\xf3\xa5\x4a\x75\xeb\x8e\xc3\x8e\xd8\x33\xff\xbe\x30\x00\x05 \b, aPack compressed
     off = pageOff + 0x35
@@ -3379,7 +3504,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     // >0x20	search/0xe0	aRJsfX \b, ARJ self-extracting archive
     off = pageOff + 0x20
     ml = i64(wizardry.SearchTest(tb, int(off), 0xe0, "aRJsfX"))
-    if ml >= 0 { ml = ml + 0x6; m1 = true }
+    if ml >= 0 { ml += 0x6; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x20\tsearch/0xe0\taRJsfX \\b, ARJ self-extracting archive")
       gof = off + ml
@@ -3512,7 +3637,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       // >>&0xf4 search/0x140 \x0\x40\x1\x0
       off = pageOff + gof + 0xf4
       ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "\x00@\x01\x00"))
-      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if ml >= 0 { ml += 0x4; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>&0xf4 search/0x140 \\x0\\x40\\x1\\x0")
         gof = off + ml
@@ -3520,23 +3645,25 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
       if m2 {
         // >>>(&0.l+(4)) string MSCF \b, WinHKI CAB self-extracting archive
-        for {
-          {
-            ra, ok := readU32le(tb, (gof + 0x0))
-            if !ok { break }
-            rb, ok := readU32le(tb, (gof + 0x0) + 0x4)
-            off = i64(ra)
-            off = off + i64(rb)
+        rule212:
+          for {
+            {
+              ra, ok := readU32le(tb, (gof + 0x0))
+              if !ok { break rule212 }
+              rb, ok := readU32le(tb, (gof + 0x0) + 0x4)
+              if !ok { break rule212 }
+              off = i64(ra)
+              off = off + i64(rb)
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(&0.l+(4)) string MSCF \\b, WinHKI CAB self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, WinHKI CAB self-extracting archive")
+            }
+            break rule212
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(&0.l+(4)) string MSCF \\b, WinHKI CAB self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, WinHKI CAB self-extracting archive")
-          }
-          break
-        }
 
       }
       m2 = false
@@ -3563,38 +3690,40 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     }
 
     // >(4.s*512)	long	x
-    for {
-      {
-        ra, ok := readU16le(tb, 0x4)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x200
+    rule215:
+      for {
+        {
+          ra, ok := readU16le(tb, 0x4)
+          if !ok { break rule215 }
+          off = i64(ra)
+          off = off * 0x200
+        }
+        ml = 4
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(4.s*512)\tlong\tx")
+          gof = off + ml
+        }
+        break rule215
       }
-      ml = 4
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(4.s*512)\tlong\tx")
-        gof = off + ml
-      }
-      break
-    }
 
     if m1 {
       // >>&(2.s-517)	byte	x
-      for {
-        {
-          ra, ok := readU16le(tb, 0x2)
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x205
-          off += gof
+      rule216:
+        for {
+          {
+            ra, ok := readU16le(tb, 0x2)
+            if !ok { break rule216 }
+            off = i64(ra)
+            off = off * 0x205
+            off += gof
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>&(2.s-517)\tbyte\tx")
+            gof = off + ml
+          }
+          break rule216
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>&(2.s-517)\tbyte\tx")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>&0	string		PK\3\4 \b, ZIP self-extracting archive
@@ -3660,7 +3789,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // >>>&7	search/400	**ACE** \b, ACE self-extracting archive
         off = pageOff + gof + 0x7
         ml = i64(wizardry.SearchTest(tb, int(off), 0x190, "**ACE**"))
-        if ml >= 0 { ml = ml + 0x7; m3 = true }
+        if ml >= 0 { ml += 0x7; m3 = true }
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&7\tsearch/400\t**ACE** \\b, ACE self-extracting archive")
           gof = off + ml
@@ -3670,7 +3799,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // >>>&0	search/0x480	UC2SFX\ Header \b, UC2 self-extracting archive
         off = pageOff + gof + 0x0
         ml = i64(wizardry.SearchTest(tb, int(off), 0x480, "UC2SFX Header"))
-        if ml >= 0 { ml = ml + 0xd; m3 = true }
+        if ml >= 0 { ml += 0xd; m3 = true }
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0\tsearch/0x480\tUC2SFX\\ Header \\b, UC2 self-extracting archive")
           gof = off + ml
@@ -3682,22 +3811,23 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     }
     m1 = false
     // >(8.s*16)	search/0x20	PKSFX \b, ZIP self-extracting archive (PKZIP)
-    for {
-      {
-        ra, ok := readU16le(tb, 0x8)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x10
+    rule225:
+      for {
+        {
+          ra, ok := readU16le(tb, 0x8)
+          if !ok { break rule225 }
+          off = i64(ra)
+          off = off * 0x10
+        }
+        ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "PKSFX"))
+        if ml >= 0 { ml += 0x5; m1 = true }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
+          gof = off + ml
+          out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+        }
+        break rule225
       }
-      ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "PKSFX"))
-      if ml >= 0 { ml = ml + 0x5; m1 = true }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
-        gof = off + ml
-        out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
-      }
-      break
-    }
 
     // >49801	string	\x79\xff\x80\xff\x76\xff	\b, CODEC archive v3.21
     off = pageOff + 0xc289
@@ -3786,7 +3916,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
       // >>7	search/254	\xff		\b, info=
       off = pageOff + 0x7
       ml = i64(wizardry.SearchTest(tb, int(off), 0xfe, "\xff"))
-      if ml >= 0 { ml = ml + 0x1; m2 = true }
+      if ml >= 0 { ml += 0x1; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>7\tsearch/254\t\\xff\t\t\\b, info=")
         gof = off + ml
@@ -4116,20 +4246,21 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(1.b+2)   byte    x
-      for {
-        {
-          ra, ok := readU8le(tb, 0x1)
-          if !ok { break }
-          off = i64(ra)
-          off = off + 0x2
+      rule263:
+        for {
+          {
+            ra, ok := readU8le(tb, 0x1)
+            if !ok { break rule263 }
+            off = i64(ra)
+            off = off + 0x2
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(1.b+2)   byte    x")
+            gof = off + ml
+          }
+          break rule263
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(1.b+2)   byte    x")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>0        use msdos-com
@@ -4169,20 +4300,21 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(1.s+3)   byte    x
-      for {
-        {
-          ra, ok := readU16le(tb, 0x1)
-          if !ok { break }
-          off = i64(ra)
-          off = off + 0x3
+      rule267:
+        for {
+          {
+            ra, ok := readU16le(tb, 0x1)
+            if !ok { break rule267 }
+            off = i64(ra)
+            off = off + 0x3
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(1.s+3)   byte    x")
+            gof = off + ml
+          }
+          break rule267
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(1.s+3)   byte    x")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>0        use msdos-com
@@ -4207,20 +4339,21 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(1,s+65539)   byte    x
-      for {
-        {
-          ra, ok := readU16le(tb, 0x1)
-          if !ok { break }
-          off = i64(ra)
-          off = off + 0x10003
+      rule270:
+        for {
+          {
+            ra, ok := readU16le(tb, 0x1)
+            if !ok { break rule270 }
+            off = i64(ra)
+            off = off + 0x10003
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(1,s+65539)   byte    x")
+            gof = off + ml
+          }
+          break rule270
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(1,s+65539)   byte    x")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>0        use msdos-com
@@ -4500,7 +4633,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
   // 0x6	search/0xa	\xfc\x57\xf3\xa5\xc3	COM executable for MS-DOS
   off = pageOff + 0x6
   ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa5\xc3"))
-  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if ml >= 0 { ml += 0x5; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa5\\xc3\tCOM executable for MS-DOS")
     gof = off + ml
@@ -4510,7 +4643,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
   // 0x6	search/0xa	\xfc\x57\xf3\xa4\xc3	COM executable for DOS
   off = pageOff + 0x6
   ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa4\xc3"))
-  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if ml >= 0 { ml += 0x5; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa4\\xc3\tCOM executable for DOS")
     gof = off + ml
@@ -4521,7 +4654,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     // >0x18	search/0x10	\x50\xa4\xff\xd5\x73	\b, aPack compressed
     off = pageOff + 0x18
     ml = i64(wizardry.SearchTest(tb, int(off), 0x10, "P\xa4\xff\xd5s"))
-    if ml >= 0 { ml = ml + 0x5; m1 = true }
+    if ml >= 0 { ml += 0x5; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x18\tsearch/0x10\t\\x50\\xa4\\xff\\xd5\\x73\t\\b, aPack compressed")
       gof = off + ml
@@ -5129,7 +5262,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
           // >>>>30	search/29	\0\xAE
           off = pageOff + 0x1e
           ml = i64(wizardry.SearchTest(tb, int(off), 0x1d, "\x00\xae"))
-          if ml >= 0 { ml = ml + 0x2; m4 = true }
+          if ml >= 0 { ml += 0x2; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>30\tsearch/29\t\\0\\xAE")
             gof = off + ml
@@ -5412,16 +5545,17 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
         // uh oh unhandled kind
 
         // >>>(8.s+10)	use	lotus-cells
-        for {
-          {
-            ra, ok := readU16le(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule373:
+          for {
+            {
+              ra, ok := readU16le(tb, 0x8)
+              if !ok { break rule373 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            // uh oh unhandled kind
+            break rule373
           }
-          // uh oh unhandled kind
-          break
-        }
 
       }
       m2 = false
@@ -6081,7 +6215,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	WINDOWS\ VMM\ 4.0\0
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS VMM 4.0\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ VMM\\ 4.0\\0")
       gof = off + ml
@@ -6198,7 +6332,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	WINDOWS\ NT\ \ 3.1\0	\b, Windows NT-style
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS NT  3.1\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ NT\\ \\ 3.1\\0\t\\b, Windows NT-style")
       gof = off + ml
@@ -6208,7 +6342,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	CONFIG\ \ SYS\ 4.0\0	\b +CONFIG.SYS
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "CONFIG  SYS 4.0\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tCONFIG\\ \\ SYS\\ 4.0\\0\t\\b +CONFIG.SYS")
       gof = off + ml
@@ -6218,7 +6352,7 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	AUTOEXECBAT\ 4.0\0	\b +AUTOEXEC.BAT
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "AUTOEXECBAT 4.0\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tAUTOEXECBAT\\ 4.0\\0\t\\b +AUTOEXEC.BAT")
       gof = off + ml
@@ -6549,21 +6683,22 @@ func Identify(tb []byte, pageOff i64) ([]string, error) {
     }
 
     // >(12.l+40)	lelong	x		%u files
-    for {
-      {
-        ra, ok := readU32le(tb, 0xc)
-        if !ok { break }
-        off = i64(ra)
-        off = off + 0x28
+    rule472:
+      for {
+        {
+          ra, ok := readU32le(tb, 0xc)
+          if !ok { break rule472 }
+          off = i64(ra)
+          off = off + 0x28
+        }
+        ml = 4
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(12.l+40)\tlelong\tx\t\t%u files")
+          gof = off + ml
+          out = append(out, "%u files")
+        }
+        break rule472
       }
-      ml = 4
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(12.l+40)\tlelong\tx\t\t%u files")
-        gof = off + ml
-        out = append(out, "%u files")
-      }
-      break
-    }
 
   }
   m0 = false
@@ -7347,20 +7482,21 @@ func IdentifyCurIcoDir(tb []byte, pageOff i64) ([]string, error) {
   if m0 {
     if m1 {
       // >>(18.l)	ulelong		x		MS Windows
-      for {
-        {
-          ra, ok := readU32le(tb, 0x12)
-          if !ok { break }
-          off = i64(ra)
+      rule1:
+        for {
+          {
+            ra, ok := readU32le(tb, 0x12)
+            if !ok { break rule1 }
+            off = i64(ra)
+          }
+          ml = 4
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(18.l)\tulelong\t\tx\t\tMS Windows")
+            gof = off + ml
+            out = append(out, "MS Windows")
+          }
+          break rule1
         }
-        ml = 4
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(18.l)\tulelong\t\tx\t\tMS Windows")
-          gof = off + ml
-          out = append(out, "MS Windows")
-        }
-        break
-      }
 
       if m2 {
         // >>>0		ubelong		0x00000100	icon resource
@@ -7549,42 +7685,44 @@ func IdentifyCurIcoEntry(tb []byte, pageOff i64) ([]string, error) {
     }
 
     // >(12.l)		ubelong		=0x89504e47
-    for {
-      {
-        ra, ok := readU32le(tb, 0xc)
-        if !ok { break }
-        off = i64(ra)
+    rule6:
+      for {
+        {
+          ra, ok := readU32le(tb, 0xc)
+          if !ok { break rule6 }
+          off = i64(ra)
+        }
+        {
+          iv, ok := readU32be(tb, off)
+          m1 = ok && (u64(iv) == 0x89504e47)
+          ml = 4
+        }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t=0x89504e47")
+          gof = off + ml
+        }
+        break rule6
       }
-      {
-        iv, ok := readU32be(tb, off)
-        m1 = ok && (u64(iv) == 0x89504e47)
-        ml = 4
-      }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t=0x89504e47")
-        gof = off + ml
-      }
-      break
-    }
 
     // >(12.l)		ubelong		!0x89504e47
-    for {
-      {
-        ra, ok := readU32le(tb, 0xc)
-        if !ok { break }
-        off = i64(ra)
+    rule7:
+      for {
+        {
+          ra, ok := readU32le(tb, 0xc)
+          if !ok { break rule7 }
+          off = i64(ra)
+        }
+        {
+          iv, ok := readU32be(tb, off)
+          m1 = ok && (u64(iv) != 0x89504e47)
+          ml = 4
+        }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t!0x89504e47")
+          gof = off + ml
+        }
+        break rule7
       }
-      {
-        iv, ok := readU32be(tb, off)
-        m1 = ok && (u64(iv) != 0x89504e47)
-        ml = 4
-      }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t!0x89504e47")
-        gof = off + ml
-      }
-      break
-    }
 
   }
   return out, nil
@@ -10915,7 +11053,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff i64) ([]string, error) {
     // >40	search/7			UPX!			\bUPX compressed
     off = pageOff + 0x28
     ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
-    if ml >= 0 { ml = ml + 0x4; m1 = true }
+    if ml >= 0 { ml += 0x4; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">40\tsearch/7\t\t\tUPX!\t\t\t\\bUPX compressed")
       gof = off + ml
@@ -11057,7 +11195,7 @@ func IdentifyMsdosDriver(tb []byte, pageOff i64) ([]string, error) {
       // >>40	search/7			UPX!
       off = pageOff + 0x28
       ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
-      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if ml >= 0 { ml += 0x4; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>40\tsearch/7\t\t\tUPX!")
         gof = off + ml
@@ -11999,7 +12137,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
   // 100	search/0xffff   rxfuncadd
   off = pageOff + 0x64
   ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "rxfuncadd"))
-  if ml >= 0 { ml = ml + 0x9; m0 = true }
+  if ml >= 0 { ml += 0x9; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   rxfuncadd")
     gof = off + ml
@@ -12008,7 +12146,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
   // 100	search/0xffff   say
   off = pageOff + 0x64
   ml = i64(wizardry.SearchTest(tb, int(off), 0xffff, "say"))
-  if ml >= 0 { ml = ml + 0x3; m0 = true }
+  if ml >= 0 { ml += 0x3; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "100\tsearch/0xffff   say")
     gof = off + ml
@@ -12116,97 +12254,102 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(0x3c.l) string PE\0\0 PE
-      for {
-        {
-          ra, ok := readU32be(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule45:
+        for {
+          {
+            ra, ok := readU32be(tb, 0x3c)
+            if !ok { break rule45 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string PE\\0\\0 PE")
+            gof = off + ml
+            out = append(out, "PE")
+          }
+          break rule45
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string PE\\0\\0 PE")
-          gof = off + ml
-          out = append(out, "PE")
-        }
-        break
-      }
 
       if m2 {
         // >>>(0x3c.l+24)	leshort		0x010b	\b32 executable
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule46:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule46 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x10b)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b\t\\b32 executable")
+              gof = off + ml
+              out = append(out, "\\b32 executable")
+            }
+            break rule46
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x10b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b\t\\b32 executable")
-            gof = off + ml
-            out = append(out, "\\b32 executable")
-          }
-          break
-        }
 
         // >>>(0x3c.l+24)	leshort		0x020b	\b32+ executable
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule47:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule47 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x20b)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b\t\\b32+ executable")
+              gof = off + ml
+              out = append(out, "\\b32+ executable")
+            }
+            break rule47
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x20b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b\t\\b32+ executable")
-            gof = off + ml
-            out = append(out, "\\b32+ executable")
-          }
-          break
-        }
 
         // >>>(0x3c.l+24)	leshort		0x0107	ROM image
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule48:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule48 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x107)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x0107\tROM image")
+              gof = off + ml
+              out = append(out, "ROM image")
+            }
+            break rule48
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x107)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x0107\tROM image")
-            gof = off + ml
-            out = append(out, "ROM image")
-          }
-          break
-        }
 
         // >>>(0x3c.l+24)	default		x	Unknown PE signature
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
+        rule49:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule49 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            // uh oh unhandled kind
+            break rule49
           }
-          // uh oh unhandled kind
-          break
-        }
 
         if m3 {
           // >>>>&0 		leshort		x	0x%x
@@ -12221,268 +12364,281 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+22)	leshort&0x2000	>0	(DLL)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x16
+        rule51:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule51 }
+              off = i64(ra)
+              off = off + 0x16
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (i64(i16(iv))&0x2000 > 0x0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x2000\t>0\t(DLL)")
+              gof = off + ml
+              out = append(out, "(DLL)")
+            }
+            break rule51
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (i64(i16(iv))&0x2000 > 0x0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x2000\t>0\t(DLL)")
-            gof = off + ml
-            out = append(out, "(DLL)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		1	(native)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule52:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule52 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t1\t(native)")
+              gof = off + ml
+              out = append(out, "(native)")
+            }
+            break rule52
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t1\t(native)")
-            gof = off + ml
-            out = append(out, "(native)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		2	(GUI)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule53:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule53 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t2\t(GUI)")
+              gof = off + ml
+              out = append(out, "(GUI)")
+            }
+            break rule53
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t2\t(GUI)")
-            gof = off + ml
-            out = append(out, "(GUI)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		3	(console)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule54:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule54 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t3\t(console)")
+              gof = off + ml
+              out = append(out, "(console)")
+            }
+            break rule54
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t3\t(console)")
-            gof = off + ml
-            out = append(out, "(console)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		7	(POSIX)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule55:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule55 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x7)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t7\t(POSIX)")
+              gof = off + ml
+              out = append(out, "(POSIX)")
+            }
+            break rule55
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x7)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t7\t(POSIX)")
-            gof = off + ml
-            out = append(out, "(POSIX)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		9	(Windows CE)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule56:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule56 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x9)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t9\t(Windows CE)")
+              gof = off + ml
+              out = append(out, "(Windows CE)")
+            }
+            break rule56
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x9)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t9\t(Windows CE)")
-            gof = off + ml
-            out = append(out, "(Windows CE)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		10	(EFI application)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule57:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule57 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xa)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t10\t(EFI application)")
+              gof = off + ml
+              out = append(out, "(EFI application)")
+            }
+            break rule57
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xa)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t10\t(EFI application)")
-            gof = off + ml
-            out = append(out, "(EFI application)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		11	(EFI boot service driver)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule58:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule58 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xb)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t11\t(EFI boot service driver)")
+              gof = off + ml
+              out = append(out, "(EFI boot service driver)")
+            }
+            break rule58
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xb)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t11\t(EFI boot service driver)")
-            gof = off + ml
-            out = append(out, "(EFI boot service driver)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		12	(EFI runtime driver)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule59:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule59 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xc)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t12\t(EFI runtime driver)")
+              gof = off + ml
+              out = append(out, "(EFI runtime driver)")
+            }
+            break rule59
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xc)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t12\t(EFI runtime driver)")
-            gof = off + ml
-            out = append(out, "(EFI runtime driver)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		13	(EFI ROM)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule60:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule60 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xd)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t13\t(EFI ROM)")
+              gof = off + ml
+              out = append(out, "(EFI ROM)")
+            }
+            break rule60
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xd)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t13\t(EFI ROM)")
-            gof = off + ml
-            out = append(out, "(EFI ROM)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		14	(XBOX)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule61:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule61 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xe)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t14\t(XBOX)")
+              gof = off + ml
+              out = append(out, "(XBOX)")
+            }
+            break rule61
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xe)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t14\t(XBOX)")
-            gof = off + ml
-            out = append(out, "(XBOX)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	leshort		15	(Windows boot application)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule62:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule62 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xf)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t15\t(Windows boot application)")
+              gof = off + ml
+              out = append(out, "(Windows boot application)")
+            }
+            break rule62
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xf)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t15\t(Windows boot application)")
-            gof = off + ml
-            out = append(out, "(Windows boot application)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+92)	default		x	(Unknown subsystem
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x5c
+        rule63:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule63 }
+              off = i64(ra)
+              off = off + 0x5c
+            }
+            // uh oh unhandled kind
+            break rule63
           }
-          // uh oh unhandled kind
-          break
-        }
 
         if m3 {
           // >>>>&0		leshort		x	0x%x)
@@ -12497,415 +12653,435 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+4)	leshort		0x14c	Intel 80386
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule65:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule65 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x14c)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x14c\tIntel 80386")
+              gof = off + ml
+              out = append(out, "Intel 80386")
+            }
+            break rule65
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x14c)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x14c\tIntel 80386")
-            gof = off + ml
-            out = append(out, "Intel 80386")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x166	MIPS R4000
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule66:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule66 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x166)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x166\tMIPS R4000")
+              gof = off + ml
+              out = append(out, "MIPS R4000")
+            }
+            break rule66
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x166)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x166\tMIPS R4000")
-            gof = off + ml
-            out = append(out, "MIPS R4000")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x168	MIPS R10000
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule67:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule67 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x168)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x168\tMIPS R10000")
+              gof = off + ml
+              out = append(out, "MIPS R10000")
+            }
+            break rule67
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x168)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x168\tMIPS R10000")
-            gof = off + ml
-            out = append(out, "MIPS R10000")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x184	Alpha
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule68:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule68 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x184)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x184\tAlpha")
+              gof = off + ml
+              out = append(out, "Alpha")
+            }
+            break rule68
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x184)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x184\tAlpha")
-            gof = off + ml
-            out = append(out, "Alpha")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1a2	Hitachi SH3
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule69:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule69 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1a2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a2\tHitachi SH3")
+              gof = off + ml
+              out = append(out, "Hitachi SH3")
+            }
+            break rule69
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1a2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a2\tHitachi SH3")
-            gof = off + ml
-            out = append(out, "Hitachi SH3")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1a6	Hitachi SH4
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule70:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule70 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1a6)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a6\tHitachi SH4")
+              gof = off + ml
+              out = append(out, "Hitachi SH4")
+            }
+            break rule70
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1a6)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a6\tHitachi SH4")
-            gof = off + ml
-            out = append(out, "Hitachi SH4")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1c0	ARM
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule71:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule71 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1c0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c0\tARM")
+              gof = off + ml
+              out = append(out, "ARM")
+            }
+            break rule71
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1c0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c0\tARM")
-            gof = off + ml
-            out = append(out, "ARM")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1c2	ARM Thumb
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule72:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule72 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1c2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c2\tARM Thumb")
+              gof = off + ml
+              out = append(out, "ARM Thumb")
+            }
+            break rule72
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1c2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c2\tARM Thumb")
-            gof = off + ml
-            out = append(out, "ARM Thumb")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1c4	ARMv7 Thumb
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule73:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule73 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1c4)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c4\tARMv7 Thumb")
+              gof = off + ml
+              out = append(out, "ARMv7 Thumb")
+            }
+            break rule73
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1c4)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c4\tARMv7 Thumb")
-            gof = off + ml
-            out = append(out, "ARMv7 Thumb")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x1f0	PowerPC
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule74:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule74 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1f0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1f0\tPowerPC")
+              gof = off + ml
+              out = append(out, "PowerPC")
+            }
+            break rule74
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1f0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1f0\tPowerPC")
-            gof = off + ml
-            out = append(out, "PowerPC")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x200	Intel Itanium
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule75:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule75 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x200)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x200\tIntel Itanium")
+              gof = off + ml
+              out = append(out, "Intel Itanium")
+            }
+            break rule75
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x200)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x200\tIntel Itanium")
-            gof = off + ml
-            out = append(out, "Intel Itanium")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x266	MIPS16
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule76:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule76 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x266)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x266\tMIPS16")
+              gof = off + ml
+              out = append(out, "MIPS16")
+            }
+            break rule76
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x266)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x266\tMIPS16")
-            gof = off + ml
-            out = append(out, "MIPS16")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x268	Motorola 68000
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule77:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule77 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x268)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x268\tMotorola 68000")
+              gof = off + ml
+              out = append(out, "Motorola 68000")
+            }
+            break rule77
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x268)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x268\tMotorola 68000")
-            gof = off + ml
-            out = append(out, "Motorola 68000")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x290	PA-RISC
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule78:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule78 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x290)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x290\tPA-RISC")
+              gof = off + ml
+              out = append(out, "PA-RISC")
+            }
+            break rule78
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x290)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x290\tPA-RISC")
-            gof = off + ml
-            out = append(out, "PA-RISC")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x366	MIPSIV
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule79:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule79 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x366)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x366\tMIPSIV")
+              gof = off + ml
+              out = append(out, "MIPSIV")
+            }
+            break rule79
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x366)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x366\tMIPSIV")
-            gof = off + ml
-            out = append(out, "MIPSIV")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x466	MIPS16 with FPU
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule80:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule80 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x466)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x466\tMIPS16 with FPU")
+              gof = off + ml
+              out = append(out, "MIPS16 with FPU")
+            }
+            break rule80
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x466)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x466\tMIPS16 with FPU")
-            gof = off + ml
-            out = append(out, "MIPS16 with FPU")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0xebc	EFI byte code
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule81:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule81 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xebc)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xebc\tEFI byte code")
+              gof = off + ml
+              out = append(out, "EFI byte code")
+            }
+            break rule81
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xebc)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xebc\tEFI byte code")
-            gof = off + ml
-            out = append(out, "EFI byte code")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0x8664	x86-64
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule82:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule82 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x8664)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x8664\tx86-64")
+              gof = off + ml
+              out = append(out, "x86-64")
+            }
+            break rule82
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x8664)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x8664\tx86-64")
-            gof = off + ml
-            out = append(out, "x86-64")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	leshort		0xc0ee	MSIL
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule83:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule83 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0xc0ee)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xc0ee\tMSIL")
+              gof = off + ml
+              out = append(out, "MSIL")
+            }
+            break rule83
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0xc0ee)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xc0ee\tMSIL")
-            gof = off + ml
-            out = append(out, "MSIL")
-          }
-          break
-        }
 
         // >>>(0x3c.l+4)	default		x	Unknown processor type
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x4
+        rule84:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule84 }
+              off = i64(ra)
+              off = off + 0x4
+            }
+            // uh oh unhandled kind
+            break rule84
           }
-          // uh oh unhandled kind
-          break
-        }
 
         if m3 {
           // >>>>&0		leshort		x	0x%x
@@ -12920,588 +13096,627 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+22)	leshort&0x0200	>0	(stripped to external PDB)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x16
-          }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (i64(i16(iv))&0x200 > 0x0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x0200\t>0\t(stripped to external PDB)")
-            gof = off + ml
-            out = append(out, "(stripped to external PDB)")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+22)	leshort&0x1000	>0	system file
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x16
-          }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (i64(i16(iv))&0x1000 > 0x0)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x1000\t>0\tsystem file")
-            gof = off + ml
-            out = append(out, "system file")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+24)	leshort		0x010b
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
-          }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x10b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b")
-            gof = off + ml
-          }
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+232) lelong	>0	Mono/.Net assembly
+        rule86:
           for {
             {
               ra, ok := readU32be(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule86 }
               off = i64(ra)
-              off = off + 0xe8
+              off = off + 0x16
             }
             {
-              iv, ok := readU32be(tb, off)
-              m4 = ok && (i64(i32(iv)) > 0x0)
-              ml = 4
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (i64(i16(iv))&0x200 > 0x0)
+              ml = 2
             }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+232) lelong\t>0\tMono/.Net assembly")
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x0200\t>0\t(stripped to external PDB)")
               gof = off + ml
-              out = append(out, "Mono/.Net assembly")
+              out = append(out, "(stripped to external PDB)")
             }
-            break
+            break rule86
           }
+
+        // >>>(0x3c.l+22)	leshort&0x1000	>0	system file
+        rule87:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule87 }
+              off = i64(ra)
+              off = off + 0x16
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (i64(i16(iv))&0x1000 > 0x0)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x1000\t>0\tsystem file")
+              gof = off + ml
+              out = append(out, "system file")
+            }
+            break rule87
+          }
+
+        // >>>(0x3c.l+24)	leshort		0x010b
+        rule88:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule88 }
+              off = i64(ra)
+              off = off + 0x18
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x10b)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b")
+              gof = off + ml
+            }
+            break rule88
+          }
+
+        if m3 {
+          // >>>>(0x3c.l+232) lelong	>0	Mono/.Net assembly
+          rule89:
+            for {
+              {
+                ra, ok := readU32be(tb, 0x3c)
+                if !ok { break rule89 }
+                off = i64(ra)
+                off = off + 0xe8
+              }
+              {
+                iv, ok := readU32be(tb, off)
+                m4 = ok && (i64(i32(iv)) > 0x0)
+                ml = 4
+              }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+232) lelong\t>0\tMono/.Net assembly")
+                gof = off + ml
+                out = append(out, "Mono/.Net assembly")
+              }
+              break rule89
+            }
 
         }
         m3 = false
         // >>>(0x3c.l+24)	leshort		0x020b
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x18
-          }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x20b)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b")
-            gof = off + ml
-          }
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+248) lelong	>0	Mono/.Net assembly
+        rule90:
           for {
             {
               ra, ok := readU32be(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule90 }
               off = i64(ra)
-              off = off + 0xf8
+              off = off + 0x18
             }
             {
-              iv, ok := readU32be(tb, off)
-              m4 = ok && (i64(i32(iv)) > 0x0)
-              ml = 4
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x20b)
+              ml = 2
             }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+248) lelong\t>0\tMono/.Net assembly")
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b")
               gof = off + ml
-              out = append(out, "Mono/.Net assembly")
             }
-            break
+            break rule90
           }
+
+        if m3 {
+          // >>>>(0x3c.l+248) lelong	>0	Mono/.Net assembly
+          rule91:
+            for {
+              {
+                ra, ok := readU32be(tb, 0x3c)
+                if !ok { break rule91 }
+                off = i64(ra)
+                off = off + 0xf8
+              }
+              {
+                iv, ok := readU32be(tb, off)
+                m4 = ok && (i64(i32(iv)) > 0x0)
+                ml = 4
+              }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+248) lelong\t>0\tMono/.Net assembly")
+                gof = off + ml
+                out = append(out, "Mono/.Net assembly")
+              }
+              break rule91
+            }
 
         }
         m3 = false
         // >>>(8.s*16)		string		32STUB	\b, 32rtm DOS extender
-        for {
-          {
-            ra, ok := readU16be(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x10
+        rule92:
+          for {
+            {
+              ra, ok := readU16be(tb, 0x8)
+              if !ok { break rule92 }
+              off = i64(ra)
+              off = off * 0x10
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t32STUB\t\\b, 32rtm DOS extender")
+              gof = off + ml
+              out = append(out, "\\b, 32rtm DOS extender")
+            }
+            break rule92
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t32STUB\t\\b, 32rtm DOS extender")
-            gof = off + ml
-            out = append(out, "\\b, 32rtm DOS extender")
-          }
-          break
-        }
 
         // >>>(8.s*16)		string		!32STUB	\b, for MS Windows
-        for {
-          {
-            ra, ok := readU16be(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x10
+        rule93:
+          for {
+            {
+              ra, ok := readU16be(tb, 0x8)
+              if !ok { break rule93 }
+              off = i64(ra)
+              off = off * 0x10
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml < 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t!32STUB\t\\b, for MS Windows")
+              gof = off + ml
+              out = append(out, "\\b, for MS Windows")
+            }
+            break rule93
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x33, 0x32, 0x53, 0x54, 0x55, 0x42}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml < 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t!32STUB\t\\b, for MS Windows")
-            gof = off + ml
-            out = append(out, "\\b, for MS Windows")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	string		UPX0 \b, UPX compressed
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule94:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule94 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tstring\t\tUPX0 \\b, UPX compressed")
+              gof = off + ml
+              out = append(out, "\\b, UPX compressed")
+            }
+            break rule94
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tstring\t\tUPX0 \\b, UPX compressed")
-            gof = off + ml
-            out = append(out, "\\b, UPX compressed")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	search/0x140	PEC2 \b, PECompact2 compressed
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule95:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule95 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "PEC2"))
+            if ml >= 0 { ml += 0x4; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
+              gof = off + ml
+              out = append(out, "\\b, PECompact2 compressed")
+            }
+            break rule95
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "PEC2"))
-          if ml >= 0 { ml = ml + 0x4; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
-            gof = off + ml
-            out = append(out, "\\b, PECompact2 compressed")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	search/0x140	UPX2
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule96:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule96 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "UPX2"))
+            if ml >= 0 { ml += 0x4; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tUPX2")
+              gof = off + ml
+            }
+            break rule96
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "UPX2"))
-          if ml >= 0 { ml = ml + 0x4; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tUPX2")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0x10.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0x10))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0x10) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule97:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0x10))
+                if !ok { break rule97 }
+                rb, ok := readU32be(tb, (gof + 0x10) + -4)
+                if !ok { break rule97 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x10.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
+                gof = off + ml
+                out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+              }
+              break rule97
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x10.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-              gof = off + ml
-              out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.idata
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule98:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule98 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".idata"))
+            if ml >= 0 { ml += 0x6; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.idata")
+              gof = off + ml
+            }
+            break rule98
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".idata"))
-          if ml >= 0 { ml = ml + 0x6; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.idata")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0xe.l+(-4))	string		PK\3\4 \b, ZIP self-extracting archive (Info-Zip)
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xe))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xe) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule99:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xe))
+                if !ok { break rule99 }
+                rb, ok := readU32be(tb, (gof + 0xe) + -4)
+                if !ok { break rule99 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
+                gof = off + ml
+                out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+              }
+              break rule99
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x4b, 0x3, 0x4}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-              gof = off + ml
-              out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
-            }
-            break
-          }
 
           // >>>>(&0xe.l+(-4))	string		ZZ0 \b, ZZip self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xe))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xe) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule100:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xe))
+                if !ok { break rule100 }
+                rb, ok := readU32be(tb, (gof + 0xe) + -4)
+                if !ok { break rule100 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ0 \\b, ZZip self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, ZZip self-extracting archive")
+              }
+              break rule100
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x30}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ0 \\b, ZZip self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, ZZip self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0xe.l+(-4))	string		ZZ1 \b, ZZip self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xe))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xe) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule101:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xe))
+                if !ok { break rule101 }
+                rb, ok := readU32be(tb, (gof + 0xe) + -4)
+                if !ok { break rule101 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ1 \\b, ZZip self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, ZZip self-extracting archive")
+              }
+              break rule101
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x5a, 0x5a, 0x31}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ1 \\b, ZZip self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, ZZip self-extracting archive")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.rsrc
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule102:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule102 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".rsrc"))
+            if ml >= 0 { ml += 0x5; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.rsrc")
+              gof = off + ml
+            }
+            break rule102
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".rsrc"))
-          if ml >= 0 { ml = ml + 0x5; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.rsrc")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0x0f.l+(-4))	string		a\\\4\5 \b, WinHKI self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule103:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xf))
+                if !ok { break rule103 }
+                rb, ok := readU32be(tb, (gof + 0xf) + -4)
+                if !ok { break rule103 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\ta\\\\\\4\\5 \\b, WinHKI self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, WinHKI self-extracting archive")
+              }
+              break rule103
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x5c, 0x4, 0x5}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\ta\\\\\\4\\5 \\b, WinHKI self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, WinHKI self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0x0f.l+(-4))	string		Rar! \b, RAR self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule104:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xf))
+                if !ok { break rule104 }
+                rb, ok := readU32be(tb, (gof + 0xf) + -4)
+                if !ok { break rule104 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\tRar! \\b, RAR self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, RAR self-extracting archive")
+              }
+              break rule104
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x52, 0x61, 0x72, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\tRar! \\b, RAR self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, RAR self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0x0f.l+(-4))	search/0x3000	MSCF \b, InstallShield self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule105:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xf))
+                if !ok { break rule105 }
+                rb, ok := readU32be(tb, (gof + 0xf) + -4)
+                if !ok { break rule105 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.SearchTest(tb, int(off), 0x3000, "MSCF"))
+              if ml >= 0 { ml += 0x4; m4 = true }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, InstallShield self-extracting archive")
+              }
+              break rule105
             }
-            ml = i64(wizardry.SearchTest(tb, int(off), 0x3000, "MSCF"))
-            if ml >= 0 { ml = ml + 0x4; m4 = true }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, InstallShield self-extracting archive")
-            }
-            break
-          }
 
           // >>>>(&0x0f.l+(-4))	search/32	Nullsoft \b, Nullsoft Installer self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xf))
-              if !ok { break }
-              rb, ok := readU32be(tb, (gof + 0xf) + -4)
-              off = i64(ra)
-              off = off + i64(rb)
+          rule106:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xf))
+                if !ok { break rule106 }
+                rb, ok := readU32be(tb, (gof + 0xf) + -4)
+                if !ok { break rule106 }
+                off = i64(ra)
+                off = off + i64(rb)
+              }
+              ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "Nullsoft"))
+              if ml >= 0 { ml += 0x8; m4 = true }
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+              }
+              break rule106
             }
-            ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "Nullsoft"))
-            if ml >= 0 { ml = ml + 0x8; m4 = true }
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, Nullsoft Installer self-extracting archive")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.data
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule107:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule107 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".data"))
+            if ml >= 0 { ml += 0x5; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.data")
+              gof = off + ml
+            }
+            break rule107
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".data"))
-          if ml >= 0 { ml = ml + 0x5; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.data")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>(&0x0f.l)		string		WEXTRACT \b, MS CAB-Installer self-extracting archive
-          for {
-            {
-              ra, ok := readU32be(tb, (gof + 0xf))
-              if !ok { break }
-              off = i64(ra)
+          rule108:
+            for {
+              {
+                ra, ok := readU32be(tb, (gof + 0xf))
+                if !ok { break rule108 }
+                off = i64(ra)
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l)\t\tstring\t\tWEXTRACT \\b, MS CAB-Installer self-extracting archive")
+                gof = off + ml
+                out = append(out, "\\b, MS CAB-Installer self-extracting archive")
+              }
+              break rule108
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x45, 0x58, 0x54, 0x52, 0x41, 0x43, 0x54}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l)\t\tstring\t\tWEXTRACT \\b, MS CAB-Installer self-extracting archive")
-              gof = off + ml
-              out = append(out, "\\b, MS CAB-Installer self-extracting archive")
-            }
-            break
-          }
 
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.petite\0 \b, Petite compressed
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
-          }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".petite\x00"))
-          if ml >= 0 { ml = ml + 0x8; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
-            gof = off + ml
-            out = append(out, "\\b, Petite compressed")
-          }
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+0xf7)	byte		x
+        rule109:
           for {
             {
               ra, ok := readU32be(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule109 }
               off = i64(ra)
-              off = off + 0xf7
+              off = off + 0xf8
             }
-            ml = 1
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0xf7)\tbyte\t\tx")
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".petite\x00"))
+            if ml >= 0 { ml += 0x8; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
               gof = off + ml
+              out = append(out, "\\b, Petite compressed")
             }
-            break
+            break rule109
           }
+
+        if m3 {
+          // >>>>(0x3c.l+0xf7)	byte		x
+          rule110:
+            for {
+              {
+                ra, ok := readU32be(tb, 0x3c)
+                if !ok { break rule110 }
+                off = i64(ra)
+                off = off + 0xf7
+              }
+              ml = 1
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0xf7)\tbyte\t\tx")
+                gof = off + ml
+              }
+              break rule110
+            }
 
           if m4 {
             // >>>>>(&0x104.l+(-4))	string		=!sfx! \b, ACE self-extracting archive
-            for {
-              {
-                ra, ok := readU32be(tb, (gof + 0x104))
-                if !ok { break }
-                rb, ok := readU32be(tb, (gof + 0x104) + -4)
-                off = i64(ra)
-                off = off + i64(rb)
+            rule111:
+              for {
+                {
+                  ra, ok := readU32be(tb, (gof + 0x104))
+                  if !ok { break rule111 }
+                  rb, ok := readU32be(tb, (gof + 0x104) + -4)
+                  if !ok { break rule111 }
+                  off = i64(ra)
+                  off = off + i64(rb)
+                }
+                ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+                m5 = ml >= 0
+                if m5 {
+                  fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.l+(-4))\tstring\t\t=!sfx! \\b, ACE self-extracting archive")
+                  gof = off + ml
+                  out = append(out, "\\b, ACE self-extracting archive")
+                }
+                break rule111
               }
-              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x3d, 0x21, 0x73, 0x66, 0x78, 0x21}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-              m5 = ml >= 0
-              if m5 {
-                fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.l+(-4))\tstring\t\t=!sfx! \\b, ACE self-extracting archive")
-                gof = off + ml
-                out = append(out, "\\b, ACE self-extracting archive")
-              }
-              break
-            }
 
           }
           m4 = false
         }
         m3 = false
         // >>>(0x3c.l+0xf8)	search/0x140	.WISE \b, WISE installer self-extracting archive
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule112:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule112 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".WISE"))
+            if ml >= 0 { ml += 0x5; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, WISE installer self-extracting archive")
+            }
+            break rule112
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".WISE"))
-          if ml >= 0 { ml = ml + 0x5; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, WISE installer self-extracting archive")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0xf8)	search/0x140	.dz\0\0\0 \b, Dzip self-extracting archive
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
+        rule113:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule113 }
+              off = i64(ra)
+              off = off + 0xf8
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".dz\x00\x00\x00"))
+            if ml >= 0 { ml += 0x6; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, Dzip self-extracting archive")
+            }
+            break rule113
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x140, ".dz\x00\x00\x00"))
-          if ml >= 0 { ml = ml + 0x6; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, Dzip self-extracting archive")
-          }
-          break
-        }
 
         // >>>&(0x3c.l+0xf8)	search/0x100	_winzip_ \b, ZIP self-extracting archive (WinZip)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
-            off += gof
+        rule114:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule114 }
+              off = i64(ra)
+              off = off + 0xf8
+              off += gof
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "_winzip_"))
+            if ml >= 0 { ml += 0x8; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
+              gof = off + ml
+              out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+            }
+            break rule114
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "_winzip_"))
-          if ml >= 0 { ml = ml + 0x8; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
-            gof = off + ml
-            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
-          }
-          break
-        }
 
         // >>>&(0x3c.l+0xf8)	search/0x100	SharedD \b, Microsoft Installer self-extracting archive
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xf8
-            off += gof
+        rule115:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule115 }
+              off = i64(ra)
+              off = off + 0xf8
+              off += gof
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "SharedD"))
+            if ml >= 0 { ml += 0x7; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, Microsoft Installer self-extracting archive")
+            }
+            break rule115
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "SharedD"))
-          if ml >= 0 { ml = ml + 0x7; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, Microsoft Installer self-extracting archive")
-          }
-          break
-        }
 
         // >>>0x30			string		Inno \b, InnoSetup self-extracting archive
         off = pageOff + 0x30
@@ -13516,566 +13731,594 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       }
       m2 = false
       // >>(0x3c.l) string !PE\0\0 MS-DOS executable
-      for {
-        {
-          ra, ok := readU32be(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule117:
+        for {
+          {
+            ra, ok := readU32be(tb, 0x3c)
+            if !ok { break rule117 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml < 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string !PE\\0\\0 MS-DOS executable")
+            gof = off + ml
+            out = append(out, "MS-DOS executable")
+          }
+          break rule117
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x50, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml < 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string !PE\\0\\0 MS-DOS executable")
-          gof = off + ml
-          out = append(out, "MS-DOS executable")
-        }
-        break
-      }
 
       // >>(0x3c.l)		string		NE \b, NE
-      for {
-        {
-          ra, ok := readU32be(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule118:
+        for {
+          {
+            ra, ok := readU32be(tb, 0x3c)
+            if !ok { break rule118 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tNE \\b, NE")
+            gof = off + ml
+            out = append(out, "\\b, NE")
+          }
+          break rule118
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4e, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tNE \\b, NE")
-          gof = off + ml
-          out = append(out, "\\b, NE")
-        }
-        break
-      }
 
       if m2 {
         // >>>(0x3c.l+0x36)	byte		1 for OS/2 1.x
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8be(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t1 for OS/2 1.x")
-            gof = off + ml
-            out = append(out, "for OS/2 1.x")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		2 for MS Windows 3.x
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8be(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t2 for MS Windows 3.x")
-            gof = off + ml
-            out = append(out, "for MS Windows 3.x")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		3 for MS-DOS
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8be(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t3 for MS-DOS")
-            gof = off + ml
-            out = append(out, "for MS-DOS")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		4 for Windows 386
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8be(tb, off)
-            m3 = ok && (u64(iv) == 0x4)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t4 for Windows 386")
-            gof = off + ml
-            out = append(out, "for Windows 386")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	byte		5 for Borland Operating System Services
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          {
-            iv, ok := readU8be(tb, off)
-            m3 = ok && (u64(iv) == 0x5)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t5 for Borland Operating System Services")
-            gof = off + ml
-            out = append(out, "for Borland Operating System Services")
-          }
-          break
-        }
-
-        // >>>(0x3c.l+0x36)	default		x
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
-          }
-          // uh oh unhandled kind
-          break
-        }
-
-        if m3 {
-          // >>>>(0x3c.l+0x36)	byte		x (unknown OS %x)
+        rule119:
           for {
             {
               ra, ok := readU32be(tb, 0x3c)
-              if !ok { break }
+              if !ok { break rule119 }
               off = i64(ra)
               off = off + 0x36
             }
-            ml = 1
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0x36)\tbyte\t\tx (unknown OS %x)")
-              gof = off + ml
-              out = append(out, "(unknown OS %x)")
+            {
+              iv, ok := readU8be(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 1
             }
-            break
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t1 for OS/2 1.x")
+              gof = off + ml
+              out = append(out, "for OS/2 1.x")
+            }
+            break rule119
           }
+
+        // >>>(0x3c.l+0x36)	byte		2 for MS Windows 3.x
+        rule120:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule120 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8be(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t2 for MS Windows 3.x")
+              gof = off + ml
+              out = append(out, "for MS Windows 3.x")
+            }
+            break rule120
+          }
+
+        // >>>(0x3c.l+0x36)	byte		3 for MS-DOS
+        rule121:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule121 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8be(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t3 for MS-DOS")
+              gof = off + ml
+              out = append(out, "for MS-DOS")
+            }
+            break rule121
+          }
+
+        // >>>(0x3c.l+0x36)	byte		4 for Windows 386
+        rule122:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule122 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8be(tb, off)
+              m3 = ok && (u64(iv) == 0x4)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t4 for Windows 386")
+              gof = off + ml
+              out = append(out, "for Windows 386")
+            }
+            break rule122
+          }
+
+        // >>>(0x3c.l+0x36)	byte		5 for Borland Operating System Services
+        rule123:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule123 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8be(tb, off)
+              m3 = ok && (u64(iv) == 0x5)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t5 for Borland Operating System Services")
+              gof = off + ml
+              out = append(out, "for Borland Operating System Services")
+            }
+            break rule123
+          }
+
+        // >>>(0x3c.l+0x36)	default		x
+        rule124:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule124 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            // uh oh unhandled kind
+            break rule124
+          }
+
+        if m3 {
+          // >>>>(0x3c.l+0x36)	byte		x (unknown OS %x)
+          rule125:
+            for {
+              {
+                ra, ok := readU32be(tb, 0x3c)
+                if !ok { break rule125 }
+                off = i64(ra)
+                off = off + 0x36
+              }
+              ml = 1
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0x36)\tbyte\t\tx (unknown OS %x)")
+                gof = off + ml
+                out = append(out, "(unknown OS %x)")
+              }
+              break rule125
+            }
 
         }
         m3 = false
         // >>>(0x3c.l+0x36)	byte		0x81 for MS-DOS, Phar Lap DOS extender
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x36
+        rule126:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule126 }
+              off = i64(ra)
+              off = off + 0x36
+            }
+            {
+              iv, ok := readU8be(tb, off)
+              m3 = ok && (u64(iv) == 0x81)
+              ml = 1
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t0x81 for MS-DOS, Phar Lap DOS extender")
+              gof = off + ml
+              out = append(out, "for MS-DOS, Phar Lap DOS extender")
+            }
+            break rule126
           }
-          {
-            iv, ok := readU8be(tb, off)
-            m3 = ok && (u64(iv) == 0x81)
-            ml = 1
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t0x81 for MS-DOS, Phar Lap DOS extender")
-            gof = off + ml
-            out = append(out, "for MS-DOS, Phar Lap DOS extender")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8002 (DLL)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xc
+        rule127:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule127 }
+              off = i64(ra)
+              off = off + 0xc
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv)&0x8003 == 0x8002)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8002 (DLL)")
+              gof = off + ml
+              out = append(out, "(DLL)")
+            }
+            break rule127
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv)&0x8003 == 0x8002)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8002 (DLL)")
-            gof = off + ml
-            out = append(out, "(DLL)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8001 (driver)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xc
+        rule128:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule128 }
+              off = i64(ra)
+              off = off + 0xc
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv)&0x8003 == 0x8001)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8001 (driver)")
+              gof = off + ml
+              out = append(out, "(driver)")
+            }
+            break rule128
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv)&0x8003 == 0x8001)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8001 (driver)")
-            gof = off + ml
-            out = append(out, "(driver)")
-          }
-          break
-        }
 
         // >>>&(&0x24.s-1)		string		ARJSFX \b, ARJ self-extracting archive
-        for {
-          {
-            ra, ok := readU16be(tb, (gof + 0x24))
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x1
-            off += gof
+        rule129:
+          for {
+            {
+              ra, ok := readU16be(tb, (gof + 0x24))
+              if !ok { break rule129 }
+              off = i64(ra)
+              off = off * 0x1
+              off += gof
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(&0x24.s-1)\t\tstring\t\tARJSFX \\b, ARJ self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, ARJ self-extracting archive")
+            }
+            break rule129
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x41, 0x52, 0x4a, 0x53, 0x46, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(&0x24.s-1)\t\tstring\t\tARJSFX \\b, ARJ self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, ARJ self-extracting archive")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x70)	search/0x80	WinZip(R)\ Self-Extractor \b, ZIP self-extracting archive (WinZip)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x70
+        rule130:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule130 }
+              off = i64(ra)
+              off = off + 0x70
+            }
+            ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "WinZip(R) Self-Extractor"))
+            if ml >= 0 { ml += 0x18; m3 = true }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
+              gof = off + ml
+              out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+            }
+            break rule130
           }
-          ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "WinZip(R) Self-Extractor"))
-          if ml >= 0 { ml = ml + 0x18; m3 = true }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
-            gof = off + ml
-            out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
-          }
-          break
-        }
 
       }
       m2 = false
       // >>(0x3c.l)		string		LX\0\0 \b, LX
-      for {
-        {
-          ra, ok := readU32be(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
+      rule131:
+        for {
+          {
+            ra, ok := readU32be(tb, 0x3c)
+            if !ok { break rule131 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLX\\0\\0 \\b, LX")
+            gof = off + ml
+            out = append(out, "\\b, LX")
+          }
+          break rule131
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x58, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLX\\0\\0 \\b, LX")
-          gof = off + ml
-          out = append(out, "\\b, LX")
-        }
-        break
-      }
 
       if m2 {
         // >>>(0x3c.l+0x0a)	leshort		<1 (unknown OS)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule132:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule132 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (i64(i16(iv)) < 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t<1 (unknown OS)")
+              gof = off + ml
+              out = append(out, "(unknown OS)")
+            }
+            break rule132
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (i64(i16(iv)) < 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t<1 (unknown OS)")
-            gof = off + ml
-            out = append(out, "(unknown OS)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		1 for OS/2
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule133:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule133 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1 for OS/2")
+              gof = off + ml
+              out = append(out, "for OS/2")
+            }
+            break rule133
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1 for OS/2")
-            gof = off + ml
-            out = append(out, "for OS/2")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		2 for MS Windows
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule134:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule134 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
+              gof = off + ml
+              out = append(out, "for MS Windows")
+            }
+            break rule134
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-            gof = off + ml
-            out = append(out, "for MS Windows")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		3 for DOS
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule135:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule135 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
+              gof = off + ml
+              out = append(out, "for DOS")
+            }
+            break rule135
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-            gof = off + ml
-            out = append(out, "for DOS")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		>3 (unknown OS)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule136:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule136 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (i64(i16(iv)) > 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t>3 (unknown OS)")
+              gof = off + ml
+              out = append(out, "(unknown OS)")
+            }
+            break rule136
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (i64(i16(iv)) > 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t>3 (unknown OS)")
-            gof = off + ml
-            out = append(out, "(unknown OS)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x28000	=0x8000 (DLL)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule137:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule137 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32be(tb, off)
+              m3 = ok && (u64(iv)&0x28000 == 0x8000)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28000\t=0x8000 (DLL)")
+              gof = off + ml
+              out = append(out, "(DLL)")
+            }
+            break rule137
           }
-          {
-            iv, ok := readU32be(tb, off)
-            m3 = ok && (u64(iv)&0x28000 == 0x8000)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28000\t=0x8000 (DLL)")
-            gof = off + ml
-            out = append(out, "(DLL)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x20000	>0 (device driver)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule138:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule138 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32be(tb, off)
+              m3 = ok && (i64(i32(iv))&0x20000 > 0x0)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x20000\t>0 (device driver)")
+              gof = off + ml
+              out = append(out, "(device driver)")
+            }
+            break rule138
           }
-          {
-            iv, ok := readU32be(tb, off)
-            m3 = ok && (i64(i32(iv))&0x20000 > 0x0)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x20000\t>0 (device driver)")
-            gof = off + ml
-            out = append(out, "(device driver)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x300	0x300 (GUI)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule139:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule139 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32be(tb, off)
+              m3 = ok && (u64(iv)&0x300 == 0x300)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x300\t0x300 (GUI)")
+              gof = off + ml
+              out = append(out, "(GUI)")
+            }
+            break rule139
           }
-          {
-            iv, ok := readU32be(tb, off)
-            m3 = ok && (u64(iv)&0x300 == 0x300)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x300\t0x300 (GUI)")
-            gof = off + ml
-            out = append(out, "(GUI)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x10)	lelong&0x28300	<0x300 (console)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x10
+        rule140:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule140 }
+              off = i64(ra)
+              off = off + 0x10
+            }
+            {
+              iv, ok := readU32be(tb, off)
+              m3 = ok && (i64(i32(iv))&0x28300 < 0x300)
+              ml = 4
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28300\t<0x300 (console)")
+              gof = off + ml
+              out = append(out, "(console)")
+            }
+            break rule140
           }
-          {
-            iv, ok := readU32be(tb, off)
-            m3 = ok && (i64(i32(iv))&0x28300 < 0x300)
-            ml = 4
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28300\t<0x300 (console)")
-            gof = off + ml
-            out = append(out, "(console)")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x08)	leshort		1 i80286
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x8
+        rule141:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule141 }
+              off = i64(ra)
+              off = off + 0x8
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t1 i80286")
+              gof = off + ml
+              out = append(out, "i80286")
+            }
+            break rule141
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t1 i80286")
-            gof = off + ml
-            out = append(out, "i80286")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x08)	leshort		2 i80386
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x8
+        rule142:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule142 }
+              off = i64(ra)
+              off = off + 0x8
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t2 i80386")
+              gof = off + ml
+              out = append(out, "i80386")
+            }
+            break rule142
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t2 i80386")
-            gof = off + ml
-            out = append(out, "i80386")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x08)	leshort		3 i80486
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x8
+        rule143:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule143 }
+              off = i64(ra)
+              off = off + 0x8
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t3 i80486")
+              gof = off + ml
+              out = append(out, "i80486")
+            }
+            break rule143
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t3 i80486")
-            gof = off + ml
-            out = append(out, "i80486")
-          }
-          break
-        }
 
         // >>>(8.s*16)		string		emx \b, emx
-        for {
-          {
-            ra, ok := readU16be(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x10
+        rule144:
+          for {
+            {
+              ra, ok := readU16be(tb, 0x8)
+              if !ok { break rule144 }
+              off = i64(ra)
+              off = off * 0x10
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\temx \\b, emx")
+              gof = off + ml
+              out = append(out, "\\b, emx")
+            }
+            break rule144
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\temx \\b, emx")
-            gof = off + ml
-            out = append(out, "\\b, emx")
-          }
-          break
-        }
 
         if m3 {
           // >>>>&1			string		x %s
@@ -14091,86 +14334,90 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>&(&0x54.l-3)		string		arjsfx \b, ARJ self-extracting archive
-        for {
-          {
-            ra, ok := readU32be(tb, (gof + 0x54))
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x3
-            off += gof
+        rule146:
+          for {
+            {
+              ra, ok := readU32be(tb, (gof + 0x54))
+              if !ok { break rule146 }
+              off = i64(ra)
+              off = off * 0x3
+              off += gof
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tarjsfx \\b, ARJ self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, ARJ self-extracting archive")
+            }
+            break rule146
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x61, 0x72, 0x6a, 0x73, 0x66, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tarjsfx \\b, ARJ self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, ARJ self-extracting archive")
-          }
-          break
-        }
 
       }
       m2 = false
       // >>(0x3c.l)		string		W3 \b, W3 for MS Windows
-      for {
-        {
-          ra, ok := readU32be(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
-        }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tW3 \\b, W3 for MS Windows")
-          gof = off + ml
-          out = append(out, "\\b, W3 for MS Windows")
-        }
-        break
-      }
-
-      // >>(0x3c.l)		string		LE\0\0 \b, LE executable
-      for {
-        {
-          ra, ok := readU32be(tb, 0x3c)
-          if !ok { break }
-          off = i64(ra)
-        }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLE\\0\\0 \\b, LE executable")
-          gof = off + ml
-          out = append(out, "\\b, LE executable")
-        }
-        break
-      }
-
-      if m2 {
-        // >>>(0x3c.l+0x0a)	leshort		1
+      rule147:
         for {
           {
             ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
+            if !ok { break rule147 }
             off = i64(ra)
-            off = off + 0xa
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x1)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1")
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x57, 0x33}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tW3 \\b, W3 for MS Windows")
             gof = off + ml
+            out = append(out, "\\b, W3 for MS Windows")
           }
-          break
+          break rule147
         }
+
+      // >>(0x3c.l)		string		LE\0\0 \b, LE executable
+      rule148:
+        for {
+          {
+            ra, ok := readU32be(tb, 0x3c)
+            if !ok { break rule148 }
+            off = i64(ra)
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45, 0x0, 0x0}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLE\\0\\0 \\b, LE executable")
+            gof = off + ml
+            out = append(out, "\\b, LE executable")
+          }
+          break rule148
+        }
+
+      if m2 {
+        // >>>(0x3c.l+0x0a)	leshort		1
+        rule149:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule149 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x1)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1")
+              gof = off + ml
+            }
+            break rule149
+          }
 
         if m3 {
           // >>>>0x240		search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
           ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
-          if ml >= 0 { ml = ml + 0x6; m4 = true }
+          if ml >= 0 { ml += 0x6; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
             gof = off + ml
@@ -14180,7 +14427,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x240		search/0x200	WATCOM\ C/C++ for MS-DOS, DOS4GW DOS extender
           off = pageOff + 0x240
           ml = i64(wizardry.SearchTest(tb, int(off), 0x200, "WATCOM C/C++"))
-          if ml >= 0 { ml = ml + 0xc; m4 = true }
+          if ml >= 0 { ml += 0xc; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x200\tWATCOM\\ C/C++ for MS-DOS, DOS4GW DOS extender")
             gof = off + ml
@@ -14190,7 +14437,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x440		search/0x100	CauseWay\ DOS\ Extender for MS-DOS, CauseWay DOS extender
           off = pageOff + 0x440
           ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "CauseWay DOS Extender"))
-          if ml >= 0 { ml = ml + 0x15; m4 = true }
+          if ml >= 0 { ml += 0x15; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x440\t\tsearch/0x100\tCauseWay\\ DOS\\ Extender for MS-DOS, CauseWay DOS extender")
             gof = off + ml
@@ -14200,7 +14447,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x40	PMODE/W for MS-DOS, PMODE/W DOS extender
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "PMODE/W"))
-          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if ml >= 0 { ml += 0x7; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tPMODE/W for MS-DOS, PMODE/W DOS extender")
             gof = off + ml
@@ -14210,7 +14457,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x40	STUB/32A for MS-DOS, DOS/32A DOS extender (stub)
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x40, "STUB/32A"))
-          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if ml >= 0 { ml += 0x8; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tSTUB/32A for MS-DOS, DOS/32A DOS extender (stub)")
             gof = off + ml
@@ -14220,7 +14467,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x80	STUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "STUB/32C"))
-          if ml >= 0 { ml = ml + 0x8; m4 = true }
+          if ml >= 0 { ml += 0x8; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tSTUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)")
             gof = off + ml
@@ -14230,7 +14477,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>0x40		search/0x80	DOS/32A for MS-DOS, DOS/32A DOS extender (embedded)
           off = pageOff + 0x40
           ml = i64(wizardry.SearchTest(tb, int(off), 0x80, "DOS/32A"))
-          if ml >= 0 { ml = ml + 0x7; m4 = true }
+          if ml >= 0 { ml += 0x7; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tDOS/32A for MS-DOS, DOS/32A DOS extender (embedded)")
             gof = off + ml
@@ -14251,26 +14498,27 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
           if m4 {
             // >>>>>(&0x4c.l)		string		\xfc\xb8WATCOM
-            for {
-              {
-                ra, ok := readU32be(tb, (gof + 0x4c))
-                if !ok { break }
-                off = i64(ra)
+            rule158:
+              for {
+                {
+                  ra, ok := readU32be(tb, (gof + 0x4c))
+                  if !ok { break rule158 }
+                  off = i64(ra)
+                }
+                ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+                m5 = ml >= 0
+                if m5 {
+                  fmt.Printf("matched rule: %s\n", ">>>>>(&0x4c.l)\t\tstring\t\t\\xfc\\xb8WATCOM")
+                  gof = off + ml
+                }
+                break rule158
               }
-              ml = i64(wizardry.StringTest(tb, int(off), []byte{0xfc, 0xb8, 0x57, 0x41, 0x54, 0x43, 0x4f, 0x4d}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-              m5 = ml >= 0
-              if m5 {
-                fmt.Printf("matched rule: %s\n", ">>>>>(&0x4c.l)\t\tstring\t\t\\xfc\\xb8WATCOM")
-                gof = off + ml
-              }
-              break
-            }
 
             if m5 {
               // >>>>>>&0		search/8	3\xdbf\xb9 \b, 32Lite compressed
               off = pageOff + gof + 0x0
               ml = i64(wizardry.SearchTest(tb, int(off), 0x8, "3\xdbf\xb9"))
-              if ml >= 0 { ml = ml + 0x4; m6 = true }
+              if ml >= 0 { ml += 0x4; m6 = true }
               if m6 {
                 fmt.Printf("matched rule: %s\n", ">>>>>>&0\t\tsearch/8\t3\\xdbf\\xb9 \\b, 32Lite compressed")
                 gof = off + ml
@@ -14284,104 +14532,109 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         }
         m3 = false
         // >>>(0x3c.l+0x0a)	leshort		2 for MS Windows
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule160:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule160 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x2)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
+              gof = off + ml
+              out = append(out, "for MS Windows")
+            }
+            break rule160
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x2)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-            gof = off + ml
-            out = append(out, "for MS Windows")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		3 for DOS
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule161:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule161 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x3)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
+              gof = off + ml
+              out = append(out, "for DOS")
+            }
+            break rule161
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x3)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-            gof = off + ml
-            out = append(out, "for DOS")
-          }
-          break
-        }
 
         // >>>(0x3c.l+0x0a)	leshort		4 for MS Windows (VxD)
-        for {
-          {
-            ra, ok := readU32be(tb, 0x3c)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule162:
+          for {
+            {
+              ra, ok := readU32be(tb, 0x3c)
+              if !ok { break rule162 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) == 0x4)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t4 for MS Windows (VxD)")
+              gof = off + ml
+              out = append(out, "for MS Windows (VxD)")
+            }
+            break rule162
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) == 0x4)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t4 for MS Windows (VxD)")
-            gof = off + ml
-            out = append(out, "for MS Windows (VxD)")
-          }
-          break
-        }
 
         // >>>(&0x7c.l+0x26)	string		UPX \b, UPX compressed
-        for {
-          {
-            ra, ok := readU32be(tb, (gof + 0x7c))
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0x26
+        rule163:
+          for {
+            {
+              ra, ok := readU32be(tb, (gof + 0x7c))
+              if !ok { break rule163 }
+              off = i64(ra)
+              off = off + 0x26
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(&0x7c.l+0x26)\tstring\t\tUPX \\b, UPX compressed")
+              gof = off + ml
+              out = append(out, "\\b, UPX compressed")
+            }
+            break rule163
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x50, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(&0x7c.l+0x26)\tstring\t\tUPX \\b, UPX compressed")
-            gof = off + ml
-            out = append(out, "\\b, UPX compressed")
-          }
-          break
-        }
 
         // >>>&(&0x54.l-3)		string		UNACE \b, ACE self-extracting archive
-        for {
-          {
-            ra, ok := readU32be(tb, (gof + 0x54))
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x3
-            off += gof
+        rule164:
+          for {
+            {
+              ra, ok := readU32be(tb, (gof + 0x54))
+              if !ok { break rule164 }
+              off = i64(ra)
+              off = off * 0x3
+              off += gof
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tUNACE \\b, ACE self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, ACE self-extracting archive")
+            }
+            break rule164
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x55, 0x4e, 0x41, 0x43, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tUNACE \\b, ACE self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, ACE self-extracting archive")
-          }
-          break
-        }
 
       }
       m2 = false
@@ -14399,25 +14652,26 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
       if m2 {
         // >>>(4.s*512)	leshort !0x014c \b, MZ for MS-DOS
-        for {
-          {
-            ra, ok := readU16be(tb, 0x4)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x200
+        rule166:
+          for {
+            {
+              ra, ok := readU16be(tb, 0x4)
+              if !ok { break rule166 }
+              off = i64(ra)
+              off = off * 0x200
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) != 0x14c)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c \\b, MZ for MS-DOS")
+              gof = off + ml
+              out = append(out, "\\b, MZ for MS-DOS")
+            }
+            break rule166
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) != 0x14c)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c \\b, MZ for MS-DOS")
-            gof = off + ml
-            out = append(out, "\\b, MZ for MS-DOS")
-          }
-          break
-        }
 
       }
       m2 = false
@@ -14450,43 +14704,45 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
       if m2 {
         // >>>(4.s*512)	leshort !0x014c
-        for {
-          {
-            ra, ok := readU16be(tb, 0x4)
-            if !ok { break }
-            off = i64(ra)
-            off = off * 0x200
+        rule169:
+          for {
+            {
+              ra, ok := readU16be(tb, 0x4)
+              if !ok { break rule169 }
+              off = i64(ra)
+              off = off * 0x200
+            }
+            {
+              iv, ok := readU16be(tb, off)
+              m3 = ok && (u64(iv) != 0x14c)
+              ml = 2
+            }
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c")
+              gof = off + ml
+            }
+            break rule169
           }
-          {
-            iv, ok := readU16be(tb, off)
-            m3 = ok && (u64(iv) != 0x14c)
-            ml = 2
-          }
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c")
-            gof = off + ml
-          }
-          break
-        }
 
         if m3 {
           // >>>>&(2.s-514)	string	!LE
-          for {
-            {
-              ra, ok := readU16be(tb, 0x2)
-              if !ok { break }
-              off = i64(ra)
-              off = off * 0x202
-              off += gof
+          rule170:
+            for {
+              {
+                ra, ok := readU16be(tb, 0x2)
+                if !ok { break rule170 }
+                off = i64(ra)
+                off = off * 0x202
+                off += gof
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml < 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\t!LE")
+                gof = off + ml
+              }
+              break rule170
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml < 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\t!LE")
-              gof = off + ml
-            }
-            break
-          }
 
           if m4 {
             // >>>>>&-2	string	!BW \b, MZ for MS-DOS
@@ -14502,29 +14758,30 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           }
           m4 = false
           // >>>>&(2.s-514)	string	LE \b, LE
-          for {
-            {
-              ra, ok := readU16be(tb, 0x2)
-              if !ok { break }
-              off = i64(ra)
-              off = off * 0x202
-              off += gof
+          rule172:
+            for {
+              {
+                ra, ok := readU16be(tb, 0x2)
+                if !ok { break rule172 }
+                off = i64(ra)
+                off = off * 0x202
+                off += gof
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tLE \\b, LE")
+                gof = off + ml
+                out = append(out, "\\b, LE")
+              }
+              break rule172
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4c, 0x45}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tLE \\b, LE")
-              gof = off + ml
-              out = append(out, "\\b, LE")
-            }
-            break
-          }
 
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
             off = pageOff + 0x240
             ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
-            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if ml >= 0 { ml += 0x6; m5 = true }
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
               gof = off + ml
@@ -14534,28 +14791,29 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           }
           m4 = false
           // >>>>&(2.s-514)	string	BW
-          for {
-            {
-              ra, ok := readU16be(tb, 0x2)
-              if !ok { break }
-              off = i64(ra)
-              off = off * 0x202
-              off += gof
+          rule174:
+            for {
+              {
+                ra, ok := readU16be(tb, 0x2)
+                if !ok { break rule174 }
+                off = i64(ra)
+                off = off * 0x202
+                off += gof
+              }
+              ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+              m4 = ml >= 0
+              if m4 {
+                fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tBW")
+                gof = off + ml
+              }
+              break rule174
             }
-            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x42, 0x57}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-            m4 = ml >= 0
-            if m4 {
-              fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tBW")
-              gof = off + ml
-            }
-            break
-          }
 
           if m4 {
             // >>>>>0x240	search/0x100	DOS/4G	\b, LE for MS-DOS, DOS4GW DOS extender (embedded)
             off = pageOff + 0x240
             ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "DOS/4G"))
-            if ml >= 0 { ml = ml + 0x6; m5 = true }
+            if ml >= 0 { ml += 0x6; m5 = true }
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G\t\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
               gof = off + ml
@@ -14565,7 +14823,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
             // >>>>>0x240	search/0x100	!DOS/4G	\b, BW collection for MS-DOS
             off = pageOff + 0x240
             ml = i64(wizardry.SearchTest(tb, int(off), 0x100, "!DOS/4G"))
-            if ml >= 0 { ml = ml + 0x7; m5 = true }
+            if ml >= 0 { ml += 0x7; m5 = true }
             if m5 {
               fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\t!DOS/4G\t\\b, BW collection for MS-DOS")
               gof = off + ml
@@ -14581,61 +14839,64 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     }
     m1 = false
     // >(4.s*512)	leshort		0x014c \b, COFF
-    for {
-      {
-        ra, ok := readU16be(tb, 0x4)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x200
+    rule177:
+      for {
+        {
+          ra, ok := readU16be(tb, 0x4)
+          if !ok { break rule177 }
+          off = i64(ra)
+          off = off * 0x200
+        }
+        {
+          iv, ok := readU16be(tb, off)
+          m1 = ok && (u64(iv) == 0x14c)
+          ml = 2
+        }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(4.s*512)\tleshort\t\t0x014c \\b, COFF")
+          gof = off + ml
+          out = append(out, "\\b, COFF")
+        }
+        break rule177
       }
-      {
-        iv, ok := readU16be(tb, off)
-        m1 = ok && (u64(iv) == 0x14c)
-        ml = 2
-      }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(4.s*512)\tleshort\t\t0x014c \\b, COFF")
-        gof = off + ml
-        out = append(out, "\\b, COFF")
-      }
-      break
-    }
 
     if m1 {
       // >>(8.s*16)	string		go32stub for MS-DOS, DJGPP go32 DOS extender
-      for {
-        {
-          ra, ok := readU16be(tb, 0x8)
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x10
+      rule178:
+        for {
+          {
+            ra, ok := readU16be(tb, 0x8)
+            if !ok { break rule178 }
+            off = i64(ra)
+            off = off * 0x10
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\tgo32stub for MS-DOS, DJGPP go32 DOS extender")
+            gof = off + ml
+            out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
+          }
+          break rule178
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x67, 0x6f, 0x33, 0x32, 0x73, 0x74, 0x75, 0x62}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\tgo32stub for MS-DOS, DJGPP go32 DOS extender")
-          gof = off + ml
-          out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
-        }
-        break
-      }
 
       // >>(8.s*16)	string		emx
-      for {
-        {
-          ra, ok := readU16be(tb, 0x8)
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x10
+      rule179:
+        for {
+          {
+            ra, ok := readU16be(tb, 0x8)
+            if !ok { break rule179 }
+            off = i64(ra)
+            off = off * 0x10
+          }
+          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+          m2 = ml >= 0
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\temx")
+            gof = off + ml
+          }
+          break rule179
         }
-        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x65, 0x6d, 0x78}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-        m2 = ml >= 0
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\temx")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>&1		string		x for DOS, Win or OS/2, emx %s
@@ -14651,21 +14912,22 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       }
       m2 = false
       // >>&(&0x42.l-3)	byte		x
-      for {
-        {
-          ra, ok := readU32be(tb, (gof + 0x42))
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x3
-          off += gof
+      rule181:
+        for {
+          {
+            ra, ok := readU32be(tb, (gof + 0x42))
+            if !ok { break rule181 }
+            off = i64(ra)
+            off = off * 0x3
+            off += gof
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>&(&0x42.l-3)\tbyte\t\tx")
+            gof = off + ml
+          }
+          break rule181
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>&(&0x42.l-3)\tbyte\t\tx")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>&0x26	string		UPX \b, UPX compressed
@@ -14683,7 +14945,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       // >>&0x2c		search/0xa0	.text
       off = pageOff + gof + 0x2c
       ml = i64(wizardry.SearchTest(tb, int(off), 0xa0, ".text"))
-      if ml >= 0 { ml = ml + 0x5; m2 = true }
+      if ml >= 0 { ml += 0x5; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>&0x2c\t\tsearch/0xa0\t.text")
         gof = off + ml
@@ -14723,22 +14985,23 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     }
     m1 = false
     // >(8.s*16) string $WdX \b, WDos/X DOS extender
-    for {
-      {
-        ra, ok := readU16be(tb, 0x8)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x10
+    rule186:
+      for {
+        {
+          ra, ok := readU16be(tb, 0x8)
+          if !ok { break rule186 }
+          off = i64(ra)
+          off = off * 0x10
+        }
+        ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+        m1 = ml >= 0
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(8.s*16) string $WdX \\b, WDos/X DOS extender")
+          gof = off + ml
+          out = append(out, "\\b, WDos/X DOS extender")
+        }
+        break rule186
       }
-      ml = i64(wizardry.StringTest(tb, int(off), []byte{0x24, 0x57, 0x64, 0x58}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-      m1 = ml >= 0
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(8.s*16) string $WdX \\b, WDos/X DOS extender")
-        gof = off + ml
-        out = append(out, "\\b, WDos/X DOS extender")
-      }
-      break
-    }
 
     // >0x35	string	\x8e\xc0\xb9\x08\x00\xf3\xa5\x4a\x75\xeb\x8e\xc3\x8e\xd8\x33\xff\xbe\x30\x00\x05 \b, aPack compressed
     off = pageOff + 0x35
@@ -14853,7 +15116,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >0x20	search/0xe0	aRJsfX \b, ARJ self-extracting archive
     off = pageOff + 0x20
     ml = i64(wizardry.SearchTest(tb, int(off), 0xe0, "aRJsfX"))
-    if ml >= 0 { ml = ml + 0x6; m1 = true }
+    if ml >= 0 { ml += 0x6; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x20\tsearch/0xe0\taRJsfX \\b, ARJ self-extracting archive")
       gof = off + ml
@@ -14986,7 +15249,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       // >>&0xf4 search/0x140 \x0\x40\x1\x0
       off = pageOff + gof + 0xf4
       ml = i64(wizardry.SearchTest(tb, int(off), 0x140, "\x00@\x01\x00"))
-      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if ml >= 0 { ml += 0x4; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>&0xf4 search/0x140 \\x0\\x40\\x1\\x0")
         gof = off + ml
@@ -14994,23 +15257,25 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
       if m2 {
         // >>>(&0.l+(4)) string MSCF \b, WinHKI CAB self-extracting archive
-        for {
-          {
-            ra, ok := readU32be(tb, (gof + 0x0))
-            if !ok { break }
-            rb, ok := readU32be(tb, (gof + 0x0) + 0x4)
-            off = i64(ra)
-            off = off + i64(rb)
+        rule212:
+          for {
+            {
+              ra, ok := readU32be(tb, (gof + 0x0))
+              if !ok { break rule212 }
+              rb, ok := readU32be(tb, (gof + 0x0) + 0x4)
+              if !ok { break rule212 }
+              off = i64(ra)
+              off = off + i64(rb)
+            }
+            ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
+            m3 = ml >= 0
+            if m3 {
+              fmt.Printf("matched rule: %s\n", ">>>(&0.l+(4)) string MSCF \\b, WinHKI CAB self-extracting archive")
+              gof = off + ml
+              out = append(out, "\\b, WinHKI CAB self-extracting archive")
+            }
+            break rule212
           }
-          ml = i64(wizardry.StringTest(tb, int(off), []byte{0x4d, 0x53, 0x43, 0x46}, wizardry.StringTestFlags{CompactWhitespace:false, OptionalBlanks:false, LowerMatchesBoth:false, UpperMatchesBoth:false, ForceText:false, ForceBinary:false}))
-          m3 = ml >= 0
-          if m3 {
-            fmt.Printf("matched rule: %s\n", ">>>(&0.l+(4)) string MSCF \\b, WinHKI CAB self-extracting archive")
-            gof = off + ml
-            out = append(out, "\\b, WinHKI CAB self-extracting archive")
-          }
-          break
-        }
 
       }
       m2 = false
@@ -15037,38 +15302,40 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     }
 
     // >(4.s*512)	long	x
-    for {
-      {
-        ra, ok := readU16be(tb, 0x4)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x200
+    rule215:
+      for {
+        {
+          ra, ok := readU16be(tb, 0x4)
+          if !ok { break rule215 }
+          off = i64(ra)
+          off = off * 0x200
+        }
+        ml = 4
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(4.s*512)\tlong\tx")
+          gof = off + ml
+        }
+        break rule215
       }
-      ml = 4
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(4.s*512)\tlong\tx")
-        gof = off + ml
-      }
-      break
-    }
 
     if m1 {
       // >>&(2.s-517)	byte	x
-      for {
-        {
-          ra, ok := readU16be(tb, 0x2)
-          if !ok { break }
-          off = i64(ra)
-          off = off * 0x205
-          off += gof
+      rule216:
+        for {
+          {
+            ra, ok := readU16be(tb, 0x2)
+            if !ok { break rule216 }
+            off = i64(ra)
+            off = off * 0x205
+            off += gof
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>&(2.s-517)\tbyte\tx")
+            gof = off + ml
+          }
+          break rule216
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>&(2.s-517)\tbyte\tx")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>&0	string		PK\3\4 \b, ZIP self-extracting archive
@@ -15134,7 +15401,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // >>>&7	search/400	**ACE** \b, ACE self-extracting archive
         off = pageOff + gof + 0x7
         ml = i64(wizardry.SearchTest(tb, int(off), 0x190, "**ACE**"))
-        if ml >= 0 { ml = ml + 0x7; m3 = true }
+        if ml >= 0 { ml += 0x7; m3 = true }
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&7\tsearch/400\t**ACE** \\b, ACE self-extracting archive")
           gof = off + ml
@@ -15144,7 +15411,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // >>>&0	search/0x480	UC2SFX\ Header \b, UC2 self-extracting archive
         off = pageOff + gof + 0x0
         ml = i64(wizardry.SearchTest(tb, int(off), 0x480, "UC2SFX Header"))
-        if ml >= 0 { ml = ml + 0xd; m3 = true }
+        if ml >= 0 { ml += 0xd; m3 = true }
         if m3 {
           fmt.Printf("matched rule: %s\n", ">>>&0\tsearch/0x480\tUC2SFX\\ Header \\b, UC2 self-extracting archive")
           gof = off + ml
@@ -15156,22 +15423,23 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     }
     m1 = false
     // >(8.s*16)	search/0x20	PKSFX \b, ZIP self-extracting archive (PKZIP)
-    for {
-      {
-        ra, ok := readU16be(tb, 0x8)
-        if !ok { break }
-        off = i64(ra)
-        off = off * 0x10
+    rule225:
+      for {
+        {
+          ra, ok := readU16be(tb, 0x8)
+          if !ok { break rule225 }
+          off = i64(ra)
+          off = off * 0x10
+        }
+        ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "PKSFX"))
+        if ml >= 0 { ml += 0x5; m1 = true }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
+          gof = off + ml
+          out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+        }
+        break rule225
       }
-      ml = i64(wizardry.SearchTest(tb, int(off), 0x20, "PKSFX"))
-      if ml >= 0 { ml = ml + 0x5; m1 = true }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
-        gof = off + ml
-        out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
-      }
-      break
-    }
 
     // >49801	string	\x79\xff\x80\xff\x76\xff	\b, CODEC archive v3.21
     off = pageOff + 0xc289
@@ -15260,7 +15528,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
       // >>7	search/254	\xff		\b, info=
       off = pageOff + 0x7
       ml = i64(wizardry.SearchTest(tb, int(off), 0xfe, "\xff"))
-      if ml >= 0 { ml = ml + 0x1; m2 = true }
+      if ml >= 0 { ml += 0x1; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>7\tsearch/254\t\\xff\t\t\\b, info=")
         gof = off + ml
@@ -15590,20 +15858,21 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(1.b+2)   byte    x
-      for {
-        {
-          ra, ok := readU8be(tb, 0x1)
-          if !ok { break }
-          off = i64(ra)
-          off = off + 0x2
+      rule263:
+        for {
+          {
+            ra, ok := readU8be(tb, 0x1)
+            if !ok { break rule263 }
+            off = i64(ra)
+            off = off + 0x2
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(1.b+2)   byte    x")
+            gof = off + ml
+          }
+          break rule263
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(1.b+2)   byte    x")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>0        use msdos-com
@@ -15643,20 +15912,21 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(1.s+3)   byte    x
-      for {
-        {
-          ra, ok := readU16be(tb, 0x1)
-          if !ok { break }
-          off = i64(ra)
-          off = off + 0x3
+      rule267:
+        for {
+          {
+            ra, ok := readU16be(tb, 0x1)
+            if !ok { break rule267 }
+            off = i64(ra)
+            off = off + 0x3
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(1.s+3)   byte    x")
+            gof = off + ml
+          }
+          break rule267
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(1.s+3)   byte    x")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>0        use msdos-com
@@ -15681,20 +15951,21 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
 
     if m1 {
       // >>(1,s+65539)   byte    x
-      for {
-        {
-          ra, ok := readU16be(tb, 0x1)
-          if !ok { break }
-          off = i64(ra)
-          off = off + 0x10003
+      rule270:
+        for {
+          {
+            ra, ok := readU16be(tb, 0x1)
+            if !ok { break rule270 }
+            off = i64(ra)
+            off = off + 0x10003
+          }
+          ml = 1
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(1,s+65539)   byte    x")
+            gof = off + ml
+          }
+          break rule270
         }
-        ml = 1
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(1,s+65539)   byte    x")
-          gof = off + ml
-        }
-        break
-      }
 
       if m2 {
         // >>>0        use msdos-com
@@ -15974,7 +16245,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
   // 0x6	search/0xa	\xfc\x57\xf3\xa5\xc3	COM executable for MS-DOS
   off = pageOff + 0x6
   ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa5\xc3"))
-  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if ml >= 0 { ml += 0x5; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa5\\xc3\tCOM executable for MS-DOS")
     gof = off + ml
@@ -15984,7 +16255,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
   // 0x6	search/0xa	\xfc\x57\xf3\xa4\xc3	COM executable for DOS
   off = pageOff + 0x6
   ml = i64(wizardry.SearchTest(tb, int(off), 0xa, "\xfcW\xf3\xa4\xc3"))
-  if ml >= 0 { ml = ml + 0x5; m0 = true }
+  if ml >= 0 { ml += 0x5; m0 = true }
   if m0 {
     fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa4\\xc3\tCOM executable for DOS")
     gof = off + ml
@@ -15995,7 +16266,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >0x18	search/0x10	\x50\xa4\xff\xd5\x73	\b, aPack compressed
     off = pageOff + 0x18
     ml = i64(wizardry.SearchTest(tb, int(off), 0x10, "P\xa4\xff\xd5s"))
-    if ml >= 0 { ml = ml + 0x5; m1 = true }
+    if ml >= 0 { ml += 0x5; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x18\tsearch/0x10\t\\x50\\xa4\\xff\\xd5\\x73\t\\b, aPack compressed")
       gof = off + ml
@@ -16603,7 +16874,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
           // >>>>30	search/29	\0\xAE
           off = pageOff + 0x1e
           ml = i64(wizardry.SearchTest(tb, int(off), 0x1d, "\x00\xae"))
-          if ml >= 0 { ml = ml + 0x2; m4 = true }
+          if ml >= 0 { ml += 0x2; m4 = true }
           if m4 {
             fmt.Printf("matched rule: %s\n", ">>>>30\tsearch/29\t\\0\\xAE")
             gof = off + ml
@@ -16886,16 +17157,17 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
         // uh oh unhandled kind
 
         // >>>(8.s+10)	use	lotus-cells
-        for {
-          {
-            ra, ok := readU16be(tb, 0x8)
-            if !ok { break }
-            off = i64(ra)
-            off = off + 0xa
+        rule373:
+          for {
+            {
+              ra, ok := readU16be(tb, 0x8)
+              if !ok { break rule373 }
+              off = i64(ra)
+              off = off + 0xa
+            }
+            // uh oh unhandled kind
+            break rule373
           }
-          // uh oh unhandled kind
-          break
-        }
 
       }
       m2 = false
@@ -17555,7 +17827,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	WINDOWS\ VMM\ 4.0\0
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS VMM 4.0\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ VMM\\ 4.0\\0")
       gof = off + ml
@@ -17672,7 +17944,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	WINDOWS\ NT\ \ 3.1\0	\b, Windows NT-style
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "WINDOWS NT  3.1\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ NT\\ \\ 3.1\\0\t\\b, Windows NT-style")
       gof = off + ml
@@ -17682,7 +17954,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	CONFIG\ \ SYS\ 4.0\0	\b +CONFIG.SYS
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "CONFIG  SYS 4.0\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tCONFIG\\ \\ SYS\\ 4.0\\0\t\\b +CONFIG.SYS")
       gof = off + ml
@@ -17692,7 +17964,7 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >0x187	search/0xB55	AUTOEXECBAT\ 4.0\0	\b +AUTOEXEC.BAT
     off = pageOff + 0x187
     ml = i64(wizardry.SearchTest(tb, int(off), 0xb55, "AUTOEXECBAT 4.0\x00"))
-    if ml >= 0 { ml = ml + 0x10; m1 = true }
+    if ml >= 0 { ml += 0x10; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tAUTOEXECBAT\\ 4.0\\0\t\\b +AUTOEXEC.BAT")
       gof = off + ml
@@ -18023,21 +18295,22 @@ func Identify__Swapped(tb []byte, pageOff i64) ([]string, error) {
     }
 
     // >(12.l+40)	lelong	x		%u files
-    for {
-      {
-        ra, ok := readU32be(tb, 0xc)
-        if !ok { break }
-        off = i64(ra)
-        off = off + 0x28
+    rule472:
+      for {
+        {
+          ra, ok := readU32be(tb, 0xc)
+          if !ok { break rule472 }
+          off = i64(ra)
+          off = off + 0x28
+        }
+        ml = 4
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(12.l+40)\tlelong\tx\t\t%u files")
+          gof = off + ml
+          out = append(out, "%u files")
+        }
+        break rule472
       }
-      ml = 4
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(12.l+40)\tlelong\tx\t\t%u files")
-        gof = off + ml
-        out = append(out, "%u files")
-      }
-      break
-    }
 
   }
   m0 = false
@@ -18821,20 +19094,21 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pageOff i64) ([]string, error) {
   if m0 {
     if m1 {
       // >>(18.l)	ulelong		x		MS Windows
-      for {
-        {
-          ra, ok := readU32be(tb, 0x12)
-          if !ok { break }
-          off = i64(ra)
+      rule1:
+        for {
+          {
+            ra, ok := readU32be(tb, 0x12)
+            if !ok { break rule1 }
+            off = i64(ra)
+          }
+          ml = 4
+          if m2 {
+            fmt.Printf("matched rule: %s\n", ">>(18.l)\tulelong\t\tx\t\tMS Windows")
+            gof = off + ml
+            out = append(out, "MS Windows")
+          }
+          break rule1
         }
-        ml = 4
-        if m2 {
-          fmt.Printf("matched rule: %s\n", ">>(18.l)\tulelong\t\tx\t\tMS Windows")
-          gof = off + ml
-          out = append(out, "MS Windows")
-        }
-        break
-      }
 
       if m2 {
         // >>>0		ubelong		0x00000100	icon resource
@@ -19023,42 +19297,44 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pageOff i64) ([]string, error) {
     }
 
     // >(12.l)		ubelong		=0x89504e47
-    for {
-      {
-        ra, ok := readU32be(tb, 0xc)
-        if !ok { break }
-        off = i64(ra)
+    rule6:
+      for {
+        {
+          ra, ok := readU32be(tb, 0xc)
+          if !ok { break rule6 }
+          off = i64(ra)
+        }
+        {
+          iv, ok := readU32le(tb, off)
+          m1 = ok && (u64(iv) == 0x89504e47)
+          ml = 4
+        }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t=0x89504e47")
+          gof = off + ml
+        }
+        break rule6
       }
-      {
-        iv, ok := readU32le(tb, off)
-        m1 = ok && (u64(iv) == 0x89504e47)
-        ml = 4
-      }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t=0x89504e47")
-        gof = off + ml
-      }
-      break
-    }
 
     // >(12.l)		ubelong		!0x89504e47
-    for {
-      {
-        ra, ok := readU32be(tb, 0xc)
-        if !ok { break }
-        off = i64(ra)
+    rule7:
+      for {
+        {
+          ra, ok := readU32be(tb, 0xc)
+          if !ok { break rule7 }
+          off = i64(ra)
+        }
+        {
+          iv, ok := readU32le(tb, off)
+          m1 = ok && (u64(iv) != 0x89504e47)
+          ml = 4
+        }
+        if m1 {
+          fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t!0x89504e47")
+          gof = off + ml
+        }
+        break rule7
       }
-      {
-        iv, ok := readU32le(tb, off)
-        m1 = ok && (u64(iv) != 0x89504e47)
-        ml = 4
-      }
-      if m1 {
-        fmt.Printf("matched rule: %s\n", ">(12.l)\t\tubelong\t\t!0x89504e47")
-        gof = off + ml
-      }
-      break
-    }
 
   }
   return out, nil
@@ -22389,7 +22665,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff i64) ([]string, error) {
     // >40	search/7			UPX!			\bUPX compressed
     off = pageOff + 0x28
     ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
-    if ml >= 0 { ml = ml + 0x4; m1 = true }
+    if ml >= 0 { ml += 0x4; m1 = true }
     if m1 {
       fmt.Printf("matched rule: %s\n", ">40\tsearch/7\t\t\tUPX!\t\t\t\\bUPX compressed")
       gof = off + ml
@@ -22531,7 +22807,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pageOff i64) ([]string, error) {
       // >>40	search/7			UPX!
       off = pageOff + 0x28
       ml = i64(wizardry.SearchTest(tb, int(off), 0x7, "UPX!"))
-      if ml >= 0 { ml = ml + 0x4; m2 = true }
+      if ml >= 0 { ml += 0x4; m2 = true }
       if m2 {
         fmt.Printf("matched rule: %s\n", ">>40\tsearch/7\t\t\tUPX!")
         gof = off + ml
