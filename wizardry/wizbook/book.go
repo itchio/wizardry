@@ -95,6 +95,9 @@ func Identify(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	belong		0xcafebabe
   off = pof + 0
   ra, ok = f4b(tb, off)
@@ -107,18 +110,18 @@ func Identify(tb []byte, pof i8) ([]string, error) {
   if !(ok && (i8(i4(ra)) > 30)) { goto f1 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tbelong\t\t>30\t\tcompiled Java class data,")
-  out = append(out, "compiled Java class data,")
+  m("compiled Java class data,")
   // >>6	beshort		x	        version %d.
   off = pof + 6
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>6\tbeshort\t\tx\t        version %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s1
   // >>4	beshort		x       	\b%d
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tbeshort\t\tx       \t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s1
   // >>4	belong		0x002e		(Java 1.2)
   off = pof + 4
@@ -126,7 +129,7 @@ func Identify(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 46)) { goto f4 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x002e\t\t(Java 1.2)")
-  out = append(out, "(Java 1.2)")
+  m("(Java 1.2)")
   goto s1
 f4:
   // >>4	belong		0x002f		(Java 1.3)
@@ -135,7 +138,7 @@ f4:
   if !(ok && (ra == 47)) { goto f5 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x002f\t\t(Java 1.3)")
-  out = append(out, "(Java 1.3)")
+  m("(Java 1.3)")
   goto s1
 f5:
   // >>4	belong		0x0030		(Java 1.4)
@@ -144,7 +147,7 @@ f5:
   if !(ok && (ra == 48)) { goto f6 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x0030\t\t(Java 1.4)")
-  out = append(out, "(Java 1.4)")
+  m("(Java 1.4)")
   goto s1
 f6:
   // >>4	belong		0x0031		(Java 1.5)
@@ -153,7 +156,7 @@ f6:
   if !(ok && (ra == 49)) { goto f7 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x0031\t\t(Java 1.5)")
-  out = append(out, "(Java 1.5)")
+  m("(Java 1.5)")
   goto s1
 f7:
   // >>4	belong		0x0032		(Java 1.6)
@@ -162,7 +165,7 @@ f7:
   if !(ok && (ra == 50)) { goto f8 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x0032\t\t(Java 1.6)")
-  out = append(out, "(Java 1.6)")
+  m("(Java 1.6)")
   goto s1
 f8:
 s1:
@@ -177,18 +180,18 @@ f0:
   if !(ok && (ra == 3405697037)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t\t0xcafed00d\tJAR compressed with pack200,")
-  out = append(out, "JAR compressed with pack200,")
+  m("JAR compressed with pack200,")
   // >5	byte		x		version %d.
   off = pof + 5
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\tx\t\tversion %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s9
   // >4	byte		x		\b%d
   off = pof + 4
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\tx\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s9
 s9:
   goto end
@@ -199,18 +202,18 @@ f9:
   if !(ok && (ra == 3405697037)) { goto f12 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t\t0xcafed00d\tJAR compressed with pack200,")
-  out = append(out, "JAR compressed with pack200,")
+  m("JAR compressed with pack200,")
   // >5	byte		x		version %d.
   off = pof + 5
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\tx\t\tversion %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s12
   // >4	byte		x		\b%d
   off = pof + 4
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\tx\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s12
 s12:
   goto end
@@ -227,15 +230,15 @@ f12:
   if !(ok && (ra == 1)) { goto f16 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tbelong\t\t1\t\tMach-O universal binary with 1 architecture:")
-  out = append(out, "Mach-O universal binary with 1 architecture:")
+  m("Mach-O universal binary with 1 architecture:")
   // >>8	use		mach-o		\b
   off = pof + 8
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>8\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s16
 s16:
   goto s15
@@ -252,24 +255,24 @@ f16:
   if !(ok && (i8(i4(ra)) < 20)) { goto f19 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t<20\t\tMach-O universal binary with %ld architectures:")
-  out = append(out, "Mach-O universal binary with %ld architectures:")
+  m("Mach-O universal binary with %ld architectures:")
   // >>>8	use		mach-o		\b
   off = pof + 8
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>8\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s19
   // >>>28	use		mach-o		\b
   off = pof + 28
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>28\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s19
 s19:
   goto s18
@@ -284,10 +287,10 @@ f19:
   off = pof + 48
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>48\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s22
 s22:
   goto s18
@@ -302,10 +305,10 @@ f22:
   off = pof + 68
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>68\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s24
 s24:
   goto s18
@@ -324,7 +327,7 @@ f15:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/sh\t\tPOSIX shell script text executable")
-  out = append(out, "POSIX shell script text executable")
+  m("POSIX shell script text executable")
   goto end
 f26:
   // 0	string/wb	#!\ /bin/sh		POSIX shell script executable (binary data)
@@ -335,7 +338,7 @@ f26:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /bin/sh\t\tPOSIX shell script executable (binary data)")
-  out = append(out, "POSIX shell script executable (binary data)")
+  m("POSIX shell script executable (binary data)")
   goto end
 f27:
   // 0	string/wt	#!\ /bin/csh		C shell script text executable
@@ -346,7 +349,7 @@ f27:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/csh\t\tC shell script text executable")
-  out = append(out, "C shell script text executable")
+  m("C shell script text executable")
   goto end
 f28:
   // 0	string/wt	#!\ /bin/ksh		Korn shell script text executable
@@ -357,7 +360,7 @@ f28:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/ksh\t\tKorn shell script text executable")
-  out = append(out, "Korn shell script text executable")
+  m("Korn shell script text executable")
   goto end
 f29:
   // 0	string/wb	#!\ /bin/ksh		Korn shell script executable (binary data)
@@ -368,7 +371,7 @@ f29:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /bin/ksh\t\tKorn shell script executable (binary data)")
-  out = append(out, "Korn shell script executable (binary data)")
+  m("Korn shell script executable (binary data)")
   goto end
 f30:
   // 0	string/wt 	#!\ /bin/tcsh		Tenex C shell script text executable
@@ -379,7 +382,7 @@ f30:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt \t#!\\ /bin/tcsh\t\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f31:
   // 0	string/wt	#!\ /usr/bin/tcsh	Tenex C shell script text executable
@@ -390,7 +393,7 @@ f31:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/tcsh\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f32:
   // 0	string/wt 	#!\ /usr/local/tcsh	Tenex C shell script text executable
@@ -401,7 +404,7 @@ f32:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt \t#!\\ /usr/local/tcsh\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f33:
   // 0	string/wt	#!\ /usr/local/bin/tcsh	Tenex C shell script text executable
@@ -412,7 +415,7 @@ f33:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/tcsh\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f34:
   // 0	string/wt	#!\ /bin/zsh		Paul Falstad's zsh script text executable
@@ -423,7 +426,7 @@ f34:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/zsh\t\tPaul Falstad's zsh script text executable")
-  out = append(out, "Paul Falstad's zsh script text executable")
+  m("Paul Falstad's zsh script text executable")
   goto end
 f35:
   // 0	string/wt	#!\ /usr/bin/zsh	Paul Falstad's zsh script text executable
@@ -434,7 +437,7 @@ f35:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/zsh\tPaul Falstad's zsh script text executable")
-  out = append(out, "Paul Falstad's zsh script text executable")
+  m("Paul Falstad's zsh script text executable")
   goto end
 f36:
   // 0	string/wt	#!\ /usr/local/bin/zsh	Paul Falstad's zsh script text executable
@@ -445,7 +448,7 @@ f36:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/zsh\tPaul Falstad's zsh script text executable")
-  out = append(out, "Paul Falstad's zsh script text executable")
+  m("Paul Falstad's zsh script text executable")
   goto end
 f37:
   // 0	string/wt	#!\ /usr/local/bin/ash	Neil Brown's ash script text executable
@@ -456,7 +459,7 @@ f37:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/ash\tNeil Brown's ash script text executable")
-  out = append(out, "Neil Brown's ash script text executable")
+  m("Neil Brown's ash script text executable")
   goto end
 f38:
   // 0	string/wt	#!\ /usr/local/bin/ae	Neil Brown's ae script text executable
@@ -467,7 +470,7 @@ f38:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/ae\tNeil Brown's ae script text executable")
-  out = append(out, "Neil Brown's ae script text executable")
+  m("Neil Brown's ae script text executable")
   goto end
 f39:
   // 0	string/wt	#!\ /bin/nawk		new awk script text executable
@@ -478,7 +481,7 @@ f39:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/nawk\t\tnew awk script text executable")
-  out = append(out, "new awk script text executable")
+  m("new awk script text executable")
   goto end
 f40:
   // 0	string/wt	#!\ /usr/bin/nawk	new awk script text executable
@@ -489,7 +492,7 @@ f40:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/nawk\tnew awk script text executable")
-  out = append(out, "new awk script text executable")
+  m("new awk script text executable")
   goto end
 f41:
   // 0	string/wt	#!\ /usr/local/bin/nawk	new awk script text executable
@@ -500,7 +503,7 @@ f41:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/nawk\tnew awk script text executable")
-  out = append(out, "new awk script text executable")
+  m("new awk script text executable")
   goto end
 f42:
   // 0	string/wt	#!\ /bin/gawk		GNU awk script text executable
@@ -511,7 +514,7 @@ f42:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/gawk\t\tGNU awk script text executable")
-  out = append(out, "GNU awk script text executable")
+  m("GNU awk script text executable")
   goto end
 f43:
   // 0	string/wt	#!\ /usr/bin/gawk	GNU awk script text executable
@@ -522,7 +525,7 @@ f43:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/gawk\tGNU awk script text executable")
-  out = append(out, "GNU awk script text executable")
+  m("GNU awk script text executable")
   goto end
 f44:
   // 0	string/wt	#!\ /usr/local/bin/gawk	GNU awk script text executable
@@ -533,7 +536,7 @@ f44:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/gawk\tGNU awk script text executable")
-  out = append(out, "GNU awk script text executable")
+  m("GNU awk script text executable")
   goto end
 f45:
   // 0	string/wt	#!\ /bin/awk		awk script text executable
@@ -544,7 +547,7 @@ f45:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/awk\t\tawk script text executable")
-  out = append(out, "awk script text executable")
+  m("awk script text executable")
   goto end
 f46:
   // 0	string/wt	#!\ /usr/bin/awk	awk script text executable
@@ -555,7 +558,7 @@ f46:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/awk\tawk script text executable")
-  out = append(out, "awk script text executable")
+  m("awk script text executable")
   goto end
 f47:
   // 0	string/wt	#!\ /bin/rc	Plan 9 rc shell script text executable
@@ -566,7 +569,7 @@ f47:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/rc\tPlan 9 rc shell script text executable")
-  out = append(out, "Plan 9 rc shell script text executable")
+  m("Plan 9 rc shell script text executable")
   goto end
 f48:
   // 0	string/wt	#!\ /bin/bash	Bourne-Again shell script text executable
@@ -577,7 +580,7 @@ f48:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f49:
   // 0	string/wb	#!\ /bin/bash	Bourne-Again shell script executable (binary data)
@@ -588,7 +591,7 @@ f49:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /bin/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f50:
   // 0	string/wt	#!\ /usr/bin/bash	Bourne-Again shell script text executable
@@ -599,7 +602,7 @@ f50:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f51:
   // 0	string/wb	#!\ /usr/bin/bash	Bourne-Again shell script executable (binary data)
@@ -610,7 +613,7 @@ f51:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /usr/bin/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f52:
   // 0	string/wt	#!\ /usr/local/bash	Bourne-Again shell script text executable
@@ -621,7 +624,7 @@ f52:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f53:
   // 0	string/wb	#!\ /usr/local/bash	Bourne-Again shell script executable (binary data)
@@ -632,7 +635,7 @@ f53:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /usr/local/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f54:
   // 0	string/wt	#!\ /usr/local/bin/bash	Bourne-Again shell script text executable
@@ -643,7 +646,7 @@ f54:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f55:
   // 0	string/wb	#!\ /usr/local/bin/bash	Bourne-Again shell script executable (binary data)
@@ -654,7 +657,7 @@ f55:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /usr/local/bin/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f56:
   // 0	search/1/c	=<?php			PHP script text
@@ -665,7 +668,7 @@ f56:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1/c\t=<?php\t\t\tPHP script text")
-  out = append(out, "PHP script text")
+  m("PHP script text")
   goto end
 f57:
   // 0	search/1	=<?\n			PHP script text
@@ -676,7 +679,7 @@ f57:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1\t=<?\\n\t\t\tPHP script text")
-  out = append(out, "PHP script text")
+  m("PHP script text")
   goto end
 f58:
   // 0	search/1	=<?\r			PHP script text
@@ -687,7 +690,7 @@ f58:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1\t=<?\\r\t\t\tPHP script text")
-  out = append(out, "PHP script text")
+  m("PHP script text")
   goto end
 f59:
   // 0	search/1/w	#!\ /usr/local/bin/php	PHP script text executable
@@ -698,7 +701,7 @@ f59:
     gof = off + ml + 21
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1/w\t#!\\ /usr/local/bin/php\tPHP script text executable")
-  out = append(out, "PHP script text executable")
+  m("PHP script text executable")
   goto end
 f60:
   // 0	search/1/w	#!\ /usr/bin/php	PHP script text executable
@@ -709,7 +712,7 @@ f60:
     gof = off + ml + 15
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1/w\t#!\\ /usr/bin/php\tPHP script text executable")
-  out = append(out, "PHP script text executable")
+  m("PHP script text executable")
   goto end
 f61:
   // 0	string	=<?php\ /*\ Smarty\ version	Smarty compiled template
@@ -720,7 +723,7 @@ f61:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t=<?php\\ /*\\ Smarty\\ version\tSmarty compiled template")
-  out = append(out, "Smarty compiled template")
+  m("Smarty compiled template")
   goto end
 f62:
   // 0	string		Zend\x00		PHP script Zend Optimizer data
@@ -731,7 +734,7 @@ f62:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tZend\\x00\t\tPHP script Zend Optimizer data")
-  out = append(out, "PHP script Zend Optimizer data")
+  m("PHP script Zend Optimizer data")
   goto end
 f63:
   // 0	string/t	$!			DCL command file
@@ -742,7 +745,7 @@ f63:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/t\t$!\t\t\tDCL command file")
-  out = append(out, "DCL command file")
+  m("DCL command file")
   goto end
 f64:
   // 0	string		#!/usr/bin/pdmenu	Pdmenu configuration file text
@@ -753,7 +756,7 @@ f64:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t#!/usr/bin/pdmenu\tPdmenu configuration file text")
-  out = append(out, "Pdmenu configuration file text")
+  m("Pdmenu configuration file text")
   goto end
 f65:
   // 0	string		\177ELF		ELF
@@ -764,14 +767,14 @@ f65:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t\\177ELF\t\tELF")
-  out = append(out, "ELF")
+  m("ELF")
   // >4	byte		0		invalid class
   off = pof + 4
   ra, ok = f1l(tb, off)
   if !(ok && (ra == 0)) { goto f67 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\t0\t\tinvalid class")
-  out = append(out, "invalid class")
+  m("invalid class")
   goto s66
 f67:
   // >4	byte		1		32-bit
@@ -780,7 +783,7 @@ f67:
   if !(ok && (ra == 1)) { goto f68 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\t1\t\t32-bit")
-  out = append(out, "32-bit")
+  m("32-bit")
   goto s66
 f68:
   // >4	byte		2		64-bit
@@ -789,7 +792,7 @@ f68:
   if !(ok && (ra == 2)) { goto f69 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\t2\t\t64-bit")
-  out = append(out, "64-bit")
+  m("64-bit")
   goto s66
 f69:
   // >5	byte		0		invalid byte order
@@ -798,7 +801,7 @@ f69:
   if !(ok && (ra == 0)) { goto f70 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\t0\t\tinvalid byte order")
-  out = append(out, "invalid byte order")
+  m("invalid byte order")
   goto s66
 f70:
   // >5	byte		1		LSB
@@ -807,12 +810,12 @@ f70:
   if !(ok && (ra == 1)) { goto f71 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\t1\t\tLSB")
-  out = append(out, "LSB")
+  m("LSB")
   // >>0	use		elf-le
   off = pof + 0
   {
     ss, _ := IdentifyElfLe(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0\tuse\t\telf-le")
   goto s71
@@ -825,12 +828,12 @@ f71:
   if !(ok && (ra == 2)) { goto f73 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\t2\t\tMSB")
-  out = append(out, "MSB")
+  m("MSB")
   // >>0	use		\^elf-le
   off = pof + 0
   {
     ss, _ := IdentifyElfLe__Swapped(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0\tuse\t\t\\^elf-le")
   goto s73
@@ -851,7 +854,7 @@ f73:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>8\tstring\t\t>\\0\t\t(%s)")
-  out = append(out, "(%s)")
+  m("(%s)")
   goto s75
 f76:
 s75:
@@ -871,7 +874,7 @@ f75:
   if !(ok && (ra == 0)) { goto f78 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t0\t\t(SYSV)")
-  out = append(out, "(SYSV)")
+  m("(SYSV)")
   goto s77
 f78:
   // >>7	byte		1		(HP-UX)
@@ -880,7 +883,7 @@ f78:
   if !(ok && (ra == 1)) { goto f79 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t1\t\t(HP-UX)")
-  out = append(out, "(HP-UX)")
+  m("(HP-UX)")
   goto s77
 f79:
   // >>7	byte		2		(NetBSD)
@@ -889,7 +892,7 @@ f79:
   if !(ok && (ra == 2)) { goto f80 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t2\t\t(NetBSD)")
-  out = append(out, "(NetBSD)")
+  m("(NetBSD)")
   goto s77
 f80:
   // >>7	byte		3		(GNU/Linux)
@@ -898,7 +901,7 @@ f80:
   if !(ok && (ra == 3)) { goto f81 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t3\t\t(GNU/Linux)")
-  out = append(out, "(GNU/Linux)")
+  m("(GNU/Linux)")
   goto s77
 f81:
   // >>7	byte		4		(GNU/Hurd)
@@ -907,7 +910,7 @@ f81:
   if !(ok && (ra == 4)) { goto f82 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t4\t\t(GNU/Hurd)")
-  out = append(out, "(GNU/Hurd)")
+  m("(GNU/Hurd)")
   goto s77
 f82:
   // >>7	byte		5		(86Open)
@@ -916,7 +919,7 @@ f82:
   if !(ok && (ra == 5)) { goto f83 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t5\t\t(86Open)")
-  out = append(out, "(86Open)")
+  m("(86Open)")
   goto s77
 f83:
   // >>7	byte		6		(Solaris)
@@ -925,7 +928,7 @@ f83:
   if !(ok && (ra == 6)) { goto f84 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t6\t\t(Solaris)")
-  out = append(out, "(Solaris)")
+  m("(Solaris)")
   goto s77
 f84:
   // >>7	byte		7		(Monterey)
@@ -934,7 +937,7 @@ f84:
   if !(ok && (ra == 7)) { goto f85 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t7\t\t(Monterey)")
-  out = append(out, "(Monterey)")
+  m("(Monterey)")
   goto s77
 f85:
   // >>7	byte		8		(IRIX)
@@ -943,7 +946,7 @@ f85:
   if !(ok && (ra == 8)) { goto f86 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t8\t\t(IRIX)")
-  out = append(out, "(IRIX)")
+  m("(IRIX)")
   goto s77
 f86:
   // >>7	byte		9		(FreeBSD)
@@ -952,7 +955,7 @@ f86:
   if !(ok && (ra == 9)) { goto f87 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t9\t\t(FreeBSD)")
-  out = append(out, "(FreeBSD)")
+  m("(FreeBSD)")
   goto s77
 f87:
   // >>7	byte		10		(Tru64)
@@ -961,7 +964,7 @@ f87:
   if !(ok && (ra == 10)) { goto f88 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t10\t\t(Tru64)")
-  out = append(out, "(Tru64)")
+  m("(Tru64)")
   goto s77
 f88:
   // >>7	byte		11		(Novell Modesto)
@@ -970,7 +973,7 @@ f88:
   if !(ok && (ra == 11)) { goto f89 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t11\t\t(Novell Modesto)")
-  out = append(out, "(Novell Modesto)")
+  m("(Novell Modesto)")
   goto s77
 f89:
   // >>7	byte		12		(OpenBSD)
@@ -979,7 +982,7 @@ f89:
   if !(ok && (ra == 12)) { goto f90 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t12\t\t(OpenBSD)")
-  out = append(out, "(OpenBSD)")
+  m("(OpenBSD)")
   goto s77
 f90:
 s77:
@@ -999,7 +1002,7 @@ f77:
   if !(ok && (ra == 13)) { goto f92 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7     byte            13              (OpenVMS)")
-  out = append(out, "(OpenVMS)")
+  m("(OpenVMS)")
   goto s91
 f92:
   // >>7	byte		97		(ARM)
@@ -1008,7 +1011,7 @@ f92:
   if !(ok && (ra == 97)) { goto f93 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t97\t\t(ARM)")
-  out = append(out, "(ARM)")
+  m("(ARM)")
   goto s91
 f93:
   // >>7	byte		255		(embedded)
@@ -1017,7 +1020,7 @@ f93:
   if !(ok && (ra == 255)) { goto f94 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t255\t\t(embedded)")
-  out = append(out, "(embedded)")
+  m("(embedded)")
   goto s91
 f94:
 s91:
@@ -1032,12 +1035,12 @@ f66:
   if !(ok && (ra&4294967294 == 4277009102)) { goto f95 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tlelong&0xfffffffe\t0xfeedface\tMach-O")
-  out = append(out, "Mach-O")
+  m("Mach-O")
   // >0	use	\^mach-o-be
   off = pof + 0
   {
     ss, _ := IdentifyMachOBe__Swapped(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\\^mach-o-be")
   goto s95
@@ -1050,12 +1053,12 @@ f95:
   if !(ok && (ra&4294967294 == 4277009102)) { goto f97 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong&0xfffffffe\t0xfeedface\tMach-O")
-  out = append(out, "Mach-O")
+  m("Mach-O")
   // >0	use	mach-o-be
   off = pof + 0
   {
     ss, _ := IdentifyMachOBe(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\tmach-o-be")
   goto s97
@@ -1078,7 +1081,7 @@ f97:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\t\\ echo\\ off\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f100:
   // >1	string/cW	echo\ off	DOS batch file text
@@ -1089,7 +1092,7 @@ f100:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\techo\\ off\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f101:
   // >1	string/cW	rem		DOS batch file text
@@ -1100,7 +1103,7 @@ f101:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\trem\t\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f102:
   // >1	string/cW	set\ 		DOS batch file text
@@ -1111,7 +1114,7 @@ f102:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\tset\\ \t\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f103:
 s99:
@@ -1143,7 +1146,7 @@ f105:
   if !(ok && (ra == 358)) { goto f106 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x166\tMS Windows COFF MIPS R4000 object file")
-  out = append(out, "MS Windows COFF MIPS R4000 object file")
+  m("MS Windows COFF MIPS R4000 object file")
   goto end
 f106:
   // 0	leshort		0x184	MS Windows COFF Alpha object file
@@ -1152,7 +1155,7 @@ f106:
   if !(ok && (ra == 388)) { goto f107 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x184\tMS Windows COFF Alpha object file")
-  out = append(out, "MS Windows COFF Alpha object file")
+  m("MS Windows COFF Alpha object file")
   goto end
 f107:
   // 0	leshort		0x268	MS Windows COFF Motorola 68000 object file
@@ -1161,7 +1164,7 @@ f107:
   if !(ok && (ra == 616)) { goto f108 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x268\tMS Windows COFF Motorola 68000 object file")
-  out = append(out, "MS Windows COFF Motorola 68000 object file")
+  m("MS Windows COFF Motorola 68000 object file")
   goto end
 f108:
   // 0	leshort		0x1f0	MS Windows COFF PowerPC object file
@@ -1170,7 +1173,7 @@ f108:
   if !(ok && (ra == 496)) { goto f109 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x1f0\tMS Windows COFF PowerPC object file")
-  out = append(out, "MS Windows COFF PowerPC object file")
+  m("MS Windows COFF PowerPC object file")
   goto end
 f109:
   // 0	leshort		0x290	MS Windows COFF PA-RISC object file
@@ -1179,7 +1182,7 @@ f109:
   if !(ok && (ra == 656)) { goto f110 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x290\tMS Windows COFF PA-RISC object file")
-  out = append(out, "MS Windows COFF PA-RISC object file")
+  m("MS Windows COFF PA-RISC object file")
   goto end
 f110:
   // 0	string/b	MZ
@@ -1196,7 +1199,7 @@ f110:
   if !(ok && (i8(i2(ra)) < 64)) { goto f112 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">0x18\tleshort <0x40 MS-DOS executable")
-  out = append(out, "MS-DOS executable")
+  m("MS-DOS executable")
   goto s111
 f112:
   // >0x18  leshort >0x3f
@@ -1215,7 +1218,7 @@ f112:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string PE\\0\\0 PE")
-  out = append(out, "PE")
+  m("PE")
   // >>>(0x3c.l+24)	leshort		0x010b	\b32 executable
   ra, ok = f4l(tb, 60)
   if !ok { goto f115 }
@@ -1225,7 +1228,7 @@ f112:
   if !(ok && (ra == 267)) { goto f115 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b\t\\b32 executable")
-  out = append(out, "\\b32 executable")
+  m("\\b32 executable")
   goto s114
 f115:
   // >>>(0x3c.l+24)	leshort		0x020b	\b32+ executable
@@ -1237,7 +1240,7 @@ f115:
   if !(ok && (ra == 523)) { goto f116 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b\t\\b32+ executable")
-  out = append(out, "\\b32+ executable")
+  m("\\b32+ executable")
   goto s114
 f116:
   // >>>(0x3c.l+24)	leshort		0x0107	ROM image
@@ -1249,7 +1252,7 @@ f116:
   if !(ok && (ra == 263)) { goto f117 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x0107\tROM image")
-  out = append(out, "ROM image")
+  m("ROM image")
   goto s114
 f117:
   // >>>(0x3c.l+24)	default		x	Unknown PE signature
@@ -1260,12 +1263,12 @@ f117:
   // uh oh unhandled kind default
   goto f118
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tdefault\t\tx\tUnknown PE signature")
-  out = append(out, "Unknown PE signature")
+  m("Unknown PE signature")
   // >>>>&0 		leshort		x	0x%x
   off = pof + gof + 0
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>&0 \t\tleshort\t\tx\t0x%x")
-  out = append(out, "0x%x")
+  m("0x%x")
   goto s118
 s118:
   goto s114
@@ -1279,7 +1282,7 @@ f118:
   if !(ok && (i8(i2(ra))&8192 > 0)) { goto f120 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x2000\t>0\t(DLL)")
-  out = append(out, "(DLL)")
+  m("(DLL)")
   goto s114
 f120:
   // >>>(0x3c.l+92)	leshort		1	(native)
@@ -1291,7 +1294,7 @@ f120:
   if !(ok && (ra == 1)) { goto f121 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t1\t(native)")
-  out = append(out, "(native)")
+  m("(native)")
   goto s114
 f121:
   // >>>(0x3c.l+92)	leshort		2	(GUI)
@@ -1303,7 +1306,7 @@ f121:
   if !(ok && (ra == 2)) { goto f122 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t2\t(GUI)")
-  out = append(out, "(GUI)")
+  m("(GUI)")
   goto s114
 f122:
   // >>>(0x3c.l+92)	leshort		3	(console)
@@ -1315,7 +1318,7 @@ f122:
   if !(ok && (ra == 3)) { goto f123 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t3\t(console)")
-  out = append(out, "(console)")
+  m("(console)")
   goto s114
 f123:
   // >>>(0x3c.l+92)	leshort		7	(POSIX)
@@ -1327,7 +1330,7 @@ f123:
   if !(ok && (ra == 7)) { goto f124 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t7\t(POSIX)")
-  out = append(out, "(POSIX)")
+  m("(POSIX)")
   goto s114
 f124:
   // >>>(0x3c.l+92)	leshort		9	(Windows CE)
@@ -1339,7 +1342,7 @@ f124:
   if !(ok && (ra == 9)) { goto f125 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t9\t(Windows CE)")
-  out = append(out, "(Windows CE)")
+  m("(Windows CE)")
   goto s114
 f125:
   // >>>(0x3c.l+92)	leshort		10	(EFI application)
@@ -1351,7 +1354,7 @@ f125:
   if !(ok && (ra == 10)) { goto f126 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t10\t(EFI application)")
-  out = append(out, "(EFI application)")
+  m("(EFI application)")
   goto s114
 f126:
   // >>>(0x3c.l+92)	leshort		11	(EFI boot service driver)
@@ -1363,7 +1366,7 @@ f126:
   if !(ok && (ra == 11)) { goto f127 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t11\t(EFI boot service driver)")
-  out = append(out, "(EFI boot service driver)")
+  m("(EFI boot service driver)")
   goto s114
 f127:
   // >>>(0x3c.l+92)	leshort		12	(EFI runtime driver)
@@ -1375,7 +1378,7 @@ f127:
   if !(ok && (ra == 12)) { goto f128 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t12\t(EFI runtime driver)")
-  out = append(out, "(EFI runtime driver)")
+  m("(EFI runtime driver)")
   goto s114
 f128:
   // >>>(0x3c.l+92)	leshort		13	(EFI ROM)
@@ -1387,7 +1390,7 @@ f128:
   if !(ok && (ra == 13)) { goto f129 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t13\t(EFI ROM)")
-  out = append(out, "(EFI ROM)")
+  m("(EFI ROM)")
   goto s114
 f129:
   // >>>(0x3c.l+92)	leshort		14	(XBOX)
@@ -1399,7 +1402,7 @@ f129:
   if !(ok && (ra == 14)) { goto f130 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t14\t(XBOX)")
-  out = append(out, "(XBOX)")
+  m("(XBOX)")
   goto s114
 f130:
   // >>>(0x3c.l+92)	leshort		15	(Windows boot application)
@@ -1411,7 +1414,7 @@ f130:
   if !(ok && (ra == 15)) { goto f131 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t15\t(Windows boot application)")
-  out = append(out, "(Windows boot application)")
+  m("(Windows boot application)")
   goto s114
 f131:
   // >>>(0x3c.l+92)	default		x	(Unknown subsystem
@@ -1422,12 +1425,12 @@ f131:
   // uh oh unhandled kind default
   goto f132
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tdefault\t\tx\t(Unknown subsystem")
-  out = append(out, "(Unknown subsystem")
+  m("(Unknown subsystem")
   // >>>>&0		leshort		x	0x%x)
   off = pof + gof + 0
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>&0\t\tleshort\t\tx\t0x%x)")
-  out = append(out, "0x%x)")
+  m("0x%x)")
   goto s132
 s132:
   goto s114
@@ -1441,7 +1444,7 @@ f132:
   if !(ok && (ra == 332)) { goto f134 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x14c\tIntel 80386")
-  out = append(out, "Intel 80386")
+  m("Intel 80386")
   goto s114
 f134:
   // >>>(0x3c.l+4)	leshort		0x166	MIPS R4000
@@ -1453,7 +1456,7 @@ f134:
   if !(ok && (ra == 358)) { goto f135 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x166\tMIPS R4000")
-  out = append(out, "MIPS R4000")
+  m("MIPS R4000")
   goto s114
 f135:
   // >>>(0x3c.l+4)	leshort		0x168	MIPS R10000
@@ -1465,7 +1468,7 @@ f135:
   if !(ok && (ra == 360)) { goto f136 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x168\tMIPS R10000")
-  out = append(out, "MIPS R10000")
+  m("MIPS R10000")
   goto s114
 f136:
   // >>>(0x3c.l+4)	leshort		0x184	Alpha
@@ -1477,7 +1480,7 @@ f136:
   if !(ok && (ra == 388)) { goto f137 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x184\tAlpha")
-  out = append(out, "Alpha")
+  m("Alpha")
   goto s114
 f137:
   // >>>(0x3c.l+4)	leshort		0x1a2	Hitachi SH3
@@ -1489,7 +1492,7 @@ f137:
   if !(ok && (ra == 418)) { goto f138 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a2\tHitachi SH3")
-  out = append(out, "Hitachi SH3")
+  m("Hitachi SH3")
   goto s114
 f138:
   // >>>(0x3c.l+4)	leshort		0x1a6	Hitachi SH4
@@ -1501,7 +1504,7 @@ f138:
   if !(ok && (ra == 422)) { goto f139 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a6\tHitachi SH4")
-  out = append(out, "Hitachi SH4")
+  m("Hitachi SH4")
   goto s114
 f139:
   // >>>(0x3c.l+4)	leshort		0x1c0	ARM
@@ -1513,7 +1516,7 @@ f139:
   if !(ok && (ra == 448)) { goto f140 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c0\tARM")
-  out = append(out, "ARM")
+  m("ARM")
   goto s114
 f140:
   // >>>(0x3c.l+4)	leshort		0x1c2	ARM Thumb
@@ -1525,7 +1528,7 @@ f140:
   if !(ok && (ra == 450)) { goto f141 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c2\tARM Thumb")
-  out = append(out, "ARM Thumb")
+  m("ARM Thumb")
   goto s114
 f141:
   // >>>(0x3c.l+4)	leshort		0x1c4	ARMv7 Thumb
@@ -1537,7 +1540,7 @@ f141:
   if !(ok && (ra == 452)) { goto f142 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c4\tARMv7 Thumb")
-  out = append(out, "ARMv7 Thumb")
+  m("ARMv7 Thumb")
   goto s114
 f142:
   // >>>(0x3c.l+4)	leshort		0x1f0	PowerPC
@@ -1549,7 +1552,7 @@ f142:
   if !(ok && (ra == 496)) { goto f143 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1f0\tPowerPC")
-  out = append(out, "PowerPC")
+  m("PowerPC")
   goto s114
 f143:
   // >>>(0x3c.l+4)	leshort		0x200	Intel Itanium
@@ -1561,7 +1564,7 @@ f143:
   if !(ok && (ra == 512)) { goto f144 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x200\tIntel Itanium")
-  out = append(out, "Intel Itanium")
+  m("Intel Itanium")
   goto s114
 f144:
   // >>>(0x3c.l+4)	leshort		0x266	MIPS16
@@ -1573,7 +1576,7 @@ f144:
   if !(ok && (ra == 614)) { goto f145 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x266\tMIPS16")
-  out = append(out, "MIPS16")
+  m("MIPS16")
   goto s114
 f145:
   // >>>(0x3c.l+4)	leshort		0x268	Motorola 68000
@@ -1585,7 +1588,7 @@ f145:
   if !(ok && (ra == 616)) { goto f146 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x268\tMotorola 68000")
-  out = append(out, "Motorola 68000")
+  m("Motorola 68000")
   goto s114
 f146:
   // >>>(0x3c.l+4)	leshort		0x290	PA-RISC
@@ -1597,7 +1600,7 @@ f146:
   if !(ok && (ra == 656)) { goto f147 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x290\tPA-RISC")
-  out = append(out, "PA-RISC")
+  m("PA-RISC")
   goto s114
 f147:
   // >>>(0x3c.l+4)	leshort		0x366	MIPSIV
@@ -1609,7 +1612,7 @@ f147:
   if !(ok && (ra == 870)) { goto f148 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x366\tMIPSIV")
-  out = append(out, "MIPSIV")
+  m("MIPSIV")
   goto s114
 f148:
   // >>>(0x3c.l+4)	leshort		0x466	MIPS16 with FPU
@@ -1621,7 +1624,7 @@ f148:
   if !(ok && (ra == 1126)) { goto f149 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x466\tMIPS16 with FPU")
-  out = append(out, "MIPS16 with FPU")
+  m("MIPS16 with FPU")
   goto s114
 f149:
   // >>>(0x3c.l+4)	leshort		0xebc	EFI byte code
@@ -1633,7 +1636,7 @@ f149:
   if !(ok && (ra == 3772)) { goto f150 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xebc\tEFI byte code")
-  out = append(out, "EFI byte code")
+  m("EFI byte code")
   goto s114
 f150:
   // >>>(0x3c.l+4)	leshort		0x8664	x86-64
@@ -1645,7 +1648,7 @@ f150:
   if !(ok && (ra == 34404)) { goto f151 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x8664\tx86-64")
-  out = append(out, "x86-64")
+  m("x86-64")
   goto s114
 f151:
   // >>>(0x3c.l+4)	leshort		0xc0ee	MSIL
@@ -1657,7 +1660,7 @@ f151:
   if !(ok && (ra == 49390)) { goto f152 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xc0ee\tMSIL")
-  out = append(out, "MSIL")
+  m("MSIL")
   goto s114
 f152:
   // >>>(0x3c.l+4)	default		x	Unknown processor type
@@ -1668,12 +1671,12 @@ f152:
   // uh oh unhandled kind default
   goto f153
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tdefault\t\tx\tUnknown processor type")
-  out = append(out, "Unknown processor type")
+  m("Unknown processor type")
   // >>>>&0		leshort		x	0x%x
   off = pof + gof + 0
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>&0\t\tleshort\t\tx\t0x%x")
-  out = append(out, "0x%x")
+  m("0x%x")
   goto s153
 s153:
   goto s114
@@ -1687,7 +1690,7 @@ f153:
   if !(ok && (i8(i2(ra))&512 > 0)) { goto f155 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x0200\t>0\t(stripped to external PDB)")
-  out = append(out, "(stripped to external PDB)")
+  m("(stripped to external PDB)")
   goto s114
 f155:
   // >>>(0x3c.l+22)	leshort&0x1000	>0	system file
@@ -1699,7 +1702,7 @@ f155:
   if !(ok && (i8(i2(ra))&4096 > 0)) { goto f156 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x1000\t>0\tsystem file")
-  out = append(out, "system file")
+  m("system file")
   goto s114
 f156:
   // >>>(0x3c.l+24)	leshort		0x010b
@@ -1720,7 +1723,7 @@ f156:
   if !(ok && (i8(i4(ra)) > 0)) { goto f158 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+232) lelong\t>0\tMono/.Net assembly")
-  out = append(out, "Mono/.Net assembly")
+  m("Mono/.Net assembly")
   goto s157
 f158:
 s157:
@@ -1744,7 +1747,7 @@ f157:
   if !(ok && (i8(i4(ra)) > 0)) { goto f160 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+248) lelong\t>0\tMono/.Net assembly")
-  out = append(out, "Mono/.Net assembly")
+  m("Mono/.Net assembly")
   goto s159
 f160:
 s159:
@@ -1761,7 +1764,7 @@ f159:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t32STUB\t\\b, 32rtm DOS extender")
-  out = append(out, "\\b, 32rtm DOS extender")
+  m("\\b, 32rtm DOS extender")
   goto s114
 f161:
   // >>>(8.s*16)		string		!32STUB	\b, for MS Windows
@@ -1775,7 +1778,7 @@ f161:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t!32STUB\t\\b, for MS Windows")
-  out = append(out, "\\b, for MS Windows")
+  m("\\b, for MS Windows")
   goto s114
 f162:
   // >>>(0x3c.l+0xf8)	string		UPX0 \b, UPX compressed
@@ -1789,7 +1792,7 @@ f162:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tstring\t\tUPX0 \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s114
 f163:
   // >>>(0x3c.l+0xf8)	search/0x140	PEC2 \b, PECompact2 compressed
@@ -1803,7 +1806,7 @@ f163:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
-  out = append(out, "\\b, PECompact2 compressed")
+  m("\\b, PECompact2 compressed")
   goto s114
 f164:
   // >>>(0x3c.l+0xf8)	search/0x140	UPX2
@@ -1830,7 +1833,7 @@ f164:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x10.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-  out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+  m("\\b, ZIP self-extracting archive (Info-Zip)")
   goto s165
 f166:
 s165:
@@ -1860,7 +1863,7 @@ f165:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-  out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+  m("\\b, ZIP self-extracting archive (Info-Zip)")
   goto s167
 f168:
   // >>>>(&0xe.l+(-4))	string		ZZ0 \b, ZZip self-extracting archive
@@ -1876,7 +1879,7 @@ f168:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ0 \\b, ZZip self-extracting archive")
-  out = append(out, "\\b, ZZip self-extracting archive")
+  m("\\b, ZZip self-extracting archive")
   goto s167
 f169:
   // >>>>(&0xe.l+(-4))	string		ZZ1 \b, ZZip self-extracting archive
@@ -1892,7 +1895,7 @@ f169:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ1 \\b, ZZip self-extracting archive")
-  out = append(out, "\\b, ZZip self-extracting archive")
+  m("\\b, ZZip self-extracting archive")
   goto s167
 f170:
 s167:
@@ -1922,7 +1925,7 @@ f167:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\ta\\\\\\4\\5 \\b, WinHKI self-extracting archive")
-  out = append(out, "\\b, WinHKI self-extracting archive")
+  m("\\b, WinHKI self-extracting archive")
   goto s171
 f172:
   // >>>>(&0x0f.l+(-4))	string		Rar! \b, RAR self-extracting archive
@@ -1938,7 +1941,7 @@ f172:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\tRar! \\b, RAR self-extracting archive")
-  out = append(out, "\\b, RAR self-extracting archive")
+  m("\\b, RAR self-extracting archive")
   goto s171
 f173:
   // >>>>(&0x0f.l+(-4))	search/0x3000	MSCF \b, InstallShield self-extracting archive
@@ -1954,7 +1957,7 @@ f173:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
-  out = append(out, "\\b, InstallShield self-extracting archive")
+  m("\\b, InstallShield self-extracting archive")
   goto s171
 f174:
   // >>>>(&0x0f.l+(-4))	search/32	Nullsoft \b, Nullsoft Installer self-extracting archive
@@ -1970,7 +1973,7 @@ f174:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
-  out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+  m("\\b, Nullsoft Installer self-extracting archive")
   goto s171
 f175:
 s171:
@@ -1997,7 +2000,7 @@ f171:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l)\t\tstring\t\tWEXTRACT \\b, MS CAB-Installer self-extracting archive")
-  out = append(out, "\\b, MS CAB-Installer self-extracting archive")
+  m("\\b, MS CAB-Installer self-extracting archive")
   goto s176
 f177:
 s176:
@@ -2014,7 +2017,7 @@ f176:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
-  out = append(out, "\\b, Petite compressed")
+  m("\\b, Petite compressed")
   // >>>>(0x3c.l+0xf7)	byte		x
   ra, ok = f4l(tb, 60)
   if !ok { goto f179 }
@@ -2035,7 +2038,7 @@ f176:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.l+(-4))\tstring\t\t=!sfx! \\b, ACE self-extracting archive")
-  out = append(out, "\\b, ACE self-extracting archive")
+  m("\\b, ACE self-extracting archive")
   goto s179
 f180:
 s179:
@@ -2055,7 +2058,7 @@ f178:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
-  out = append(out, "\\b, WISE installer self-extracting archive")
+  m("\\b, WISE installer self-extracting archive")
   goto s114
 f181:
   // >>>(0x3c.l+0xf8)	search/0x140	.dz\0\0\0 \b, Dzip self-extracting archive
@@ -2069,7 +2072,7 @@ f181:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
-  out = append(out, "\\b, Dzip self-extracting archive")
+  m("\\b, Dzip self-extracting archive")
   goto s114
 f182:
   // >>>&(0x3c.l+0xf8)	search/0x100	_winzip_ \b, ZIP self-extracting archive (WinZip)
@@ -2084,7 +2087,7 @@ f182:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
-  out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+  m("\\b, ZIP self-extracting archive (WinZip)")
   goto s114
 f183:
   // >>>&(0x3c.l+0xf8)	search/0x100	SharedD \b, Microsoft Installer self-extracting archive
@@ -2099,7 +2102,7 @@ f183:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
-  out = append(out, "\\b, Microsoft Installer self-extracting archive")
+  m("\\b, Microsoft Installer self-extracting archive")
   goto s114
 f184:
   // >>>0x30			string		Inno \b, InnoSetup self-extracting archive
@@ -2110,7 +2113,7 @@ f184:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>0x30\t\t\tstring\t\tInno \\b, InnoSetup self-extracting archive")
-  out = append(out, "\\b, InnoSetup self-extracting archive")
+  m("\\b, InnoSetup self-extracting archive")
   goto s114
 f185:
 s114:
@@ -2126,7 +2129,7 @@ f114:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string !PE\\0\\0 MS-DOS executable")
-  out = append(out, "MS-DOS executable")
+  m("MS-DOS executable")
   goto s113
 f186:
   // >>(0x3c.l)		string		NE \b, NE
@@ -2139,7 +2142,7 @@ f186:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tNE \\b, NE")
-  out = append(out, "\\b, NE")
+  m("\\b, NE")
   // >>>(0x3c.l+0x36)	byte		1 for OS/2 1.x
   ra, ok = f4l(tb, 60)
   if !ok { goto f188 }
@@ -2149,7 +2152,7 @@ f186:
   if !(ok && (ra == 1)) { goto f188 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t1 for OS/2 1.x")
-  out = append(out, "for OS/2 1.x")
+  m("for OS/2 1.x")
   goto s187
 f188:
   // >>>(0x3c.l+0x36)	byte		2 for MS Windows 3.x
@@ -2161,7 +2164,7 @@ f188:
   if !(ok && (ra == 2)) { goto f189 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t2 for MS Windows 3.x")
-  out = append(out, "for MS Windows 3.x")
+  m("for MS Windows 3.x")
   goto s187
 f189:
   // >>>(0x3c.l+0x36)	byte		3 for MS-DOS
@@ -2173,7 +2176,7 @@ f189:
   if !(ok && (ra == 3)) { goto f190 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t3 for MS-DOS")
-  out = append(out, "for MS-DOS")
+  m("for MS-DOS")
   goto s187
 f190:
   // >>>(0x3c.l+0x36)	byte		4 for Windows 386
@@ -2185,7 +2188,7 @@ f190:
   if !(ok && (ra == 4)) { goto f191 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t4 for Windows 386")
-  out = append(out, "for Windows 386")
+  m("for Windows 386")
   goto s187
 f191:
   // >>>(0x3c.l+0x36)	byte		5 for Borland Operating System Services
@@ -2197,7 +2200,7 @@ f191:
   if !(ok && (ra == 5)) { goto f192 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t5 for Borland Operating System Services")
-  out = append(out, "for Borland Operating System Services")
+  m("for Borland Operating System Services")
   goto s187
 f192:
   // >>>(0x3c.l+0x36)	default		x
@@ -2215,7 +2218,7 @@ f192:
   off = off + 54
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0x36)\tbyte\t\tx (unknown OS %x)")
-  out = append(out, "(unknown OS %x)")
+  m("(unknown OS %x)")
   goto s193
 f194:
 s193:
@@ -2230,7 +2233,7 @@ f193:
   if !(ok && (ra == 129)) { goto f195 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t0x81 for MS-DOS, Phar Lap DOS extender")
-  out = append(out, "for MS-DOS, Phar Lap DOS extender")
+  m("for MS-DOS, Phar Lap DOS extender")
   goto s187
 f195:
   // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8002 (DLL)
@@ -2242,7 +2245,7 @@ f195:
   if !(ok && (ra&32771 == 32770)) { goto f196 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8002 (DLL)")
-  out = append(out, "(DLL)")
+  m("(DLL)")
   goto s187
 f196:
   // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8001 (driver)
@@ -2254,7 +2257,7 @@ f196:
   if !(ok && (ra&32771 == 32769)) { goto f197 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8001 (driver)")
-  out = append(out, "(driver)")
+  m("(driver)")
   goto s187
 f197:
   // >>>&(&0x24.s-1)		string		ARJSFX \b, ARJ self-extracting archive
@@ -2269,7 +2272,7 @@ f197:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&(&0x24.s-1)\t\tstring\t\tARJSFX \\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s187
 f198:
   // >>>(0x3c.l+0x70)	search/0x80	WinZip(R)\ Self-Extractor \b, ZIP self-extracting archive (WinZip)
@@ -2283,7 +2286,7 @@ f198:
     gof = off + ml + 24
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
-  out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+  m("\\b, ZIP self-extracting archive (WinZip)")
   goto s187
 f199:
 s187:
@@ -2299,7 +2302,7 @@ f187:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLX\\0\\0 \\b, LX")
-  out = append(out, "\\b, LX")
+  m("\\b, LX")
   // >>>(0x3c.l+0x0a)	leshort		<1 (unknown OS)
   ra, ok = f4l(tb, 60)
   if !ok { goto f201 }
@@ -2309,7 +2312,7 @@ f187:
   if !(ok && (i8(i2(ra)) < 1)) { goto f201 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t<1 (unknown OS)")
-  out = append(out, "(unknown OS)")
+  m("(unknown OS)")
   goto s200
 f201:
   // >>>(0x3c.l+0x0a)	leshort		1 for OS/2
@@ -2321,7 +2324,7 @@ f201:
   if !(ok && (ra == 1)) { goto f202 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1 for OS/2")
-  out = append(out, "for OS/2")
+  m("for OS/2")
   goto s200
 f202:
   // >>>(0x3c.l+0x0a)	leshort		2 for MS Windows
@@ -2333,7 +2336,7 @@ f202:
   if !(ok && (ra == 2)) { goto f203 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-  out = append(out, "for MS Windows")
+  m("for MS Windows")
   goto s200
 f203:
   // >>>(0x3c.l+0x0a)	leshort		3 for DOS
@@ -2345,7 +2348,7 @@ f203:
   if !(ok && (ra == 3)) { goto f204 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-  out = append(out, "for DOS")
+  m("for DOS")
   goto s200
 f204:
   // >>>(0x3c.l+0x0a)	leshort		>3 (unknown OS)
@@ -2357,7 +2360,7 @@ f204:
   if !(ok && (i8(i2(ra)) > 3)) { goto f205 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t>3 (unknown OS)")
-  out = append(out, "(unknown OS)")
+  m("(unknown OS)")
   goto s200
 f205:
   // >>>(0x3c.l+0x10)	lelong&0x28000	=0x8000 (DLL)
@@ -2369,7 +2372,7 @@ f205:
   if !(ok && (ra&163840 == 32768)) { goto f206 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28000\t=0x8000 (DLL)")
-  out = append(out, "(DLL)")
+  m("(DLL)")
   goto s200
 f206:
   // >>>(0x3c.l+0x10)	lelong&0x20000	>0 (device driver)
@@ -2381,7 +2384,7 @@ f206:
   if !(ok && (i8(i4(ra))&131072 > 0)) { goto f207 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x20000\t>0 (device driver)")
-  out = append(out, "(device driver)")
+  m("(device driver)")
   goto s200
 f207:
   // >>>(0x3c.l+0x10)	lelong&0x300	0x300 (GUI)
@@ -2393,7 +2396,7 @@ f207:
   if !(ok && (ra&768 == 768)) { goto f208 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x300\t0x300 (GUI)")
-  out = append(out, "(GUI)")
+  m("(GUI)")
   goto s200
 f208:
   // >>>(0x3c.l+0x10)	lelong&0x28300	<0x300 (console)
@@ -2405,7 +2408,7 @@ f208:
   if !(ok && (i8(i4(ra))&164608 < 768)) { goto f209 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28300\t<0x300 (console)")
-  out = append(out, "(console)")
+  m("(console)")
   goto s200
 f209:
   // >>>(0x3c.l+0x08)	leshort		1 i80286
@@ -2417,7 +2420,7 @@ f209:
   if !(ok && (ra == 1)) { goto f210 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t1 i80286")
-  out = append(out, "i80286")
+  m("i80286")
   goto s200
 f210:
   // >>>(0x3c.l+0x08)	leshort		2 i80386
@@ -2429,7 +2432,7 @@ f210:
   if !(ok && (ra == 2)) { goto f211 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t2 i80386")
-  out = append(out, "i80386")
+  m("i80386")
   goto s200
 f211:
   // >>>(0x3c.l+0x08)	leshort		3 i80486
@@ -2441,7 +2444,7 @@ f211:
   if !(ok && (ra == 3)) { goto f212 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t3 i80486")
-  out = append(out, "i80486")
+  m("i80486")
   goto s200
 f212:
   // >>>(8.s*16)		string		emx \b, emx
@@ -2455,7 +2458,7 @@ f212:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\temx \\b, emx")
-  out = append(out, "\\b, emx")
+  m("\\b, emx")
   // >>>>&1			string		x %s
   off = pof + gof + 1
   {
@@ -2464,7 +2467,7 @@ f212:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>&1\t\t\tstring\t\tx %s")
-  out = append(out, "%s")
+  m("%s")
   goto s213
 f214:
 s213:
@@ -2482,7 +2485,7 @@ f213:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tarjsfx \\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s200
 f215:
 s200:
@@ -2498,7 +2501,7 @@ f200:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tW3 \\b, W3 for MS Windows")
-  out = append(out, "\\b, W3 for MS Windows")
+  m("\\b, W3 for MS Windows")
   goto s113
 f216:
   // >>(0x3c.l)		string		LE\0\0 \b, LE executable
@@ -2511,7 +2514,7 @@ f216:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLE\\0\\0 \\b, LE executable")
-  out = append(out, "\\b, LE executable")
+  m("\\b, LE executable")
   // >>>(0x3c.l+0x0a)	leshort		1
   ra, ok = f4l(tb, 60)
   if !ok { goto f218 }
@@ -2529,7 +2532,7 @@ f216:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
-  out = append(out, "for MS-DOS, DOS4GW DOS extender")
+  m("for MS-DOS, DOS4GW DOS extender")
   goto s218
 f219:
   // >>>>0x240		search/0x200	WATCOM\ C/C++ for MS-DOS, DOS4GW DOS extender
@@ -2540,7 +2543,7 @@ f219:
     gof = off + ml + 12
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x200\tWATCOM\\ C/C++ for MS-DOS, DOS4GW DOS extender")
-  out = append(out, "for MS-DOS, DOS4GW DOS extender")
+  m("for MS-DOS, DOS4GW DOS extender")
   goto s218
 f220:
   // >>>>0x440		search/0x100	CauseWay\ DOS\ Extender for MS-DOS, CauseWay DOS extender
@@ -2551,7 +2554,7 @@ f220:
     gof = off + ml + 21
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x440\t\tsearch/0x100\tCauseWay\\ DOS\\ Extender for MS-DOS, CauseWay DOS extender")
-  out = append(out, "for MS-DOS, CauseWay DOS extender")
+  m("for MS-DOS, CauseWay DOS extender")
   goto s218
 f221:
   // >>>>0x40		search/0x40	PMODE/W for MS-DOS, PMODE/W DOS extender
@@ -2562,7 +2565,7 @@ f221:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tPMODE/W for MS-DOS, PMODE/W DOS extender")
-  out = append(out, "for MS-DOS, PMODE/W DOS extender")
+  m("for MS-DOS, PMODE/W DOS extender")
   goto s218
 f222:
   // >>>>0x40		search/0x40	STUB/32A for MS-DOS, DOS/32A DOS extender (stub)
@@ -2573,7 +2576,7 @@ f222:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tSTUB/32A for MS-DOS, DOS/32A DOS extender (stub)")
-  out = append(out, "for MS-DOS, DOS/32A DOS extender (stub)")
+  m("for MS-DOS, DOS/32A DOS extender (stub)")
   goto s218
 f223:
   // >>>>0x40		search/0x80	STUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)
@@ -2584,7 +2587,7 @@ f223:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tSTUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)")
-  out = append(out, "for MS-DOS, DOS/32A DOS extender (configurable stub)")
+  m("for MS-DOS, DOS/32A DOS extender (configurable stub)")
   goto s218
 f224:
   // >>>>0x40		search/0x80	DOS/32A for MS-DOS, DOS/32A DOS extender (embedded)
@@ -2595,7 +2598,7 @@ f224:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tDOS/32A for MS-DOS, DOS/32A DOS extender (embedded)")
-  out = append(out, "for MS-DOS, DOS/32A DOS extender (embedded)")
+  m("for MS-DOS, DOS/32A DOS extender (embedded)")
   goto s218
 f225:
   // >>>>&0x24		lelong		<0x50
@@ -2622,7 +2625,7 @@ f225:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">>>>>>&0\t\tsearch/8\t3\\xdbf\\xb9 \\b, 32Lite compressed")
-  out = append(out, "\\b, 32Lite compressed")
+  m("\\b, 32Lite compressed")
   goto s227
 f228:
 s227:
@@ -2643,7 +2646,7 @@ f218:
   if !(ok && (ra == 2)) { goto f229 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-  out = append(out, "for MS Windows")
+  m("for MS Windows")
   goto s217
 f229:
   // >>>(0x3c.l+0x0a)	leshort		3 for DOS
@@ -2655,7 +2658,7 @@ f229:
   if !(ok && (ra == 3)) { goto f230 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-  out = append(out, "for DOS")
+  m("for DOS")
   goto s217
 f230:
   // >>>(0x3c.l+0x0a)	leshort		4 for MS Windows (VxD)
@@ -2667,7 +2670,7 @@ f230:
   if !(ok && (ra == 4)) { goto f231 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t4 for MS Windows (VxD)")
-  out = append(out, "for MS Windows (VxD)")
+  m("for MS Windows (VxD)")
   goto s217
 f231:
   // >>>(&0x7c.l+0x26)	string		UPX \b, UPX compressed
@@ -2681,7 +2684,7 @@ f231:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(&0x7c.l+0x26)\tstring\t\tUPX \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s217
 f232:
   // >>>&(&0x54.l-3)		string		UNACE \b, ACE self-extracting archive
@@ -2696,7 +2699,7 @@ f232:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tUNACE \\b, ACE self-extracting archive")
-  out = append(out, "\\b, ACE self-extracting archive")
+  m("\\b, ACE self-extracting archive")
   goto s217
 f233:
 s217:
@@ -2717,7 +2720,7 @@ f217:
   if !(ok && (ra != 332)) { goto f235 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c \\b, MZ for MS-DOS")
-  out = append(out, "\\b, MZ for MS-DOS")
+  m("\\b, MZ for MS-DOS")
   goto s234
 f235:
 s234:
@@ -2767,7 +2770,7 @@ f113:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>>&-2\tstring\t!BW \\b, MZ for MS-DOS")
-  out = append(out, "\\b, MZ for MS-DOS")
+  m("\\b, MZ for MS-DOS")
   goto s239
 f240:
 s239:
@@ -2785,7 +2788,7 @@ f239:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tLE \\b, LE")
-  out = append(out, "\\b, LE")
+  m("\\b, LE")
   // >>>>>0x240	search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
   off = pof + 576
   {
@@ -2794,7 +2797,7 @@ f239:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
-  out = append(out, "for MS-DOS, DOS4GW DOS extender")
+  m("for MS-DOS, DOS4GW DOS extender")
   goto s241
 f242:
 s241:
@@ -2820,7 +2823,7 @@ f241:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G\t\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
-  out = append(out, "\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+  m("\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
   goto s243
 f244:
   // >>>>>0x240	search/0x100	!DOS/4G	\b, BW collection for MS-DOS
@@ -2831,7 +2834,7 @@ f244:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\t!DOS/4G\t\\b, BW collection for MS-DOS")
-  out = append(out, "\\b, BW collection for MS-DOS")
+  m("\\b, BW collection for MS-DOS")
   goto s243
 f245:
 s243:
@@ -2855,7 +2858,7 @@ f236:
   if !(ok && (ra == 332)) { goto f246 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">(4.s*512)\tleshort\t\t0x014c \\b, COFF")
-  out = append(out, "\\b, COFF")
+  m("\\b, COFF")
   // >>(8.s*16)	string		go32stub for MS-DOS, DJGPP go32 DOS extender
   ra, ok = f2l(tb, 8)
   if !ok { goto f247 }
@@ -2867,7 +2870,7 @@ f236:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\tgo32stub for MS-DOS, DJGPP go32 DOS extender")
-  out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
+  m("for MS-DOS, DJGPP go32 DOS extender")
   goto s246
 f247:
   // >>(8.s*16)	string		emx
@@ -2889,7 +2892,7 @@ f247:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&1\t\tstring\t\tx for DOS, Win or OS/2, emx %s")
-  out = append(out, "for DOS, Win or OS/2, emx %s")
+  m("for DOS, Win or OS/2, emx %s")
   goto s248
 f249:
 s248:
@@ -2911,7 +2914,7 @@ f248:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0x26\tstring\t\tUPX \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s250
 f251:
 s250:
@@ -2937,7 +2940,7 @@ f250:
   if !(ok && (i8(i4(ra)) > 24576)) { goto f254 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>&0\t\tlelong\t\t>0x6000 \\b, 32lite compressed")
-  out = append(out, "\\b, 32lite compressed")
+  m("\\b, 32lite compressed")
   goto s253
 f254:
 s253:
@@ -2960,7 +2963,7 @@ f246:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">(8.s*16) string $WdX \\b, WDos/X DOS extender")
-  out = append(out, "\\b, WDos/X DOS extender")
+  m("\\b, WDos/X DOS extender")
   goto s111
 f255:
   // >0x35	string	\x8e\xc0\xb9\x08\x00\xf3\xa5\x4a\x75\xeb\x8e\xc3\x8e\xd8\x33\xff\xbe\x30\x00\x05 \b, aPack compressed
@@ -2971,7 +2974,7 @@ f255:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x35\tstring\t\\x8e\\xc0\\xb9\\x08\\x00\\xf3\\xa5\\x4a\\x75\\xeb\\x8e\\xc3\\x8e\\xd8\\x33\\xff\\xbe\\x30\\x00\\x05 \\b, aPack compressed")
-  out = append(out, "\\b, aPack compressed")
+  m("\\b, aPack compressed")
   goto s111
 f256:
   // >0xe7	string	LH/2\ 	Self-Extract \b, %s
@@ -2982,7 +2985,7 @@ f256:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0xe7\tstring\tLH/2\\ \tSelf-Extract \\b, %s")
-  out = append(out, "Self-Extract \\b, %s")
+  m("Self-Extract \\b, %s")
   goto s111
 f257:
   // >0x1c	string	UC2X	\b, UCEXE compressed
@@ -2993,7 +2996,7 @@ f257:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tUC2X\t\\b, UCEXE compressed")
-  out = append(out, "\\b, UCEXE compressed")
+  m("\\b, UCEXE compressed")
   goto s111
 f258:
   // >0x1c	string	WWP\ 	\b, WWPACK compressed
@@ -3004,7 +3007,7 @@ f258:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tWWP\\ \t\\b, WWPACK compressed")
-  out = append(out, "\\b, WWPACK compressed")
+  m("\\b, WWPACK compressed")
   goto s111
 f259:
   // >0x1c	string	RJSX 	\b, ARJ self-extracting archive
@@ -3015,7 +3018,7 @@ f259:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tRJSX \t\\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s111
 f260:
   // >0x1c	string	diet 	\b, diet compressed
@@ -3026,7 +3029,7 @@ f260:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tdiet \t\\b, diet compressed")
-  out = append(out, "\\b, diet compressed")
+  m("\\b, diet compressed")
   goto s111
 f261:
   // >0x1c	string	LZ09 	\b, LZEXE v0.90 compressed
@@ -3037,7 +3040,7 @@ f261:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tLZ09 \t\\b, LZEXE v0.90 compressed")
-  out = append(out, "\\b, LZEXE v0.90 compressed")
+  m("\\b, LZEXE v0.90 compressed")
   goto s111
 f262:
   // >0x1c	string	LZ91 	\b, LZEXE v0.91 compressed
@@ -3048,7 +3051,7 @@ f262:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tLZ91 \t\\b, LZEXE v0.91 compressed")
-  out = append(out, "\\b, LZEXE v0.91 compressed")
+  m("\\b, LZEXE v0.91 compressed")
   goto s111
 f263:
   // >0x1c	string	tz 	\b, TinyProg compressed
@@ -3059,7 +3062,7 @@ f263:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\ttz \t\\b, TinyProg compressed")
-  out = append(out, "\\b, TinyProg compressed")
+  m("\\b, TinyProg compressed")
   goto s111
 f264:
   // >0x1e	string	Copyright\ 1989-1990\ PKWARE\ Inc.	Self-extracting PKZIP archive
@@ -3070,7 +3073,7 @@ f264:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1e\tstring\tCopyright\\ 1989-1990\\ PKWARE\\ Inc.\tSelf-extracting PKZIP archive")
-  out = append(out, "Self-extracting PKZIP archive")
+  m("Self-extracting PKZIP archive")
   goto s111
 f265:
   // >0x1e	string	PKLITE\ Copr.	Self-extracting PKZIP archive
@@ -3081,7 +3084,7 @@ f265:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1e\tstring\tPKLITE\\ Copr.\tSelf-extracting PKZIP archive")
-  out = append(out, "Self-extracting PKZIP archive")
+  m("Self-extracting PKZIP archive")
   goto s111
 f266:
   // >0x20	search/0xe0	aRJsfX \b, ARJ self-extracting archive
@@ -3092,7 +3095,7 @@ f266:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">0x20\tsearch/0xe0\taRJsfX \\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s111
 f267:
   // >0x20	string AIN
@@ -3111,7 +3114,7 @@ f267:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x23\tstring 2\t\\b, AIN 2.x compressed")
-  out = append(out, "\\b, AIN 2.x compressed")
+  m("\\b, AIN 2.x compressed")
   goto s268
 f269:
   // >>0x23	string <2	\b, AIN 1.x compressed
@@ -3122,7 +3125,7 @@ f269:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x23\tstring <2\t\\b, AIN 1.x compressed")
-  out = append(out, "\\b, AIN 1.x compressed")
+  m("\\b, AIN 1.x compressed")
   goto s268
 f270:
   // >>0x23	string >2	\b, AIN 1.x compressed
@@ -3133,7 +3136,7 @@ f270:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x23\tstring >2\t\\b, AIN 1.x compressed")
-  out = append(out, "\\b, AIN 1.x compressed")
+  m("\\b, AIN 1.x compressed")
   goto s268
 f271:
 s268:
@@ -3147,7 +3150,7 @@ f268:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\tLHa's\\ SFX \\b, LHa self-extracting archive")
-  out = append(out, "\\b, LHa self-extracting archive")
+  m("\\b, LHa self-extracting archive")
   goto s111
 f272:
   // >0x24	string	LHA's\ SFX \b, LHa self-extracting archive
@@ -3158,7 +3161,7 @@ f272:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\tLHA's\\ SFX \\b, LHa self-extracting archive")
-  out = append(out, "\\b, LHa self-extracting archive")
+  m("\\b, LHa self-extracting archive")
   goto s111
 f273:
   // >0x24	string	\ $ARX \b, ARX self-extracting archive
@@ -3169,7 +3172,7 @@ f273:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\t\\ $ARX \\b, ARX self-extracting archive")
-  out = append(out, "\\b, ARX self-extracting archive")
+  m("\\b, ARX self-extracting archive")
   goto s111
 f274:
   // >0x24	string	\ $LHarc \b, LHarc self-extracting archive
@@ -3180,7 +3183,7 @@ f274:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\t\\ $LHarc \\b, LHarc self-extracting archive")
-  out = append(out, "\\b, LHarc self-extracting archive")
+  m("\\b, LHarc self-extracting archive")
   goto s111
 f275:
   // >0x20	string	SFX\ by\ LARC \b, LARC self-extracting archive
@@ -3191,7 +3194,7 @@ f275:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x20\tstring\tSFX\\ by\\ LARC \\b, LARC self-extracting archive")
-  out = append(out, "\\b, LARC self-extracting archive")
+  m("\\b, LARC self-extracting archive")
   goto s111
 f276:
   // >0x40	string aPKG \b, aPackage self-extracting archive
@@ -3202,7 +3205,7 @@ f276:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x40\tstring aPKG \\b, aPackage self-extracting archive")
-  out = append(out, "\\b, aPackage self-extracting archive")
+  m("\\b, aPackage self-extracting archive")
   goto s111
 f277:
   // >0x64	string	W\ Collis\0\0 \b, Compack compressed
@@ -3213,7 +3216,7 @@ f277:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x64\tstring\tW\\ Collis\\0\\0 \\b, Compack compressed")
-  out = append(out, "\\b, Compack compressed")
+  m("\\b, Compack compressed")
   goto s111
 f278:
   // >0x7a	string		Windows\ self-extracting\ ZIP	\b, ZIP self-extracting archive
@@ -3224,7 +3227,7 @@ f278:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x7a\tstring\t\tWindows\\ self-extracting\\ ZIP\t\\b, ZIP self-extracting archive")
-  out = append(out, "\\b, ZIP self-extracting archive")
+  m("\\b, ZIP self-extracting archive")
   // >>&0xf4 search/0x140 \x0\x40\x1\x0
   off = pof + gof + 244
   {
@@ -3246,7 +3249,7 @@ f278:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(&0.l+(4)) string MSCF \\b, WinHKI CAB self-extracting archive")
-  out = append(out, "\\b, WinHKI CAB self-extracting archive")
+  m("\\b, WinHKI CAB self-extracting archive")
   goto s280
 f281:
 s280:
@@ -3263,7 +3266,7 @@ f279:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1638\tstring\t-lh5- \\b, LHa self-extracting archive v2.13S")
-  out = append(out, "\\b, LHa self-extracting archive v2.13S")
+  m("\\b, LHa self-extracting archive v2.13S")
   goto s111
 f282:
   // >0x17888 string Rar! \b, RAR self-extracting archive
@@ -3274,7 +3277,7 @@ f282:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x17888 string Rar! \\b, RAR self-extracting archive")
-  out = append(out, "\\b, RAR self-extracting archive")
+  m("\\b, RAR self-extracting archive")
   goto s111
 f283:
   // >(4.s*512)	long	x
@@ -3300,7 +3303,7 @@ f283:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive")
-  out = append(out, "\\b, ZIP self-extracting archive")
+  m("\\b, ZIP self-extracting archive")
   goto s285
 f286:
   // >>>&0	string		Rar! \b, RAR self-extracting archive
@@ -3311,7 +3314,7 @@ f286:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\tRar! \\b, RAR self-extracting archive")
-  out = append(out, "\\b, RAR self-extracting archive")
+  m("\\b, RAR self-extracting archive")
   goto s285
 f287:
   // >>>&0	string		=!\x11 \b, AIN 2.x self-extracting archive
@@ -3322,7 +3325,7 @@ f287:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x11 \\b, AIN 2.x self-extracting archive")
-  out = append(out, "\\b, AIN 2.x self-extracting archive")
+  m("\\b, AIN 2.x self-extracting archive")
   goto s285
 f288:
   // >>>&0	string		=!\x12 \b, AIN 2.x self-extracting archive
@@ -3333,7 +3336,7 @@ f288:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x12 \\b, AIN 2.x self-extracting archive")
-  out = append(out, "\\b, AIN 2.x self-extracting archive")
+  m("\\b, AIN 2.x self-extracting archive")
   goto s285
 f289:
   // >>>&0	string		=!\x17 \b, AIN 1.x self-extracting archive
@@ -3344,7 +3347,7 @@ f289:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x17 \\b, AIN 1.x self-extracting archive")
-  out = append(out, "\\b, AIN 1.x self-extracting archive")
+  m("\\b, AIN 1.x self-extracting archive")
   goto s285
 f290:
   // >>>&0	string		=!\x18 \b, AIN 1.x self-extracting archive
@@ -3355,7 +3358,7 @@ f290:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x18 \\b, AIN 1.x self-extracting archive")
-  out = append(out, "\\b, AIN 1.x self-extracting archive")
+  m("\\b, AIN 1.x self-extracting archive")
   goto s285
 f291:
   // >>>&7	search/400	**ACE** \b, ACE self-extracting archive
@@ -3366,7 +3369,7 @@ f291:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>&7\tsearch/400\t**ACE** \\b, ACE self-extracting archive")
-  out = append(out, "\\b, ACE self-extracting archive")
+  m("\\b, ACE self-extracting archive")
   goto s285
 f292:
   // >>>&0	search/0x480	UC2SFX\ Header \b, UC2 self-extracting archive
@@ -3377,7 +3380,7 @@ f292:
     gof = off + ml + 13
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tsearch/0x480\tUC2SFX\\ Header \\b, UC2 self-extracting archive")
-  out = append(out, "\\b, UC2 self-extracting archive")
+  m("\\b, UC2 self-extracting archive")
   goto s285
 f293:
 s285:
@@ -3397,7 +3400,7 @@ f284:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
-  out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+  m("\\b, ZIP self-extracting archive (PKZIP)")
   goto s111
 f294:
   // >49801	string	\x79\xff\x80\xff\x76\xff	\b, CODEC archive v3.21
@@ -3408,14 +3411,14 @@ f294:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">49801\tstring\t\\x79\\xff\\x80\\xff\\x76\\xff\t\\b, CODEC archive v3.21")
-  out = append(out, "\\b, CODEC archive v3.21")
+  m("\\b, CODEC archive v3.21")
   // >>49824 leshort		=1			\b, 1 file
   off = pof + 49824
   ra, ok = f2l(tb, off)
   if !(ok && (ra == 1)) { goto f296 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>49824 leshort\t\t=1\t\t\t\\b, 1 file")
-  out = append(out, "\\b, 1 file")
+  m("\\b, 1 file")
   goto s295
 f296:
   // >>49824 leshort		>1			\b, %u files
@@ -3424,7 +3427,7 @@ f296:
   if !(ok && (i8(i2(ra)) > 1)) { goto f297 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>49824 leshort\t\t>1\t\t\t\\b, %u files")
-  out = append(out, "\\b, %u files")
+  m("\\b, %u files")
   goto s295
 f297:
 s295:
@@ -3441,12 +3444,12 @@ f111:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tKCF\t\tFreeDOS KEYBoard Layout collection")
-  out = append(out, "FreeDOS KEYBoard Layout collection")
+  m("FreeDOS KEYBoard Layout collection")
   // >3	uleshort	x		\b, version 0x%x
   off = pof + 3
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">3\tuleshort\tx\t\t\\b, version 0x%x")
-  out = append(out, "\\b, version 0x%x")
+  m("\\b, version 0x%x")
   goto s298
   // >6	ubyte		>0
   off = pof + 6
@@ -3462,7 +3465,7 @@ f111:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>7\tstring\t\t>\\0\t\t\\b, author=%-.14s")
-  out = append(out, "\\b, author=%-.14s")
+  m("\\b, author=%-.14s")
   goto s300
 f301:
   // >>7	search/254	\xff		\b, info=
@@ -3473,7 +3476,7 @@ f301:
     gof = off + ml + 1
   }
   fmt.Printf("matched rule: %s\n", ">>7\tsearch/254\t\\xff\t\t\\b, info=")
-  out = append(out, "\\b, info=")
+  m("\\b, info=")
   // >>>&0	string		x		\b%-.15s
   off = pof + gof + 0
   {
@@ -3482,7 +3485,7 @@ f301:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\tx\t\t\\b%-.15s")
-  out = append(out, "\\b%-.15s")
+  m("\\b%-.15s")
   goto s302
 f303:
 s302:
@@ -3502,12 +3505,12 @@ f298:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tKLF\t\tFreeDOS KEYBoard Layout file")
-  out = append(out, "FreeDOS KEYBoard Layout file")
+  m("FreeDOS KEYBoard Layout file")
   // >3	uleshort	x		\b, version 0x%x
   off = pof + 3
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">3\tuleshort\tx\t\t\\b, version 0x%x")
-  out = append(out, "\\b, version 0x%x")
+  m("\\b, version 0x%x")
   goto s304
   // >5	ubyte		>0
   off = pof + 5
@@ -3523,7 +3526,7 @@ f298:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>8\tstring\t\tx\t\t\\b, name=%-.2s")
-  out = append(out, "\\b, name=%-.2s")
+  m("\\b, name=%-.2s")
   goto s306
 f307:
 s306:
@@ -3548,7 +3551,7 @@ f304:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">12\tstring\t\\0\\0\\0\\0`\\004\\360\tMS-DOS KEYBoard Layout file")
-  out = append(out, "MS-DOS KEYBoard Layout file")
+  m("MS-DOS KEYBoard Layout file")
   goto s308
 f309:
 s308:
@@ -3564,7 +3567,7 @@ f308:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s310
@@ -3581,7 +3584,7 @@ f310:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s312
@@ -3598,7 +3601,7 @@ f312:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s314
@@ -3615,7 +3618,7 @@ f314:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s316
@@ -3632,7 +3635,7 @@ f316:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s318
@@ -3649,7 +3652,7 @@ f318:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s320
@@ -3666,7 +3669,7 @@ f320:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s322
@@ -3701,7 +3704,7 @@ f322:
   if !(ok && (i8(i1(ra)) > 13)) { goto f327 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>4\tubyte\t\t\t>13\tDOS executable (COM, 0x8C-variant)")
-  out = append(out, "DOS executable (COM, 0x8C-variant)")
+  m("DOS executable (COM, 0x8C-variant)")
   goto s326
 f327:
 s326:
@@ -3719,7 +3722,7 @@ f324:
   if !(ok && (ra == 4294906091)) { goto f328 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tulelong\t\t0xffff10eb\tDR-DOS executable (COM)")
-  out = append(out, "DR-DOS executable (COM)")
+  m("DR-DOS executable (COM)")
   goto end
 f328:
   // 0	ubeshort&0xeb8d	>0xeb00
@@ -3753,7 +3756,7 @@ f329:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosCom(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>0        use msdos-com")
   goto s332
@@ -3789,7 +3792,7 @@ f330:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosCom(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>0        use msdos-com")
   goto s336
@@ -3816,7 +3819,7 @@ f335:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosCom(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>0        use msdos-com")
   goto s339
@@ -3849,14 +3852,14 @@ f334:
   if !(ok && (ra&4294967294 == 567102718)) { goto f343 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>1\tlelong&0xFFFFFFFe 0x21CD4CFe\tCOM executable (32-bit COMBOOT")
-  out = append(out, "COM executable (32-bit COMBOOT")
+  m("COM executable (32-bit COMBOOT")
   // >>>1	lelong		0x21CD4CFf	\b)
   off = pof + 1
   ra, ok = f4l(tb, off)
   if !(ok && (ra == 567102719)) { goto f344 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>1\tlelong\t\t0x21CD4CFf\t\\b)")
-  out = append(out, "\\b)")
+  m("\\b)")
   goto s343
 f344:
   // >>>1	lelong		0x21CD4CFe	\b, relocatable)
@@ -3865,7 +3868,7 @@ f344:
   if !(ok && (ra == 567102718)) { goto f345 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>1\tlelong\t\t0x21CD4CFe\t\\b, relocatable)")
-  out = append(out, "\\b, relocatable)")
+  m("\\b, relocatable)")
   goto s343
 f345:
 s343:
@@ -3876,7 +3879,7 @@ f343:
   // uh oh unhandled kind default
   goto f346
   fmt.Printf("matched rule: %s\n", ">>1\tdefault\tx\t\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto s342
 f346:
 s342:
@@ -3909,7 +3912,7 @@ f341:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>36\tstring\tUPX!\t\t\tFREE-DOS executable (COM), UPX compressed")
-  out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  m("FREE-DOS executable (COM), UPX compressed")
   goto s348
 f349:
 s348:
@@ -3926,7 +3929,7 @@ f347:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "252\tstring Must\\ have\\ DOS\\ version DR-DOS executable (COM)")
-  out = append(out, "DR-DOS executable (COM)")
+  m("DR-DOS executable (COM)")
   goto end
 f350:
   // 34	string	UPX!			FREE-DOS executable (COM), UPX compressed
@@ -3937,7 +3940,7 @@ f350:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "34\tstring\tUPX!\t\t\tFREE-DOS executable (COM), UPX compressed")
-  out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  m("FREE-DOS executable (COM), UPX compressed")
   goto end
 f351:
   // 35	string	UPX!			FREE-DOS executable (COM), UPX compressed
@@ -3948,7 +3951,7 @@ f351:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "35\tstring\tUPX!\t\t\tFREE-DOS executable (COM), UPX compressed")
-  out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  m("FREE-DOS executable (COM), UPX compressed")
   goto end
 f352:
   // 2	string	\xcd\x21		COM executable for DOS
@@ -3959,7 +3962,7 @@ f352:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f353:
   // 4	string	\xcd\x21		COM executable for DOS
@@ -3970,7 +3973,7 @@ f353:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "4\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f354:
   // 5	string	\xcd\x21		COM executable for DOS
@@ -3981,7 +3984,7 @@ f354:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "5\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f355:
   // 7	string	\xcd\x21
@@ -3998,7 +4001,7 @@ f355:
   if !(ok && (ra != 184)) { goto f357 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\tbyte\t!0xb8\t\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto s356
 f357:
 s356:
@@ -4020,7 +4023,7 @@ f356:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">5\tstring\t!\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto s358
 f359:
 s358:
@@ -4034,7 +4037,7 @@ f358:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "13\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f360:
   // 18	string	\xcd\x21		COM executable for MS-DOS
@@ -4045,7 +4048,7 @@ f360:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "18\tstring\t\\xcd\\x21\t\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f361:
   // 23	string	\xcd\x21		COM executable for MS-DOS
@@ -4056,7 +4059,7 @@ f361:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "23\tstring\t\\xcd\\x21\t\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f362:
   // 30	string	\xcd\x21		COM executable for MS-DOS
@@ -4067,7 +4070,7 @@ f362:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "30\tstring\t\\xcd\\x21\t\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f363:
   // 70	string	\xcd\x21		COM executable for DOS
@@ -4078,7 +4081,7 @@ f363:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "70\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f364:
   // 0x6	search/0xa	\xfc\x57\xf3\xa5\xc3	COM executable for MS-DOS
@@ -4089,7 +4092,7 @@ f364:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa5\\xc3\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f365:
   // 0x6	search/0xa	\xfc\x57\xf3\xa4\xc3	COM executable for DOS
@@ -4100,7 +4103,7 @@ f365:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa4\\xc3\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   // >0x18	search/0x10	\x50\xa4\xff\xd5\x73	\b, aPack compressed
   off = pof + 24
   {
@@ -4109,7 +4112,7 @@ f365:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", ">0x18\tsearch/0x10\t\\x50\\xa4\\xff\\xd5\\x73\t\\b, aPack compressed")
-  out = append(out, "\\b, aPack compressed")
+  m("\\b, aPack compressed")
   goto s366
 f367:
 s366:
@@ -4123,7 +4126,7 @@ f366:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0x3c\tstring\t\tW\\ Collis\\0\\0\t\tCOM executable for MS-DOS, Compack compressed")
-  out = append(out, "COM executable for MS-DOS, Compack compressed")
+  m("COM executable for MS-DOS, Compack compressed")
   goto end
 f368:
   // 0	string/b	LZ		MS-DOS executable (built-in)
@@ -4134,7 +4137,7 @@ f368:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tLZ\t\tMS-DOS executable (built-in)")
-  out = append(out, "MS-DOS executable (built-in)")
+  m("MS-DOS executable (built-in)")
   goto end
 f369:
   // 0	string/b	\320\317\021\340\241\261\032\341AAFB\015\000OM\006\016\053\064\001\001\001\377			AAF legacy file using MS Structured Storage
@@ -4145,14 +4148,14 @@ f369:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\320\\317\\021\\340\\241\\261\\032\\341AAFB\\015\\000OM\\006\\016\\053\\064\\001\\001\\001\\377\t\t\tAAF legacy file using MS Structured Storage")
-  out = append(out, "AAF legacy file using MS Structured Storage")
+  m("AAF legacy file using MS Structured Storage")
   // >30	byte	9		(512B sectors)
   off = pof + 30
   ra, ok = f1l(tb, off)
   if !(ok && (ra == 9)) { goto f371 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t9\t\t(512B sectors)")
-  out = append(out, "(512B sectors)")
+  m("(512B sectors)")
   goto s370
 f371:
   // >30	byte	12		(4kB sectors)
@@ -4161,7 +4164,7 @@ f371:
   if !(ok && (ra == 12)) { goto f372 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t12\t\t(4kB sectors)")
-  out = append(out, "(4kB sectors)")
+  m("(4kB sectors)")
   goto s370
 f372:
 s370:
@@ -4175,14 +4178,14 @@ f370:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\320\\317\\021\\340\\241\\261\\032\\341\\001\\002\\001\\015\\000\\002\\000\\000\\006\\016\\053\\064\\003\\002\\001\\001\t\t\tAAF file using MS Structured Storage")
-  out = append(out, "AAF file using MS Structured Storage")
+  m("AAF file using MS Structured Storage")
   // >30	byte	9		(512B sectors)
   off = pof + 30
   ra, ok = f1l(tb, off)
   if !(ok && (ra == 9)) { goto f374 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t9\t\t(512B sectors)")
-  out = append(out, "(512B sectors)")
+  m("(512B sectors)")
   goto s373
 f374:
   // >30	byte	12		(4kB sectors)
@@ -4191,7 +4194,7 @@ f374:
   if !(ok && (ra == 12)) { goto f375 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t12\t\t(4kB sectors)")
-  out = append(out, "(4kB sectors)")
+  m("(4kB sectors)")
   goto s373
 f375:
 s373:
@@ -4205,7 +4208,7 @@ f373:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tMicrosoft\\ Word\\ 6.0\\ Document\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto end
 f376:
   // 2080	string	Documento\ Microsoft\ Word\ 6 Spanish Microsoft Word 6 document data
@@ -4216,7 +4219,7 @@ f376:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tDocumento\\ Microsoft\\ Word\\ 6 Spanish Microsoft Word 6 document data")
-  out = append(out, "Spanish Microsoft Word 6 document data")
+  m("Spanish Microsoft Word 6 document data")
   goto end
 f377:
   // 2112	string	MSWordDoc			Microsoft Word document data
@@ -4227,7 +4230,7 @@ f377:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2112\tstring\tMSWordDoc\t\t\tMicrosoft Word document data")
-  out = append(out, "Microsoft Word document data")
+  m("Microsoft Word document data")
   goto end
 f378:
   // 0	belong	0x31be0000			Microsoft Word Document
@@ -4236,7 +4239,7 @@ f378:
   if !(ok && (ra == 834535424)) { goto f379 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t0x31be0000\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f379:
   // 0	string/b	PO^Q`				Microsoft Word 6.0 Document
@@ -4247,7 +4250,7 @@ f379:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tPO^Q`\t\t\t\tMicrosoft Word 6.0 Document")
-  out = append(out, "Microsoft Word 6.0 Document")
+  m("Microsoft Word 6.0 Document")
   goto end
 f380:
   // 4   long        0
@@ -4262,7 +4265,7 @@ f380:
   if !(ok && (ra == 4264689664)) { goto f382 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe320000      Microsoft Word for Macintosh 1.0")
-  out = append(out, "Microsoft Word for Macintosh 1.0")
+  m("Microsoft Word for Macintosh 1.0")
   goto s381
 f382:
   // >0  belong      0xfe340000      Microsoft Word for Macintosh 3.0
@@ -4271,7 +4274,7 @@ f382:
   if !(ok && (ra == 4264820736)) { goto f383 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe340000      Microsoft Word for Macintosh 3.0")
-  out = append(out, "Microsoft Word for Macintosh 3.0")
+  m("Microsoft Word for Macintosh 3.0")
   goto s381
 f383:
   // >0  belong      0xfe37001c      Microsoft Word for Macintosh 4.0
@@ -4280,7 +4283,7 @@ f383:
   if !(ok && (ra == 4265017372)) { goto f384 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe37001c      Microsoft Word for Macintosh 4.0")
-  out = append(out, "Microsoft Word for Macintosh 4.0")
+  m("Microsoft Word for Macintosh 4.0")
   goto s381
 f384:
   // >0  belong      0xfe370023      Microsoft Word for Macintosh 5.0
@@ -4289,7 +4292,7 @@ f384:
   if !(ok && (ra == 4265017379)) { goto f385 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe370023      Microsoft Word for Macintosh 5.0")
-  out = append(out, "Microsoft Word for Macintosh 5.0")
+  m("Microsoft Word for Macintosh 5.0")
   goto s381
 f385:
 s381:
@@ -4303,7 +4306,7 @@ f381:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\333\\245-\\0\\0\\0\t\t\tMicrosoft Word 2.0 Document")
-  out = append(out, "Microsoft Word 2.0 Document")
+  m("Microsoft Word 2.0 Document")
   goto end
 f386:
   // 512	string/b	\354\245\301			Microsoft Word Document
@@ -4314,7 +4317,7 @@ f386:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "512\tstring/b\t\\354\\245\\301\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f387:
   // 0	string/b	\xDB\xA5\x2D\x00		Microsoft WinWord 2.0 Document
@@ -4325,7 +4328,7 @@ f387:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\xDB\\xA5\\x2D\\x00\t\tMicrosoft WinWord 2.0 Document")
-  out = append(out, "Microsoft WinWord 2.0 Document")
+  m("Microsoft WinWord 2.0 Document")
   goto end
 f388:
   // 2080	string	Microsoft\ Excel\ 5.0\ Worksheet	%s
@@ -4336,7 +4339,7 @@ f388:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tMicrosoft\\ Excel\\ 5.0\\ Worksheet\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto end
 f389:
   // 0	string/b	\xDB\xA5\x2D\x00		Microsoft WinWord 2.0 Document
@@ -4347,7 +4350,7 @@ f389:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\xDB\\xA5\\x2D\\x00\t\tMicrosoft WinWord 2.0 Document")
-  out = append(out, "Microsoft WinWord 2.0 Document")
+  m("Microsoft WinWord 2.0 Document")
   goto end
 f390:
   // 2080	string	Foglio\ di\ lavoro\ Microsoft\ Exce	%s
@@ -4358,7 +4361,7 @@ f390:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tFoglio\\ di\\ lavoro\\ Microsoft\\ Exce\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto end
 f391:
   // 2114	string	Biff5		Microsoft Excel 5.0 Worksheet
@@ -4369,7 +4372,7 @@ f391:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2114\tstring\tBiff5\t\tMicrosoft Excel 5.0 Worksheet")
-  out = append(out, "Microsoft Excel 5.0 Worksheet")
+  m("Microsoft Excel 5.0 Worksheet")
   goto end
 f392:
   // 2121	string	Biff5		Microsoft Excel 5.0 Worksheet
@@ -4380,7 +4383,7 @@ f392:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2121\tstring\tBiff5\t\tMicrosoft Excel 5.0 Worksheet")
-  out = append(out, "Microsoft Excel 5.0 Worksheet")
+  m("Microsoft Excel 5.0 Worksheet")
   goto end
 f393:
   // 0	string/b	\x09\x04\x06\x00\x00\x00\x10\x00	Microsoft Excel Worksheet
@@ -4391,7 +4394,7 @@ f393:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\x09\\x04\\x06\\x00\\x00\\x00\\x10\\x00\tMicrosoft Excel Worksheet")
-  out = append(out, "Microsoft Excel Worksheet")
+  m("Microsoft Excel Worksheet")
   goto end
 f394:
   // 0	belong	0x00001a00
@@ -4412,14 +4415,14 @@ f394:
   if !(ok && (i8(i1(ra)) < 32)) { goto f397 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>20\tubyte\t\t<32\tLotus 1-2-3")
-  out = append(out, "Lotus 1-2-3")
+  m("Lotus 1-2-3")
   // >>>4	uleshort	0x1000	WorKsheet, version 3
   off = pof + 4
   ra, ok = f2l(tb, off)
   if !(ok && (ra == 4096)) { goto f398 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1000\tWorKsheet, version 3")
-  out = append(out, "WorKsheet, version 3")
+  m("WorKsheet, version 3")
   goto s397
 f398:
   // >>>4	uleshort	0x1002	WorKsheet, version 4
@@ -4428,7 +4431,7 @@ f398:
   if !(ok && (ra == 4098)) { goto f399 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1002\tWorKsheet, version 4")
-  out = append(out, "WorKsheet, version 4")
+  m("WorKsheet, version 4")
   goto s397
 f399:
   // >>>4	uleshort	0x1003	WorKsheet, version 97
@@ -4437,7 +4440,7 @@ f399:
   if !(ok && (ra == 4099)) { goto f400 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1003\tWorKsheet, version 97")
-  out = append(out, "WorKsheet, version 97")
+  m("WorKsheet, version 97")
   goto s397
 f400:
   // >>>4	uleshort	0x1005	WorKsheet, version 9.8 Millennium
@@ -4446,7 +4449,7 @@ f400:
   if !(ok && (ra == 4101)) { goto f401 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1005\tWorKsheet, version 9.8 Millennium")
-  out = append(out, "WorKsheet, version 9.8 Millennium")
+  m("WorKsheet, version 9.8 Millennium")
   goto s397
 f401:
   // >>>4	uleshort	0x8001	FoRMatting data
@@ -4455,7 +4458,7 @@ f401:
   if !(ok && (ra == 32769)) { goto f402 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8001\tFoRMatting data")
-  out = append(out, "FoRMatting data")
+  m("FoRMatting data")
   goto s397
 f402:
   // >>>4	uleshort	0x8007	ForMatting data, version 3
@@ -4464,7 +4467,7 @@ f402:
   if !(ok && (ra == 32775)) { goto f403 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8007\tForMatting data, version 3")
-  out = append(out, "ForMatting data, version 3")
+  m("ForMatting data, version 3")
   goto s397
 f403:
   // >>>4	default		x	unknown
@@ -4472,14 +4475,14 @@ f403:
   // uh oh unhandled kind default
   goto f404
   fmt.Printf("matched rule: %s\n", ">>>4\tdefault\t\tx\tunknown")
-  out = append(out, "unknown")
+  m("unknown")
   // >>>>6	uleshort	=0x0004	worksheet
   off = pof + 6
   ra, ok = f2l(tb, off)
   if !(ok && (ra == 4)) { goto f405 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>6\tuleshort\t=0x0004\tworksheet")
-  out = append(out, "worksheet")
+  m("worksheet")
   goto s404
 f405:
   // >>>>6	uleshort	!0x0004	formatting data
@@ -4488,14 +4491,14 @@ f405:
   if !(ok && (ra != 4)) { goto f406 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>6\tuleshort\t!0x0004\tformatting data")
-  out = append(out, "formatting data")
+  m("formatting data")
   goto s404
 f406:
   // >>>>4	uleshort	x	\b, revision 0x%x
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4\tuleshort\tx\t\\b, revision 0x%x")
-  out = append(out, "\\b, revision 0x%x")
+  m("\\b, revision 0x%x")
   goto s404
 s404:
   goto s397
@@ -4506,7 +4509,7 @@ f404:
   if !(ok && (ra == 4)) { goto f408 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\t=0x0004\t\\b, cell range")
-  out = append(out, "\\b, cell range")
+  m("\\b, cell range")
   // >>>>8	ulelong		!0
   off = pof + 8
   ra, ok = f4l(tb, off)
@@ -4519,20 +4522,20 @@ f404:
   if !(ok && (i8(i1(ra)) > 0)) { goto f410 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>10\tubyte\t\t>0\t\\b%d*")
-  out = append(out, "\\b%d*")
+  m("\\b%d*")
   goto s409
 f410:
   // >>>>>8	uleshort	x	\b%d,
   off = pof + 8
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>>8\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s409
   // >>>>>11	ubyte		x	\b%d-
   off = pof + 11
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>11\tubyte\t\tx\t\\b%d-")
-  out = append(out, "\\b%d-")
+  m("\\b%d-")
   goto s409
 s409:
   goto s408
@@ -4543,20 +4546,20 @@ f409:
   if !(ok && (i8(i1(ra)) > 0)) { goto f413 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>14\tubyte\t\t>0\t\\b%d*")
-  out = append(out, "\\b%d*")
+  m("\\b%d*")
   goto s408
 f413:
   // >>>>12	uleshort	x	\b%d,
   off = pof + 12
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>12\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s408
   // >>>>15	ubyte		x	\b%d
   off = pof + 15
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>15\tubyte\t\tx\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s408
   // >>>>20	ubyte		>1	\b, character set 0x%x
   off = pof + 20
@@ -4564,14 +4567,14 @@ f413:
   if !(ok && (i8(i1(ra)) > 1)) { goto f416 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>20\tubyte\t\t>1\t\\b, character set 0x%x")
-  out = append(out, "\\b, character set 0x%x")
+  m("\\b, character set 0x%x")
   goto s408
 f416:
   // >>>>21	ubyte		x	\b, flags 0x%x
   off = pof + 21
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>21\tubyte\t\tx\t\\b, flags 0x%x")
-  out = append(out, "\\b, flags 0x%x")
+  m("\\b, flags 0x%x")
   goto s408
 s408:
   goto s397
@@ -4598,7 +4601,7 @@ f408:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>>&4\tstring\t\t>\\0\t\\b, 1st font \"%s\"")
-  out = append(out, "\\b, 1st font \"%s\"")
+  m("\\b, 1st font \"%s\"")
   goto s419
 f420:
 s419:
@@ -4634,14 +4637,14 @@ f395:
   if !(ok && (i8(i1(ra)) > 0)) { goto f423 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>6\tubyte\t\t>0\tLotus")
-  out = append(out, "Lotus")
+  m("Lotus")
   // >>>4	uleshort	0x0007	1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)
   off = pof + 4
   ra, ok = f2l(tb, off)
   if !(ok && (ra == 7)) { goto f424 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0007\t1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
-  out = append(out, "1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
+  m("1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
   goto s423
 f424:
   // >>>4	uleshort	0x0C05	1-2-3 CoNFiguration, version 2.4J
@@ -4650,7 +4653,7 @@ f424:
   if !(ok && (ra == 3077)) { goto f425 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0C05\t1-2-3 CoNFiguration, version 2.4J")
-  out = append(out, "1-2-3 CoNFiguration, version 2.4J")
+  m("1-2-3 CoNFiguration, version 2.4J")
   goto s423
 f425:
   // >>>4	uleshort	0x0801	1-2-3 CoNFiguration, version 1-2.1
@@ -4659,7 +4662,7 @@ f425:
   if !(ok && (ra == 2049)) { goto f426 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0801\t1-2-3 CoNFiguration, version 1-2.1")
-  out = append(out, "1-2-3 CoNFiguration, version 1-2.1")
+  m("1-2-3 CoNFiguration, version 1-2.1")
   goto s423
 f426:
   // >>>4	uleshort	0x0802	Symphony CoNFiguration
@@ -4668,7 +4671,7 @@ f426:
   if !(ok && (ra == 2050)) { goto f427 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0802\tSymphony CoNFiguration")
-  out = append(out, "Symphony CoNFiguration")
+  m("Symphony CoNFiguration")
   goto s423
 f427:
   // >>>4	uleshort	0x0804	1-2-3 CoNFiguration, version 2.2
@@ -4677,7 +4680,7 @@ f427:
   if !(ok && (ra == 2052)) { goto f428 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0804\t1-2-3 CoNFiguration, version 2.2")
-  out = append(out, "1-2-3 CoNFiguration, version 2.2")
+  m("1-2-3 CoNFiguration, version 2.2")
   goto s423
 f428:
   // >>>4	uleshort	0x080A	1-2-3 CoNFiguration, version 2.3-2.4
@@ -4686,7 +4689,7 @@ f428:
   if !(ok && (ra == 2058)) { goto f429 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x080A\t1-2-3 CoNFiguration, version 2.3-2.4")
-  out = append(out, "1-2-3 CoNFiguration, version 2.3-2.4")
+  m("1-2-3 CoNFiguration, version 2.3-2.4")
   goto s423
 f429:
   // >>>4	uleshort	0x1402	1-2-3 CoNFiguration, version 3.x
@@ -4695,7 +4698,7 @@ f429:
   if !(ok && (ra == 5122)) { goto f430 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1402\t1-2-3 CoNFiguration, version 3.x")
-  out = append(out, "1-2-3 CoNFiguration, version 3.x")
+  m("1-2-3 CoNFiguration, version 3.x")
   goto s423
 f430:
   // >>>4	uleshort	0x1450	1-2-3 CoNFiguration, version 4.x
@@ -4704,7 +4707,7 @@ f430:
   if !(ok && (ra == 5200)) { goto f431 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1450\t1-2-3 CoNFiguration, version 4.x")
-  out = append(out, "1-2-3 CoNFiguration, version 4.x")
+  m("1-2-3 CoNFiguration, version 4.x")
   goto s423
 f431:
   // >>>4	uleshort	0x0404	1-2-3 WorKSheet, version 1
@@ -4713,7 +4716,7 @@ f431:
   if !(ok && (ra == 1028)) { goto f432 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0404\t1-2-3 WorKSheet, version 1")
-  out = append(out, "1-2-3 WorKSheet, version 1")
+  m("1-2-3 WorKSheet, version 1")
   goto s423
 f432:
   // >>>4	uleshort	0x0405	Symphony WoRksheet, version 1.0
@@ -4722,7 +4725,7 @@ f432:
   if !(ok && (ra == 1029)) { goto f433 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0405\tSymphony WoRksheet, version 1.0")
-  out = append(out, "Symphony WoRksheet, version 1.0")
+  m("Symphony WoRksheet, version 1.0")
   goto s423
 f433:
   // >>>4	uleshort	0x0406	1-2-3/Symphony worksheet, version 2
@@ -4731,7 +4734,7 @@ f433:
   if !(ok && (ra == 1030)) { goto f434 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0406\t1-2-3/Symphony worksheet, version 2")
-  out = append(out, "1-2-3/Symphony worksheet, version 2")
+  m("1-2-3/Symphony worksheet, version 2")
   goto s423
 f434:
   // >>>4	uleshort	0x0600	1-2-3 WorKsheet, version 1.xJ
@@ -4740,7 +4743,7 @@ f434:
   if !(ok && (ra == 1536)) { goto f435 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0600\t1-2-3 WorKsheet, version 1.xJ")
-  out = append(out, "1-2-3 WorKsheet, version 1.xJ")
+  m("1-2-3 WorKsheet, version 1.xJ")
   goto s423
 f435:
   // >>>4	uleshort	0x0602	1-2-3 worksheet, version 2.4J
@@ -4749,7 +4752,7 @@ f435:
   if !(ok && (ra == 1538)) { goto f436 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0602\t1-2-3 worksheet, version 2.4J")
-  out = append(out, "1-2-3 worksheet, version 2.4J")
+  m("1-2-3 worksheet, version 2.4J")
   goto s423
 f436:
   // >>>4	uleshort	0x8006	1-2-3 ForMaTting data, version 2.x
@@ -4758,7 +4761,7 @@ f436:
   if !(ok && (ra == 32774)) { goto f437 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8006\t1-2-3 ForMaTting data, version 2.x")
-  out = append(out, "1-2-3 ForMaTting data, version 2.x")
+  m("1-2-3 ForMaTting data, version 2.x")
   goto s423
 f437:
   // >>>4	uleshort	0x8007	1-2-3 FoRMatting data, version 2.0
@@ -4767,7 +4770,7 @@ f437:
   if !(ok && (ra == 32775)) { goto f438 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8007\t1-2-3 FoRMatting data, version 2.0")
-  out = append(out, "1-2-3 FoRMatting data, version 2.0")
+  m("1-2-3 FoRMatting data, version 2.0")
   goto s423
 f438:
   // >>>4	default		x	unknown worksheet or configuration
@@ -4775,12 +4778,12 @@ f438:
   // uh oh unhandled kind default
   goto f439
   fmt.Printf("matched rule: %s\n", ">>>4\tdefault\t\tx\tunknown worksheet or configuration")
-  out = append(out, "unknown worksheet or configuration")
+  m("unknown worksheet or configuration")
   // >>>>4	uleshort	x	\b, revision 0x%x
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4\tuleshort\tx\t\\b, revision 0x%x")
-  out = append(out, "\\b, revision 0x%x")
+  m("\\b, revision 0x%x")
   goto s439
 s439:
   goto s423
@@ -4789,7 +4792,7 @@ f439:
   off = pof + 6
   {
     ss, _ := IdentifyLotusCells(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>6\t\tuse\tlotus-cells")
   goto s423
@@ -4800,7 +4803,7 @@ f439:
   off = off + 10
   {
     ss, _ := IdentifyLotusCells(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s+10)\tuse\tlotus-cells")
   goto s423
@@ -4822,7 +4825,7 @@ f421:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\tWordPro\\0\tLotus WordPro")
-  out = append(out, "Lotus WordPro")
+  m("Lotus WordPro")
   goto end
 f443:
   // 0	string/b		WordPro\r\373	Lotus WordPro
@@ -4833,7 +4836,7 @@ f443:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\tWordPro\\r\\373\tLotus WordPro")
-  out = append(out, "Lotus WordPro")
+  m("Lotus WordPro")
   goto end
 f444:
   // 0		string		\x71\xa8\x00\x00\x01\x02
@@ -4852,7 +4855,7 @@ f444:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">12\t\tstring\t\tStirling\\ Technologies,\t\tInstallShield Uninstall Script")
-  out = append(out, "InstallShield Uninstall Script")
+  m("InstallShield Uninstall Script")
   goto s445
 f446:
 s445:
@@ -4866,7 +4869,7 @@ f445:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tNullsoft\\ AVS\\ Preset\\ \tWinamp plug in")
-  out = append(out, "Winamp plug in")
+  m("Winamp plug in")
   goto end
 f447:
   // 0	string/b	\327\315\306\232	ms-windows metafont .wmf
@@ -4877,7 +4880,7 @@ f447:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\327\\315\\306\\232\tms-windows metafont .wmf")
-  out = append(out, "ms-windows metafont .wmf")
+  m("ms-windows metafont .wmf")
   goto end
 f448:
   // 0	string/b	\002\000\011\000	ms-windows metafont .wmf
@@ -4888,7 +4891,7 @@ f448:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\002\\000\\011\\000\tms-windows metafont .wmf")
-  out = append(out, "ms-windows metafont .wmf")
+  m("ms-windows metafont .wmf")
   goto end
 f449:
   // 0	string/b	\001\000\011\000	ms-windows metafont .wmf
@@ -4899,7 +4902,7 @@ f449:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\001\\000\\011\\000\tms-windows metafont .wmf")
-  out = append(out, "ms-windows metafont .wmf")
+  m("ms-windows metafont .wmf")
   goto end
 f450:
   // 0	string/b	\003\001\001\004\070\001\000\000	tz3 ms-works file
@@ -4910,7 +4913,7 @@ f450:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\003\\001\\001\\004\\070\\001\\000\\000\ttz3 ms-works file")
-  out = append(out, "tz3 ms-works file")
+  m("tz3 ms-works file")
   goto end
 f451:
   // 0	string/b	\003\002\001\004\070\001\000\000	tz3 ms-works file
@@ -4921,7 +4924,7 @@ f451:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\003\\002\\001\\004\\070\\001\\000\\000\ttz3 ms-works file")
-  out = append(out, "tz3 ms-works file")
+  m("tz3 ms-works file")
   goto end
 f452:
   // 0	string/b	\003\003\001\004\070\001\000\000	tz3 ms-works file
@@ -4932,7 +4935,7 @@ f452:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\003\\003\\001\\004\\070\\001\\000\\000\ttz3 ms-works file")
-  out = append(out, "tz3 ms-works file")
+  m("tz3 ms-works file")
   goto end
 f453:
   // 0 string \211\000\077\003\005\000\063\237\127\065\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -4943,7 +4946,7 @@ f453:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\065\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f454:
   // 0 string \211\000\077\003\005\000\063\237\127\066\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -4954,7 +4957,7 @@ f454:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\066\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f455:
   // 0 string \211\000\077\003\005\000\063\237\127\067\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -4965,7 +4968,7 @@ f455:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\067\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f456:
   // 0 string \211\000\077\003\005\000\063\237\127\070\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -4976,7 +4979,7 @@ f456:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\070\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f457:
   // 0 string \211\000\077\003\005\000\063\237\127\071\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -4987,7 +4990,7 @@ f457:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\071\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f458:
   // 0 string \211\000\225\003\005\000\062\122\207\304\100\345\042 PGP sig
@@ -4998,7 +5001,7 @@ f458:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\225\\003\\005\\000\\062\\122\\207\\304\\100\\345\\042 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f459:
   // 0	string/b	MDIF\032\000\010\000\000\000\372\046\100\175\001\000\001\036\001\000 MS Windows special zipped file
@@ -5009,7 +5012,7 @@ f459:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMDIF\\032\\000\\010\\000\\000\\000\\372\\046\\100\\175\\001\\000\\001\\036\\001\\000 MS Windows special zipped file")
-  out = append(out, "MS Windows special zipped file")
+  m("MS Windows special zipped file")
   goto end
 f460:
   // 0	string/b	\102\101\050\000\000\000\056\000\000\000\000\000\000\000	Icon for MS Windows
@@ -5020,7 +5023,7 @@ f460:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\102\\101\\050\\000\\000\\000\\056\\000\\000\\000\\000\\000\\000\\000\tIcon for MS Windows")
-  out = append(out, "Icon for MS Windows")
+  m("Icon for MS Windows")
   goto end
 f461:
   // 0   belong  0x00000100
@@ -5044,7 +5047,7 @@ f461:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s463
@@ -5066,7 +5069,7 @@ f463:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s466
@@ -5092,7 +5095,7 @@ f462:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s470
@@ -5109,7 +5112,7 @@ f470:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s472
@@ -5127,7 +5130,7 @@ f469:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tPK\\010\\010BGI\tBorland font")
-  out = append(out, "Borland font")
+  m("Borland font")
   // >4	string	>\0	%s
   off = pof + 4
   {
@@ -5136,7 +5139,7 @@ f469:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t>\\0\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto s474
 f475:
 s474:
@@ -5150,7 +5153,7 @@ f474:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tpk\\010\\010BGI\tBorland device")
-  out = append(out, "Borland device")
+  m("Borland device")
   // >4	string	>\0	%s
   off = pof + 4
   {
@@ -5159,7 +5162,7 @@ f474:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t>\\0\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto s476
 f477:
 s476:
@@ -5177,7 +5180,7 @@ f476:
   if !(ok && (ra == 280)) { goto f479 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tlelong\t\t0x00000118\tWindows Recycle Bin INFO2 file (Win98 or below)")
-  out = append(out, "Windows Recycle Bin INFO2 file (Win98 or below)")
+  m("Windows Recycle Bin INFO2 file (Win98 or below)")
   goto s478
 f479:
 s478:
@@ -5195,7 +5198,7 @@ f478:
   if !(ok && (ra == 800)) { goto f481 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tlelong\t\t0x00000320\tWindows Recycle Bin INFO2 file (Win2k - WinXP)")
-  out = append(out, "Windows Recycle Bin INFO2 file (Win2k - WinXP)")
+  m("Windows Recycle Bin INFO2 file (Win2k - WinXP)")
   goto s480
 f481:
 s480:
@@ -5209,7 +5212,7 @@ f480:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tGERBILDOC\tFirst Choice document")
-  out = append(out, "First Choice document")
+  m("First Choice document")
   goto end
 f482:
   // 9	string		GERBILDB	First Choice database
@@ -5220,7 +5223,7 @@ f482:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tGERBILDB\tFirst Choice database")
-  out = append(out, "First Choice database")
+  m("First Choice database")
   goto end
 f483:
   // 9	string		GERBILCLIP	First Choice database
@@ -5231,7 +5234,7 @@ f483:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tGERBILCLIP\tFirst Choice database")
-  out = append(out, "First Choice database")
+  m("First Choice database")
   goto end
 f484:
   // 0	string		GERBIL		First Choice device file
@@ -5242,7 +5245,7 @@ f484:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tGERBIL\t\tFirst Choice device file")
-  out = append(out, "First Choice device file")
+  m("First Choice device file")
   goto end
 f485:
   // 9	string		RABBITGRAPH	RabbitGraph file
@@ -5253,7 +5256,7 @@ f485:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tRABBITGRAPH\tRabbitGraph file")
-  out = append(out, "RabbitGraph file")
+  m("RabbitGraph file")
   goto end
 f486:
   // 0	string		DCU1		Borland Delphi .DCU file
@@ -5264,7 +5267,7 @@ f486:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tDCU1\t\tBorland Delphi .DCU file")
-  out = append(out, "Borland Delphi .DCU file")
+  m("Borland Delphi .DCU file")
   goto end
 f487:
   // 0	string		=!<spell>	MKS Spell hash list (old format)
@@ -5275,7 +5278,7 @@ f487:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t=!<spell>\tMKS Spell hash list (old format)")
-  out = append(out, "MKS Spell hash list (old format)")
+  m("MKS Spell hash list (old format)")
   goto end
 f488:
   // 0	string		=!<spell2>	MKS Spell hash list
@@ -5286,7 +5289,7 @@ f488:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t=!<spell2>\tMKS Spell hash list")
-  out = append(out, "MKS Spell hash list")
+  m("MKS Spell hash list")
   goto end
 f489:
   // 0	lelong		0x08086b70	TurboC BGI file
@@ -5295,7 +5298,7 @@ f489:
   if !(ok && (ra == 134769520)) { goto f490 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tlelong\t\t0x08086b70\tTurboC BGI file")
-  out = append(out, "TurboC BGI file")
+  m("TurboC BGI file")
   goto end
 f490:
   // 0	lelong		0x08084b50	TurboC Font file
@@ -5304,7 +5307,7 @@ f490:
   if !(ok && (ra == 134761296)) { goto f491 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tlelong\t\t0x08084b50\tTurboC Font file")
-  out = append(out, "TurboC Font file")
+  m("TurboC Font file")
   goto end
 f491:
   // 0	string		TPF0
@@ -5325,7 +5328,7 @@ f492:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tPMCC\t\tWindows 3.x .GRP file")
-  out = append(out, "Windows 3.x .GRP file")
+  m("Windows 3.x .GRP file")
   goto end
 f493:
   // 1	string		RDC-meg		MegaDots
@@ -5336,14 +5339,14 @@ f493:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "1\tstring\t\tRDC-meg\t\tMegaDots")
-  out = append(out, "MegaDots")
+  m("MegaDots")
   // >8	byte		>0x2F		version %c
   off = pof + 8
   ra, ok = f1l(tb, off)
   if !(ok && (i8(i1(ra)) > 47)) { goto f495 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">8\tbyte\t\t>0x2F\t\tversion %c")
-  out = append(out, "version %c")
+  m("version %c")
   goto s494
 f495:
   // >9	byte		>0x2F		\b.%c file
@@ -5352,7 +5355,7 @@ f495:
   if !(ok && (i8(i1(ra)) > 47)) { goto f496 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">9\tbyte\t\t>0x2F\t\t\\b.%c file")
-  out = append(out, "\\b.%c file")
+  m("\\b.%c file")
   goto s494
 f496:
 s494:
@@ -5370,7 +5373,7 @@ f494:
   if !(ok && (ra == 136193)) { goto f498 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tlelong\t\t0x00021401\tWindows shortcut file")
-  out = append(out, "Windows shortcut file")
+  m("Windows shortcut file")
   goto s497
 f498:
 s497:
@@ -5384,7 +5387,7 @@ f497:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0x171\tstring\tMICROSOFT\\ PIFEX\\0\tWindows Program Information File")
-  out = append(out, "Windows Program Information File")
+  m("Windows Program Information File")
   // >0x24	string		>\0		\b for %.63s
   off = pof + 36
   {
@@ -5393,7 +5396,7 @@ f497:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\t\t>\\0\t\t\\b for %.63s")
-  out = append(out, "\\b for %.63s")
+  m("\\b for %.63s")
   goto s499
 f500:
   // >0x65	string		>\0		\b, directory=%.64s
@@ -5404,7 +5407,7 @@ f500:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x65\tstring\t\t>\\0\t\t\\b, directory=%.64s")
-  out = append(out, "\\b, directory=%.64s")
+  m("\\b, directory=%.64s")
   goto s499
 f501:
   // >0xA5	string		>\0		\b, parameters=%.64s
@@ -5415,7 +5418,7 @@ f501:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0xA5\tstring\t\t>\\0\t\t\\b, parameters=%.64s")
-  out = append(out, "\\b, parameters=%.64s")
+  m("\\b, parameters=%.64s")
   goto s499
 f502:
   // >0x187	search/0xB55	WINDOWS\ VMM\ 4.0\0
@@ -5440,7 +5443,7 @@ f502:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t<PIFMGR.DLL\t\t\\b, icon=%s")
-  out = append(out, "\\b, icon=%s")
+  m("\\b, icon=%s")
   goto s504
 f505:
   // >>>&-1		string	>PIFMGR.DLL		\b, icon=%s
@@ -5451,7 +5454,7 @@ f505:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t>PIFMGR.DLL\t\t\\b, icon=%s")
-  out = append(out, "\\b, icon=%s")
+  m("\\b, icon=%s")
   goto s504
 f506:
 s504:
@@ -5471,7 +5474,7 @@ f504:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t<Terminal\t\t\\b, font=%.32s")
-  out = append(out, "\\b, font=%.32s")
+  m("\\b, font=%.32s")
   goto s507
 f508:
   // >>>&-1		string	>Terminal		\b, font=%.32s
@@ -5482,7 +5485,7 @@ f508:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t>Terminal\t\t\\b, font=%.32s")
-  out = append(out, "\\b, font=%.32s")
+  m("\\b, font=%.32s")
   goto s507
 f509:
 s507:
@@ -5502,7 +5505,7 @@ f507:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t<Lucida\\ Console\t\\b, TrueTypeFont=%.32s")
-  out = append(out, "\\b, TrueTypeFont=%.32s")
+  m("\\b, TrueTypeFont=%.32s")
   goto s510
 f511:
   // >>>&-1		string	>Lucida\ Console	\b, TrueTypeFont=%.32s
@@ -5513,7 +5516,7 @@ f511:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t>Lucida\\ Console\t\\b, TrueTypeFont=%.32s")
-  out = append(out, "\\b, TrueTypeFont=%.32s")
+  m("\\b, TrueTypeFont=%.32s")
   goto s510
 f512:
 s510:
@@ -5530,7 +5533,7 @@ f503:
     gof = off + ml + 16
   }
   fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ NT\\ \\ 3.1\\0\t\\b, Windows NT-style")
-  out = append(out, "\\b, Windows NT-style")
+  m("\\b, Windows NT-style")
   goto s499
 f513:
   // >0x187	search/0xB55	CONFIG\ \ SYS\ 4.0\0	\b +CONFIG.SYS
@@ -5541,7 +5544,7 @@ f513:
     gof = off + ml + 16
   }
   fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tCONFIG\\ \\ SYS\\ 4.0\\0\t\\b +CONFIG.SYS")
-  out = append(out, "\\b +CONFIG.SYS")
+  m("\\b +CONFIG.SYS")
   goto s499
 f514:
   // >0x187	search/0xB55	AUTOEXECBAT\ 4.0\0	\b +AUTOEXEC.BAT
@@ -5552,7 +5555,7 @@ f514:
     gof = off + ml + 16
   }
   fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tAUTOEXECBAT\\ 4.0\\0\t\\b +AUTOEXEC.BAT")
-  out = append(out, "\\b +AUTOEXEC.BAT")
+  m("\\b +AUTOEXEC.BAT")
   goto s499
 f515:
 s499:
@@ -5564,35 +5567,35 @@ f499:
   if !(ok && (ra == 3318797254)) { goto f516 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t\t0xC5D0D3C6\tDOS EPS Binary File")
-  out = append(out, "DOS EPS Binary File")
+  m("DOS EPS Binary File")
   // >4	long		>0		Postscript starts at byte %d
   off = pof + 4
   ra, ok = f4l(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f517 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tlong\t\t>0\t\tPostscript starts at byte %d")
-  out = append(out, "Postscript starts at byte %d")
+  m("Postscript starts at byte %d")
   // >>8	long		>0		length %d
   off = pof + 8
   ra, ok = f4l(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f518 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>8\tlong\t\t>0\t\tlength %d")
-  out = append(out, "length %d")
+  m("length %d")
   // >>>12	long		>0		Metafile starts at byte %d
   off = pof + 12
   ra, ok = f4l(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f519 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>12\tlong\t\t>0\t\tMetafile starts at byte %d")
-  out = append(out, "Metafile starts at byte %d")
+  m("Metafile starts at byte %d")
   // >>>>16	long		>0		length %d
   off = pof + 16
   ra, ok = f4l(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f520 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>16\tlong\t\t>0\t\tlength %d")
-  out = append(out, "length %d")
+  m("length %d")
   goto s519
 f520:
 s519:
@@ -5604,14 +5607,14 @@ f519:
   if !(ok && (i8(i4(ra)) > 0)) { goto f521 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>20\tlong\t\t>0\t\tTIFF starts at byte %d")
-  out = append(out, "TIFF starts at byte %d")
+  m("TIFF starts at byte %d")
   // >>>>24	long		>0		length %d
   off = pof + 24
   ra, ok = f4l(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f522 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>24\tlong\t\t>0\t\tlength %d")
-  out = append(out, "length %d")
+  m("length %d")
   goto s521
 f522:
 s521:
@@ -5632,7 +5635,7 @@ f516:
   if !(ok && (ra == 574529400)) { goto f523 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x223e9f78\tTNEF")
-  out = append(out, "TNEF")
+  m("TNEF")
   goto end
 f523:
   // 0	string		NG\0\001
@@ -5649,7 +5652,7 @@ f523:
   if !(ok && (ra == 256)) { goto f525 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">2\tulelong\t\t0x00000100\tNorton Guide")
-  out = append(out, "Norton Guide")
+  m("Norton Guide")
   // >>8	string		>\0		"%-.40s"
   off = pof + 8
   {
@@ -5658,7 +5661,7 @@ f523:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>8\tstring\t\t>\\0\t\t\"%-.40s\"")
-  out = append(out, "\"%-.40s\"")
+  m("\"%-.40s\"")
   goto s525
 f526:
   // >>48	string		>\0		\b, %-.66s
@@ -5669,7 +5672,7 @@ f526:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>48\tstring\t\t>\\0\t\t\\b, %-.66s")
-  out = append(out, "\\b, %-.66s")
+  m("\\b, %-.66s")
   goto s525
 f527:
   // >>114	string		>\0		%-.66s
@@ -5680,7 +5683,7 @@ f527:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>114\tstring\t\t>\\0\t\t%-.66s")
-  out = append(out, "%-.66s")
+  m("%-.66s")
   goto s525
 f528:
 s525:
@@ -5695,7 +5698,7 @@ f524:
   if !(ok && (ra == 1212429320)) { goto f529 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tulelong\t0x48443408\t\t4DOS help file")
-  out = append(out, "4DOS help file")
+  m("4DOS help file")
   // >4	string	x			\b, version %-4.4s
   off = pof + 4
   {
@@ -5704,7 +5707,7 @@ f524:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\tx\t\t\t\\b, version %-4.4s")
-  out = append(out, "\\b, version %-4.4s")
+  m("\\b, version %-4.4s")
   goto s529
 f530:
 s529:
@@ -5716,7 +5719,7 @@ f529:
   if !(ok && (ra == 16325548649369164)) { goto f531 }
   gof = off + 8
   fmt.Printf("matched rule: %s\n", "0\tulequad\t0x3a000000024e4c\tMS Advisor help file")
-  out = append(out, "MS Advisor help file")
+  m("MS Advisor help file")
   goto end
 f531:
   // 0	string/b	ITSF\003\000\000\000\x60\000\000\000	MS Windows HtmlHelp Data
@@ -5727,7 +5730,7 @@ f531:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tITSF\\003\\000\\000\\000\\x60\\000\\000\\000\tMS Windows HtmlHelp Data")
-  out = append(out, "MS Windows HtmlHelp Data")
+  m("MS Windows HtmlHelp Data")
   goto end
 f532:
   // 2	string/b	GFA-BASIC3	GFA-BASIC 3 data
@@ -5738,7 +5741,7 @@ f532:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2\tstring/b\tGFA-BASIC3\tGFA-BASIC 3 data")
-  out = append(out, "GFA-BASIC 3 data")
+  m("GFA-BASIC 3 data")
   goto end
 f533:
   // 0	string/b	MSCF\0\0\0\0	Microsoft Cabinet archive data
@@ -5749,12 +5752,12 @@ f533:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMSCF\\0\\0\\0\\0\tMicrosoft Cabinet archive data")
-  out = append(out, "Microsoft Cabinet archive data")
+  m("Microsoft Cabinet archive data")
   // >8	lelong		x		\b, %u bytes
   off = pof + 8
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">8\tlelong\t\tx\t\t\\b, %u bytes")
-  out = append(out, "\\b, %u bytes")
+  m("\\b, %u bytes")
   goto s534
   // >28	leshort		1		\b, 1 file
   off = pof + 28
@@ -5762,7 +5765,7 @@ f533:
   if !(ok && (ra == 1)) { goto f536 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">28\tleshort\t\t1\t\t\\b, 1 file")
-  out = append(out, "\\b, 1 file")
+  m("\\b, 1 file")
   goto s534
 f536:
   // >28	leshort		>1		\b, %u files
@@ -5771,7 +5774,7 @@ f536:
   if !(ok && (i8(i2(ra)) > 1)) { goto f537 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">28\tleshort\t\t>1\t\t\\b, %u files")
-  out = append(out, "\\b, %u files")
+  m("\\b, %u files")
   goto s534
 f537:
 s534:
@@ -5785,14 +5788,14 @@ f534:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tISc(\t\tInstallShield Cabinet archive data")
-  out = append(out, "InstallShield Cabinet archive data")
+  m("InstallShield Cabinet archive data")
   // >5	byte&0xf0	=0x60		version 6,
   off = pof + 5
   ra, ok = f1l(tb, off)
   if !(ok && (ra&240 == 96)) { goto f539 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte&0xf0\t=0x60\t\tversion 6,")
-  out = append(out, "version 6,")
+  m("version 6,")
   goto s538
 f539:
   // >5	byte&0xf0	!0x60		version 4/5,
@@ -5801,7 +5804,7 @@ f539:
   if !(ok && (ra&240 != 96)) { goto f540 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte&0xf0\t!0x60\t\tversion 4/5,")
-  out = append(out, "version 4/5,")
+  m("version 4/5,")
   goto s538
 f540:
   // >(12.l+40)	lelong	x		%u files
@@ -5811,7 +5814,7 @@ f540:
   off = off + 40
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">(12.l+40)\tlelong\tx\t\t%u files")
-  out = append(out, "%u files")
+  m("%u files")
   goto s538
 f541:
 s538:
@@ -5825,14 +5828,14 @@ f538:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMSCE\\0\\0\\0\\0\tMicrosoft WinCE install header")
-  out = append(out, "Microsoft WinCE install header")
+  m("Microsoft WinCE install header")
   // >20	lelong		0		\b, architecture-independent
   off = pof + 20
   ra, ok = f4l(tb, off)
   if !(ok && (ra == 0)) { goto f543 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t0\t\t\\b, architecture-independent")
-  out = append(out, "\\b, architecture-independent")
+  m("\\b, architecture-independent")
   goto s542
 f543:
   // >20	lelong		103		\b, Hitachi SH3
@@ -5841,7 +5844,7 @@ f543:
   if !(ok && (ra == 103)) { goto f544 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t103\t\t\\b, Hitachi SH3")
-  out = append(out, "\\b, Hitachi SH3")
+  m("\\b, Hitachi SH3")
   goto s542
 f544:
   // >20	lelong		104		\b, Hitachi SH4
@@ -5850,7 +5853,7 @@ f544:
   if !(ok && (ra == 104)) { goto f545 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t104\t\t\\b, Hitachi SH4")
-  out = append(out, "\\b, Hitachi SH4")
+  m("\\b, Hitachi SH4")
   goto s542
 f545:
   // >20	lelong		0xA11		\b, StrongARM
@@ -5859,7 +5862,7 @@ f545:
   if !(ok && (ra == 2577)) { goto f546 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t0xA11\t\t\\b, StrongARM")
-  out = append(out, "\\b, StrongARM")
+  m("\\b, StrongARM")
   goto s542
 f546:
   // >20	lelong		4000		\b, MIPS R4000
@@ -5868,7 +5871,7 @@ f546:
   if !(ok && (ra == 4000)) { goto f547 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t4000\t\t\\b, MIPS R4000")
-  out = append(out, "\\b, MIPS R4000")
+  m("\\b, MIPS R4000")
   goto s542
 f547:
   // >20	lelong		10003		\b, Hitachi SH3
@@ -5877,7 +5880,7 @@ f547:
   if !(ok && (ra == 10003)) { goto f548 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t10003\t\t\\b, Hitachi SH3")
-  out = append(out, "\\b, Hitachi SH3")
+  m("\\b, Hitachi SH3")
   goto s542
 f548:
   // >20	lelong		10004		\b, Hitachi SH3E
@@ -5886,7 +5889,7 @@ f548:
   if !(ok && (ra == 10004)) { goto f549 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t10004\t\t\\b, Hitachi SH3E")
-  out = append(out, "\\b, Hitachi SH3E")
+  m("\\b, Hitachi SH3E")
   goto s542
 f549:
   // >20	lelong		10005		\b, Hitachi SH4
@@ -5895,7 +5898,7 @@ f549:
   if !(ok && (ra == 10005)) { goto f550 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t10005\t\t\\b, Hitachi SH4")
-  out = append(out, "\\b, Hitachi SH4")
+  m("\\b, Hitachi SH4")
   goto s542
 f550:
   // >20	lelong		70001		\b, ARM 7TDMI
@@ -5904,7 +5907,7 @@ f550:
   if !(ok && (ra == 70001)) { goto f551 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t70001\t\t\\b, ARM 7TDMI")
-  out = append(out, "\\b, ARM 7TDMI")
+  m("\\b, ARM 7TDMI")
   goto s542
 f551:
   // >52	leshort		1		\b, 1 file
@@ -5913,7 +5916,7 @@ f551:
   if !(ok && (ra == 1)) { goto f552 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">52\tleshort\t\t1\t\t\\b, 1 file")
-  out = append(out, "\\b, 1 file")
+  m("\\b, 1 file")
   goto s542
 f552:
   // >52	leshort		>1		\b, %u files
@@ -5922,7 +5925,7 @@ f552:
   if !(ok && (i8(i2(ra)) > 1)) { goto f553 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">52\tleshort\t\t>1\t\t\\b, %u files")
-  out = append(out, "\\b, %u files")
+  m("\\b, %u files")
   goto s542
 f553:
   // >56	leshort		1		\b, 1 registry entry
@@ -5931,7 +5934,7 @@ f553:
   if !(ok && (ra == 1)) { goto f554 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">56\tleshort\t\t1\t\t\\b, 1 registry entry")
-  out = append(out, "\\b, 1 registry entry")
+  m("\\b, 1 registry entry")
   goto s542
 f554:
   // >56	leshort		>1		\b, %u registry entries
@@ -5940,7 +5943,7 @@ f554:
   if !(ok && (i8(i2(ra)) > 1)) { goto f555 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">56\tleshort\t\t>1\t\t\\b, %u registry entries")
-  out = append(out, "\\b, %u registry entries")
+  m("\\b, %u registry entries")
   goto s542
 f555:
 s542:
@@ -5960,12 +5963,12 @@ f542:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">40\tstring\t\\ EMF\t\tWindows Enhanced Metafile (EMF) image data")
-  out = append(out, "Windows Enhanced Metafile (EMF) image data")
+  m("Windows Enhanced Metafile (EMF) image data")
   // >>44	ulelong x		version 0x%x
   off = pof + 44
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>44\tulelong x\t\tversion 0x%x")
-  out = append(out, "version 0x%x")
+  m("version 0x%x")
   goto s557
 s557:
   goto s556
@@ -5981,7 +5984,7 @@ f556:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\320\\317\\021\\340\\241\\261\\032\\341\tMicrosoft Office Document")
-  out = append(out, "Microsoft Office Document")
+  m("Microsoft Office Document")
   // >546	string	bjbj			Microsoft Word Document
   off = pof + 546
   {
@@ -5990,7 +5993,7 @@ f556:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">546\tstring\tbjbj\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto s559
 f560:
   // >546	string	jbjb			Microsoft Word Document
@@ -6001,7 +6004,7 @@ f560:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">546\tstring\tjbjb\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto s559
 f561:
 s559:
@@ -6015,7 +6018,7 @@ f559:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\224\\246\\056\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f562:
   // 512	string	R\0o\0o\0t\0\ \0E\0n\0t\0r\0y	Microsoft Word Document
@@ -6026,7 +6029,7 @@ f562:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "512\tstring\tR\\0o\\0o\\0t\\0\\ \\0E\\0n\\0t\\0r\\0y\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f563:
   // 0	string/b $RBU
@@ -6045,7 +6048,7 @@ f563:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">23\tstring Dell\t\t\t%s system BIOS")
-  out = append(out, "%s system BIOS")
+  m("%s system BIOS")
   goto s564
 f565:
   // >5	byte   2
@@ -6058,19 +6061,19 @@ f565:
   off = pof + 48
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>48\tbyte   x\t\t\tversion %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s566
   // >>49	byte   x			\b%d.
   off = pof + 49
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>49\tbyte   x\t\t\t\\b%d.")
-  out = append(out, "\\b%d.")
+  m("\\b%d.")
   goto s566
   // >>50	byte   x			\b%d
   off = pof + 50
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>50\tbyte   x\t\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s566
 s566:
   goto s564
@@ -6089,7 +6092,7 @@ f566:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>48\tstring x\t\t\tversion %.3s")
-  out = append(out, "version %.3s")
+  m("version %.3s")
   goto s570
 f571:
 s570:
@@ -6106,14 +6109,14 @@ f564:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tDDS\\040\\174\\000\\000\\000 Microsoft DirectDraw Surface (DDS),")
-  out = append(out, "Microsoft DirectDraw Surface (DDS),")
+  m("Microsoft DirectDraw Surface (DDS),")
   // >16	lelong	>0			%d x
   off = pof + 16
   ra, ok = f4l(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f573 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">16\tlelong\t>0\t\t\t%d x")
-  out = append(out, "%d x")
+  m("%d x")
   goto s572
 f573:
   // >12	lelong	>0			%d,
@@ -6122,7 +6125,7 @@ f573:
   if !(ok && (i8(i4(ra)) > 0)) { goto f574 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tlelong\t>0\t\t\t%d,")
-  out = append(out, "%d,")
+  m("%d,")
   goto s572
 f574:
   // >84	string	x			%.4s
@@ -6133,7 +6136,7 @@ f574:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">84\tstring\tx\t\t\t%.4s")
-  out = append(out, "%.4s")
+  m("%.4s")
   goto s572
 f575:
 s572:
@@ -6147,12 +6150,12 @@ f572:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tITOLITLS\t\tMicrosoft Reader eBook Data")
-  out = append(out, "Microsoft Reader eBook Data")
+  m("Microsoft Reader eBook Data")
   // >8	lelong	x			\b, version %u
   off = pof + 8
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">8\tlelong\tx\t\t\t\\b, version %u")
-  out = append(out, "\\b, version %u")
+  m("\\b, version %u")
   goto s576
 s576:
   goto end
@@ -6165,7 +6168,7 @@ f576:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tB000FF\\n\tWindows Embedded CE binary image")
-  out = append(out, "Windows Embedded CE binary image")
+  m("Windows Embedded CE binary image")
   goto end
 f578:
   // 0	string/b	MSWIM\000\000\000	Windows imaging (WIM) image
@@ -6176,7 +6179,7 @@ f578:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMSWIM\\000\\000\\000\tWindows imaging (WIM) image")
-  out = append(out, "Windows imaging (WIM) image")
+  m("Windows imaging (WIM) image")
   goto end
 f579:
   // 0	string/b	WLPWM\000\000\000	Windows imaging (WIM) image, wimlib pipable format
@@ -6187,7 +6190,7 @@ f579:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tWLPWM\\000\\000\\000\tWindows imaging (WIM) image, wimlib pipable format")
-  out = append(out, "Windows imaging (WIM) image, wimlib pipable format")
+  m("Windows imaging (WIM) image, wimlib pipable format")
   goto end
 f580:
   // 0	string	\xfc\x03\x00	Mallard BASIC program data (v1.11)
@@ -6198,7 +6201,7 @@ f580:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x03\\x00\tMallard BASIC program data (v1.11)")
-  out = append(out, "Mallard BASIC program data (v1.11)")
+  m("Mallard BASIC program data (v1.11)")
   goto end
 f581:
   // 0	string	\xfc\x04\x00	Mallard BASIC program data (v1.29+)
@@ -6209,7 +6212,7 @@ f581:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x04\\x00\tMallard BASIC program data (v1.29+)")
-  out = append(out, "Mallard BASIC program data (v1.29+)")
+  m("Mallard BASIC program data (v1.29+)")
   goto end
 f582:
   // 0	string	\xfc\x03\x01	Mallard BASIC protected program data (v1.11)
@@ -6220,7 +6223,7 @@ f582:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x03\\x01\tMallard BASIC protected program data (v1.11)")
-  out = append(out, "Mallard BASIC protected program data (v1.11)")
+  m("Mallard BASIC protected program data (v1.11)")
   goto end
 f583:
   // 0	string	\xfc\x04\x01	Mallard BASIC protected program data (v1.29+)
@@ -6231,7 +6234,7 @@ f583:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x04\\x01\tMallard BASIC protected program data (v1.29+)")
-  out = append(out, "Mallard BASIC protected program data (v1.29+)")
+  m("Mallard BASIC protected program data (v1.29+)")
   goto end
 f584:
   // 0	string	MIOPEN		Mallard BASIC Jetsam data
@@ -6242,7 +6245,7 @@ f584:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\tMIOPEN\t\tMallard BASIC Jetsam data")
-  out = append(out, "Mallard BASIC Jetsam data")
+  m("Mallard BASIC Jetsam data")
   goto end
 f585:
   // 0	string	Jetsam0		Mallard BASIC Jetsam index data
@@ -6253,7 +6256,7 @@ f585:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\tJetsam0\t\tMallard BASIC Jetsam index data")
-  out = append(out, "Mallard BASIC Jetsam index data")
+  m("Mallard BASIC Jetsam index data")
   goto end
 f586:
   // 0x3	ushort	>1979
@@ -6286,7 +6289,7 @@ f586:
   off = pof + 1
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>0x1 ubyte\tx\tDOS 2.0 backup id file, sequence %d")
-  out = append(out, "DOS 2.0 backup id file, sequence %d")
+  m("DOS 2.0 backup id file, sequence %d")
   goto s590
   // >>>>0x0 ubyte	0xff	\b, last disk
   off = pof + 0
@@ -6294,7 +6297,7 @@ f586:
   if !(ok && (ra == 255)) { goto f592 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>0x0 ubyte\t0xff\t\\b, last disk")
-  out = append(out, "\\b, last disk")
+  m("\\b, last disk")
   goto s590
 f592:
 s590:
@@ -6331,7 +6334,7 @@ f587:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x5\tstring\tx\tDOS 2.0 backed up file %s,")
-  out = append(out, "DOS 2.0 backed up file %s,")
+  m("DOS 2.0 backed up file %s,")
   goto s594
 f595:
   // >>0	ubyte	0xff	complete file
@@ -6340,7 +6343,7 @@ f595:
   if !(ok && (ra == 255)) { goto f596 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>0\tubyte\t0xff\tcomplete file")
-  out = append(out, "complete file")
+  m("complete file")
   goto s594
 f596:
   // >>0	ubyte	!0xff
@@ -6353,7 +6356,7 @@ f596:
   off = pof + 1
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>1\tushort\tx\tsplit file, sequence %d")
-  out = append(out, "split file, sequence %d")
+  m("split file, sequence %d")
   goto s597
 s597:
   goto s594
@@ -6384,7 +6387,7 @@ f593:
   off = pof + 9
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>0x9\tubyte\tx\tDOS 3.3 backup control file, sequence %d")
-  out = append(out, "DOS 3.3 backup control file, sequence %d")
+  m("DOS 3.3 backup control file, sequence %d")
   goto s600
   // >>0x8a	ubyte	0xff	\b, last disk
   off = pof + 138
@@ -6392,7 +6395,7 @@ f593:
   if !(ok && (ra == 255)) { goto f602 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>0x8a\tubyte\t0xff\t\\b, last disk")
-  out = append(out, "\\b, last disk")
+  m("\\b, last disk")
   goto s600
 f602:
 s600:
@@ -6413,6 +6416,9 @@ func Identify__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	belong		0xcafebabe
   off = pof + 0
   ra, ok = f4l(tb, off)
@@ -6425,18 +6431,18 @@ func Identify__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (i8(i4(ra)) > 30)) { goto f1 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tbelong\t\t>30\t\tcompiled Java class data,")
-  out = append(out, "compiled Java class data,")
+  m("compiled Java class data,")
   // >>6	beshort		x	        version %d.
   off = pof + 6
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>6\tbeshort\t\tx\t        version %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s1
   // >>4	beshort		x       	\b%d
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tbeshort\t\tx       \t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s1
   // >>4	belong		0x002e		(Java 1.2)
   off = pof + 4
@@ -6444,7 +6450,7 @@ func Identify__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 46)) { goto f4 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x002e\t\t(Java 1.2)")
-  out = append(out, "(Java 1.2)")
+  m("(Java 1.2)")
   goto s1
 f4:
   // >>4	belong		0x002f		(Java 1.3)
@@ -6453,7 +6459,7 @@ f4:
   if !(ok && (ra == 47)) { goto f5 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x002f\t\t(Java 1.3)")
-  out = append(out, "(Java 1.3)")
+  m("(Java 1.3)")
   goto s1
 f5:
   // >>4	belong		0x0030		(Java 1.4)
@@ -6462,7 +6468,7 @@ f5:
   if !(ok && (ra == 48)) { goto f6 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x0030\t\t(Java 1.4)")
-  out = append(out, "(Java 1.4)")
+  m("(Java 1.4)")
   goto s1
 f6:
   // >>4	belong		0x0031		(Java 1.5)
@@ -6471,7 +6477,7 @@ f6:
   if !(ok && (ra == 49)) { goto f7 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x0031\t\t(Java 1.5)")
-  out = append(out, "(Java 1.5)")
+  m("(Java 1.5)")
   goto s1
 f7:
   // >>4	belong		0x0032		(Java 1.6)
@@ -6480,7 +6486,7 @@ f7:
   if !(ok && (ra == 50)) { goto f8 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t0x0032\t\t(Java 1.6)")
-  out = append(out, "(Java 1.6)")
+  m("(Java 1.6)")
   goto s1
 f8:
 s1:
@@ -6495,18 +6501,18 @@ f0:
   if !(ok && (ra == 3405697037)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t\t0xcafed00d\tJAR compressed with pack200,")
-  out = append(out, "JAR compressed with pack200,")
+  m("JAR compressed with pack200,")
   // >5	byte		x		version %d.
   off = pof + 5
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\tx\t\tversion %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s9
   // >4	byte		x		\b%d
   off = pof + 4
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\tx\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s9
 s9:
   goto end
@@ -6517,18 +6523,18 @@ f9:
   if !(ok && (ra == 3405697037)) { goto f12 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t\t0xcafed00d\tJAR compressed with pack200,")
-  out = append(out, "JAR compressed with pack200,")
+  m("JAR compressed with pack200,")
   // >5	byte		x		version %d.
   off = pof + 5
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\tx\t\tversion %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s12
   // >4	byte		x		\b%d
   off = pof + 4
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\tx\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s12
 s12:
   goto end
@@ -6545,15 +6551,15 @@ f12:
   if !(ok && (ra == 1)) { goto f16 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tbelong\t\t1\t\tMach-O universal binary with 1 architecture:")
-  out = append(out, "Mach-O universal binary with 1 architecture:")
+  m("Mach-O universal binary with 1 architecture:")
   // >>8	use		mach-o		\b
   off = pof + 8
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>8\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s16
 s16:
   goto s15
@@ -6570,24 +6576,24 @@ f16:
   if !(ok && (i8(i4(ra)) < 20)) { goto f19 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>4\tbelong\t\t<20\t\tMach-O universal binary with %ld architectures:")
-  out = append(out, "Mach-O universal binary with %ld architectures:")
+  m("Mach-O universal binary with %ld architectures:")
   // >>>8	use		mach-o		\b
   off = pof + 8
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>8\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s19
   // >>>28	use		mach-o		\b
   off = pof + 28
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>28\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s19
 s19:
   goto s18
@@ -6602,10 +6608,10 @@ f19:
   off = pof + 48
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>48\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s22
 s22:
   goto s18
@@ -6620,10 +6626,10 @@ f22:
   off = pof + 68
   {
     ss, _ := IdentifyMachO(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>68\tuse\t\tmach-o\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s24
 s24:
   goto s18
@@ -6642,7 +6648,7 @@ f15:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/sh\t\tPOSIX shell script text executable")
-  out = append(out, "POSIX shell script text executable")
+  m("POSIX shell script text executable")
   goto end
 f26:
   // 0	string/wb	#!\ /bin/sh		POSIX shell script executable (binary data)
@@ -6653,7 +6659,7 @@ f26:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /bin/sh\t\tPOSIX shell script executable (binary data)")
-  out = append(out, "POSIX shell script executable (binary data)")
+  m("POSIX shell script executable (binary data)")
   goto end
 f27:
   // 0	string/wt	#!\ /bin/csh		C shell script text executable
@@ -6664,7 +6670,7 @@ f27:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/csh\t\tC shell script text executable")
-  out = append(out, "C shell script text executable")
+  m("C shell script text executable")
   goto end
 f28:
   // 0	string/wt	#!\ /bin/ksh		Korn shell script text executable
@@ -6675,7 +6681,7 @@ f28:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/ksh\t\tKorn shell script text executable")
-  out = append(out, "Korn shell script text executable")
+  m("Korn shell script text executable")
   goto end
 f29:
   // 0	string/wb	#!\ /bin/ksh		Korn shell script executable (binary data)
@@ -6686,7 +6692,7 @@ f29:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /bin/ksh\t\tKorn shell script executable (binary data)")
-  out = append(out, "Korn shell script executable (binary data)")
+  m("Korn shell script executable (binary data)")
   goto end
 f30:
   // 0	string/wt 	#!\ /bin/tcsh		Tenex C shell script text executable
@@ -6697,7 +6703,7 @@ f30:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt \t#!\\ /bin/tcsh\t\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f31:
   // 0	string/wt	#!\ /usr/bin/tcsh	Tenex C shell script text executable
@@ -6708,7 +6714,7 @@ f31:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/tcsh\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f32:
   // 0	string/wt 	#!\ /usr/local/tcsh	Tenex C shell script text executable
@@ -6719,7 +6725,7 @@ f32:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt \t#!\\ /usr/local/tcsh\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f33:
   // 0	string/wt	#!\ /usr/local/bin/tcsh	Tenex C shell script text executable
@@ -6730,7 +6736,7 @@ f33:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/tcsh\tTenex C shell script text executable")
-  out = append(out, "Tenex C shell script text executable")
+  m("Tenex C shell script text executable")
   goto end
 f34:
   // 0	string/wt	#!\ /bin/zsh		Paul Falstad's zsh script text executable
@@ -6741,7 +6747,7 @@ f34:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/zsh\t\tPaul Falstad's zsh script text executable")
-  out = append(out, "Paul Falstad's zsh script text executable")
+  m("Paul Falstad's zsh script text executable")
   goto end
 f35:
   // 0	string/wt	#!\ /usr/bin/zsh	Paul Falstad's zsh script text executable
@@ -6752,7 +6758,7 @@ f35:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/zsh\tPaul Falstad's zsh script text executable")
-  out = append(out, "Paul Falstad's zsh script text executable")
+  m("Paul Falstad's zsh script text executable")
   goto end
 f36:
   // 0	string/wt	#!\ /usr/local/bin/zsh	Paul Falstad's zsh script text executable
@@ -6763,7 +6769,7 @@ f36:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/zsh\tPaul Falstad's zsh script text executable")
-  out = append(out, "Paul Falstad's zsh script text executable")
+  m("Paul Falstad's zsh script text executable")
   goto end
 f37:
   // 0	string/wt	#!\ /usr/local/bin/ash	Neil Brown's ash script text executable
@@ -6774,7 +6780,7 @@ f37:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/ash\tNeil Brown's ash script text executable")
-  out = append(out, "Neil Brown's ash script text executable")
+  m("Neil Brown's ash script text executable")
   goto end
 f38:
   // 0	string/wt	#!\ /usr/local/bin/ae	Neil Brown's ae script text executable
@@ -6785,7 +6791,7 @@ f38:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/ae\tNeil Brown's ae script text executable")
-  out = append(out, "Neil Brown's ae script text executable")
+  m("Neil Brown's ae script text executable")
   goto end
 f39:
   // 0	string/wt	#!\ /bin/nawk		new awk script text executable
@@ -6796,7 +6802,7 @@ f39:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/nawk\t\tnew awk script text executable")
-  out = append(out, "new awk script text executable")
+  m("new awk script text executable")
   goto end
 f40:
   // 0	string/wt	#!\ /usr/bin/nawk	new awk script text executable
@@ -6807,7 +6813,7 @@ f40:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/nawk\tnew awk script text executable")
-  out = append(out, "new awk script text executable")
+  m("new awk script text executable")
   goto end
 f41:
   // 0	string/wt	#!\ /usr/local/bin/nawk	new awk script text executable
@@ -6818,7 +6824,7 @@ f41:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/nawk\tnew awk script text executable")
-  out = append(out, "new awk script text executable")
+  m("new awk script text executable")
   goto end
 f42:
   // 0	string/wt	#!\ /bin/gawk		GNU awk script text executable
@@ -6829,7 +6835,7 @@ f42:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/gawk\t\tGNU awk script text executable")
-  out = append(out, "GNU awk script text executable")
+  m("GNU awk script text executable")
   goto end
 f43:
   // 0	string/wt	#!\ /usr/bin/gawk	GNU awk script text executable
@@ -6840,7 +6846,7 @@ f43:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/gawk\tGNU awk script text executable")
-  out = append(out, "GNU awk script text executable")
+  m("GNU awk script text executable")
   goto end
 f44:
   // 0	string/wt	#!\ /usr/local/bin/gawk	GNU awk script text executable
@@ -6851,7 +6857,7 @@ f44:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/gawk\tGNU awk script text executable")
-  out = append(out, "GNU awk script text executable")
+  m("GNU awk script text executable")
   goto end
 f45:
   // 0	string/wt	#!\ /bin/awk		awk script text executable
@@ -6862,7 +6868,7 @@ f45:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/awk\t\tawk script text executable")
-  out = append(out, "awk script text executable")
+  m("awk script text executable")
   goto end
 f46:
   // 0	string/wt	#!\ /usr/bin/awk	awk script text executable
@@ -6873,7 +6879,7 @@ f46:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/awk\tawk script text executable")
-  out = append(out, "awk script text executable")
+  m("awk script text executable")
   goto end
 f47:
   // 0	string/wt	#!\ /bin/rc	Plan 9 rc shell script text executable
@@ -6884,7 +6890,7 @@ f47:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/rc\tPlan 9 rc shell script text executable")
-  out = append(out, "Plan 9 rc shell script text executable")
+  m("Plan 9 rc shell script text executable")
   goto end
 f48:
   // 0	string/wt	#!\ /bin/bash	Bourne-Again shell script text executable
@@ -6895,7 +6901,7 @@ f48:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /bin/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f49:
   // 0	string/wb	#!\ /bin/bash	Bourne-Again shell script executable (binary data)
@@ -6906,7 +6912,7 @@ f49:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /bin/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f50:
   // 0	string/wt	#!\ /usr/bin/bash	Bourne-Again shell script text executable
@@ -6917,7 +6923,7 @@ f50:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/bin/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f51:
   // 0	string/wb	#!\ /usr/bin/bash	Bourne-Again shell script executable (binary data)
@@ -6928,7 +6934,7 @@ f51:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /usr/bin/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f52:
   // 0	string/wt	#!\ /usr/local/bash	Bourne-Again shell script text executable
@@ -6939,7 +6945,7 @@ f52:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f53:
   // 0	string/wb	#!\ /usr/local/bash	Bourne-Again shell script executable (binary data)
@@ -6950,7 +6956,7 @@ f53:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /usr/local/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f54:
   // 0	string/wt	#!\ /usr/local/bin/bash	Bourne-Again shell script text executable
@@ -6961,7 +6967,7 @@ f54:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wt\t#!\\ /usr/local/bin/bash\tBourne-Again shell script text executable")
-  out = append(out, "Bourne-Again shell script text executable")
+  m("Bourne-Again shell script text executable")
   goto end
 f55:
   // 0	string/wb	#!\ /usr/local/bin/bash	Bourne-Again shell script executable (binary data)
@@ -6972,7 +6978,7 @@ f55:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/wb\t#!\\ /usr/local/bin/bash\tBourne-Again shell script executable (binary data)")
-  out = append(out, "Bourne-Again shell script executable (binary data)")
+  m("Bourne-Again shell script executable (binary data)")
   goto end
 f56:
   // 0	search/1/c	=<?php			PHP script text
@@ -6983,7 +6989,7 @@ f56:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1/c\t=<?php\t\t\tPHP script text")
-  out = append(out, "PHP script text")
+  m("PHP script text")
   goto end
 f57:
   // 0	search/1	=<?\n			PHP script text
@@ -6994,7 +7000,7 @@ f57:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1\t=<?\\n\t\t\tPHP script text")
-  out = append(out, "PHP script text")
+  m("PHP script text")
   goto end
 f58:
   // 0	search/1	=<?\r			PHP script text
@@ -7005,7 +7011,7 @@ f58:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1\t=<?\\r\t\t\tPHP script text")
-  out = append(out, "PHP script text")
+  m("PHP script text")
   goto end
 f59:
   // 0	search/1/w	#!\ /usr/local/bin/php	PHP script text executable
@@ -7016,7 +7022,7 @@ f59:
     gof = off + ml + 21
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1/w\t#!\\ /usr/local/bin/php\tPHP script text executable")
-  out = append(out, "PHP script text executable")
+  m("PHP script text executable")
   goto end
 f60:
   // 0	search/1/w	#!\ /usr/bin/php	PHP script text executable
@@ -7027,7 +7033,7 @@ f60:
     gof = off + ml + 15
   }
   fmt.Printf("matched rule: %s\n", "0\tsearch/1/w\t#!\\ /usr/bin/php\tPHP script text executable")
-  out = append(out, "PHP script text executable")
+  m("PHP script text executable")
   goto end
 f61:
   // 0	string	=<?php\ /*\ Smarty\ version	Smarty compiled template
@@ -7038,7 +7044,7 @@ f61:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t=<?php\\ /*\\ Smarty\\ version\tSmarty compiled template")
-  out = append(out, "Smarty compiled template")
+  m("Smarty compiled template")
   goto end
 f62:
   // 0	string		Zend\x00		PHP script Zend Optimizer data
@@ -7049,7 +7055,7 @@ f62:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tZend\\x00\t\tPHP script Zend Optimizer data")
-  out = append(out, "PHP script Zend Optimizer data")
+  m("PHP script Zend Optimizer data")
   goto end
 f63:
   // 0	string/t	$!			DCL command file
@@ -7060,7 +7066,7 @@ f63:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/t\t$!\t\t\tDCL command file")
-  out = append(out, "DCL command file")
+  m("DCL command file")
   goto end
 f64:
   // 0	string		#!/usr/bin/pdmenu	Pdmenu configuration file text
@@ -7071,7 +7077,7 @@ f64:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t#!/usr/bin/pdmenu\tPdmenu configuration file text")
-  out = append(out, "Pdmenu configuration file text")
+  m("Pdmenu configuration file text")
   goto end
 f65:
   // 0	string		\177ELF		ELF
@@ -7082,14 +7088,14 @@ f65:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t\\177ELF\t\tELF")
-  out = append(out, "ELF")
+  m("ELF")
   // >4	byte		0		invalid class
   off = pof + 4
   ra, ok = f1b(tb, off)
   if !(ok && (ra == 0)) { goto f67 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\t0\t\tinvalid class")
-  out = append(out, "invalid class")
+  m("invalid class")
   goto s66
 f67:
   // >4	byte		1		32-bit
@@ -7098,7 +7104,7 @@ f67:
   if !(ok && (ra == 1)) { goto f68 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\t1\t\t32-bit")
-  out = append(out, "32-bit")
+  m("32-bit")
   goto s66
 f68:
   // >4	byte		2		64-bit
@@ -7107,7 +7113,7 @@ f68:
   if !(ok && (ra == 2)) { goto f69 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">4\tbyte\t\t2\t\t64-bit")
-  out = append(out, "64-bit")
+  m("64-bit")
   goto s66
 f69:
   // >5	byte		0		invalid byte order
@@ -7116,7 +7122,7 @@ f69:
   if !(ok && (ra == 0)) { goto f70 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\t0\t\tinvalid byte order")
-  out = append(out, "invalid byte order")
+  m("invalid byte order")
   goto s66
 f70:
   // >5	byte		1		LSB
@@ -7125,12 +7131,12 @@ f70:
   if !(ok && (ra == 1)) { goto f71 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\t1\t\tLSB")
-  out = append(out, "LSB")
+  m("LSB")
   // >>0	use		elf-le
   off = pof + 0
   {
     ss, _ := IdentifyElfLe(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0\tuse\t\telf-le")
   goto s71
@@ -7143,12 +7149,12 @@ f71:
   if !(ok && (ra == 2)) { goto f73 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte\t\t2\t\tMSB")
-  out = append(out, "MSB")
+  m("MSB")
   // >>0	use		\^elf-le
   off = pof + 0
   {
     ss, _ := IdentifyElfLe__Swapped(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0\tuse\t\t\\^elf-le")
   goto s73
@@ -7169,7 +7175,7 @@ f73:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>8\tstring\t\t>\\0\t\t(%s)")
-  out = append(out, "(%s)")
+  m("(%s)")
   goto s75
 f76:
 s75:
@@ -7189,7 +7195,7 @@ f75:
   if !(ok && (ra == 0)) { goto f78 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t0\t\t(SYSV)")
-  out = append(out, "(SYSV)")
+  m("(SYSV)")
   goto s77
 f78:
   // >>7	byte		1		(HP-UX)
@@ -7198,7 +7204,7 @@ f78:
   if !(ok && (ra == 1)) { goto f79 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t1\t\t(HP-UX)")
-  out = append(out, "(HP-UX)")
+  m("(HP-UX)")
   goto s77
 f79:
   // >>7	byte		2		(NetBSD)
@@ -7207,7 +7213,7 @@ f79:
   if !(ok && (ra == 2)) { goto f80 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t2\t\t(NetBSD)")
-  out = append(out, "(NetBSD)")
+  m("(NetBSD)")
   goto s77
 f80:
   // >>7	byte		3		(GNU/Linux)
@@ -7216,7 +7222,7 @@ f80:
   if !(ok && (ra == 3)) { goto f81 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t3\t\t(GNU/Linux)")
-  out = append(out, "(GNU/Linux)")
+  m("(GNU/Linux)")
   goto s77
 f81:
   // >>7	byte		4		(GNU/Hurd)
@@ -7225,7 +7231,7 @@ f81:
   if !(ok && (ra == 4)) { goto f82 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t4\t\t(GNU/Hurd)")
-  out = append(out, "(GNU/Hurd)")
+  m("(GNU/Hurd)")
   goto s77
 f82:
   // >>7	byte		5		(86Open)
@@ -7234,7 +7240,7 @@ f82:
   if !(ok && (ra == 5)) { goto f83 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t5\t\t(86Open)")
-  out = append(out, "(86Open)")
+  m("(86Open)")
   goto s77
 f83:
   // >>7	byte		6		(Solaris)
@@ -7243,7 +7249,7 @@ f83:
   if !(ok && (ra == 6)) { goto f84 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t6\t\t(Solaris)")
-  out = append(out, "(Solaris)")
+  m("(Solaris)")
   goto s77
 f84:
   // >>7	byte		7		(Monterey)
@@ -7252,7 +7258,7 @@ f84:
   if !(ok && (ra == 7)) { goto f85 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t7\t\t(Monterey)")
-  out = append(out, "(Monterey)")
+  m("(Monterey)")
   goto s77
 f85:
   // >>7	byte		8		(IRIX)
@@ -7261,7 +7267,7 @@ f85:
   if !(ok && (ra == 8)) { goto f86 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t8\t\t(IRIX)")
-  out = append(out, "(IRIX)")
+  m("(IRIX)")
   goto s77
 f86:
   // >>7	byte		9		(FreeBSD)
@@ -7270,7 +7276,7 @@ f86:
   if !(ok && (ra == 9)) { goto f87 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t9\t\t(FreeBSD)")
-  out = append(out, "(FreeBSD)")
+  m("(FreeBSD)")
   goto s77
 f87:
   // >>7	byte		10		(Tru64)
@@ -7279,7 +7285,7 @@ f87:
   if !(ok && (ra == 10)) { goto f88 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t10\t\t(Tru64)")
-  out = append(out, "(Tru64)")
+  m("(Tru64)")
   goto s77
 f88:
   // >>7	byte		11		(Novell Modesto)
@@ -7288,7 +7294,7 @@ f88:
   if !(ok && (ra == 11)) { goto f89 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t11\t\t(Novell Modesto)")
-  out = append(out, "(Novell Modesto)")
+  m("(Novell Modesto)")
   goto s77
 f89:
   // >>7	byte		12		(OpenBSD)
@@ -7297,7 +7303,7 @@ f89:
   if !(ok && (ra == 12)) { goto f90 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t12\t\t(OpenBSD)")
-  out = append(out, "(OpenBSD)")
+  m("(OpenBSD)")
   goto s77
 f90:
 s77:
@@ -7317,7 +7323,7 @@ f77:
   if !(ok && (ra == 13)) { goto f92 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7     byte            13              (OpenVMS)")
-  out = append(out, "(OpenVMS)")
+  m("(OpenVMS)")
   goto s91
 f92:
   // >>7	byte		97		(ARM)
@@ -7326,7 +7332,7 @@ f92:
   if !(ok && (ra == 97)) { goto f93 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t97\t\t(ARM)")
-  out = append(out, "(ARM)")
+  m("(ARM)")
   goto s91
 f93:
   // >>7	byte		255		(embedded)
@@ -7335,7 +7341,7 @@ f93:
   if !(ok && (ra == 255)) { goto f94 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>7\tbyte\t\t255\t\t(embedded)")
-  out = append(out, "(embedded)")
+  m("(embedded)")
   goto s91
 f94:
 s91:
@@ -7350,12 +7356,12 @@ f66:
   if !(ok && (ra&4294967294 == 4277009102)) { goto f95 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tlelong&0xfffffffe\t0xfeedface\tMach-O")
-  out = append(out, "Mach-O")
+  m("Mach-O")
   // >0	use	\^mach-o-be
   off = pof + 0
   {
     ss, _ := IdentifyMachOBe__Swapped(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\\^mach-o-be")
   goto s95
@@ -7368,12 +7374,12 @@ f95:
   if !(ok && (ra&4294967294 == 4277009102)) { goto f97 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong&0xfffffffe\t0xfeedface\tMach-O")
-  out = append(out, "Mach-O")
+  m("Mach-O")
   // >0	use	mach-o-be
   off = pof + 0
   {
     ss, _ := IdentifyMachOBe(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\tmach-o-be")
   goto s97
@@ -7396,7 +7402,7 @@ f97:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\t\\ echo\\ off\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f100:
   // >1	string/cW	echo\ off	DOS batch file text
@@ -7407,7 +7413,7 @@ f100:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\techo\\ off\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f101:
   // >1	string/cW	rem		DOS batch file text
@@ -7418,7 +7424,7 @@ f101:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\trem\t\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f102:
   // >1	string/cW	set\ 		DOS batch file text
@@ -7429,7 +7435,7 @@ f102:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1\tstring/cW\tset\\ \t\tDOS batch file text")
-  out = append(out, "DOS batch file text")
+  m("DOS batch file text")
   goto s99
 f103:
 s99:
@@ -7461,7 +7467,7 @@ f105:
   if !(ok && (ra == 358)) { goto f106 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x166\tMS Windows COFF MIPS R4000 object file")
-  out = append(out, "MS Windows COFF MIPS R4000 object file")
+  m("MS Windows COFF MIPS R4000 object file")
   goto end
 f106:
   // 0	leshort		0x184	MS Windows COFF Alpha object file
@@ -7470,7 +7476,7 @@ f106:
   if !(ok && (ra == 388)) { goto f107 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x184\tMS Windows COFF Alpha object file")
-  out = append(out, "MS Windows COFF Alpha object file")
+  m("MS Windows COFF Alpha object file")
   goto end
 f107:
   // 0	leshort		0x268	MS Windows COFF Motorola 68000 object file
@@ -7479,7 +7485,7 @@ f107:
   if !(ok && (ra == 616)) { goto f108 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x268\tMS Windows COFF Motorola 68000 object file")
-  out = append(out, "MS Windows COFF Motorola 68000 object file")
+  m("MS Windows COFF Motorola 68000 object file")
   goto end
 f108:
   // 0	leshort		0x1f0	MS Windows COFF PowerPC object file
@@ -7488,7 +7494,7 @@ f108:
   if !(ok && (ra == 496)) { goto f109 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x1f0\tMS Windows COFF PowerPC object file")
-  out = append(out, "MS Windows COFF PowerPC object file")
+  m("MS Windows COFF PowerPC object file")
   goto end
 f109:
   // 0	leshort		0x290	MS Windows COFF PA-RISC object file
@@ -7497,7 +7503,7 @@ f109:
   if !(ok && (ra == 656)) { goto f110 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x290\tMS Windows COFF PA-RISC object file")
-  out = append(out, "MS Windows COFF PA-RISC object file")
+  m("MS Windows COFF PA-RISC object file")
   goto end
 f110:
   // 0	string/b	MZ
@@ -7514,7 +7520,7 @@ f110:
   if !(ok && (i8(i2(ra)) < 64)) { goto f112 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">0x18\tleshort <0x40 MS-DOS executable")
-  out = append(out, "MS-DOS executable")
+  m("MS-DOS executable")
   goto s111
 f112:
   // >0x18  leshort >0x3f
@@ -7533,7 +7539,7 @@ f112:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string PE\\0\\0 PE")
-  out = append(out, "PE")
+  m("PE")
   // >>>(0x3c.l+24)	leshort		0x010b	\b32 executable
   ra, ok = f4b(tb, 60)
   if !ok { goto f115 }
@@ -7543,7 +7549,7 @@ f112:
   if !(ok && (ra == 267)) { goto f115 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x010b\t\\b32 executable")
-  out = append(out, "\\b32 executable")
+  m("\\b32 executable")
   goto s114
 f115:
   // >>>(0x3c.l+24)	leshort		0x020b	\b32+ executable
@@ -7555,7 +7561,7 @@ f115:
   if !(ok && (ra == 523)) { goto f116 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x020b\t\\b32+ executable")
-  out = append(out, "\\b32+ executable")
+  m("\\b32+ executable")
   goto s114
 f116:
   // >>>(0x3c.l+24)	leshort		0x0107	ROM image
@@ -7567,7 +7573,7 @@ f116:
   if !(ok && (ra == 263)) { goto f117 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tleshort\t\t0x0107\tROM image")
-  out = append(out, "ROM image")
+  m("ROM image")
   goto s114
 f117:
   // >>>(0x3c.l+24)	default		x	Unknown PE signature
@@ -7578,12 +7584,12 @@ f117:
   // uh oh unhandled kind default
   goto f118
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+24)\tdefault\t\tx\tUnknown PE signature")
-  out = append(out, "Unknown PE signature")
+  m("Unknown PE signature")
   // >>>>&0 		leshort		x	0x%x
   off = pof + gof + 0
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>&0 \t\tleshort\t\tx\t0x%x")
-  out = append(out, "0x%x")
+  m("0x%x")
   goto s118
 s118:
   goto s114
@@ -7597,7 +7603,7 @@ f118:
   if !(ok && (i8(i2(ra))&8192 > 0)) { goto f120 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x2000\t>0\t(DLL)")
-  out = append(out, "(DLL)")
+  m("(DLL)")
   goto s114
 f120:
   // >>>(0x3c.l+92)	leshort		1	(native)
@@ -7609,7 +7615,7 @@ f120:
   if !(ok && (ra == 1)) { goto f121 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t1\t(native)")
-  out = append(out, "(native)")
+  m("(native)")
   goto s114
 f121:
   // >>>(0x3c.l+92)	leshort		2	(GUI)
@@ -7621,7 +7627,7 @@ f121:
   if !(ok && (ra == 2)) { goto f122 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t2\t(GUI)")
-  out = append(out, "(GUI)")
+  m("(GUI)")
   goto s114
 f122:
   // >>>(0x3c.l+92)	leshort		3	(console)
@@ -7633,7 +7639,7 @@ f122:
   if !(ok && (ra == 3)) { goto f123 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t3\t(console)")
-  out = append(out, "(console)")
+  m("(console)")
   goto s114
 f123:
   // >>>(0x3c.l+92)	leshort		7	(POSIX)
@@ -7645,7 +7651,7 @@ f123:
   if !(ok && (ra == 7)) { goto f124 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t7\t(POSIX)")
-  out = append(out, "(POSIX)")
+  m("(POSIX)")
   goto s114
 f124:
   // >>>(0x3c.l+92)	leshort		9	(Windows CE)
@@ -7657,7 +7663,7 @@ f124:
   if !(ok && (ra == 9)) { goto f125 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t9\t(Windows CE)")
-  out = append(out, "(Windows CE)")
+  m("(Windows CE)")
   goto s114
 f125:
   // >>>(0x3c.l+92)	leshort		10	(EFI application)
@@ -7669,7 +7675,7 @@ f125:
   if !(ok && (ra == 10)) { goto f126 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t10\t(EFI application)")
-  out = append(out, "(EFI application)")
+  m("(EFI application)")
   goto s114
 f126:
   // >>>(0x3c.l+92)	leshort		11	(EFI boot service driver)
@@ -7681,7 +7687,7 @@ f126:
   if !(ok && (ra == 11)) { goto f127 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t11\t(EFI boot service driver)")
-  out = append(out, "(EFI boot service driver)")
+  m("(EFI boot service driver)")
   goto s114
 f127:
   // >>>(0x3c.l+92)	leshort		12	(EFI runtime driver)
@@ -7693,7 +7699,7 @@ f127:
   if !(ok && (ra == 12)) { goto f128 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t12\t(EFI runtime driver)")
-  out = append(out, "(EFI runtime driver)")
+  m("(EFI runtime driver)")
   goto s114
 f128:
   // >>>(0x3c.l+92)	leshort		13	(EFI ROM)
@@ -7705,7 +7711,7 @@ f128:
   if !(ok && (ra == 13)) { goto f129 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t13\t(EFI ROM)")
-  out = append(out, "(EFI ROM)")
+  m("(EFI ROM)")
   goto s114
 f129:
   // >>>(0x3c.l+92)	leshort		14	(XBOX)
@@ -7717,7 +7723,7 @@ f129:
   if !(ok && (ra == 14)) { goto f130 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t14\t(XBOX)")
-  out = append(out, "(XBOX)")
+  m("(XBOX)")
   goto s114
 f130:
   // >>>(0x3c.l+92)	leshort		15	(Windows boot application)
@@ -7729,7 +7735,7 @@ f130:
   if !(ok && (ra == 15)) { goto f131 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tleshort\t\t15\t(Windows boot application)")
-  out = append(out, "(Windows boot application)")
+  m("(Windows boot application)")
   goto s114
 f131:
   // >>>(0x3c.l+92)	default		x	(Unknown subsystem
@@ -7740,12 +7746,12 @@ f131:
   // uh oh unhandled kind default
   goto f132
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+92)\tdefault\t\tx\t(Unknown subsystem")
-  out = append(out, "(Unknown subsystem")
+  m("(Unknown subsystem")
   // >>>>&0		leshort		x	0x%x)
   off = pof + gof + 0
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>&0\t\tleshort\t\tx\t0x%x)")
-  out = append(out, "0x%x)")
+  m("0x%x)")
   goto s132
 s132:
   goto s114
@@ -7759,7 +7765,7 @@ f132:
   if !(ok && (ra == 332)) { goto f134 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x14c\tIntel 80386")
-  out = append(out, "Intel 80386")
+  m("Intel 80386")
   goto s114
 f134:
   // >>>(0x3c.l+4)	leshort		0x166	MIPS R4000
@@ -7771,7 +7777,7 @@ f134:
   if !(ok && (ra == 358)) { goto f135 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x166\tMIPS R4000")
-  out = append(out, "MIPS R4000")
+  m("MIPS R4000")
   goto s114
 f135:
   // >>>(0x3c.l+4)	leshort		0x168	MIPS R10000
@@ -7783,7 +7789,7 @@ f135:
   if !(ok && (ra == 360)) { goto f136 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x168\tMIPS R10000")
-  out = append(out, "MIPS R10000")
+  m("MIPS R10000")
   goto s114
 f136:
   // >>>(0x3c.l+4)	leshort		0x184	Alpha
@@ -7795,7 +7801,7 @@ f136:
   if !(ok && (ra == 388)) { goto f137 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x184\tAlpha")
-  out = append(out, "Alpha")
+  m("Alpha")
   goto s114
 f137:
   // >>>(0x3c.l+4)	leshort		0x1a2	Hitachi SH3
@@ -7807,7 +7813,7 @@ f137:
   if !(ok && (ra == 418)) { goto f138 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a2\tHitachi SH3")
-  out = append(out, "Hitachi SH3")
+  m("Hitachi SH3")
   goto s114
 f138:
   // >>>(0x3c.l+4)	leshort		0x1a6	Hitachi SH4
@@ -7819,7 +7825,7 @@ f138:
   if !(ok && (ra == 422)) { goto f139 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1a6\tHitachi SH4")
-  out = append(out, "Hitachi SH4")
+  m("Hitachi SH4")
   goto s114
 f139:
   // >>>(0x3c.l+4)	leshort		0x1c0	ARM
@@ -7831,7 +7837,7 @@ f139:
   if !(ok && (ra == 448)) { goto f140 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c0\tARM")
-  out = append(out, "ARM")
+  m("ARM")
   goto s114
 f140:
   // >>>(0x3c.l+4)	leshort		0x1c2	ARM Thumb
@@ -7843,7 +7849,7 @@ f140:
   if !(ok && (ra == 450)) { goto f141 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c2\tARM Thumb")
-  out = append(out, "ARM Thumb")
+  m("ARM Thumb")
   goto s114
 f141:
   // >>>(0x3c.l+4)	leshort		0x1c4	ARMv7 Thumb
@@ -7855,7 +7861,7 @@ f141:
   if !(ok && (ra == 452)) { goto f142 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1c4\tARMv7 Thumb")
-  out = append(out, "ARMv7 Thumb")
+  m("ARMv7 Thumb")
   goto s114
 f142:
   // >>>(0x3c.l+4)	leshort		0x1f0	PowerPC
@@ -7867,7 +7873,7 @@ f142:
   if !(ok && (ra == 496)) { goto f143 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x1f0\tPowerPC")
-  out = append(out, "PowerPC")
+  m("PowerPC")
   goto s114
 f143:
   // >>>(0x3c.l+4)	leshort		0x200	Intel Itanium
@@ -7879,7 +7885,7 @@ f143:
   if !(ok && (ra == 512)) { goto f144 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x200\tIntel Itanium")
-  out = append(out, "Intel Itanium")
+  m("Intel Itanium")
   goto s114
 f144:
   // >>>(0x3c.l+4)	leshort		0x266	MIPS16
@@ -7891,7 +7897,7 @@ f144:
   if !(ok && (ra == 614)) { goto f145 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x266\tMIPS16")
-  out = append(out, "MIPS16")
+  m("MIPS16")
   goto s114
 f145:
   // >>>(0x3c.l+4)	leshort		0x268	Motorola 68000
@@ -7903,7 +7909,7 @@ f145:
   if !(ok && (ra == 616)) { goto f146 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x268\tMotorola 68000")
-  out = append(out, "Motorola 68000")
+  m("Motorola 68000")
   goto s114
 f146:
   // >>>(0x3c.l+4)	leshort		0x290	PA-RISC
@@ -7915,7 +7921,7 @@ f146:
   if !(ok && (ra == 656)) { goto f147 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x290\tPA-RISC")
-  out = append(out, "PA-RISC")
+  m("PA-RISC")
   goto s114
 f147:
   // >>>(0x3c.l+4)	leshort		0x366	MIPSIV
@@ -7927,7 +7933,7 @@ f147:
   if !(ok && (ra == 870)) { goto f148 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x366\tMIPSIV")
-  out = append(out, "MIPSIV")
+  m("MIPSIV")
   goto s114
 f148:
   // >>>(0x3c.l+4)	leshort		0x466	MIPS16 with FPU
@@ -7939,7 +7945,7 @@ f148:
   if !(ok && (ra == 1126)) { goto f149 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x466\tMIPS16 with FPU")
-  out = append(out, "MIPS16 with FPU")
+  m("MIPS16 with FPU")
   goto s114
 f149:
   // >>>(0x3c.l+4)	leshort		0xebc	EFI byte code
@@ -7951,7 +7957,7 @@ f149:
   if !(ok && (ra == 3772)) { goto f150 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xebc\tEFI byte code")
-  out = append(out, "EFI byte code")
+  m("EFI byte code")
   goto s114
 f150:
   // >>>(0x3c.l+4)	leshort		0x8664	x86-64
@@ -7963,7 +7969,7 @@ f150:
   if !(ok && (ra == 34404)) { goto f151 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0x8664\tx86-64")
-  out = append(out, "x86-64")
+  m("x86-64")
   goto s114
 f151:
   // >>>(0x3c.l+4)	leshort		0xc0ee	MSIL
@@ -7975,7 +7981,7 @@ f151:
   if !(ok && (ra == 49390)) { goto f152 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tleshort\t\t0xc0ee\tMSIL")
-  out = append(out, "MSIL")
+  m("MSIL")
   goto s114
 f152:
   // >>>(0x3c.l+4)	default		x	Unknown processor type
@@ -7986,12 +7992,12 @@ f152:
   // uh oh unhandled kind default
   goto f153
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+4)\tdefault\t\tx\tUnknown processor type")
-  out = append(out, "Unknown processor type")
+  m("Unknown processor type")
   // >>>>&0		leshort		x	0x%x
   off = pof + gof + 0
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>&0\t\tleshort\t\tx\t0x%x")
-  out = append(out, "0x%x")
+  m("0x%x")
   goto s153
 s153:
   goto s114
@@ -8005,7 +8011,7 @@ f153:
   if !(ok && (i8(i2(ra))&512 > 0)) { goto f155 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x0200\t>0\t(stripped to external PDB)")
-  out = append(out, "(stripped to external PDB)")
+  m("(stripped to external PDB)")
   goto s114
 f155:
   // >>>(0x3c.l+22)	leshort&0x1000	>0	system file
@@ -8017,7 +8023,7 @@ f155:
   if !(ok && (i8(i2(ra))&4096 > 0)) { goto f156 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+22)\tleshort&0x1000\t>0\tsystem file")
-  out = append(out, "system file")
+  m("system file")
   goto s114
 f156:
   // >>>(0x3c.l+24)	leshort		0x010b
@@ -8038,7 +8044,7 @@ f156:
   if !(ok && (i8(i4(ra)) > 0)) { goto f158 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+232) lelong\t>0\tMono/.Net assembly")
-  out = append(out, "Mono/.Net assembly")
+  m("Mono/.Net assembly")
   goto s157
 f158:
 s157:
@@ -8062,7 +8068,7 @@ f157:
   if !(ok && (i8(i4(ra)) > 0)) { goto f160 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+248) lelong\t>0\tMono/.Net assembly")
-  out = append(out, "Mono/.Net assembly")
+  m("Mono/.Net assembly")
   goto s159
 f160:
 s159:
@@ -8079,7 +8085,7 @@ f159:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t32STUB\t\\b, 32rtm DOS extender")
-  out = append(out, "\\b, 32rtm DOS extender")
+  m("\\b, 32rtm DOS extender")
   goto s114
 f161:
   // >>>(8.s*16)		string		!32STUB	\b, for MS Windows
@@ -8093,7 +8099,7 @@ f161:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\t!32STUB\t\\b, for MS Windows")
-  out = append(out, "\\b, for MS Windows")
+  m("\\b, for MS Windows")
   goto s114
 f162:
   // >>>(0x3c.l+0xf8)	string		UPX0 \b, UPX compressed
@@ -8107,7 +8113,7 @@ f162:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tstring\t\tUPX0 \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s114
 f163:
   // >>>(0x3c.l+0xf8)	search/0x140	PEC2 \b, PECompact2 compressed
@@ -8121,7 +8127,7 @@ f163:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\tPEC2 \\b, PECompact2 compressed")
-  out = append(out, "\\b, PECompact2 compressed")
+  m("\\b, PECompact2 compressed")
   goto s114
 f164:
   // >>>(0x3c.l+0xf8)	search/0x140	UPX2
@@ -8148,7 +8154,7 @@ f164:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x10.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-  out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+  m("\\b, ZIP self-extracting archive (Info-Zip)")
   goto s165
 f166:
 s165:
@@ -8178,7 +8184,7 @@ f165:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive (Info-Zip)")
-  out = append(out, "\\b, ZIP self-extracting archive (Info-Zip)")
+  m("\\b, ZIP self-extracting archive (Info-Zip)")
   goto s167
 f168:
   // >>>>(&0xe.l+(-4))	string		ZZ0 \b, ZZip self-extracting archive
@@ -8194,7 +8200,7 @@ f168:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ0 \\b, ZZip self-extracting archive")
-  out = append(out, "\\b, ZZip self-extracting archive")
+  m("\\b, ZZip self-extracting archive")
   goto s167
 f169:
   // >>>>(&0xe.l+(-4))	string		ZZ1 \b, ZZip self-extracting archive
@@ -8210,7 +8216,7 @@ f169:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0xe.l+(-4))\tstring\t\tZZ1 \\b, ZZip self-extracting archive")
-  out = append(out, "\\b, ZZip self-extracting archive")
+  m("\\b, ZZip self-extracting archive")
   goto s167
 f170:
 s167:
@@ -8240,7 +8246,7 @@ f167:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\ta\\\\\\4\\5 \\b, WinHKI self-extracting archive")
-  out = append(out, "\\b, WinHKI self-extracting archive")
+  m("\\b, WinHKI self-extracting archive")
   goto s171
 f172:
   // >>>>(&0x0f.l+(-4))	string		Rar! \b, RAR self-extracting archive
@@ -8256,7 +8262,7 @@ f172:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tstring\t\tRar! \\b, RAR self-extracting archive")
-  out = append(out, "\\b, RAR self-extracting archive")
+  m("\\b, RAR self-extracting archive")
   goto s171
 f173:
   // >>>>(&0x0f.l+(-4))	search/0x3000	MSCF \b, InstallShield self-extracting archive
@@ -8272,7 +8278,7 @@ f173:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/0x3000\tMSCF \\b, InstallShield self-extracting archive")
-  out = append(out, "\\b, InstallShield self-extracting archive")
+  m("\\b, InstallShield self-extracting archive")
   goto s171
 f174:
   // >>>>(&0x0f.l+(-4))	search/32	Nullsoft \b, Nullsoft Installer self-extracting archive
@@ -8288,7 +8294,7 @@ f174:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l+(-4))\tsearch/32\tNullsoft \\b, Nullsoft Installer self-extracting archive")
-  out = append(out, "\\b, Nullsoft Installer self-extracting archive")
+  m("\\b, Nullsoft Installer self-extracting archive")
   goto s171
 f175:
 s171:
@@ -8315,7 +8321,7 @@ f171:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>(&0x0f.l)\t\tstring\t\tWEXTRACT \\b, MS CAB-Installer self-extracting archive")
-  out = append(out, "\\b, MS CAB-Installer self-extracting archive")
+  m("\\b, MS CAB-Installer self-extracting archive")
   goto s176
 f177:
 s176:
@@ -8332,7 +8338,7 @@ f176:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.petite\\0 \\b, Petite compressed")
-  out = append(out, "\\b, Petite compressed")
+  m("\\b, Petite compressed")
   // >>>>(0x3c.l+0xf7)	byte		x
   ra, ok = f4b(tb, 60)
   if !ok { goto f179 }
@@ -8353,7 +8359,7 @@ f176:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>>(&0x104.l+(-4))\tstring\t\t=!sfx! \\b, ACE self-extracting archive")
-  out = append(out, "\\b, ACE self-extracting archive")
+  m("\\b, ACE self-extracting archive")
   goto s179
 f180:
 s179:
@@ -8373,7 +8379,7 @@ f178:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.WISE \\b, WISE installer self-extracting archive")
-  out = append(out, "\\b, WISE installer self-extracting archive")
+  m("\\b, WISE installer self-extracting archive")
   goto s114
 f181:
   // >>>(0x3c.l+0xf8)	search/0x140	.dz\0\0\0 \b, Dzip self-extracting archive
@@ -8387,7 +8393,7 @@ f181:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0xf8)\tsearch/0x140\t.dz\\0\\0\\0 \\b, Dzip self-extracting archive")
-  out = append(out, "\\b, Dzip self-extracting archive")
+  m("\\b, Dzip self-extracting archive")
   goto s114
 f182:
   // >>>&(0x3c.l+0xf8)	search/0x100	_winzip_ \b, ZIP self-extracting archive (WinZip)
@@ -8402,7 +8408,7 @@ f182:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\t_winzip_ \\b, ZIP self-extracting archive (WinZip)")
-  out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+  m("\\b, ZIP self-extracting archive (WinZip)")
   goto s114
 f183:
   // >>>&(0x3c.l+0xf8)	search/0x100	SharedD \b, Microsoft Installer self-extracting archive
@@ -8417,7 +8423,7 @@ f183:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>&(0x3c.l+0xf8)\tsearch/0x100\tSharedD \\b, Microsoft Installer self-extracting archive")
-  out = append(out, "\\b, Microsoft Installer self-extracting archive")
+  m("\\b, Microsoft Installer self-extracting archive")
   goto s114
 f184:
   // >>>0x30			string		Inno \b, InnoSetup self-extracting archive
@@ -8428,7 +8434,7 @@ f184:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>0x30\t\t\tstring\t\tInno \\b, InnoSetup self-extracting archive")
-  out = append(out, "\\b, InnoSetup self-extracting archive")
+  m("\\b, InnoSetup self-extracting archive")
   goto s114
 f185:
 s114:
@@ -8444,7 +8450,7 @@ f114:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l) string !PE\\0\\0 MS-DOS executable")
-  out = append(out, "MS-DOS executable")
+  m("MS-DOS executable")
   goto s113
 f186:
   // >>(0x3c.l)		string		NE \b, NE
@@ -8457,7 +8463,7 @@ f186:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tNE \\b, NE")
-  out = append(out, "\\b, NE")
+  m("\\b, NE")
   // >>>(0x3c.l+0x36)	byte		1 for OS/2 1.x
   ra, ok = f4b(tb, 60)
   if !ok { goto f188 }
@@ -8467,7 +8473,7 @@ f186:
   if !(ok && (ra == 1)) { goto f188 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t1 for OS/2 1.x")
-  out = append(out, "for OS/2 1.x")
+  m("for OS/2 1.x")
   goto s187
 f188:
   // >>>(0x3c.l+0x36)	byte		2 for MS Windows 3.x
@@ -8479,7 +8485,7 @@ f188:
   if !(ok && (ra == 2)) { goto f189 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t2 for MS Windows 3.x")
-  out = append(out, "for MS Windows 3.x")
+  m("for MS Windows 3.x")
   goto s187
 f189:
   // >>>(0x3c.l+0x36)	byte		3 for MS-DOS
@@ -8491,7 +8497,7 @@ f189:
   if !(ok && (ra == 3)) { goto f190 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t3 for MS-DOS")
-  out = append(out, "for MS-DOS")
+  m("for MS-DOS")
   goto s187
 f190:
   // >>>(0x3c.l+0x36)	byte		4 for Windows 386
@@ -8503,7 +8509,7 @@ f190:
   if !(ok && (ra == 4)) { goto f191 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t4 for Windows 386")
-  out = append(out, "for Windows 386")
+  m("for Windows 386")
   goto s187
 f191:
   // >>>(0x3c.l+0x36)	byte		5 for Borland Operating System Services
@@ -8515,7 +8521,7 @@ f191:
   if !(ok && (ra == 5)) { goto f192 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t5 for Borland Operating System Services")
-  out = append(out, "for Borland Operating System Services")
+  m("for Borland Operating System Services")
   goto s187
 f192:
   // >>>(0x3c.l+0x36)	default		x
@@ -8533,7 +8539,7 @@ f192:
   off = off + 54
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>(0x3c.l+0x36)\tbyte\t\tx (unknown OS %x)")
-  out = append(out, "(unknown OS %x)")
+  m("(unknown OS %x)")
   goto s193
 f194:
 s193:
@@ -8548,7 +8554,7 @@ f193:
   if !(ok && (ra == 129)) { goto f195 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x36)\tbyte\t\t0x81 for MS-DOS, Phar Lap DOS extender")
-  out = append(out, "for MS-DOS, Phar Lap DOS extender")
+  m("for MS-DOS, Phar Lap DOS extender")
   goto s187
 f195:
   // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8002 (DLL)
@@ -8560,7 +8566,7 @@ f195:
   if !(ok && (ra&32771 == 32770)) { goto f196 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8002 (DLL)")
-  out = append(out, "(DLL)")
+  m("(DLL)")
   goto s187
 f196:
   // >>>(0x3c.l+0x0c)	leshort&0x8003	0x8001 (driver)
@@ -8572,7 +8578,7 @@ f196:
   if !(ok && (ra&32771 == 32769)) { goto f197 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0c)\tleshort&0x8003\t0x8001 (driver)")
-  out = append(out, "(driver)")
+  m("(driver)")
   goto s187
 f197:
   // >>>&(&0x24.s-1)		string		ARJSFX \b, ARJ self-extracting archive
@@ -8587,7 +8593,7 @@ f197:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&(&0x24.s-1)\t\tstring\t\tARJSFX \\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s187
 f198:
   // >>>(0x3c.l+0x70)	search/0x80	WinZip(R)\ Self-Extractor \b, ZIP self-extracting archive (WinZip)
@@ -8601,7 +8607,7 @@ f198:
     gof = off + ml + 24
   }
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x70)\tsearch/0x80\tWinZip(R)\\ Self-Extractor \\b, ZIP self-extracting archive (WinZip)")
-  out = append(out, "\\b, ZIP self-extracting archive (WinZip)")
+  m("\\b, ZIP self-extracting archive (WinZip)")
   goto s187
 f199:
 s187:
@@ -8617,7 +8623,7 @@ f187:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLX\\0\\0 \\b, LX")
-  out = append(out, "\\b, LX")
+  m("\\b, LX")
   // >>>(0x3c.l+0x0a)	leshort		<1 (unknown OS)
   ra, ok = f4b(tb, 60)
   if !ok { goto f201 }
@@ -8627,7 +8633,7 @@ f187:
   if !(ok && (i8(i2(ra)) < 1)) { goto f201 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t<1 (unknown OS)")
-  out = append(out, "(unknown OS)")
+  m("(unknown OS)")
   goto s200
 f201:
   // >>>(0x3c.l+0x0a)	leshort		1 for OS/2
@@ -8639,7 +8645,7 @@ f201:
   if !(ok && (ra == 1)) { goto f202 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t1 for OS/2")
-  out = append(out, "for OS/2")
+  m("for OS/2")
   goto s200
 f202:
   // >>>(0x3c.l+0x0a)	leshort		2 for MS Windows
@@ -8651,7 +8657,7 @@ f202:
   if !(ok && (ra == 2)) { goto f203 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-  out = append(out, "for MS Windows")
+  m("for MS Windows")
   goto s200
 f203:
   // >>>(0x3c.l+0x0a)	leshort		3 for DOS
@@ -8663,7 +8669,7 @@ f203:
   if !(ok && (ra == 3)) { goto f204 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-  out = append(out, "for DOS")
+  m("for DOS")
   goto s200
 f204:
   // >>>(0x3c.l+0x0a)	leshort		>3 (unknown OS)
@@ -8675,7 +8681,7 @@ f204:
   if !(ok && (i8(i2(ra)) > 3)) { goto f205 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t>3 (unknown OS)")
-  out = append(out, "(unknown OS)")
+  m("(unknown OS)")
   goto s200
 f205:
   // >>>(0x3c.l+0x10)	lelong&0x28000	=0x8000 (DLL)
@@ -8687,7 +8693,7 @@ f205:
   if !(ok && (ra&163840 == 32768)) { goto f206 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28000\t=0x8000 (DLL)")
-  out = append(out, "(DLL)")
+  m("(DLL)")
   goto s200
 f206:
   // >>>(0x3c.l+0x10)	lelong&0x20000	>0 (device driver)
@@ -8699,7 +8705,7 @@ f206:
   if !(ok && (i8(i4(ra))&131072 > 0)) { goto f207 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x20000\t>0 (device driver)")
-  out = append(out, "(device driver)")
+  m("(device driver)")
   goto s200
 f207:
   // >>>(0x3c.l+0x10)	lelong&0x300	0x300 (GUI)
@@ -8711,7 +8717,7 @@ f207:
   if !(ok && (ra&768 == 768)) { goto f208 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x300\t0x300 (GUI)")
-  out = append(out, "(GUI)")
+  m("(GUI)")
   goto s200
 f208:
   // >>>(0x3c.l+0x10)	lelong&0x28300	<0x300 (console)
@@ -8723,7 +8729,7 @@ f208:
   if !(ok && (i8(i4(ra))&164608 < 768)) { goto f209 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x10)\tlelong&0x28300\t<0x300 (console)")
-  out = append(out, "(console)")
+  m("(console)")
   goto s200
 f209:
   // >>>(0x3c.l+0x08)	leshort		1 i80286
@@ -8735,7 +8741,7 @@ f209:
   if !(ok && (ra == 1)) { goto f210 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t1 i80286")
-  out = append(out, "i80286")
+  m("i80286")
   goto s200
 f210:
   // >>>(0x3c.l+0x08)	leshort		2 i80386
@@ -8747,7 +8753,7 @@ f210:
   if !(ok && (ra == 2)) { goto f211 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t2 i80386")
-  out = append(out, "i80386")
+  m("i80386")
   goto s200
 f211:
   // >>>(0x3c.l+0x08)	leshort		3 i80486
@@ -8759,7 +8765,7 @@ f211:
   if !(ok && (ra == 3)) { goto f212 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x08)\tleshort\t\t3 i80486")
-  out = append(out, "i80486")
+  m("i80486")
   goto s200
 f212:
   // >>>(8.s*16)		string		emx \b, emx
@@ -8773,7 +8779,7 @@ f212:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s*16)\t\tstring\t\temx \\b, emx")
-  out = append(out, "\\b, emx")
+  m("\\b, emx")
   // >>>>&1			string		x %s
   off = pof + gof + 1
   {
@@ -8782,7 +8788,7 @@ f212:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>&1\t\t\tstring\t\tx %s")
-  out = append(out, "%s")
+  m("%s")
   goto s213
 f214:
 s213:
@@ -8800,7 +8806,7 @@ f213:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tarjsfx \\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s200
 f215:
 s200:
@@ -8816,7 +8822,7 @@ f200:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tW3 \\b, W3 for MS Windows")
-  out = append(out, "\\b, W3 for MS Windows")
+  m("\\b, W3 for MS Windows")
   goto s113
 f216:
   // >>(0x3c.l)		string		LE\0\0 \b, LE executable
@@ -8829,7 +8835,7 @@ f216:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(0x3c.l)\t\tstring\t\tLE\\0\\0 \\b, LE executable")
-  out = append(out, "\\b, LE executable")
+  m("\\b, LE executable")
   // >>>(0x3c.l+0x0a)	leshort		1
   ra, ok = f4b(tb, 60)
   if !ok { goto f218 }
@@ -8847,7 +8853,7 @@ f216:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
-  out = append(out, "for MS-DOS, DOS4GW DOS extender")
+  m("for MS-DOS, DOS4GW DOS extender")
   goto s218
 f219:
   // >>>>0x240		search/0x200	WATCOM\ C/C++ for MS-DOS, DOS4GW DOS extender
@@ -8858,7 +8864,7 @@ f219:
     gof = off + ml + 12
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x240\t\tsearch/0x200\tWATCOM\\ C/C++ for MS-DOS, DOS4GW DOS extender")
-  out = append(out, "for MS-DOS, DOS4GW DOS extender")
+  m("for MS-DOS, DOS4GW DOS extender")
   goto s218
 f220:
   // >>>>0x440		search/0x100	CauseWay\ DOS\ Extender for MS-DOS, CauseWay DOS extender
@@ -8869,7 +8875,7 @@ f220:
     gof = off + ml + 21
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x440\t\tsearch/0x100\tCauseWay\\ DOS\\ Extender for MS-DOS, CauseWay DOS extender")
-  out = append(out, "for MS-DOS, CauseWay DOS extender")
+  m("for MS-DOS, CauseWay DOS extender")
   goto s218
 f221:
   // >>>>0x40		search/0x40	PMODE/W for MS-DOS, PMODE/W DOS extender
@@ -8880,7 +8886,7 @@ f221:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tPMODE/W for MS-DOS, PMODE/W DOS extender")
-  out = append(out, "for MS-DOS, PMODE/W DOS extender")
+  m("for MS-DOS, PMODE/W DOS extender")
   goto s218
 f222:
   // >>>>0x40		search/0x40	STUB/32A for MS-DOS, DOS/32A DOS extender (stub)
@@ -8891,7 +8897,7 @@ f222:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x40\tSTUB/32A for MS-DOS, DOS/32A DOS extender (stub)")
-  out = append(out, "for MS-DOS, DOS/32A DOS extender (stub)")
+  m("for MS-DOS, DOS/32A DOS extender (stub)")
   goto s218
 f223:
   // >>>>0x40		search/0x80	STUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)
@@ -8902,7 +8908,7 @@ f223:
     gof = off + ml + 8
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tSTUB/32C for MS-DOS, DOS/32A DOS extender (configurable stub)")
-  out = append(out, "for MS-DOS, DOS/32A DOS extender (configurable stub)")
+  m("for MS-DOS, DOS/32A DOS extender (configurable stub)")
   goto s218
 f224:
   // >>>>0x40		search/0x80	DOS/32A for MS-DOS, DOS/32A DOS extender (embedded)
@@ -8913,7 +8919,7 @@ f224:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x40\t\tsearch/0x80\tDOS/32A for MS-DOS, DOS/32A DOS extender (embedded)")
-  out = append(out, "for MS-DOS, DOS/32A DOS extender (embedded)")
+  m("for MS-DOS, DOS/32A DOS extender (embedded)")
   goto s218
 f225:
   // >>>>&0x24		lelong		<0x50
@@ -8940,7 +8946,7 @@ f225:
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">>>>>>&0\t\tsearch/8\t3\\xdbf\\xb9 \\b, 32Lite compressed")
-  out = append(out, "\\b, 32Lite compressed")
+  m("\\b, 32Lite compressed")
   goto s227
 f228:
 s227:
@@ -8961,7 +8967,7 @@ f218:
   if !(ok && (ra == 2)) { goto f229 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t2 for MS Windows")
-  out = append(out, "for MS Windows")
+  m("for MS Windows")
   goto s217
 f229:
   // >>>(0x3c.l+0x0a)	leshort		3 for DOS
@@ -8973,7 +8979,7 @@ f229:
   if !(ok && (ra == 3)) { goto f230 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t3 for DOS")
-  out = append(out, "for DOS")
+  m("for DOS")
   goto s217
 f230:
   // >>>(0x3c.l+0x0a)	leshort		4 for MS Windows (VxD)
@@ -8985,7 +8991,7 @@ f230:
   if !(ok && (ra == 4)) { goto f231 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(0x3c.l+0x0a)\tleshort\t\t4 for MS Windows (VxD)")
-  out = append(out, "for MS Windows (VxD)")
+  m("for MS Windows (VxD)")
   goto s217
 f231:
   // >>>(&0x7c.l+0x26)	string		UPX \b, UPX compressed
@@ -8999,7 +9005,7 @@ f231:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(&0x7c.l+0x26)\tstring\t\tUPX \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s217
 f232:
   // >>>&(&0x54.l-3)		string		UNACE \b, ACE self-extracting archive
@@ -9014,7 +9020,7 @@ f232:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&(&0x54.l-3)\t\tstring\t\tUNACE \\b, ACE self-extracting archive")
-  out = append(out, "\\b, ACE self-extracting archive")
+  m("\\b, ACE self-extracting archive")
   goto s217
 f233:
 s217:
@@ -9035,7 +9041,7 @@ f217:
   if !(ok && (ra != 332)) { goto f235 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>(4.s*512)\tleshort !0x014c \\b, MZ for MS-DOS")
-  out = append(out, "\\b, MZ for MS-DOS")
+  m("\\b, MZ for MS-DOS")
   goto s234
 f235:
 s234:
@@ -9085,7 +9091,7 @@ f113:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>>&-2\tstring\t!BW \\b, MZ for MS-DOS")
-  out = append(out, "\\b, MZ for MS-DOS")
+  m("\\b, MZ for MS-DOS")
   goto s239
 f240:
 s239:
@@ -9103,7 +9109,7 @@ f239:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>&(2.s-514)\tstring\tLE \\b, LE")
-  out = append(out, "\\b, LE")
+  m("\\b, LE")
   // >>>>>0x240	search/0x100	DOS/4G for MS-DOS, DOS4GW DOS extender
   off = pof + 576
   {
@@ -9112,7 +9118,7 @@ f239:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G for MS-DOS, DOS4GW DOS extender")
-  out = append(out, "for MS-DOS, DOS4GW DOS extender")
+  m("for MS-DOS, DOS4GW DOS extender")
   goto s241
 f242:
 s241:
@@ -9138,7 +9144,7 @@ f241:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\tDOS/4G\t\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
-  out = append(out, "\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
+  m("\\b, LE for MS-DOS, DOS4GW DOS extender (embedded)")
   goto s243
 f244:
   // >>>>>0x240	search/0x100	!DOS/4G	\b, BW collection for MS-DOS
@@ -9149,7 +9155,7 @@ f244:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x240\tsearch/0x100\t!DOS/4G\t\\b, BW collection for MS-DOS")
-  out = append(out, "\\b, BW collection for MS-DOS")
+  m("\\b, BW collection for MS-DOS")
   goto s243
 f245:
 s243:
@@ -9173,7 +9179,7 @@ f236:
   if !(ok && (ra == 332)) { goto f246 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">(4.s*512)\tleshort\t\t0x014c \\b, COFF")
-  out = append(out, "\\b, COFF")
+  m("\\b, COFF")
   // >>(8.s*16)	string		go32stub for MS-DOS, DJGPP go32 DOS extender
   ra, ok = f2b(tb, 8)
   if !ok { goto f247 }
@@ -9185,7 +9191,7 @@ f236:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>(8.s*16)\tstring\t\tgo32stub for MS-DOS, DJGPP go32 DOS extender")
-  out = append(out, "for MS-DOS, DJGPP go32 DOS extender")
+  m("for MS-DOS, DJGPP go32 DOS extender")
   goto s246
 f247:
   // >>(8.s*16)	string		emx
@@ -9207,7 +9213,7 @@ f247:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&1\t\tstring\t\tx for DOS, Win or OS/2, emx %s")
-  out = append(out, "for DOS, Win or OS/2, emx %s")
+  m("for DOS, Win or OS/2, emx %s")
   goto s248
 f249:
 s248:
@@ -9229,7 +9235,7 @@ f248:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0x26\tstring\t\tUPX \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s250
 f251:
 s250:
@@ -9255,7 +9261,7 @@ f250:
   if !(ok && (i8(i4(ra)) > 24576)) { goto f254 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>&0\t\tlelong\t\t>0x6000 \\b, 32lite compressed")
-  out = append(out, "\\b, 32lite compressed")
+  m("\\b, 32lite compressed")
   goto s253
 f254:
 s253:
@@ -9278,7 +9284,7 @@ f246:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">(8.s*16) string $WdX \\b, WDos/X DOS extender")
-  out = append(out, "\\b, WDos/X DOS extender")
+  m("\\b, WDos/X DOS extender")
   goto s111
 f255:
   // >0x35	string	\x8e\xc0\xb9\x08\x00\xf3\xa5\x4a\x75\xeb\x8e\xc3\x8e\xd8\x33\xff\xbe\x30\x00\x05 \b, aPack compressed
@@ -9289,7 +9295,7 @@ f255:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x35\tstring\t\\x8e\\xc0\\xb9\\x08\\x00\\xf3\\xa5\\x4a\\x75\\xeb\\x8e\\xc3\\x8e\\xd8\\x33\\xff\\xbe\\x30\\x00\\x05 \\b, aPack compressed")
-  out = append(out, "\\b, aPack compressed")
+  m("\\b, aPack compressed")
   goto s111
 f256:
   // >0xe7	string	LH/2\ 	Self-Extract \b, %s
@@ -9300,7 +9306,7 @@ f256:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0xe7\tstring\tLH/2\\ \tSelf-Extract \\b, %s")
-  out = append(out, "Self-Extract \\b, %s")
+  m("Self-Extract \\b, %s")
   goto s111
 f257:
   // >0x1c	string	UC2X	\b, UCEXE compressed
@@ -9311,7 +9317,7 @@ f257:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tUC2X\t\\b, UCEXE compressed")
-  out = append(out, "\\b, UCEXE compressed")
+  m("\\b, UCEXE compressed")
   goto s111
 f258:
   // >0x1c	string	WWP\ 	\b, WWPACK compressed
@@ -9322,7 +9328,7 @@ f258:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tWWP\\ \t\\b, WWPACK compressed")
-  out = append(out, "\\b, WWPACK compressed")
+  m("\\b, WWPACK compressed")
   goto s111
 f259:
   // >0x1c	string	RJSX 	\b, ARJ self-extracting archive
@@ -9333,7 +9339,7 @@ f259:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tRJSX \t\\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s111
 f260:
   // >0x1c	string	diet 	\b, diet compressed
@@ -9344,7 +9350,7 @@ f260:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tdiet \t\\b, diet compressed")
-  out = append(out, "\\b, diet compressed")
+  m("\\b, diet compressed")
   goto s111
 f261:
   // >0x1c	string	LZ09 	\b, LZEXE v0.90 compressed
@@ -9355,7 +9361,7 @@ f261:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tLZ09 \t\\b, LZEXE v0.90 compressed")
-  out = append(out, "\\b, LZEXE v0.90 compressed")
+  m("\\b, LZEXE v0.90 compressed")
   goto s111
 f262:
   // >0x1c	string	LZ91 	\b, LZEXE v0.91 compressed
@@ -9366,7 +9372,7 @@ f262:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\tLZ91 \t\\b, LZEXE v0.91 compressed")
-  out = append(out, "\\b, LZEXE v0.91 compressed")
+  m("\\b, LZEXE v0.91 compressed")
   goto s111
 f263:
   // >0x1c	string	tz 	\b, TinyProg compressed
@@ -9377,7 +9383,7 @@ f263:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1c\tstring\ttz \t\\b, TinyProg compressed")
-  out = append(out, "\\b, TinyProg compressed")
+  m("\\b, TinyProg compressed")
   goto s111
 f264:
   // >0x1e	string	Copyright\ 1989-1990\ PKWARE\ Inc.	Self-extracting PKZIP archive
@@ -9388,7 +9394,7 @@ f264:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1e\tstring\tCopyright\\ 1989-1990\\ PKWARE\\ Inc.\tSelf-extracting PKZIP archive")
-  out = append(out, "Self-extracting PKZIP archive")
+  m("Self-extracting PKZIP archive")
   goto s111
 f265:
   // >0x1e	string	PKLITE\ Copr.	Self-extracting PKZIP archive
@@ -9399,7 +9405,7 @@ f265:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x1e\tstring\tPKLITE\\ Copr.\tSelf-extracting PKZIP archive")
-  out = append(out, "Self-extracting PKZIP archive")
+  m("Self-extracting PKZIP archive")
   goto s111
 f266:
   // >0x20	search/0xe0	aRJsfX \b, ARJ self-extracting archive
@@ -9410,7 +9416,7 @@ f266:
     gof = off + ml + 6
   }
   fmt.Printf("matched rule: %s\n", ">0x20\tsearch/0xe0\taRJsfX \\b, ARJ self-extracting archive")
-  out = append(out, "\\b, ARJ self-extracting archive")
+  m("\\b, ARJ self-extracting archive")
   goto s111
 f267:
   // >0x20	string AIN
@@ -9429,7 +9435,7 @@ f267:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x23\tstring 2\t\\b, AIN 2.x compressed")
-  out = append(out, "\\b, AIN 2.x compressed")
+  m("\\b, AIN 2.x compressed")
   goto s268
 f269:
   // >>0x23	string <2	\b, AIN 1.x compressed
@@ -9440,7 +9446,7 @@ f269:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x23\tstring <2\t\\b, AIN 1.x compressed")
-  out = append(out, "\\b, AIN 1.x compressed")
+  m("\\b, AIN 1.x compressed")
   goto s268
 f270:
   // >>0x23	string >2	\b, AIN 1.x compressed
@@ -9451,7 +9457,7 @@ f270:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x23\tstring >2\t\\b, AIN 1.x compressed")
-  out = append(out, "\\b, AIN 1.x compressed")
+  m("\\b, AIN 1.x compressed")
   goto s268
 f271:
 s268:
@@ -9465,7 +9471,7 @@ f268:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\tLHa's\\ SFX \\b, LHa self-extracting archive")
-  out = append(out, "\\b, LHa self-extracting archive")
+  m("\\b, LHa self-extracting archive")
   goto s111
 f272:
   // >0x24	string	LHA's\ SFX \b, LHa self-extracting archive
@@ -9476,7 +9482,7 @@ f272:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\tLHA's\\ SFX \\b, LHa self-extracting archive")
-  out = append(out, "\\b, LHa self-extracting archive")
+  m("\\b, LHa self-extracting archive")
   goto s111
 f273:
   // >0x24	string	\ $ARX \b, ARX self-extracting archive
@@ -9487,7 +9493,7 @@ f273:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\t\\ $ARX \\b, ARX self-extracting archive")
-  out = append(out, "\\b, ARX self-extracting archive")
+  m("\\b, ARX self-extracting archive")
   goto s111
 f274:
   // >0x24	string	\ $LHarc \b, LHarc self-extracting archive
@@ -9498,7 +9504,7 @@ f274:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\t\\ $LHarc \\b, LHarc self-extracting archive")
-  out = append(out, "\\b, LHarc self-extracting archive")
+  m("\\b, LHarc self-extracting archive")
   goto s111
 f275:
   // >0x20	string	SFX\ by\ LARC \b, LARC self-extracting archive
@@ -9509,7 +9515,7 @@ f275:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x20\tstring\tSFX\\ by\\ LARC \\b, LARC self-extracting archive")
-  out = append(out, "\\b, LARC self-extracting archive")
+  m("\\b, LARC self-extracting archive")
   goto s111
 f276:
   // >0x40	string aPKG \b, aPackage self-extracting archive
@@ -9520,7 +9526,7 @@ f276:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x40\tstring aPKG \\b, aPackage self-extracting archive")
-  out = append(out, "\\b, aPackage self-extracting archive")
+  m("\\b, aPackage self-extracting archive")
   goto s111
 f277:
   // >0x64	string	W\ Collis\0\0 \b, Compack compressed
@@ -9531,7 +9537,7 @@ f277:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x64\tstring\tW\\ Collis\\0\\0 \\b, Compack compressed")
-  out = append(out, "\\b, Compack compressed")
+  m("\\b, Compack compressed")
   goto s111
 f278:
   // >0x7a	string		Windows\ self-extracting\ ZIP	\b, ZIP self-extracting archive
@@ -9542,7 +9548,7 @@ f278:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x7a\tstring\t\tWindows\\ self-extracting\\ ZIP\t\\b, ZIP self-extracting archive")
-  out = append(out, "\\b, ZIP self-extracting archive")
+  m("\\b, ZIP self-extracting archive")
   // >>&0xf4 search/0x140 \x0\x40\x1\x0
   off = pof + gof + 244
   {
@@ -9564,7 +9570,7 @@ f278:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>(&0.l+(4)) string MSCF \\b, WinHKI CAB self-extracting archive")
-  out = append(out, "\\b, WinHKI CAB self-extracting archive")
+  m("\\b, WinHKI CAB self-extracting archive")
   goto s280
 f281:
 s280:
@@ -9581,7 +9587,7 @@ f279:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">1638\tstring\t-lh5- \\b, LHa self-extracting archive v2.13S")
-  out = append(out, "\\b, LHa self-extracting archive v2.13S")
+  m("\\b, LHa self-extracting archive v2.13S")
   goto s111
 f282:
   // >0x17888 string Rar! \b, RAR self-extracting archive
@@ -9592,7 +9598,7 @@ f282:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x17888 string Rar! \\b, RAR self-extracting archive")
-  out = append(out, "\\b, RAR self-extracting archive")
+  m("\\b, RAR self-extracting archive")
   goto s111
 f283:
   // >(4.s*512)	long	x
@@ -9618,7 +9624,7 @@ f283:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\tPK\\3\\4 \\b, ZIP self-extracting archive")
-  out = append(out, "\\b, ZIP self-extracting archive")
+  m("\\b, ZIP self-extracting archive")
   goto s285
 f286:
   // >>>&0	string		Rar! \b, RAR self-extracting archive
@@ -9629,7 +9635,7 @@ f286:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\tRar! \\b, RAR self-extracting archive")
-  out = append(out, "\\b, RAR self-extracting archive")
+  m("\\b, RAR self-extracting archive")
   goto s285
 f287:
   // >>>&0	string		=!\x11 \b, AIN 2.x self-extracting archive
@@ -9640,7 +9646,7 @@ f287:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x11 \\b, AIN 2.x self-extracting archive")
-  out = append(out, "\\b, AIN 2.x self-extracting archive")
+  m("\\b, AIN 2.x self-extracting archive")
   goto s285
 f288:
   // >>>&0	string		=!\x12 \b, AIN 2.x self-extracting archive
@@ -9651,7 +9657,7 @@ f288:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x12 \\b, AIN 2.x self-extracting archive")
-  out = append(out, "\\b, AIN 2.x self-extracting archive")
+  m("\\b, AIN 2.x self-extracting archive")
   goto s285
 f289:
   // >>>&0	string		=!\x17 \b, AIN 1.x self-extracting archive
@@ -9662,7 +9668,7 @@ f289:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x17 \\b, AIN 1.x self-extracting archive")
-  out = append(out, "\\b, AIN 1.x self-extracting archive")
+  m("\\b, AIN 1.x self-extracting archive")
   goto s285
 f290:
   // >>>&0	string		=!\x18 \b, AIN 1.x self-extracting archive
@@ -9673,7 +9679,7 @@ f290:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\t=!\\x18 \\b, AIN 1.x self-extracting archive")
-  out = append(out, "\\b, AIN 1.x self-extracting archive")
+  m("\\b, AIN 1.x self-extracting archive")
   goto s285
 f291:
   // >>>&7	search/400	**ACE** \b, ACE self-extracting archive
@@ -9684,7 +9690,7 @@ f291:
     gof = off + ml + 7
   }
   fmt.Printf("matched rule: %s\n", ">>>&7\tsearch/400\t**ACE** \\b, ACE self-extracting archive")
-  out = append(out, "\\b, ACE self-extracting archive")
+  m("\\b, ACE self-extracting archive")
   goto s285
 f292:
   // >>>&0	search/0x480	UC2SFX\ Header \b, UC2 self-extracting archive
@@ -9695,7 +9701,7 @@ f292:
     gof = off + ml + 13
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tsearch/0x480\tUC2SFX\\ Header \\b, UC2 self-extracting archive")
-  out = append(out, "\\b, UC2 self-extracting archive")
+  m("\\b, UC2 self-extracting archive")
   goto s285
 f293:
 s285:
@@ -9715,7 +9721,7 @@ f284:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", ">(8.s*16)\tsearch/0x20\tPKSFX \\b, ZIP self-extracting archive (PKZIP)")
-  out = append(out, "\\b, ZIP self-extracting archive (PKZIP)")
+  m("\\b, ZIP self-extracting archive (PKZIP)")
   goto s111
 f294:
   // >49801	string	\x79\xff\x80\xff\x76\xff	\b, CODEC archive v3.21
@@ -9726,14 +9732,14 @@ f294:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">49801\tstring\t\\x79\\xff\\x80\\xff\\x76\\xff\t\\b, CODEC archive v3.21")
-  out = append(out, "\\b, CODEC archive v3.21")
+  m("\\b, CODEC archive v3.21")
   // >>49824 leshort		=1			\b, 1 file
   off = pof + 49824
   ra, ok = f2b(tb, off)
   if !(ok && (ra == 1)) { goto f296 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>49824 leshort\t\t=1\t\t\t\\b, 1 file")
-  out = append(out, "\\b, 1 file")
+  m("\\b, 1 file")
   goto s295
 f296:
   // >>49824 leshort		>1			\b, %u files
@@ -9742,7 +9748,7 @@ f296:
   if !(ok && (i8(i2(ra)) > 1)) { goto f297 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>49824 leshort\t\t>1\t\t\t\\b, %u files")
-  out = append(out, "\\b, %u files")
+  m("\\b, %u files")
   goto s295
 f297:
 s295:
@@ -9759,12 +9765,12 @@ f111:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tKCF\t\tFreeDOS KEYBoard Layout collection")
-  out = append(out, "FreeDOS KEYBoard Layout collection")
+  m("FreeDOS KEYBoard Layout collection")
   // >3	uleshort	x		\b, version 0x%x
   off = pof + 3
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">3\tuleshort\tx\t\t\\b, version 0x%x")
-  out = append(out, "\\b, version 0x%x")
+  m("\\b, version 0x%x")
   goto s298
   // >6	ubyte		>0
   off = pof + 6
@@ -9780,7 +9786,7 @@ f111:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>7\tstring\t\t>\\0\t\t\\b, author=%-.14s")
-  out = append(out, "\\b, author=%-.14s")
+  m("\\b, author=%-.14s")
   goto s300
 f301:
   // >>7	search/254	\xff		\b, info=
@@ -9791,7 +9797,7 @@ f301:
     gof = off + ml + 1
   }
   fmt.Printf("matched rule: %s\n", ">>7\tsearch/254\t\\xff\t\t\\b, info=")
-  out = append(out, "\\b, info=")
+  m("\\b, info=")
   // >>>&0	string		x		\b%-.15s
   off = pof + gof + 0
   {
@@ -9800,7 +9806,7 @@ f301:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&0\tstring\t\tx\t\t\\b%-.15s")
-  out = append(out, "\\b%-.15s")
+  m("\\b%-.15s")
   goto s302
 f303:
 s302:
@@ -9820,12 +9826,12 @@ f298:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tKLF\t\tFreeDOS KEYBoard Layout file")
-  out = append(out, "FreeDOS KEYBoard Layout file")
+  m("FreeDOS KEYBoard Layout file")
   // >3	uleshort	x		\b, version 0x%x
   off = pof + 3
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">3\tuleshort\tx\t\t\\b, version 0x%x")
-  out = append(out, "\\b, version 0x%x")
+  m("\\b, version 0x%x")
   goto s304
   // >5	ubyte		>0
   off = pof + 5
@@ -9841,7 +9847,7 @@ f298:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>8\tstring\t\tx\t\t\\b, name=%-.2s")
-  out = append(out, "\\b, name=%-.2s")
+  m("\\b, name=%-.2s")
   goto s306
 f307:
 s306:
@@ -9866,7 +9872,7 @@ f304:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">12\tstring\t\\0\\0\\0\\0`\\004\\360\tMS-DOS KEYBoard Layout file")
-  out = append(out, "MS-DOS KEYBoard Layout file")
+  m("MS-DOS KEYBoard Layout file")
   goto s308
 f309:
 s308:
@@ -9882,7 +9888,7 @@ f308:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s310
@@ -9899,7 +9905,7 @@ f310:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s312
@@ -9916,7 +9922,7 @@ f312:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s314
@@ -9933,7 +9939,7 @@ f314:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s316
@@ -9950,7 +9956,7 @@ f316:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s318
@@ -9967,7 +9973,7 @@ f318:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s320
@@ -9984,7 +9990,7 @@ f320:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosDriver(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\t\t\tmsdos-driver")
   goto s322
@@ -10019,7 +10025,7 @@ f322:
   if !(ok && (i8(i1(ra)) > 13)) { goto f327 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>4\tubyte\t\t\t>13\tDOS executable (COM, 0x8C-variant)")
-  out = append(out, "DOS executable (COM, 0x8C-variant)")
+  m("DOS executable (COM, 0x8C-variant)")
   goto s326
 f327:
 s326:
@@ -10037,7 +10043,7 @@ f324:
   if !(ok && (ra == 4294906091)) { goto f328 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tulelong\t\t0xffff10eb\tDR-DOS executable (COM)")
-  out = append(out, "DR-DOS executable (COM)")
+  m("DR-DOS executable (COM)")
   goto end
 f328:
   // 0	ubeshort&0xeb8d	>0xeb00
@@ -10071,7 +10077,7 @@ f329:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosCom(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>0        use msdos-com")
   goto s332
@@ -10107,7 +10113,7 @@ f330:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosCom(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>0        use msdos-com")
   goto s336
@@ -10134,7 +10140,7 @@ f335:
   off = pof + 0
   {
     ss, _ := IdentifyMsdosCom(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>0        use msdos-com")
   goto s339
@@ -10167,14 +10173,14 @@ f334:
   if !(ok && (ra&4294967294 == 567102718)) { goto f343 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>1\tlelong&0xFFFFFFFe 0x21CD4CFe\tCOM executable (32-bit COMBOOT")
-  out = append(out, "COM executable (32-bit COMBOOT")
+  m("COM executable (32-bit COMBOOT")
   // >>>1	lelong		0x21CD4CFf	\b)
   off = pof + 1
   ra, ok = f4b(tb, off)
   if !(ok && (ra == 567102719)) { goto f344 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>1\tlelong\t\t0x21CD4CFf\t\\b)")
-  out = append(out, "\\b)")
+  m("\\b)")
   goto s343
 f344:
   // >>>1	lelong		0x21CD4CFe	\b, relocatable)
@@ -10183,7 +10189,7 @@ f344:
   if !(ok && (ra == 567102718)) { goto f345 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>1\tlelong\t\t0x21CD4CFe\t\\b, relocatable)")
-  out = append(out, "\\b, relocatable)")
+  m("\\b, relocatable)")
   goto s343
 f345:
 s343:
@@ -10194,7 +10200,7 @@ f343:
   // uh oh unhandled kind default
   goto f346
   fmt.Printf("matched rule: %s\n", ">>1\tdefault\tx\t\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto s342
 f346:
 s342:
@@ -10227,7 +10233,7 @@ f341:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>36\tstring\tUPX!\t\t\tFREE-DOS executable (COM), UPX compressed")
-  out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  m("FREE-DOS executable (COM), UPX compressed")
   goto s348
 f349:
 s348:
@@ -10244,7 +10250,7 @@ f347:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "252\tstring Must\\ have\\ DOS\\ version DR-DOS executable (COM)")
-  out = append(out, "DR-DOS executable (COM)")
+  m("DR-DOS executable (COM)")
   goto end
 f350:
   // 34	string	UPX!			FREE-DOS executable (COM), UPX compressed
@@ -10255,7 +10261,7 @@ f350:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "34\tstring\tUPX!\t\t\tFREE-DOS executable (COM), UPX compressed")
-  out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  m("FREE-DOS executable (COM), UPX compressed")
   goto end
 f351:
   // 35	string	UPX!			FREE-DOS executable (COM), UPX compressed
@@ -10266,7 +10272,7 @@ f351:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "35\tstring\tUPX!\t\t\tFREE-DOS executable (COM), UPX compressed")
-  out = append(out, "FREE-DOS executable (COM), UPX compressed")
+  m("FREE-DOS executable (COM), UPX compressed")
   goto end
 f352:
   // 2	string	\xcd\x21		COM executable for DOS
@@ -10277,7 +10283,7 @@ f352:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f353:
   // 4	string	\xcd\x21		COM executable for DOS
@@ -10288,7 +10294,7 @@ f353:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "4\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f354:
   // 5	string	\xcd\x21		COM executable for DOS
@@ -10299,7 +10305,7 @@ f354:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "5\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f355:
   // 7	string	\xcd\x21
@@ -10316,7 +10322,7 @@ f355:
   if !(ok && (ra != 184)) { goto f357 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\tbyte\t!0xb8\t\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto s356
 f357:
 s356:
@@ -10338,7 +10344,7 @@ f356:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">5\tstring\t!\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto s358
 f359:
 s358:
@@ -10352,7 +10358,7 @@ f358:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "13\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f360:
   // 18	string	\xcd\x21		COM executable for MS-DOS
@@ -10363,7 +10369,7 @@ f360:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "18\tstring\t\\xcd\\x21\t\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f361:
   // 23	string	\xcd\x21		COM executable for MS-DOS
@@ -10374,7 +10380,7 @@ f361:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "23\tstring\t\\xcd\\x21\t\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f362:
   // 30	string	\xcd\x21		COM executable for MS-DOS
@@ -10385,7 +10391,7 @@ f362:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "30\tstring\t\\xcd\\x21\t\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f363:
   // 70	string	\xcd\x21		COM executable for DOS
@@ -10396,7 +10402,7 @@ f363:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "70\tstring\t\\xcd\\x21\t\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   goto end
 f364:
   // 0x6	search/0xa	\xfc\x57\xf3\xa5\xc3	COM executable for MS-DOS
@@ -10407,7 +10413,7 @@ f364:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa5\\xc3\tCOM executable for MS-DOS")
-  out = append(out, "COM executable for MS-DOS")
+  m("COM executable for MS-DOS")
   goto end
 f365:
   // 0x6	search/0xa	\xfc\x57\xf3\xa4\xc3	COM executable for DOS
@@ -10418,7 +10424,7 @@ f365:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", "0x6\tsearch/0xa\t\\xfc\\x57\\xf3\\xa4\\xc3\tCOM executable for DOS")
-  out = append(out, "COM executable for DOS")
+  m("COM executable for DOS")
   // >0x18	search/0x10	\x50\xa4\xff\xd5\x73	\b, aPack compressed
   off = pof + 24
   {
@@ -10427,7 +10433,7 @@ f365:
     gof = off + ml + 5
   }
   fmt.Printf("matched rule: %s\n", ">0x18\tsearch/0x10\t\\x50\\xa4\\xff\\xd5\\x73\t\\b, aPack compressed")
-  out = append(out, "\\b, aPack compressed")
+  m("\\b, aPack compressed")
   goto s366
 f367:
 s366:
@@ -10441,7 +10447,7 @@ f366:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0x3c\tstring\t\tW\\ Collis\\0\\0\t\tCOM executable for MS-DOS, Compack compressed")
-  out = append(out, "COM executable for MS-DOS, Compack compressed")
+  m("COM executable for MS-DOS, Compack compressed")
   goto end
 f368:
   // 0	string/b	LZ		MS-DOS executable (built-in)
@@ -10452,7 +10458,7 @@ f368:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tLZ\t\tMS-DOS executable (built-in)")
-  out = append(out, "MS-DOS executable (built-in)")
+  m("MS-DOS executable (built-in)")
   goto end
 f369:
   // 0	string/b	\320\317\021\340\241\261\032\341AAFB\015\000OM\006\016\053\064\001\001\001\377			AAF legacy file using MS Structured Storage
@@ -10463,14 +10469,14 @@ f369:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\320\\317\\021\\340\\241\\261\\032\\341AAFB\\015\\000OM\\006\\016\\053\\064\\001\\001\\001\\377\t\t\tAAF legacy file using MS Structured Storage")
-  out = append(out, "AAF legacy file using MS Structured Storage")
+  m("AAF legacy file using MS Structured Storage")
   // >30	byte	9		(512B sectors)
   off = pof + 30
   ra, ok = f1b(tb, off)
   if !(ok && (ra == 9)) { goto f371 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t9\t\t(512B sectors)")
-  out = append(out, "(512B sectors)")
+  m("(512B sectors)")
   goto s370
 f371:
   // >30	byte	12		(4kB sectors)
@@ -10479,7 +10485,7 @@ f371:
   if !(ok && (ra == 12)) { goto f372 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t12\t\t(4kB sectors)")
-  out = append(out, "(4kB sectors)")
+  m("(4kB sectors)")
   goto s370
 f372:
 s370:
@@ -10493,14 +10499,14 @@ f370:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\320\\317\\021\\340\\241\\261\\032\\341\\001\\002\\001\\015\\000\\002\\000\\000\\006\\016\\053\\064\\003\\002\\001\\001\t\t\tAAF file using MS Structured Storage")
-  out = append(out, "AAF file using MS Structured Storage")
+  m("AAF file using MS Structured Storage")
   // >30	byte	9		(512B sectors)
   off = pof + 30
   ra, ok = f1b(tb, off)
   if !(ok && (ra == 9)) { goto f374 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t9\t\t(512B sectors)")
-  out = append(out, "(512B sectors)")
+  m("(512B sectors)")
   goto s373
 f374:
   // >30	byte	12		(4kB sectors)
@@ -10509,7 +10515,7 @@ f374:
   if !(ok && (ra == 12)) { goto f375 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">30\tbyte\t12\t\t(4kB sectors)")
-  out = append(out, "(4kB sectors)")
+  m("(4kB sectors)")
   goto s373
 f375:
 s373:
@@ -10523,7 +10529,7 @@ f373:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tMicrosoft\\ Word\\ 6.0\\ Document\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto end
 f376:
   // 2080	string	Documento\ Microsoft\ Word\ 6 Spanish Microsoft Word 6 document data
@@ -10534,7 +10540,7 @@ f376:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tDocumento\\ Microsoft\\ Word\\ 6 Spanish Microsoft Word 6 document data")
-  out = append(out, "Spanish Microsoft Word 6 document data")
+  m("Spanish Microsoft Word 6 document data")
   goto end
 f377:
   // 2112	string	MSWordDoc			Microsoft Word document data
@@ -10545,7 +10551,7 @@ f377:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2112\tstring\tMSWordDoc\t\t\tMicrosoft Word document data")
-  out = append(out, "Microsoft Word document data")
+  m("Microsoft Word document data")
   goto end
 f378:
   // 0	belong	0x31be0000			Microsoft Word Document
@@ -10554,7 +10560,7 @@ f378:
   if !(ok && (ra == 834535424)) { goto f379 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t0x31be0000\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f379:
   // 0	string/b	PO^Q`				Microsoft Word 6.0 Document
@@ -10565,7 +10571,7 @@ f379:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tPO^Q`\t\t\t\tMicrosoft Word 6.0 Document")
-  out = append(out, "Microsoft Word 6.0 Document")
+  m("Microsoft Word 6.0 Document")
   goto end
 f380:
   // 4   long        0
@@ -10580,7 +10586,7 @@ f380:
   if !(ok && (ra == 4264689664)) { goto f382 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe320000      Microsoft Word for Macintosh 1.0")
-  out = append(out, "Microsoft Word for Macintosh 1.0")
+  m("Microsoft Word for Macintosh 1.0")
   goto s381
 f382:
   // >0  belong      0xfe340000      Microsoft Word for Macintosh 3.0
@@ -10589,7 +10595,7 @@ f382:
   if !(ok && (ra == 4264820736)) { goto f383 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe340000      Microsoft Word for Macintosh 3.0")
-  out = append(out, "Microsoft Word for Macintosh 3.0")
+  m("Microsoft Word for Macintosh 3.0")
   goto s381
 f383:
   // >0  belong      0xfe37001c      Microsoft Word for Macintosh 4.0
@@ -10598,7 +10604,7 @@ f383:
   if !(ok && (ra == 4265017372)) { goto f384 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe37001c      Microsoft Word for Macintosh 4.0")
-  out = append(out, "Microsoft Word for Macintosh 4.0")
+  m("Microsoft Word for Macintosh 4.0")
   goto s381
 f384:
   // >0  belong      0xfe370023      Microsoft Word for Macintosh 5.0
@@ -10607,7 +10613,7 @@ f384:
   if !(ok && (ra == 4265017379)) { goto f385 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0  belong      0xfe370023      Microsoft Word for Macintosh 5.0")
-  out = append(out, "Microsoft Word for Macintosh 5.0")
+  m("Microsoft Word for Macintosh 5.0")
   goto s381
 f385:
 s381:
@@ -10621,7 +10627,7 @@ f381:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\333\\245-\\0\\0\\0\t\t\tMicrosoft Word 2.0 Document")
-  out = append(out, "Microsoft Word 2.0 Document")
+  m("Microsoft Word 2.0 Document")
   goto end
 f386:
   // 512	string/b	\354\245\301			Microsoft Word Document
@@ -10632,7 +10638,7 @@ f386:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "512\tstring/b\t\\354\\245\\301\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f387:
   // 0	string/b	\xDB\xA5\x2D\x00		Microsoft WinWord 2.0 Document
@@ -10643,7 +10649,7 @@ f387:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\xDB\\xA5\\x2D\\x00\t\tMicrosoft WinWord 2.0 Document")
-  out = append(out, "Microsoft WinWord 2.0 Document")
+  m("Microsoft WinWord 2.0 Document")
   goto end
 f388:
   // 2080	string	Microsoft\ Excel\ 5.0\ Worksheet	%s
@@ -10654,7 +10660,7 @@ f388:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tMicrosoft\\ Excel\\ 5.0\\ Worksheet\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto end
 f389:
   // 0	string/b	\xDB\xA5\x2D\x00		Microsoft WinWord 2.0 Document
@@ -10665,7 +10671,7 @@ f389:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\xDB\\xA5\\x2D\\x00\t\tMicrosoft WinWord 2.0 Document")
-  out = append(out, "Microsoft WinWord 2.0 Document")
+  m("Microsoft WinWord 2.0 Document")
   goto end
 f390:
   // 2080	string	Foglio\ di\ lavoro\ Microsoft\ Exce	%s
@@ -10676,7 +10682,7 @@ f390:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2080\tstring\tFoglio\\ di\\ lavoro\\ Microsoft\\ Exce\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto end
 f391:
   // 2114	string	Biff5		Microsoft Excel 5.0 Worksheet
@@ -10687,7 +10693,7 @@ f391:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2114\tstring\tBiff5\t\tMicrosoft Excel 5.0 Worksheet")
-  out = append(out, "Microsoft Excel 5.0 Worksheet")
+  m("Microsoft Excel 5.0 Worksheet")
   goto end
 f392:
   // 2121	string	Biff5		Microsoft Excel 5.0 Worksheet
@@ -10698,7 +10704,7 @@ f392:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2121\tstring\tBiff5\t\tMicrosoft Excel 5.0 Worksheet")
-  out = append(out, "Microsoft Excel 5.0 Worksheet")
+  m("Microsoft Excel 5.0 Worksheet")
   goto end
 f393:
   // 0	string/b	\x09\x04\x06\x00\x00\x00\x10\x00	Microsoft Excel Worksheet
@@ -10709,7 +10715,7 @@ f393:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\x09\\x04\\x06\\x00\\x00\\x00\\x10\\x00\tMicrosoft Excel Worksheet")
-  out = append(out, "Microsoft Excel Worksheet")
+  m("Microsoft Excel Worksheet")
   goto end
 f394:
   // 0	belong	0x00001a00
@@ -10730,14 +10736,14 @@ f394:
   if !(ok && (i8(i1(ra)) < 32)) { goto f397 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>20\tubyte\t\t<32\tLotus 1-2-3")
-  out = append(out, "Lotus 1-2-3")
+  m("Lotus 1-2-3")
   // >>>4	uleshort	0x1000	WorKsheet, version 3
   off = pof + 4
   ra, ok = f2b(tb, off)
   if !(ok && (ra == 4096)) { goto f398 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1000\tWorKsheet, version 3")
-  out = append(out, "WorKsheet, version 3")
+  m("WorKsheet, version 3")
   goto s397
 f398:
   // >>>4	uleshort	0x1002	WorKsheet, version 4
@@ -10746,7 +10752,7 @@ f398:
   if !(ok && (ra == 4098)) { goto f399 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1002\tWorKsheet, version 4")
-  out = append(out, "WorKsheet, version 4")
+  m("WorKsheet, version 4")
   goto s397
 f399:
   // >>>4	uleshort	0x1003	WorKsheet, version 97
@@ -10755,7 +10761,7 @@ f399:
   if !(ok && (ra == 4099)) { goto f400 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1003\tWorKsheet, version 97")
-  out = append(out, "WorKsheet, version 97")
+  m("WorKsheet, version 97")
   goto s397
 f400:
   // >>>4	uleshort	0x1005	WorKsheet, version 9.8 Millennium
@@ -10764,7 +10770,7 @@ f400:
   if !(ok && (ra == 4101)) { goto f401 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1005\tWorKsheet, version 9.8 Millennium")
-  out = append(out, "WorKsheet, version 9.8 Millennium")
+  m("WorKsheet, version 9.8 Millennium")
   goto s397
 f401:
   // >>>4	uleshort	0x8001	FoRMatting data
@@ -10773,7 +10779,7 @@ f401:
   if !(ok && (ra == 32769)) { goto f402 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8001\tFoRMatting data")
-  out = append(out, "FoRMatting data")
+  m("FoRMatting data")
   goto s397
 f402:
   // >>>4	uleshort	0x8007	ForMatting data, version 3
@@ -10782,7 +10788,7 @@ f402:
   if !(ok && (ra == 32775)) { goto f403 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8007\tForMatting data, version 3")
-  out = append(out, "ForMatting data, version 3")
+  m("ForMatting data, version 3")
   goto s397
 f403:
   // >>>4	default		x	unknown
@@ -10790,14 +10796,14 @@ f403:
   // uh oh unhandled kind default
   goto f404
   fmt.Printf("matched rule: %s\n", ">>>4\tdefault\t\tx\tunknown")
-  out = append(out, "unknown")
+  m("unknown")
   // >>>>6	uleshort	=0x0004	worksheet
   off = pof + 6
   ra, ok = f2b(tb, off)
   if !(ok && (ra == 4)) { goto f405 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>6\tuleshort\t=0x0004\tworksheet")
-  out = append(out, "worksheet")
+  m("worksheet")
   goto s404
 f405:
   // >>>>6	uleshort	!0x0004	formatting data
@@ -10806,14 +10812,14 @@ f405:
   if !(ok && (ra != 4)) { goto f406 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>6\tuleshort\t!0x0004\tformatting data")
-  out = append(out, "formatting data")
+  m("formatting data")
   goto s404
 f406:
   // >>>>4	uleshort	x	\b, revision 0x%x
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4\tuleshort\tx\t\\b, revision 0x%x")
-  out = append(out, "\\b, revision 0x%x")
+  m("\\b, revision 0x%x")
   goto s404
 s404:
   goto s397
@@ -10824,7 +10830,7 @@ f404:
   if !(ok && (ra == 4)) { goto f408 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\t=0x0004\t\\b, cell range")
-  out = append(out, "\\b, cell range")
+  m("\\b, cell range")
   // >>>>8	ulelong		!0
   off = pof + 8
   ra, ok = f4b(tb, off)
@@ -10837,20 +10843,20 @@ f404:
   if !(ok && (i8(i1(ra)) > 0)) { goto f410 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>10\tubyte\t\t>0\t\\b%d*")
-  out = append(out, "\\b%d*")
+  m("\\b%d*")
   goto s409
 f410:
   // >>>>>8	uleshort	x	\b%d,
   off = pof + 8
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>>8\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s409
   // >>>>>11	ubyte		x	\b%d-
   off = pof + 11
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>11\tubyte\t\tx\t\\b%d-")
-  out = append(out, "\\b%d-")
+  m("\\b%d-")
   goto s409
 s409:
   goto s408
@@ -10861,20 +10867,20 @@ f409:
   if !(ok && (i8(i1(ra)) > 0)) { goto f413 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>14\tubyte\t\t>0\t\\b%d*")
-  out = append(out, "\\b%d*")
+  m("\\b%d*")
   goto s408
 f413:
   // >>>>12	uleshort	x	\b%d,
   off = pof + 12
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>12\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s408
   // >>>>15	ubyte		x	\b%d
   off = pof + 15
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>15\tubyte\t\tx\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s408
   // >>>>20	ubyte		>1	\b, character set 0x%x
   off = pof + 20
@@ -10882,14 +10888,14 @@ f413:
   if !(ok && (i8(i1(ra)) > 1)) { goto f416 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>20\tubyte\t\t>1\t\\b, character set 0x%x")
-  out = append(out, "\\b, character set 0x%x")
+  m("\\b, character set 0x%x")
   goto s408
 f416:
   // >>>>21	ubyte		x	\b, flags 0x%x
   off = pof + 21
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>21\tubyte\t\tx\t\\b, flags 0x%x")
-  out = append(out, "\\b, flags 0x%x")
+  m("\\b, flags 0x%x")
   goto s408
 s408:
   goto s397
@@ -10916,7 +10922,7 @@ f408:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>>&4\tstring\t\t>\\0\t\\b, 1st font \"%s\"")
-  out = append(out, "\\b, 1st font \"%s\"")
+  m("\\b, 1st font \"%s\"")
   goto s419
 f420:
 s419:
@@ -10952,14 +10958,14 @@ f395:
   if !(ok && (i8(i1(ra)) > 0)) { goto f423 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>6\tubyte\t\t>0\tLotus")
-  out = append(out, "Lotus")
+  m("Lotus")
   // >>>4	uleshort	0x0007	1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)
   off = pof + 4
   ra, ok = f2b(tb, off)
   if !(ok && (ra == 7)) { goto f424 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0007\t1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
-  out = append(out, "1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
+  m("1-2-3 CoNFiguration, version 2.x (PGRAPH.CNF)")
   goto s423
 f424:
   // >>>4	uleshort	0x0C05	1-2-3 CoNFiguration, version 2.4J
@@ -10968,7 +10974,7 @@ f424:
   if !(ok && (ra == 3077)) { goto f425 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0C05\t1-2-3 CoNFiguration, version 2.4J")
-  out = append(out, "1-2-3 CoNFiguration, version 2.4J")
+  m("1-2-3 CoNFiguration, version 2.4J")
   goto s423
 f425:
   // >>>4	uleshort	0x0801	1-2-3 CoNFiguration, version 1-2.1
@@ -10977,7 +10983,7 @@ f425:
   if !(ok && (ra == 2049)) { goto f426 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0801\t1-2-3 CoNFiguration, version 1-2.1")
-  out = append(out, "1-2-3 CoNFiguration, version 1-2.1")
+  m("1-2-3 CoNFiguration, version 1-2.1")
   goto s423
 f426:
   // >>>4	uleshort	0x0802	Symphony CoNFiguration
@@ -10986,7 +10992,7 @@ f426:
   if !(ok && (ra == 2050)) { goto f427 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0802\tSymphony CoNFiguration")
-  out = append(out, "Symphony CoNFiguration")
+  m("Symphony CoNFiguration")
   goto s423
 f427:
   // >>>4	uleshort	0x0804	1-2-3 CoNFiguration, version 2.2
@@ -10995,7 +11001,7 @@ f427:
   if !(ok && (ra == 2052)) { goto f428 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0804\t1-2-3 CoNFiguration, version 2.2")
-  out = append(out, "1-2-3 CoNFiguration, version 2.2")
+  m("1-2-3 CoNFiguration, version 2.2")
   goto s423
 f428:
   // >>>4	uleshort	0x080A	1-2-3 CoNFiguration, version 2.3-2.4
@@ -11004,7 +11010,7 @@ f428:
   if !(ok && (ra == 2058)) { goto f429 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x080A\t1-2-3 CoNFiguration, version 2.3-2.4")
-  out = append(out, "1-2-3 CoNFiguration, version 2.3-2.4")
+  m("1-2-3 CoNFiguration, version 2.3-2.4")
   goto s423
 f429:
   // >>>4	uleshort	0x1402	1-2-3 CoNFiguration, version 3.x
@@ -11013,7 +11019,7 @@ f429:
   if !(ok && (ra == 5122)) { goto f430 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1402\t1-2-3 CoNFiguration, version 3.x")
-  out = append(out, "1-2-3 CoNFiguration, version 3.x")
+  m("1-2-3 CoNFiguration, version 3.x")
   goto s423
 f430:
   // >>>4	uleshort	0x1450	1-2-3 CoNFiguration, version 4.x
@@ -11022,7 +11028,7 @@ f430:
   if !(ok && (ra == 5200)) { goto f431 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x1450\t1-2-3 CoNFiguration, version 4.x")
-  out = append(out, "1-2-3 CoNFiguration, version 4.x")
+  m("1-2-3 CoNFiguration, version 4.x")
   goto s423
 f431:
   // >>>4	uleshort	0x0404	1-2-3 WorKSheet, version 1
@@ -11031,7 +11037,7 @@ f431:
   if !(ok && (ra == 1028)) { goto f432 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0404\t1-2-3 WorKSheet, version 1")
-  out = append(out, "1-2-3 WorKSheet, version 1")
+  m("1-2-3 WorKSheet, version 1")
   goto s423
 f432:
   // >>>4	uleshort	0x0405	Symphony WoRksheet, version 1.0
@@ -11040,7 +11046,7 @@ f432:
   if !(ok && (ra == 1029)) { goto f433 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0405\tSymphony WoRksheet, version 1.0")
-  out = append(out, "Symphony WoRksheet, version 1.0")
+  m("Symphony WoRksheet, version 1.0")
   goto s423
 f433:
   // >>>4	uleshort	0x0406	1-2-3/Symphony worksheet, version 2
@@ -11049,7 +11055,7 @@ f433:
   if !(ok && (ra == 1030)) { goto f434 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0406\t1-2-3/Symphony worksheet, version 2")
-  out = append(out, "1-2-3/Symphony worksheet, version 2")
+  m("1-2-3/Symphony worksheet, version 2")
   goto s423
 f434:
   // >>>4	uleshort	0x0600	1-2-3 WorKsheet, version 1.xJ
@@ -11058,7 +11064,7 @@ f434:
   if !(ok && (ra == 1536)) { goto f435 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0600\t1-2-3 WorKsheet, version 1.xJ")
-  out = append(out, "1-2-3 WorKsheet, version 1.xJ")
+  m("1-2-3 WorKsheet, version 1.xJ")
   goto s423
 f435:
   // >>>4	uleshort	0x0602	1-2-3 worksheet, version 2.4J
@@ -11067,7 +11073,7 @@ f435:
   if !(ok && (ra == 1538)) { goto f436 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x0602\t1-2-3 worksheet, version 2.4J")
-  out = append(out, "1-2-3 worksheet, version 2.4J")
+  m("1-2-3 worksheet, version 2.4J")
   goto s423
 f436:
   // >>>4	uleshort	0x8006	1-2-3 ForMaTting data, version 2.x
@@ -11076,7 +11082,7 @@ f436:
   if !(ok && (ra == 32774)) { goto f437 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8006\t1-2-3 ForMaTting data, version 2.x")
-  out = append(out, "1-2-3 ForMaTting data, version 2.x")
+  m("1-2-3 ForMaTting data, version 2.x")
   goto s423
 f437:
   // >>>4	uleshort	0x8007	1-2-3 FoRMatting data, version 2.0
@@ -11085,7 +11091,7 @@ f437:
   if !(ok && (ra == 32775)) { goto f438 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\t0x8007\t1-2-3 FoRMatting data, version 2.0")
-  out = append(out, "1-2-3 FoRMatting data, version 2.0")
+  m("1-2-3 FoRMatting data, version 2.0")
   goto s423
 f438:
   // >>>4	default		x	unknown worksheet or configuration
@@ -11093,12 +11099,12 @@ f438:
   // uh oh unhandled kind default
   goto f439
   fmt.Printf("matched rule: %s\n", ">>>4\tdefault\t\tx\tunknown worksheet or configuration")
-  out = append(out, "unknown worksheet or configuration")
+  m("unknown worksheet or configuration")
   // >>>>4	uleshort	x	\b, revision 0x%x
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4\tuleshort\tx\t\\b, revision 0x%x")
-  out = append(out, "\\b, revision 0x%x")
+  m("\\b, revision 0x%x")
   goto s439
 s439:
   goto s423
@@ -11107,7 +11113,7 @@ f439:
   off = pof + 6
   {
     ss, _ := IdentifyLotusCells(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>6\t\tuse\tlotus-cells")
   goto s423
@@ -11118,7 +11124,7 @@ f439:
   off = off + 10
   {
     ss, _ := IdentifyLotusCells(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>(8.s+10)\tuse\tlotus-cells")
   goto s423
@@ -11140,7 +11146,7 @@ f421:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\tWordPro\\0\tLotus WordPro")
-  out = append(out, "Lotus WordPro")
+  m("Lotus WordPro")
   goto end
 f443:
   // 0	string/b		WordPro\r\373	Lotus WordPro
@@ -11151,7 +11157,7 @@ f443:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\tWordPro\\r\\373\tLotus WordPro")
-  out = append(out, "Lotus WordPro")
+  m("Lotus WordPro")
   goto end
 f444:
   // 0		string		\x71\xa8\x00\x00\x01\x02
@@ -11170,7 +11176,7 @@ f444:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">12\t\tstring\t\tStirling\\ Technologies,\t\tInstallShield Uninstall Script")
-  out = append(out, "InstallShield Uninstall Script")
+  m("InstallShield Uninstall Script")
   goto s445
 f446:
 s445:
@@ -11184,7 +11190,7 @@ f445:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tNullsoft\\ AVS\\ Preset\\ \tWinamp plug in")
-  out = append(out, "Winamp plug in")
+  m("Winamp plug in")
   goto end
 f447:
   // 0	string/b	\327\315\306\232	ms-windows metafont .wmf
@@ -11195,7 +11201,7 @@ f447:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\327\\315\\306\\232\tms-windows metafont .wmf")
-  out = append(out, "ms-windows metafont .wmf")
+  m("ms-windows metafont .wmf")
   goto end
 f448:
   // 0	string/b	\002\000\011\000	ms-windows metafont .wmf
@@ -11206,7 +11212,7 @@ f448:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\002\\000\\011\\000\tms-windows metafont .wmf")
-  out = append(out, "ms-windows metafont .wmf")
+  m("ms-windows metafont .wmf")
   goto end
 f449:
   // 0	string/b	\001\000\011\000	ms-windows metafont .wmf
@@ -11217,7 +11223,7 @@ f449:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\001\\000\\011\\000\tms-windows metafont .wmf")
-  out = append(out, "ms-windows metafont .wmf")
+  m("ms-windows metafont .wmf")
   goto end
 f450:
   // 0	string/b	\003\001\001\004\070\001\000\000	tz3 ms-works file
@@ -11228,7 +11234,7 @@ f450:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\003\\001\\001\\004\\070\\001\\000\\000\ttz3 ms-works file")
-  out = append(out, "tz3 ms-works file")
+  m("tz3 ms-works file")
   goto end
 f451:
   // 0	string/b	\003\002\001\004\070\001\000\000	tz3 ms-works file
@@ -11239,7 +11245,7 @@ f451:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\003\\002\\001\\004\\070\\001\\000\\000\ttz3 ms-works file")
-  out = append(out, "tz3 ms-works file")
+  m("tz3 ms-works file")
   goto end
 f452:
   // 0	string/b	\003\003\001\004\070\001\000\000	tz3 ms-works file
@@ -11250,7 +11256,7 @@ f452:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\003\\003\\001\\004\\070\\001\\000\\000\ttz3 ms-works file")
-  out = append(out, "tz3 ms-works file")
+  m("tz3 ms-works file")
   goto end
 f453:
   // 0 string \211\000\077\003\005\000\063\237\127\065\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -11261,7 +11267,7 @@ f453:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\065\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f454:
   // 0 string \211\000\077\003\005\000\063\237\127\066\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -11272,7 +11278,7 @@ f454:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\066\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f455:
   // 0 string \211\000\077\003\005\000\063\237\127\067\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -11283,7 +11289,7 @@ f455:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\067\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f456:
   // 0 string \211\000\077\003\005\000\063\237\127\070\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -11294,7 +11300,7 @@ f456:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\070\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f457:
   // 0 string \211\000\077\003\005\000\063\237\127\071\027\266\151\064\005\045\101\233\021\002 PGP sig
@@ -11305,7 +11311,7 @@ f457:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\077\\003\\005\\000\\063\\237\\127\\071\\027\\266\\151\\064\\005\\045\\101\\233\\021\\002 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f458:
   // 0 string \211\000\225\003\005\000\062\122\207\304\100\345\042 PGP sig
@@ -11316,7 +11322,7 @@ f458:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0 string \\211\\000\\225\\003\\005\\000\\062\\122\\207\\304\\100\\345\\042 PGP sig")
-  out = append(out, "PGP sig")
+  m("PGP sig")
   goto end
 f459:
   // 0	string/b	MDIF\032\000\010\000\000\000\372\046\100\175\001\000\001\036\001\000 MS Windows special zipped file
@@ -11327,7 +11333,7 @@ f459:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMDIF\\032\\000\\010\\000\\000\\000\\372\\046\\100\\175\\001\\000\\001\\036\\001\\000 MS Windows special zipped file")
-  out = append(out, "MS Windows special zipped file")
+  m("MS Windows special zipped file")
   goto end
 f460:
   // 0	string/b	\102\101\050\000\000\000\056\000\000\000\000\000\000\000	Icon for MS Windows
@@ -11338,7 +11344,7 @@ f460:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\102\\101\\050\\000\\000\\000\\056\\000\\000\\000\\000\\000\\000\\000\tIcon for MS Windows")
-  out = append(out, "Icon for MS Windows")
+  m("Icon for MS Windows")
   goto end
 f461:
   // 0   belong  0x00000100
@@ -11362,7 +11368,7 @@ f461:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s463
@@ -11384,7 +11390,7 @@ f463:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s466
@@ -11410,7 +11416,7 @@ f462:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s470
@@ -11427,7 +11433,7 @@ f470:
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoDir(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>0 use     cur-ico-dir")
   goto s472
@@ -11445,7 +11451,7 @@ f469:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tPK\\010\\010BGI\tBorland font")
-  out = append(out, "Borland font")
+  m("Borland font")
   // >4	string	>\0	%s
   off = pof + 4
   {
@@ -11454,7 +11460,7 @@ f469:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t>\\0\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto s474
 f475:
 s474:
@@ -11468,7 +11474,7 @@ f474:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tpk\\010\\010BGI\tBorland device")
-  out = append(out, "Borland device")
+  m("Borland device")
   // >4	string	>\0	%s
   off = pof + 4
   {
@@ -11477,7 +11483,7 @@ f474:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t>\\0\t%s")
-  out = append(out, "%s")
+  m("%s")
   goto s476
 f477:
 s476:
@@ -11495,7 +11501,7 @@ f476:
   if !(ok && (ra == 280)) { goto f479 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tlelong\t\t0x00000118\tWindows Recycle Bin INFO2 file (Win98 or below)")
-  out = append(out, "Windows Recycle Bin INFO2 file (Win98 or below)")
+  m("Windows Recycle Bin INFO2 file (Win98 or below)")
   goto s478
 f479:
 s478:
@@ -11513,7 +11519,7 @@ f478:
   if !(ok && (ra == 800)) { goto f481 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tlelong\t\t0x00000320\tWindows Recycle Bin INFO2 file (Win2k - WinXP)")
-  out = append(out, "Windows Recycle Bin INFO2 file (Win2k - WinXP)")
+  m("Windows Recycle Bin INFO2 file (Win2k - WinXP)")
   goto s480
 f481:
 s480:
@@ -11527,7 +11533,7 @@ f480:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tGERBILDOC\tFirst Choice document")
-  out = append(out, "First Choice document")
+  m("First Choice document")
   goto end
 f482:
   // 9	string		GERBILDB	First Choice database
@@ -11538,7 +11544,7 @@ f482:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tGERBILDB\tFirst Choice database")
-  out = append(out, "First Choice database")
+  m("First Choice database")
   goto end
 f483:
   // 9	string		GERBILCLIP	First Choice database
@@ -11549,7 +11555,7 @@ f483:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tGERBILCLIP\tFirst Choice database")
-  out = append(out, "First Choice database")
+  m("First Choice database")
   goto end
 f484:
   // 0	string		GERBIL		First Choice device file
@@ -11560,7 +11566,7 @@ f484:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tGERBIL\t\tFirst Choice device file")
-  out = append(out, "First Choice device file")
+  m("First Choice device file")
   goto end
 f485:
   // 9	string		RABBITGRAPH	RabbitGraph file
@@ -11571,7 +11577,7 @@ f485:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "9\tstring\t\tRABBITGRAPH\tRabbitGraph file")
-  out = append(out, "RabbitGraph file")
+  m("RabbitGraph file")
   goto end
 f486:
   // 0	string		DCU1		Borland Delphi .DCU file
@@ -11582,7 +11588,7 @@ f486:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tDCU1\t\tBorland Delphi .DCU file")
-  out = append(out, "Borland Delphi .DCU file")
+  m("Borland Delphi .DCU file")
   goto end
 f487:
   // 0	string		=!<spell>	MKS Spell hash list (old format)
@@ -11593,7 +11599,7 @@ f487:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t=!<spell>\tMKS Spell hash list (old format)")
-  out = append(out, "MKS Spell hash list (old format)")
+  m("MKS Spell hash list (old format)")
   goto end
 f488:
   // 0	string		=!<spell2>	MKS Spell hash list
@@ -11604,7 +11610,7 @@ f488:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\t=!<spell2>\tMKS Spell hash list")
-  out = append(out, "MKS Spell hash list")
+  m("MKS Spell hash list")
   goto end
 f489:
   // 0	lelong		0x08086b70	TurboC BGI file
@@ -11613,7 +11619,7 @@ f489:
   if !(ok && (ra == 134769520)) { goto f490 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tlelong\t\t0x08086b70\tTurboC BGI file")
-  out = append(out, "TurboC BGI file")
+  m("TurboC BGI file")
   goto end
 f490:
   // 0	lelong		0x08084b50	TurboC Font file
@@ -11622,7 +11628,7 @@ f490:
   if !(ok && (ra == 134761296)) { goto f491 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tlelong\t\t0x08084b50\tTurboC Font file")
-  out = append(out, "TurboC Font file")
+  m("TurboC Font file")
   goto end
 f491:
   // 0	string		TPF0
@@ -11643,7 +11649,7 @@ f492:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\tPMCC\t\tWindows 3.x .GRP file")
-  out = append(out, "Windows 3.x .GRP file")
+  m("Windows 3.x .GRP file")
   goto end
 f493:
   // 1	string		RDC-meg		MegaDots
@@ -11654,14 +11660,14 @@ f493:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "1\tstring\t\tRDC-meg\t\tMegaDots")
-  out = append(out, "MegaDots")
+  m("MegaDots")
   // >8	byte		>0x2F		version %c
   off = pof + 8
   ra, ok = f1b(tb, off)
   if !(ok && (i8(i1(ra)) > 47)) { goto f495 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">8\tbyte\t\t>0x2F\t\tversion %c")
-  out = append(out, "version %c")
+  m("version %c")
   goto s494
 f495:
   // >9	byte		>0x2F		\b.%c file
@@ -11670,7 +11676,7 @@ f495:
   if !(ok && (i8(i1(ra)) > 47)) { goto f496 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">9\tbyte\t\t>0x2F\t\t\\b.%c file")
-  out = append(out, "\\b.%c file")
+  m("\\b.%c file")
   goto s494
 f496:
 s494:
@@ -11688,7 +11694,7 @@ f494:
   if !(ok && (ra == 136193)) { goto f498 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tlelong\t\t0x00021401\tWindows shortcut file")
-  out = append(out, "Windows shortcut file")
+  m("Windows shortcut file")
   goto s497
 f498:
 s497:
@@ -11702,7 +11708,7 @@ f497:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0x171\tstring\tMICROSOFT\\ PIFEX\\0\tWindows Program Information File")
-  out = append(out, "Windows Program Information File")
+  m("Windows Program Information File")
   // >0x24	string		>\0		\b for %.63s
   off = pof + 36
   {
@@ -11711,7 +11717,7 @@ f497:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x24\tstring\t\t>\\0\t\t\\b for %.63s")
-  out = append(out, "\\b for %.63s")
+  m("\\b for %.63s")
   goto s499
 f500:
   // >0x65	string		>\0		\b, directory=%.64s
@@ -11722,7 +11728,7 @@ f500:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x65\tstring\t\t>\\0\t\t\\b, directory=%.64s")
-  out = append(out, "\\b, directory=%.64s")
+  m("\\b, directory=%.64s")
   goto s499
 f501:
   // >0xA5	string		>\0		\b, parameters=%.64s
@@ -11733,7 +11739,7 @@ f501:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0xA5\tstring\t\t>\\0\t\t\\b, parameters=%.64s")
-  out = append(out, "\\b, parameters=%.64s")
+  m("\\b, parameters=%.64s")
   goto s499
 f502:
   // >0x187	search/0xB55	WINDOWS\ VMM\ 4.0\0
@@ -11758,7 +11764,7 @@ f502:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t<PIFMGR.DLL\t\t\\b, icon=%s")
-  out = append(out, "\\b, icon=%s")
+  m("\\b, icon=%s")
   goto s504
 f505:
   // >>>&-1		string	>PIFMGR.DLL		\b, icon=%s
@@ -11769,7 +11775,7 @@ f505:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t>PIFMGR.DLL\t\t\\b, icon=%s")
-  out = append(out, "\\b, icon=%s")
+  m("\\b, icon=%s")
   goto s504
 f506:
 s504:
@@ -11789,7 +11795,7 @@ f504:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t<Terminal\t\t\\b, font=%.32s")
-  out = append(out, "\\b, font=%.32s")
+  m("\\b, font=%.32s")
   goto s507
 f508:
   // >>>&-1		string	>Terminal		\b, font=%.32s
@@ -11800,7 +11806,7 @@ f508:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t>Terminal\t\t\\b, font=%.32s")
-  out = append(out, "\\b, font=%.32s")
+  m("\\b, font=%.32s")
   goto s507
 f509:
 s507:
@@ -11820,7 +11826,7 @@ f507:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t<Lucida\\ Console\t\\b, TrueTypeFont=%.32s")
-  out = append(out, "\\b, TrueTypeFont=%.32s")
+  m("\\b, TrueTypeFont=%.32s")
   goto s510
 f511:
   // >>>&-1		string	>Lucida\ Console	\b, TrueTypeFont=%.32s
@@ -11831,7 +11837,7 @@ f511:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>&-1\t\tstring\t>Lucida\\ Console\t\\b, TrueTypeFont=%.32s")
-  out = append(out, "\\b, TrueTypeFont=%.32s")
+  m("\\b, TrueTypeFont=%.32s")
   goto s510
 f512:
 s510:
@@ -11848,7 +11854,7 @@ f503:
     gof = off + ml + 16
   }
   fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tWINDOWS\\ NT\\ \\ 3.1\\0\t\\b, Windows NT-style")
-  out = append(out, "\\b, Windows NT-style")
+  m("\\b, Windows NT-style")
   goto s499
 f513:
   // >0x187	search/0xB55	CONFIG\ \ SYS\ 4.0\0	\b +CONFIG.SYS
@@ -11859,7 +11865,7 @@ f513:
     gof = off + ml + 16
   }
   fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tCONFIG\\ \\ SYS\\ 4.0\\0\t\\b +CONFIG.SYS")
-  out = append(out, "\\b +CONFIG.SYS")
+  m("\\b +CONFIG.SYS")
   goto s499
 f514:
   // >0x187	search/0xB55	AUTOEXECBAT\ 4.0\0	\b +AUTOEXEC.BAT
@@ -11870,7 +11876,7 @@ f514:
     gof = off + ml + 16
   }
   fmt.Printf("matched rule: %s\n", ">0x187\tsearch/0xB55\tAUTOEXECBAT\\ 4.0\\0\t\\b +AUTOEXEC.BAT")
-  out = append(out, "\\b +AUTOEXEC.BAT")
+  m("\\b +AUTOEXEC.BAT")
   goto s499
 f515:
 s499:
@@ -11882,35 +11888,35 @@ f499:
   if !(ok && (ra == 3318797254)) { goto f516 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tbelong\t\t0xC5D0D3C6\tDOS EPS Binary File")
-  out = append(out, "DOS EPS Binary File")
+  m("DOS EPS Binary File")
   // >4	long		>0		Postscript starts at byte %d
   off = pof + 4
   ra, ok = f4b(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f517 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">4\tlong\t\t>0\t\tPostscript starts at byte %d")
-  out = append(out, "Postscript starts at byte %d")
+  m("Postscript starts at byte %d")
   // >>8	long		>0		length %d
   off = pof + 8
   ra, ok = f4b(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f518 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>8\tlong\t\t>0\t\tlength %d")
-  out = append(out, "length %d")
+  m("length %d")
   // >>>12	long		>0		Metafile starts at byte %d
   off = pof + 12
   ra, ok = f4b(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f519 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>12\tlong\t\t>0\t\tMetafile starts at byte %d")
-  out = append(out, "Metafile starts at byte %d")
+  m("Metafile starts at byte %d")
   // >>>>16	long		>0		length %d
   off = pof + 16
   ra, ok = f4b(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f520 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>16\tlong\t\t>0\t\tlength %d")
-  out = append(out, "length %d")
+  m("length %d")
   goto s519
 f520:
 s519:
@@ -11922,14 +11928,14 @@ f519:
   if !(ok && (i8(i4(ra)) > 0)) { goto f521 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>20\tlong\t\t>0\t\tTIFF starts at byte %d")
-  out = append(out, "TIFF starts at byte %d")
+  m("TIFF starts at byte %d")
   // >>>>24	long		>0		length %d
   off = pof + 24
   ra, ok = f4b(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f522 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>24\tlong\t\t>0\t\tlength %d")
-  out = append(out, "length %d")
+  m("length %d")
   goto s521
 f522:
 s521:
@@ -11950,7 +11956,7 @@ f516:
   if !(ok && (ra == 574529400)) { goto f523 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", "0\tleshort\t\t0x223e9f78\tTNEF")
-  out = append(out, "TNEF")
+  m("TNEF")
   goto end
 f523:
   // 0	string		NG\0\001
@@ -11967,7 +11973,7 @@ f523:
   if !(ok && (ra == 256)) { goto f525 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">2\tulelong\t\t0x00000100\tNorton Guide")
-  out = append(out, "Norton Guide")
+  m("Norton Guide")
   // >>8	string		>\0		"%-.40s"
   off = pof + 8
   {
@@ -11976,7 +11982,7 @@ f523:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>8\tstring\t\t>\\0\t\t\"%-.40s\"")
-  out = append(out, "\"%-.40s\"")
+  m("\"%-.40s\"")
   goto s525
 f526:
   // >>48	string		>\0		\b, %-.66s
@@ -11987,7 +11993,7 @@ f526:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>48\tstring\t\t>\\0\t\t\\b, %-.66s")
-  out = append(out, "\\b, %-.66s")
+  m("\\b, %-.66s")
   goto s525
 f527:
   // >>114	string		>\0		%-.66s
@@ -11998,7 +12004,7 @@ f527:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>114\tstring\t\t>\\0\t\t%-.66s")
-  out = append(out, "%-.66s")
+  m("%-.66s")
   goto s525
 f528:
 s525:
@@ -12013,7 +12019,7 @@ f524:
   if !(ok && (ra == 1212429320)) { goto f529 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", "0\tulelong\t0x48443408\t\t4DOS help file")
-  out = append(out, "4DOS help file")
+  m("4DOS help file")
   // >4	string	x			\b, version %-4.4s
   off = pof + 4
   {
@@ -12022,7 +12028,7 @@ f524:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\tx\t\t\t\\b, version %-4.4s")
-  out = append(out, "\\b, version %-4.4s")
+  m("\\b, version %-4.4s")
   goto s529
 f530:
 s529:
@@ -12034,7 +12040,7 @@ f529:
   if !(ok && (ra == 16325548649369164)) { goto f531 }
   gof = off + 8
   fmt.Printf("matched rule: %s\n", "0\tulequad\t0x3a000000024e4c\tMS Advisor help file")
-  out = append(out, "MS Advisor help file")
+  m("MS Advisor help file")
   goto end
 f531:
   // 0	string/b	ITSF\003\000\000\000\x60\000\000\000	MS Windows HtmlHelp Data
@@ -12045,7 +12051,7 @@ f531:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tITSF\\003\\000\\000\\000\\x60\\000\\000\\000\tMS Windows HtmlHelp Data")
-  out = append(out, "MS Windows HtmlHelp Data")
+  m("MS Windows HtmlHelp Data")
   goto end
 f532:
   // 2	string/b	GFA-BASIC3	GFA-BASIC 3 data
@@ -12056,7 +12062,7 @@ f532:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "2\tstring/b\tGFA-BASIC3\tGFA-BASIC 3 data")
-  out = append(out, "GFA-BASIC 3 data")
+  m("GFA-BASIC 3 data")
   goto end
 f533:
   // 0	string/b	MSCF\0\0\0\0	Microsoft Cabinet archive data
@@ -12067,12 +12073,12 @@ f533:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMSCF\\0\\0\\0\\0\tMicrosoft Cabinet archive data")
-  out = append(out, "Microsoft Cabinet archive data")
+  m("Microsoft Cabinet archive data")
   // >8	lelong		x		\b, %u bytes
   off = pof + 8
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">8\tlelong\t\tx\t\t\\b, %u bytes")
-  out = append(out, "\\b, %u bytes")
+  m("\\b, %u bytes")
   goto s534
   // >28	leshort		1		\b, 1 file
   off = pof + 28
@@ -12080,7 +12086,7 @@ f533:
   if !(ok && (ra == 1)) { goto f536 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">28\tleshort\t\t1\t\t\\b, 1 file")
-  out = append(out, "\\b, 1 file")
+  m("\\b, 1 file")
   goto s534
 f536:
   // >28	leshort		>1		\b, %u files
@@ -12089,7 +12095,7 @@ f536:
   if !(ok && (i8(i2(ra)) > 1)) { goto f537 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">28\tleshort\t\t>1\t\t\\b, %u files")
-  out = append(out, "\\b, %u files")
+  m("\\b, %u files")
   goto s534
 f537:
 s534:
@@ -12103,14 +12109,14 @@ f534:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tISc(\t\tInstallShield Cabinet archive data")
-  out = append(out, "InstallShield Cabinet archive data")
+  m("InstallShield Cabinet archive data")
   // >5	byte&0xf0	=0x60		version 6,
   off = pof + 5
   ra, ok = f1b(tb, off)
   if !(ok && (ra&240 == 96)) { goto f539 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte&0xf0\t=0x60\t\tversion 6,")
-  out = append(out, "version 6,")
+  m("version 6,")
   goto s538
 f539:
   // >5	byte&0xf0	!0x60		version 4/5,
@@ -12119,7 +12125,7 @@ f539:
   if !(ok && (ra&240 != 96)) { goto f540 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">5\tbyte&0xf0\t!0x60\t\tversion 4/5,")
-  out = append(out, "version 4/5,")
+  m("version 4/5,")
   goto s538
 f540:
   // >(12.l+40)	lelong	x		%u files
@@ -12129,7 +12135,7 @@ f540:
   off = off + 40
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">(12.l+40)\tlelong\tx\t\t%u files")
-  out = append(out, "%u files")
+  m("%u files")
   goto s538
 f541:
 s538:
@@ -12143,14 +12149,14 @@ f538:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMSCE\\0\\0\\0\\0\tMicrosoft WinCE install header")
-  out = append(out, "Microsoft WinCE install header")
+  m("Microsoft WinCE install header")
   // >20	lelong		0		\b, architecture-independent
   off = pof + 20
   ra, ok = f4b(tb, off)
   if !(ok && (ra == 0)) { goto f543 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t0\t\t\\b, architecture-independent")
-  out = append(out, "\\b, architecture-independent")
+  m("\\b, architecture-independent")
   goto s542
 f543:
   // >20	lelong		103		\b, Hitachi SH3
@@ -12159,7 +12165,7 @@ f543:
   if !(ok && (ra == 103)) { goto f544 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t103\t\t\\b, Hitachi SH3")
-  out = append(out, "\\b, Hitachi SH3")
+  m("\\b, Hitachi SH3")
   goto s542
 f544:
   // >20	lelong		104		\b, Hitachi SH4
@@ -12168,7 +12174,7 @@ f544:
   if !(ok && (ra == 104)) { goto f545 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t104\t\t\\b, Hitachi SH4")
-  out = append(out, "\\b, Hitachi SH4")
+  m("\\b, Hitachi SH4")
   goto s542
 f545:
   // >20	lelong		0xA11		\b, StrongARM
@@ -12177,7 +12183,7 @@ f545:
   if !(ok && (ra == 2577)) { goto f546 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t0xA11\t\t\\b, StrongARM")
-  out = append(out, "\\b, StrongARM")
+  m("\\b, StrongARM")
   goto s542
 f546:
   // >20	lelong		4000		\b, MIPS R4000
@@ -12186,7 +12192,7 @@ f546:
   if !(ok && (ra == 4000)) { goto f547 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t4000\t\t\\b, MIPS R4000")
-  out = append(out, "\\b, MIPS R4000")
+  m("\\b, MIPS R4000")
   goto s542
 f547:
   // >20	lelong		10003		\b, Hitachi SH3
@@ -12195,7 +12201,7 @@ f547:
   if !(ok && (ra == 10003)) { goto f548 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t10003\t\t\\b, Hitachi SH3")
-  out = append(out, "\\b, Hitachi SH3")
+  m("\\b, Hitachi SH3")
   goto s542
 f548:
   // >20	lelong		10004		\b, Hitachi SH3E
@@ -12204,7 +12210,7 @@ f548:
   if !(ok && (ra == 10004)) { goto f549 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t10004\t\t\\b, Hitachi SH3E")
-  out = append(out, "\\b, Hitachi SH3E")
+  m("\\b, Hitachi SH3E")
   goto s542
 f549:
   // >20	lelong		10005		\b, Hitachi SH4
@@ -12213,7 +12219,7 @@ f549:
   if !(ok && (ra == 10005)) { goto f550 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t10005\t\t\\b, Hitachi SH4")
-  out = append(out, "\\b, Hitachi SH4")
+  m("\\b, Hitachi SH4")
   goto s542
 f550:
   // >20	lelong		70001		\b, ARM 7TDMI
@@ -12222,7 +12228,7 @@ f550:
   if !(ok && (ra == 70001)) { goto f551 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t70001\t\t\\b, ARM 7TDMI")
-  out = append(out, "\\b, ARM 7TDMI")
+  m("\\b, ARM 7TDMI")
   goto s542
 f551:
   // >52	leshort		1		\b, 1 file
@@ -12231,7 +12237,7 @@ f551:
   if !(ok && (ra == 1)) { goto f552 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">52\tleshort\t\t1\t\t\\b, 1 file")
-  out = append(out, "\\b, 1 file")
+  m("\\b, 1 file")
   goto s542
 f552:
   // >52	leshort		>1		\b, %u files
@@ -12240,7 +12246,7 @@ f552:
   if !(ok && (i8(i2(ra)) > 1)) { goto f553 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">52\tleshort\t\t>1\t\t\\b, %u files")
-  out = append(out, "\\b, %u files")
+  m("\\b, %u files")
   goto s542
 f553:
   // >56	leshort		1		\b, 1 registry entry
@@ -12249,7 +12255,7 @@ f553:
   if !(ok && (ra == 1)) { goto f554 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">56\tleshort\t\t1\t\t\\b, 1 registry entry")
-  out = append(out, "\\b, 1 registry entry")
+  m("\\b, 1 registry entry")
   goto s542
 f554:
   // >56	leshort		>1		\b, %u registry entries
@@ -12258,7 +12264,7 @@ f554:
   if !(ok && (i8(i2(ra)) > 1)) { goto f555 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">56\tleshort\t\t>1\t\t\\b, %u registry entries")
-  out = append(out, "\\b, %u registry entries")
+  m("\\b, %u registry entries")
   goto s542
 f555:
 s542:
@@ -12278,12 +12284,12 @@ f542:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">40\tstring\t\\ EMF\t\tWindows Enhanced Metafile (EMF) image data")
-  out = append(out, "Windows Enhanced Metafile (EMF) image data")
+  m("Windows Enhanced Metafile (EMF) image data")
   // >>44	ulelong x		version 0x%x
   off = pof + 44
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>44\tulelong x\t\tversion 0x%x")
-  out = append(out, "version 0x%x")
+  m("version 0x%x")
   goto s557
 s557:
   goto s556
@@ -12299,7 +12305,7 @@ f556:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\320\\317\\021\\340\\241\\261\\032\\341\tMicrosoft Office Document")
-  out = append(out, "Microsoft Office Document")
+  m("Microsoft Office Document")
   // >546	string	bjbj			Microsoft Word Document
   off = pof + 546
   {
@@ -12308,7 +12314,7 @@ f556:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">546\tstring\tbjbj\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto s559
 f560:
   // >546	string	jbjb			Microsoft Word Document
@@ -12319,7 +12325,7 @@ f560:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">546\tstring\tjbjb\t\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto s559
 f561:
 s559:
@@ -12333,7 +12339,7 @@ f559:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\t\\224\\246\\056\t\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f562:
   // 512	string	R\0o\0o\0t\0\ \0E\0n\0t\0r\0y	Microsoft Word Document
@@ -12344,7 +12350,7 @@ f562:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "512\tstring\tR\\0o\\0o\\0t\\0\\ \\0E\\0n\\0t\\0r\\0y\tMicrosoft Word Document")
-  out = append(out, "Microsoft Word Document")
+  m("Microsoft Word Document")
   goto end
 f563:
   // 0	string/b $RBU
@@ -12363,7 +12369,7 @@ f563:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">23\tstring Dell\t\t\t%s system BIOS")
-  out = append(out, "%s system BIOS")
+  m("%s system BIOS")
   goto s564
 f565:
   // >5	byte   2
@@ -12376,19 +12382,19 @@ f565:
   off = pof + 48
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>48\tbyte   x\t\t\tversion %d.")
-  out = append(out, "version %d.")
+  m("version %d.")
   goto s566
   // >>49	byte   x			\b%d.
   off = pof + 49
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>49\tbyte   x\t\t\t\\b%d.")
-  out = append(out, "\\b%d.")
+  m("\\b%d.")
   goto s566
   // >>50	byte   x			\b%d
   off = pof + 50
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>50\tbyte   x\t\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s566
 s566:
   goto s564
@@ -12407,7 +12413,7 @@ f566:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>48\tstring x\t\t\tversion %.3s")
-  out = append(out, "version %.3s")
+  m("version %.3s")
   goto s570
 f571:
 s570:
@@ -12424,14 +12430,14 @@ f564:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tDDS\\040\\174\\000\\000\\000 Microsoft DirectDraw Surface (DDS),")
-  out = append(out, "Microsoft DirectDraw Surface (DDS),")
+  m("Microsoft DirectDraw Surface (DDS),")
   // >16	lelong	>0			%d x
   off = pof + 16
   ra, ok = f4b(tb, off)
   if !(ok && (i8(i4(ra)) > 0)) { goto f573 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">16\tlelong\t>0\t\t\t%d x")
-  out = append(out, "%d x")
+  m("%d x")
   goto s572
 f573:
   // >12	lelong	>0			%d,
@@ -12440,7 +12446,7 @@ f573:
   if !(ok && (i8(i4(ra)) > 0)) { goto f574 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tlelong\t>0\t\t\t%d,")
-  out = append(out, "%d,")
+  m("%d,")
   goto s572
 f574:
   // >84	string	x			%.4s
@@ -12451,7 +12457,7 @@ f574:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">84\tstring\tx\t\t\t%.4s")
-  out = append(out, "%.4s")
+  m("%.4s")
   goto s572
 f575:
 s572:
@@ -12465,12 +12471,12 @@ f572:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tITOLITLS\t\tMicrosoft Reader eBook Data")
-  out = append(out, "Microsoft Reader eBook Data")
+  m("Microsoft Reader eBook Data")
   // >8	lelong	x			\b, version %u
   off = pof + 8
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">8\tlelong\tx\t\t\t\\b, version %u")
-  out = append(out, "\\b, version %u")
+  m("\\b, version %u")
   goto s576
 s576:
   goto end
@@ -12483,7 +12489,7 @@ f576:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tB000FF\\n\tWindows Embedded CE binary image")
-  out = append(out, "Windows Embedded CE binary image")
+  m("Windows Embedded CE binary image")
   goto end
 f578:
   // 0	string/b	MSWIM\000\000\000	Windows imaging (WIM) image
@@ -12494,7 +12500,7 @@ f578:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tMSWIM\\000\\000\\000\tWindows imaging (WIM) image")
-  out = append(out, "Windows imaging (WIM) image")
+  m("Windows imaging (WIM) image")
   goto end
 f579:
   // 0	string/b	WLPWM\000\000\000	Windows imaging (WIM) image, wimlib pipable format
@@ -12505,7 +12511,7 @@ f579:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring/b\tWLPWM\\000\\000\\000\tWindows imaging (WIM) image, wimlib pipable format")
-  out = append(out, "Windows imaging (WIM) image, wimlib pipable format")
+  m("Windows imaging (WIM) image, wimlib pipable format")
   goto end
 f580:
   // 0	string	\xfc\x03\x00	Mallard BASIC program data (v1.11)
@@ -12516,7 +12522,7 @@ f580:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x03\\x00\tMallard BASIC program data (v1.11)")
-  out = append(out, "Mallard BASIC program data (v1.11)")
+  m("Mallard BASIC program data (v1.11)")
   goto end
 f581:
   // 0	string	\xfc\x04\x00	Mallard BASIC program data (v1.29+)
@@ -12527,7 +12533,7 @@ f581:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x04\\x00\tMallard BASIC program data (v1.29+)")
-  out = append(out, "Mallard BASIC program data (v1.29+)")
+  m("Mallard BASIC program data (v1.29+)")
   goto end
 f582:
   // 0	string	\xfc\x03\x01	Mallard BASIC protected program data (v1.11)
@@ -12538,7 +12544,7 @@ f582:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x03\\x01\tMallard BASIC protected program data (v1.11)")
-  out = append(out, "Mallard BASIC protected program data (v1.11)")
+  m("Mallard BASIC protected program data (v1.11)")
   goto end
 f583:
   // 0	string	\xfc\x04\x01	Mallard BASIC protected program data (v1.29+)
@@ -12549,7 +12555,7 @@ f583:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\t\\xfc\\x04\\x01\tMallard BASIC protected program data (v1.29+)")
-  out = append(out, "Mallard BASIC protected program data (v1.29+)")
+  m("Mallard BASIC protected program data (v1.29+)")
   goto end
 f584:
   // 0	string	MIOPEN		Mallard BASIC Jetsam data
@@ -12560,7 +12566,7 @@ f584:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\tMIOPEN\t\tMallard BASIC Jetsam data")
-  out = append(out, "Mallard BASIC Jetsam data")
+  m("Mallard BASIC Jetsam data")
   goto end
 f585:
   // 0	string	Jetsam0		Mallard BASIC Jetsam index data
@@ -12571,7 +12577,7 @@ f585:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", "0\tstring\tJetsam0\t\tMallard BASIC Jetsam index data")
-  out = append(out, "Mallard BASIC Jetsam index data")
+  m("Mallard BASIC Jetsam index data")
   goto end
 f586:
   // 0x3	ushort	>1979
@@ -12604,7 +12610,7 @@ f586:
   off = pof + 1
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>0x1 ubyte\tx\tDOS 2.0 backup id file, sequence %d")
-  out = append(out, "DOS 2.0 backup id file, sequence %d")
+  m("DOS 2.0 backup id file, sequence %d")
   goto s590
   // >>>>0x0 ubyte	0xff	\b, last disk
   off = pof + 0
@@ -12612,7 +12618,7 @@ f586:
   if !(ok && (ra == 255)) { goto f592 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>0x0 ubyte\t0xff\t\\b, last disk")
-  out = append(out, "\\b, last disk")
+  m("\\b, last disk")
   goto s590
 f592:
 s590:
@@ -12649,7 +12655,7 @@ f587:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>0x5\tstring\tx\tDOS 2.0 backed up file %s,")
-  out = append(out, "DOS 2.0 backed up file %s,")
+  m("DOS 2.0 backed up file %s,")
   goto s594
 f595:
   // >>0	ubyte	0xff	complete file
@@ -12658,7 +12664,7 @@ f595:
   if !(ok && (ra == 255)) { goto f596 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>0\tubyte\t0xff\tcomplete file")
-  out = append(out, "complete file")
+  m("complete file")
   goto s594
 f596:
   // >>0	ubyte	!0xff
@@ -12671,7 +12677,7 @@ f596:
   off = pof + 1
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>1\tushort\tx\tsplit file, sequence %d")
-  out = append(out, "split file, sequence %d")
+  m("split file, sequence %d")
   goto s597
 s597:
   goto s594
@@ -12702,7 +12708,7 @@ f593:
   off = pof + 9
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>0x9\tubyte\tx\tDOS 3.3 backup control file, sequence %d")
-  out = append(out, "DOS 3.3 backup control file, sequence %d")
+  m("DOS 3.3 backup control file, sequence %d")
   goto s600
   // >>0x8a	ubyte	0xff	\b, last disk
   off = pof + 138
@@ -12710,7 +12716,7 @@ f593:
   if !(ok && (ra == 255)) { goto f602 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>0x8a\tubyte\t0xff\t\\b, last disk")
-  out = append(out, "\\b, last disk")
+  m("\\b, last disk")
   goto s600
 f602:
 s600:
@@ -12731,6 +12737,9 @@ func IdentifyCurEntry(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		cur-entry
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tcur-entry")
@@ -12738,7 +12747,7 @@ func IdentifyCurEntry(tb []byte, pof i8) ([]string, error) {
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\tcur-ico-entry")
   goto s0
@@ -12746,13 +12755,13 @@ func IdentifyCurEntry(tb []byte, pof i8) ([]string, error) {
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort\tx\t\\b, hotspot @%dx")
-  out = append(out, "\\b, hotspot @%dx")
+  m("\\b, hotspot @%dx")
   goto s0
   // >6	uleshort	x	\b%d
   off = pof + 6
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">6\tuleshort\tx\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s0
 s0:
   goto end
@@ -12768,6 +12777,9 @@ func IdentifyCurEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		cur-entry
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tcur-entry")
@@ -12775,7 +12787,7 @@ func IdentifyCurEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\tcur-ico-entry")
   goto s0
@@ -12783,13 +12795,13 @@ func IdentifyCurEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort\tx\t\\b, hotspot @%dx")
-  out = append(out, "\\b, hotspot @%dx")
+  m("\\b, hotspot @%dx")
   goto s0
   // >6	uleshort	x	\b%d
   off = pof + 6
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">6\tuleshort\tx\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s0
 s0:
   goto end
@@ -12805,6 +12817,9 @@ func IdentifyCurIcoDir(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		cur-ico-dir
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tcur-ico-dir")
@@ -12820,19 +12835,19 @@ func IdentifyCurIcoDir(tb []byte, pof i8) ([]string, error) {
   off = i8(ra)
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>(18.l)\tulelong\t\tx\t\tMS Windows")
-  out = append(out, "MS Windows")
+  m("MS Windows")
   // >>>0		ubelong		0x00000100	icon resource
   off = pof + 0
   ra, ok = f4b(tb, off)
   if !(ok && (ra == 256)) { goto f3 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>0\t\tubelong\t\t0x00000100\ticon resource")
-  out = append(out, "icon resource")
+  m("icon resource")
   // >>>>4 		uleshort	x		- %d icon
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\tx\t\t- %d icon")
-  out = append(out, "- %d icon")
+  m("- %d icon")
   goto s3
   // >>>>4 		uleshort	>1		\bs
   off = pof + 4
@@ -12840,14 +12855,14 @@ func IdentifyCurIcoDir(tb []byte, pof i8) ([]string, error) {
   if !(ok && (i8(i2(ra)) > 1)) { goto f5 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\t>1\t\t\\bs")
-  out = append(out, "\\bs")
+  m("\\bs")
   goto s3
 f5:
   // >>>>0x06	use		ico-entry
   off = pof + 6
   {
     ss, _ := IdentifyIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x06\tuse\t\tico-entry")
   goto s3
@@ -12861,7 +12876,7 @@ f5:
   off = pof + 22
   {
     ss, _ := IdentifyIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x16\tuse\t\tico-entry")
   goto s7
@@ -12877,12 +12892,12 @@ f3:
   if !(ok && (ra == 512)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>0\t\tubelong\t\t0x00000200\tcursor resource")
-  out = append(out, "cursor resource")
+  m("cursor resource")
   // >>>>4 		uleshort	x		- %d icon
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\tx\t\t- %d icon")
-  out = append(out, "- %d icon")
+  m("- %d icon")
   goto s9
   // >>>>4 		uleshort	>1		\bs
   off = pof + 4
@@ -12890,14 +12905,14 @@ f3:
   if !(ok && (i8(i2(ra)) > 1)) { goto f11 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\t>1\t\t\\bs")
-  out = append(out, "\\bs")
+  m("\\bs")
   goto s9
 f11:
   // >>>>0x06	use		cur-entry
   off = pof + 6
   {
     ss, _ := IdentifyCurEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x06\tuse\t\tcur-entry")
   goto s9
@@ -12924,6 +12939,9 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		cur-ico-dir
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tcur-ico-dir")
@@ -12939,19 +12957,19 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pof i8) ([]string, error) {
   off = i8(ra)
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>(18.l)\tulelong\t\tx\t\tMS Windows")
-  out = append(out, "MS Windows")
+  m("MS Windows")
   // >>>0		ubelong		0x00000100	icon resource
   off = pof + 0
   ra, ok = f4l(tb, off)
   if !(ok && (ra == 256)) { goto f3 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>0\t\tubelong\t\t0x00000100\ticon resource")
-  out = append(out, "icon resource")
+  m("icon resource")
   // >>>>4 		uleshort	x		- %d icon
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\tx\t\t- %d icon")
-  out = append(out, "- %d icon")
+  m("- %d icon")
   goto s3
   // >>>>4 		uleshort	>1		\bs
   off = pof + 4
@@ -12959,14 +12977,14 @@ func IdentifyCurIcoDir__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (i8(i2(ra)) > 1)) { goto f5 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\t>1\t\t\\bs")
-  out = append(out, "\\bs")
+  m("\\bs")
   goto s3
 f5:
   // >>>>0x06	use		ico-entry
   off = pof + 6
   {
     ss, _ := IdentifyIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x06\tuse\t\tico-entry")
   goto s3
@@ -12980,7 +12998,7 @@ f5:
   off = pof + 22
   {
     ss, _ := IdentifyIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>>>0x16\tuse\t\tico-entry")
   goto s7
@@ -12996,12 +13014,12 @@ f3:
   if !(ok && (ra == 512)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>0\t\tubelong\t\t0x00000200\tcursor resource")
-  out = append(out, "cursor resource")
+  m("cursor resource")
   // >>>>4 		uleshort	x		- %d icon
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\tx\t\t- %d icon")
-  out = append(out, "- %d icon")
+  m("- %d icon")
   goto s9
   // >>>>4 		uleshort	>1		\bs
   off = pof + 4
@@ -13009,14 +13027,14 @@ f3:
   if !(ok && (i8(i2(ra)) > 1)) { goto f11 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>>4 \t\tuleshort\t>1\t\t\\bs")
-  out = append(out, "\\bs")
+  m("\\bs")
   goto s9
 f11:
   // >>>>0x06	use		cur-entry
   off = pof + 6
   {
     ss, _ := IdentifyCurEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">>>>0x06\tuse\t\tcur-entry")
   goto s9
@@ -13043,6 +13061,9 @@ func IdentifyCurIcoEntry(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0		name		cur-ico-entry
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\t\tname\t\tcur-ico-entry")
@@ -13052,7 +13073,7 @@ func IdentifyCurIcoEntry(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 0)) { goto f1 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\t\tbyte\t\t=0\t\t\\b, 256x")
-  out = append(out, "\\b, 256x")
+  m("\\b, 256x")
   goto s0
 f1:
   // >0		byte		!0		\b, %dx
@@ -13061,7 +13082,7 @@ f1:
   if !(ok && (ra != 0)) { goto f2 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\t\tbyte\t\t!0\t\t\\b, %dx")
-  out = append(out, "\\b, %dx")
+  m("\\b, %dx")
   goto s0
 f2:
   // >1		byte        	=0		\b256
@@ -13070,7 +13091,7 @@ f2:
   if !(ok && (ra == 0)) { goto f3 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">1\t\tbyte        \t=0\t\t\\b256")
-  out = append(out, "\\b256")
+  m("\\b256")
   goto s0
 f3:
   // >1		byte        	!0		\b%d
@@ -13079,7 +13100,7 @@ f3:
   if !(ok && (ra != 0)) { goto f4 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">1\t\tbyte        \t!0\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s0
 f4:
   // >2		ubyte		!0		\b, %d colors
@@ -13088,7 +13109,7 @@ f4:
   if !(ok && (ra != 0)) { goto f5 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">2\t\tubyte\t\t!0\t\t\\b, %d colors")
-  out = append(out, "\\b, %d colors")
+  m("\\b, %d colors")
   goto s0
 f5:
   // >(12.l)		ubelong		=0x89504e47
@@ -13125,6 +13146,9 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0		name		cur-ico-entry
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\t\tname\t\tcur-ico-entry")
@@ -13134,7 +13158,7 @@ func IdentifyCurIcoEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 0)) { goto f1 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\t\tbyte\t\t=0\t\t\\b, 256x")
-  out = append(out, "\\b, 256x")
+  m("\\b, 256x")
   goto s0
 f1:
   // >0		byte		!0		\b, %dx
@@ -13143,7 +13167,7 @@ f1:
   if !(ok && (ra != 0)) { goto f2 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\t\tbyte\t\t!0\t\t\\b, %dx")
-  out = append(out, "\\b, %dx")
+  m("\\b, %dx")
   goto s0
 f2:
   // >1		byte        	=0		\b256
@@ -13152,7 +13176,7 @@ f2:
   if !(ok && (ra == 0)) { goto f3 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">1\t\tbyte        \t=0\t\t\\b256")
-  out = append(out, "\\b256")
+  m("\\b256")
   goto s0
 f3:
   // >1		byte        	!0		\b%d
@@ -13161,7 +13185,7 @@ f3:
   if !(ok && (ra != 0)) { goto f4 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">1\t\tbyte        \t!0\t\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s0
 f4:
   // >2		ubyte		!0		\b, %d colors
@@ -13170,7 +13194,7 @@ f4:
   if !(ok && (ra != 0)) { goto f5 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">2\t\tubyte\t\t!0\t\t\\b, %d colors")
-  out = append(out, "\\b, %d colors")
+  m("\\b, %d colors")
   goto s0
 f5:
   // >(12.l)		ubelong		=0x89504e47
@@ -13207,6 +13231,9 @@ func IdentifyElfLe(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		elf-le
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\telf-le")
@@ -13216,7 +13243,7 @@ func IdentifyElfLe(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 0)) { goto f1 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t0\t\tno file type,")
-  out = append(out, "no file type,")
+  m("no file type,")
   goto s0
 f1:
   // >16	leshort		1		relocatable,
@@ -13225,7 +13252,7 @@ f1:
   if !(ok && (ra == 1)) { goto f2 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t1\t\trelocatable,")
-  out = append(out, "relocatable,")
+  m("relocatable,")
   goto s0
 f2:
   // >16	leshort		2		executable,
@@ -13234,7 +13261,7 @@ f2:
   if !(ok && (ra == 2)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t2\t\texecutable,")
-  out = append(out, "executable,")
+  m("executable,")
   goto s0
 f3:
   // >16	leshort		3		shared object,
@@ -13243,7 +13270,7 @@ f3:
   if !(ok && (ra == 3)) { goto f4 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t3\t\tshared object,")
-  out = append(out, "shared object,")
+  m("shared object,")
   goto s0
 f4:
   // >16	leshort		4		core file
@@ -13252,7 +13279,7 @@ f4:
   if !(ok && (ra == 4)) { goto f5 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t4\t\tcore file")
-  out = append(out, "core file")
+  m("core file")
   goto s0
 f5:
   // >16	leshort		&0xff00		processor-specific,
@@ -13261,7 +13288,7 @@ f5:
   if !(ok && (ra == 65280)) { goto f6 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t&0xff00\t\tprocessor-specific,")
-  out = append(out, "processor-specific,")
+  m("processor-specific,")
   goto s0
 f6:
   // >18	clear		x
@@ -13277,7 +13304,7 @@ f7:
   if !(ok && (ra == 0)) { goto f8 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0\t\tno machine,")
-  out = append(out, "no machine,")
+  m("no machine,")
   goto s0
 f8:
   // >18	leshort		1		AT&T WE32100,
@@ -13286,7 +13313,7 @@ f8:
   if !(ok && (ra == 1)) { goto f9 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t1\t\tAT&T WE32100,")
-  out = append(out, "AT&T WE32100,")
+  m("AT&T WE32100,")
   goto s0
 f9:
   // >18	leshort		2		SPARC,
@@ -13295,7 +13322,7 @@ f9:
   if !(ok && (ra == 2)) { goto f10 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t2\t\tSPARC,")
-  out = append(out, "SPARC,")
+  m("SPARC,")
   goto s0
 f10:
   // >18	leshort		3		Intel 80386,
@@ -13304,7 +13331,7 @@ f10:
   if !(ok && (ra == 3)) { goto f11 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t3\t\tIntel 80386,")
-  out = append(out, "Intel 80386,")
+  m("Intel 80386,")
   goto s0
 f11:
   // >18	leshort		4		Motorola m68k,
@@ -13313,7 +13340,7 @@ f11:
   if !(ok && (ra == 4)) { goto f12 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t4\t\tMotorola m68k,")
-  out = append(out, "Motorola m68k,")
+  m("Motorola m68k,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13326,7 +13353,7 @@ f11:
   if !(ok && (ra == 16777216)) { goto f14 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x01000000\t68000,")
-  out = append(out, "68000,")
+  m("68000,")
   goto s13
 f14:
   // >>>36	lelong		&0x00810000	CPU32,
@@ -13335,7 +13362,7 @@ f14:
   if !(ok && (ra == 8454144)) { goto f15 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x00810000\tCPU32,")
-  out = append(out, "CPU32,")
+  m("CPU32,")
   goto s13
 f15:
   // >>>36	lelong		0		68020,
@@ -13344,7 +13371,7 @@ f15:
   if !(ok && (ra == 0)) { goto f16 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t0\t\t68020,")
-  out = append(out, "68020,")
+  m("68020,")
   goto s13
 f16:
 s13:
@@ -13359,7 +13386,7 @@ f12:
   if !(ok && (ra == 5)) { goto f17 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t5\t\tMotorola m88k,")
-  out = append(out, "Motorola m88k,")
+  m("Motorola m88k,")
   goto s0
 f17:
   // >18	leshort		6		Intel 80486,
@@ -13368,7 +13395,7 @@ f17:
   if !(ok && (ra == 6)) { goto f18 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t6\t\tIntel 80486,")
-  out = append(out, "Intel 80486,")
+  m("Intel 80486,")
   goto s0
 f18:
   // >18	leshort		7		Intel 80860,
@@ -13377,7 +13404,7 @@ f18:
   if !(ok && (ra == 7)) { goto f19 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t7\t\tIntel 80860,")
-  out = append(out, "Intel 80860,")
+  m("Intel 80860,")
   goto s0
 f19:
   // >18	leshort		8		MIPS,
@@ -13386,7 +13413,7 @@ f19:
   if !(ok && (ra == 8)) { goto f20 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t8\t\tMIPS,")
-  out = append(out, "MIPS,")
+  m("MIPS,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13399,7 +13426,7 @@ f19:
   if !(ok && (ra == 32)) { goto f22 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x20\t\tN32")
-  out = append(out, "N32")
+  m("N32")
   goto s21
 f22:
 s21:
@@ -13414,7 +13441,7 @@ f20:
   if !(ok && (ra == 10)) { goto f23 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t10\t\tMIPS,")
-  out = append(out, "MIPS,")
+  m("MIPS,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13427,7 +13454,7 @@ f20:
   if !(ok && (ra == 32)) { goto f25 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x20\t\tN32")
-  out = append(out, "N32")
+  m("N32")
   goto s24
 f25:
 s24:
@@ -13454,7 +13481,7 @@ f23:
   if !(ok && (ra&4026531840 == 0)) { goto f28 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x00000000\tMIPS-I")
-  out = append(out, "MIPS-I")
+  m("MIPS-I")
   goto s27
 f28:
   // >>>36  lelong&0xf0000000	0x10000000	MIPS-II
@@ -13463,7 +13490,7 @@ f28:
   if !(ok && (ra&4026531840 == 268435456)) { goto f29 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x10000000\tMIPS-II")
-  out = append(out, "MIPS-II")
+  m("MIPS-II")
   goto s27
 f29:
   // >>>36  lelong&0xf0000000	0x20000000	MIPS-III
@@ -13472,7 +13499,7 @@ f29:
   if !(ok && (ra&4026531840 == 536870912)) { goto f30 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x20000000\tMIPS-III")
-  out = append(out, "MIPS-III")
+  m("MIPS-III")
   goto s27
 f30:
   // >>>36  lelong&0xf0000000	0x30000000	MIPS-IV
@@ -13481,7 +13508,7 @@ f30:
   if !(ok && (ra&4026531840 == 805306368)) { goto f31 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x30000000\tMIPS-IV")
-  out = append(out, "MIPS-IV")
+  m("MIPS-IV")
   goto s27
 f31:
   // >>>36  lelong&0xf0000000	0x40000000	MIPS-V
@@ -13490,7 +13517,7 @@ f31:
   if !(ok && (ra&4026531840 == 1073741824)) { goto f32 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x40000000\tMIPS-V")
-  out = append(out, "MIPS-V")
+  m("MIPS-V")
   goto s27
 f32:
   // >>>36  lelong&0xf0000000	0x50000000	MIPS32
@@ -13499,7 +13526,7 @@ f32:
   if !(ok && (ra&4026531840 == 1342177280)) { goto f33 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x50000000\tMIPS32")
-  out = append(out, "MIPS32")
+  m("MIPS32")
   goto s27
 f33:
   // >>>36  lelong&0xf0000000	0x60000000	MIPS64
@@ -13508,7 +13535,7 @@ f33:
   if !(ok && (ra&4026531840 == 1610612736)) { goto f34 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x60000000\tMIPS64")
-  out = append(out, "MIPS64")
+  m("MIPS64")
   goto s27
 f34:
   // >>>36  lelong&0xf0000000	0x70000000	MIPS32 rel2
@@ -13517,7 +13544,7 @@ f34:
   if !(ok && (ra&4026531840 == 1879048192)) { goto f35 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x70000000\tMIPS32 rel2")
-  out = append(out, "MIPS32 rel2")
+  m("MIPS32 rel2")
   goto s27
 f35:
   // >>>36  lelong&0xf0000000	0x80000000	MIPS64 rel2
@@ -13526,7 +13553,7 @@ f35:
   if !(ok && (ra&4026531840 == 2147483648)) { goto f36 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x80000000\tMIPS64 rel2")
-  out = append(out, "MIPS64 rel2")
+  m("MIPS64 rel2")
   goto s27
 f36:
 s27:
@@ -13544,7 +13571,7 @@ f27:
   if !(ok && (ra&4026531840 == 0)) { goto f38 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x00000000\tMIPS-I")
-  out = append(out, "MIPS-I")
+  m("MIPS-I")
   goto s37
 f38:
   // >>>48  lelong&0xf0000000	0x10000000	MIPS-II
@@ -13553,7 +13580,7 @@ f38:
   if !(ok && (ra&4026531840 == 268435456)) { goto f39 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x10000000\tMIPS-II")
-  out = append(out, "MIPS-II")
+  m("MIPS-II")
   goto s37
 f39:
   // >>>48  lelong&0xf0000000	0x20000000	MIPS-III
@@ -13562,7 +13589,7 @@ f39:
   if !(ok && (ra&4026531840 == 536870912)) { goto f40 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x20000000\tMIPS-III")
-  out = append(out, "MIPS-III")
+  m("MIPS-III")
   goto s37
 f40:
   // >>>48  lelong&0xf0000000	0x30000000	MIPS-IV
@@ -13571,7 +13598,7 @@ f40:
   if !(ok && (ra&4026531840 == 805306368)) { goto f41 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x30000000\tMIPS-IV")
-  out = append(out, "MIPS-IV")
+  m("MIPS-IV")
   goto s37
 f41:
   // >>>48  lelong&0xf0000000	0x40000000	MIPS-V
@@ -13580,7 +13607,7 @@ f41:
   if !(ok && (ra&4026531840 == 1073741824)) { goto f42 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x40000000\tMIPS-V")
-  out = append(out, "MIPS-V")
+  m("MIPS-V")
   goto s37
 f42:
   // >>>48  lelong&0xf0000000	0x50000000	MIPS32
@@ -13589,7 +13616,7 @@ f42:
   if !(ok && (ra&4026531840 == 1342177280)) { goto f43 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x50000000\tMIPS32")
-  out = append(out, "MIPS32")
+  m("MIPS32")
   goto s37
 f43:
   // >>>48  lelong&0xf0000000	0x60000000	MIPS64
@@ -13598,7 +13625,7 @@ f43:
   if !(ok && (ra&4026531840 == 1610612736)) { goto f44 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x60000000\tMIPS64")
-  out = append(out, "MIPS64")
+  m("MIPS64")
   goto s37
 f44:
   // >>>48  lelong&0xf0000000	0x70000000	MIPS32 rel2
@@ -13607,7 +13634,7 @@ f44:
   if !(ok && (ra&4026531840 == 1879048192)) { goto f45 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x70000000\tMIPS32 rel2")
-  out = append(out, "MIPS32 rel2")
+  m("MIPS32 rel2")
   goto s37
 f45:
   // >>>48  lelong&0xf0000000	0x80000000	MIPS64 rel2
@@ -13616,7 +13643,7 @@ f45:
   if !(ok && (ra&4026531840 == 2147483648)) { goto f46 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x80000000\tMIPS64 rel2")
-  out = append(out, "MIPS64 rel2")
+  m("MIPS64 rel2")
   goto s37
 f46:
 s37:
@@ -13631,7 +13658,7 @@ f26:
   if !(ok && (ra == 9)) { goto f47 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t9\t\tAmdahl,")
-  out = append(out, "Amdahl,")
+  m("Amdahl,")
   goto s0
 f47:
   // >18	leshort		10		MIPS (deprecated),
@@ -13640,7 +13667,7 @@ f47:
   if !(ok && (ra == 10)) { goto f48 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t10\t\tMIPS (deprecated),")
-  out = append(out, "MIPS (deprecated),")
+  m("MIPS (deprecated),")
   goto s0
 f48:
   // >18	leshort		11		RS6000,
@@ -13649,7 +13676,7 @@ f48:
   if !(ok && (ra == 11)) { goto f49 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t11\t\tRS6000,")
-  out = append(out, "RS6000,")
+  m("RS6000,")
   goto s0
 f49:
   // >18	leshort		15		PA-RISC,
@@ -13658,7 +13685,7 @@ f49:
   if !(ok && (ra == 15)) { goto f50 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t15\t\tPA-RISC,")
-  out = append(out, "PA-RISC,")
+  m("PA-RISC,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13671,7 +13698,7 @@ f49:
   if !(ok && (ra == 532)) { goto f52 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>38\tleshort\t\t0x0214\t\t2.0")
-  out = append(out, "2.0")
+  m("2.0")
   goto s51
 f52:
   // >>>36	leshort		&0x0008		(LP64)
@@ -13680,7 +13707,7 @@ f52:
   if !(ok && (ra == 8)) { goto f53 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>36\tleshort\t\t&0x0008\t\t(LP64)")
-  out = append(out, "(LP64)")
+  m("(LP64)")
   goto s51
 f53:
 s51:
@@ -13698,7 +13725,7 @@ f51:
   if !(ok && (ra == 532)) { goto f55 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>50\tleshort\t\t0x0214\t\t2.0")
-  out = append(out, "2.0")
+  m("2.0")
   goto s54
 f55:
   // >>>48	leshort		&0x0008		(LP64)
@@ -13707,7 +13734,7 @@ f55:
   if !(ok && (ra == 8)) { goto f56 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>48\tleshort\t\t&0x0008\t\t(LP64)")
-  out = append(out, "(LP64)")
+  m("(LP64)")
   goto s54
 f56:
 s54:
@@ -13722,7 +13749,7 @@ f50:
   if !(ok && (ra == 16)) { goto f57 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t16\t\tnCUBE,")
-  out = append(out, "nCUBE,")
+  m("nCUBE,")
   goto s0
 f57:
   // >18	leshort		17		Fujitsu VPP500,
@@ -13731,7 +13758,7 @@ f57:
   if !(ok && (ra == 17)) { goto f58 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t17\t\tFujitsu VPP500,")
-  out = append(out, "Fujitsu VPP500,")
+  m("Fujitsu VPP500,")
   goto s0
 f58:
   // >18	leshort		18		SPARC32PLUS,
@@ -13740,7 +13767,7 @@ f58:
   if !(ok && (ra == 18)) { goto f59 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t18\t\tSPARC32PLUS,")
-  out = append(out, "SPARC32PLUS,")
+  m("SPARC32PLUS,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13753,7 +13780,7 @@ f58:
   if !(ok && (ra&16776960 == 256)) { goto f61 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000100\tV8+ Required,")
-  out = append(out, "V8+ Required,")
+  m("V8+ Required,")
   goto s60
 f61:
   // >>>36	lelong&0xffff00	0x000200	Sun UltraSPARC1 Extensions Required,
@@ -13762,7 +13789,7 @@ f61:
   if !(ok && (ra&16776960 == 512)) { goto f62 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000200\tSun UltraSPARC1 Extensions Required,")
-  out = append(out, "Sun UltraSPARC1 Extensions Required,")
+  m("Sun UltraSPARC1 Extensions Required,")
   goto s60
 f62:
   // >>>36	lelong&0xffff00	0x000400	HaL R1 Extensions Required,
@@ -13771,7 +13798,7 @@ f62:
   if !(ok && (ra&16776960 == 1024)) { goto f63 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000400\tHaL R1 Extensions Required,")
-  out = append(out, "HaL R1 Extensions Required,")
+  m("HaL R1 Extensions Required,")
   goto s60
 f63:
   // >>>36	lelong&0xffff00	0x000800	Sun UltraSPARC3 Extensions Required,
@@ -13780,7 +13807,7 @@ f63:
   if !(ok && (ra&16776960 == 2048)) { goto f64 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000800\tSun UltraSPARC3 Extensions Required,")
-  out = append(out, "Sun UltraSPARC3 Extensions Required,")
+  m("Sun UltraSPARC3 Extensions Required,")
   goto s60
 f64:
 s60:
@@ -13795,7 +13822,7 @@ f59:
   if !(ok && (ra == 19)) { goto f65 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t19\t\tIntel 80960,")
-  out = append(out, "Intel 80960,")
+  m("Intel 80960,")
   goto s0
 f65:
   // >18	leshort		20		PowerPC or cisco 4500,
@@ -13804,7 +13831,7 @@ f65:
   if !(ok && (ra == 20)) { goto f66 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t20\t\tPowerPC or cisco 4500,")
-  out = append(out, "PowerPC or cisco 4500,")
+  m("PowerPC or cisco 4500,")
   goto s0
 f66:
   // >18	leshort		21		64-bit PowerPC or cisco 7500,
@@ -13813,7 +13840,7 @@ f66:
   if !(ok && (ra == 21)) { goto f67 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t21\t\t64-bit PowerPC or cisco 7500,")
-  out = append(out, "64-bit PowerPC or cisco 7500,")
+  m("64-bit PowerPC or cisco 7500,")
   goto s0
 f67:
   // >18	leshort		22		IBM S/390,
@@ -13822,7 +13849,7 @@ f67:
   if !(ok && (ra == 22)) { goto f68 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t22\t\tIBM S/390,")
-  out = append(out, "IBM S/390,")
+  m("IBM S/390,")
   goto s0
 f68:
   // >18	leshort		23		Cell SPU,
@@ -13831,7 +13858,7 @@ f68:
   if !(ok && (ra == 23)) { goto f69 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t23\t\tCell SPU,")
-  out = append(out, "Cell SPU,")
+  m("Cell SPU,")
   goto s0
 f69:
   // >18	leshort		24		cisco SVIP,
@@ -13840,7 +13867,7 @@ f69:
   if !(ok && (ra == 24)) { goto f70 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t24\t\tcisco SVIP,")
-  out = append(out, "cisco SVIP,")
+  m("cisco SVIP,")
   goto s0
 f70:
   // >18	leshort		25		cisco 7200,
@@ -13849,7 +13876,7 @@ f70:
   if !(ok && (ra == 25)) { goto f71 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t25\t\tcisco 7200,")
-  out = append(out, "cisco 7200,")
+  m("cisco 7200,")
   goto s0
 f71:
   // >18	leshort		36		NEC V800 or cisco 12000,
@@ -13858,7 +13885,7 @@ f71:
   if !(ok && (ra == 36)) { goto f72 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t36\t\tNEC V800 or cisco 12000,")
-  out = append(out, "NEC V800 or cisco 12000,")
+  m("NEC V800 or cisco 12000,")
   goto s0
 f72:
   // >18	leshort		37		Fujitsu FR20,
@@ -13867,7 +13894,7 @@ f72:
   if !(ok && (ra == 37)) { goto f73 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t37\t\tFujitsu FR20,")
-  out = append(out, "Fujitsu FR20,")
+  m("Fujitsu FR20,")
   goto s0
 f73:
   // >18	leshort		38		TRW RH-32,
@@ -13876,7 +13903,7 @@ f73:
   if !(ok && (ra == 38)) { goto f74 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t38\t\tTRW RH-32,")
-  out = append(out, "TRW RH-32,")
+  m("TRW RH-32,")
   goto s0
 f74:
   // >18	leshort		39		Motorola RCE,
@@ -13885,7 +13912,7 @@ f74:
   if !(ok && (ra == 39)) { goto f75 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t39\t\tMotorola RCE,")
-  out = append(out, "Motorola RCE,")
+  m("Motorola RCE,")
   goto s0
 f75:
   // >18	leshort		40		ARM,
@@ -13894,7 +13921,7 @@ f75:
   if !(ok && (ra == 40)) { goto f76 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t40\t\tARM,")
-  out = append(out, "ARM,")
+  m("ARM,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13907,7 +13934,7 @@ f75:
   if !(ok && (ra&4278190080 == 67108864)) { goto f78 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xff000000\t0x04000000\tEABI4")
-  out = append(out, "EABI4")
+  m("EABI4")
   goto s77
 f78:
   // >>>36	lelong&0xff000000	0x05000000	EABI5
@@ -13916,7 +13943,7 @@ f78:
   if !(ok && (ra&4278190080 == 83886080)) { goto f79 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xff000000\t0x05000000\tEABI5")
-  out = append(out, "EABI5")
+  m("EABI5")
   goto s77
 f79:
   // >>>36	lelong		&0x00800000	BE8
@@ -13925,7 +13952,7 @@ f79:
   if !(ok && (ra == 8388608)) { goto f80 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x00800000\tBE8")
-  out = append(out, "BE8")
+  m("BE8")
   goto s77
 f80:
   // >>>36	lelong		&0x00400000	LE8
@@ -13934,7 +13961,7 @@ f80:
   if !(ok && (ra == 4194304)) { goto f81 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x00400000\tLE8")
-  out = append(out, "LE8")
+  m("LE8")
   goto s77
 f81:
 s77:
@@ -13949,7 +13976,7 @@ f76:
   if !(ok && (ra == 41)) { goto f82 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t41\t\tAlpha,")
-  out = append(out, "Alpha,")
+  m("Alpha,")
   goto s0
 f82:
   // >18	leshort		42		Renesas SH,
@@ -13958,7 +13985,7 @@ f82:
   if !(ok && (ra == 42)) { goto f83 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t42\t\tRenesas SH,")
-  out = append(out, "Renesas SH,")
+  m("Renesas SH,")
   goto s0
 f83:
   // >18	leshort		43		SPARC V9,
@@ -13967,7 +13994,7 @@ f83:
   if !(ok && (ra == 43)) { goto f84 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t43\t\tSPARC V9,")
-  out = append(out, "SPARC V9,")
+  m("SPARC V9,")
   // >>4	byte		2
   off = pof + 4
   ra, ok = f1l(tb, off)
@@ -13980,7 +14007,7 @@ f83:
   if !(ok && (ra&16776960 == 512)) { goto f86 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0xffff00\t0x000200\tSun UltraSPARC1 Extensions Required,")
-  out = append(out, "Sun UltraSPARC1 Extensions Required,")
+  m("Sun UltraSPARC1 Extensions Required,")
   goto s85
 f86:
   // >>>48	lelong&0xffff00	0x000400	HaL R1 Extensions Required,
@@ -13989,7 +14016,7 @@ f86:
   if !(ok && (ra&16776960 == 1024)) { goto f87 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0xffff00\t0x000400\tHaL R1 Extensions Required,")
-  out = append(out, "HaL R1 Extensions Required,")
+  m("HaL R1 Extensions Required,")
   goto s85
 f87:
   // >>>48	lelong&0xffff00	0x000800	Sun UltraSPARC3 Extensions Required,
@@ -13998,7 +14025,7 @@ f87:
   if !(ok && (ra&16776960 == 2048)) { goto f88 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0xffff00\t0x000800\tSun UltraSPARC3 Extensions Required,")
-  out = append(out, "Sun UltraSPARC3 Extensions Required,")
+  m("Sun UltraSPARC3 Extensions Required,")
   goto s85
 f88:
   // >>>48	lelong&0x3	0		total store ordering,
@@ -14007,7 +14034,7 @@ f88:
   if !(ok && (ra&3 == 0)) { goto f89 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0x3\t0\t\ttotal store ordering,")
-  out = append(out, "total store ordering,")
+  m("total store ordering,")
   goto s85
 f89:
   // >>>48	lelong&0x3	1		partial store ordering,
@@ -14016,7 +14043,7 @@ f89:
   if !(ok && (ra&3 == 1)) { goto f90 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0x3\t1\t\tpartial store ordering,")
-  out = append(out, "partial store ordering,")
+  m("partial store ordering,")
   goto s85
 f90:
   // >>>48	lelong&0x3	2		relaxed memory ordering,
@@ -14025,7 +14052,7 @@ f90:
   if !(ok && (ra&3 == 2)) { goto f91 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0x3\t2\t\trelaxed memory ordering,")
-  out = append(out, "relaxed memory ordering,")
+  m("relaxed memory ordering,")
   goto s85
 f91:
 s85:
@@ -14040,7 +14067,7 @@ f84:
   if !(ok && (ra == 44)) { goto f92 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t44\t\tSiemens Tricore Embedded Processor,")
-  out = append(out, "Siemens Tricore Embedded Processor,")
+  m("Siemens Tricore Embedded Processor,")
   goto s0
 f92:
   // >18	leshort		45		Argonaut RISC Core, Argonaut Technologies Inc.,
@@ -14049,7 +14076,7 @@ f92:
   if !(ok && (ra == 45)) { goto f93 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t45\t\tArgonaut RISC Core, Argonaut Technologies Inc.,")
-  out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
+  m("Argonaut RISC Core, Argonaut Technologies Inc.,")
   goto s0
 f93:
   // >18	leshort		46		Renesas H8/300,
@@ -14058,7 +14085,7 @@ f93:
   if !(ok && (ra == 46)) { goto f94 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t46\t\tRenesas H8/300,")
-  out = append(out, "Renesas H8/300,")
+  m("Renesas H8/300,")
   goto s0
 f94:
   // >18	leshort		47		Renesas H8/300H,
@@ -14067,7 +14094,7 @@ f94:
   if !(ok && (ra == 47)) { goto f95 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t47\t\tRenesas H8/300H,")
-  out = append(out, "Renesas H8/300H,")
+  m("Renesas H8/300H,")
   goto s0
 f95:
   // >18	leshort		48		Renesas H8S,
@@ -14076,7 +14103,7 @@ f95:
   if !(ok && (ra == 48)) { goto f96 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t48\t\tRenesas H8S,")
-  out = append(out, "Renesas H8S,")
+  m("Renesas H8S,")
   goto s0
 f96:
   // >18	leshort		49		Renesas H8/500,
@@ -14085,7 +14112,7 @@ f96:
   if !(ok && (ra == 49)) { goto f97 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t49\t\tRenesas H8/500,")
-  out = append(out, "Renesas H8/500,")
+  m("Renesas H8/500,")
   goto s0
 f97:
   // >18	leshort		50		IA-64,
@@ -14094,7 +14121,7 @@ f97:
   if !(ok && (ra == 50)) { goto f98 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t50\t\tIA-64,")
-  out = append(out, "IA-64,")
+  m("IA-64,")
   goto s0
 f98:
   // >18	leshort		51		Stanford MIPS-X,
@@ -14103,7 +14130,7 @@ f98:
   if !(ok && (ra == 51)) { goto f99 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t51\t\tStanford MIPS-X,")
-  out = append(out, "Stanford MIPS-X,")
+  m("Stanford MIPS-X,")
   goto s0
 f99:
   // >18	leshort		52		Motorola Coldfire,
@@ -14112,7 +14139,7 @@ f99:
   if !(ok && (ra == 52)) { goto f100 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t52\t\tMotorola Coldfire,")
-  out = append(out, "Motorola Coldfire,")
+  m("Motorola Coldfire,")
   goto s0
 f100:
   // >18	leshort		53		Motorola M68HC12,
@@ -14121,7 +14148,7 @@ f100:
   if !(ok && (ra == 53)) { goto f101 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t53\t\tMotorola M68HC12,")
-  out = append(out, "Motorola M68HC12,")
+  m("Motorola M68HC12,")
   goto s0
 f101:
   // >18	leshort		54		Fujitsu MMA,
@@ -14130,7 +14157,7 @@ f101:
   if !(ok && (ra == 54)) { goto f102 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t54\t\tFujitsu MMA,")
-  out = append(out, "Fujitsu MMA,")
+  m("Fujitsu MMA,")
   goto s0
 f102:
   // >18	leshort		55		Siemens PCP,
@@ -14139,7 +14166,7 @@ f102:
   if !(ok && (ra == 55)) { goto f103 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t55\t\tSiemens PCP,")
-  out = append(out, "Siemens PCP,")
+  m("Siemens PCP,")
   goto s0
 f103:
   // >18	leshort		56		Sony nCPU,
@@ -14148,7 +14175,7 @@ f103:
   if !(ok && (ra == 56)) { goto f104 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t56\t\tSony nCPU,")
-  out = append(out, "Sony nCPU,")
+  m("Sony nCPU,")
   goto s0
 f104:
   // >18	leshort		57		Denso NDR1,
@@ -14157,7 +14184,7 @@ f104:
   if !(ok && (ra == 57)) { goto f105 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t57\t\tDenso NDR1,")
-  out = append(out, "Denso NDR1,")
+  m("Denso NDR1,")
   goto s0
 f105:
   // >18	leshort		58		Start*Core,
@@ -14166,7 +14193,7 @@ f105:
   if !(ok && (ra == 58)) { goto f106 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t58\t\tStart*Core,")
-  out = append(out, "Start*Core,")
+  m("Start*Core,")
   goto s0
 f106:
   // >18	leshort		59		Toyota ME16,
@@ -14175,7 +14202,7 @@ f106:
   if !(ok && (ra == 59)) { goto f107 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t59\t\tToyota ME16,")
-  out = append(out, "Toyota ME16,")
+  m("Toyota ME16,")
   goto s0
 f107:
   // >18	leshort		60		ST100,
@@ -14184,7 +14211,7 @@ f107:
   if !(ok && (ra == 60)) { goto f108 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t60\t\tST100,")
-  out = append(out, "ST100,")
+  m("ST100,")
   goto s0
 f108:
   // >18	leshort		61		Tinyj emb.,
@@ -14193,7 +14220,7 @@ f108:
   if !(ok && (ra == 61)) { goto f109 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t61\t\tTinyj emb.,")
-  out = append(out, "Tinyj emb.,")
+  m("Tinyj emb.,")
   goto s0
 f109:
   // >18	leshort		62		x86-64,
@@ -14202,7 +14229,7 @@ f109:
   if !(ok && (ra == 62)) { goto f110 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t62\t\tx86-64,")
-  out = append(out, "x86-64,")
+  m("x86-64,")
   goto s0
 f110:
   // >18	leshort		63		Sony DSP,
@@ -14211,7 +14238,7 @@ f110:
   if !(ok && (ra == 63)) { goto f111 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t63\t\tSony DSP,")
-  out = append(out, "Sony DSP,")
+  m("Sony DSP,")
   goto s0
 f111:
   // >18	leshort		64		DEC PDP-10,
@@ -14220,7 +14247,7 @@ f111:
   if !(ok && (ra == 64)) { goto f112 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t64\t\tDEC PDP-10,")
-  out = append(out, "DEC PDP-10,")
+  m("DEC PDP-10,")
   goto s0
 f112:
   // >18	leshort		65		DEC PDP-11,
@@ -14229,7 +14256,7 @@ f112:
   if !(ok && (ra == 65)) { goto f113 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t65\t\tDEC PDP-11,")
-  out = append(out, "DEC PDP-11,")
+  m("DEC PDP-11,")
   goto s0
 f113:
   // >18	leshort		66		FX66,
@@ -14238,7 +14265,7 @@ f113:
   if !(ok && (ra == 66)) { goto f114 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t66\t\tFX66,")
-  out = append(out, "FX66,")
+  m("FX66,")
   goto s0
 f114:
   // >18	leshort		67		ST9+ 8/16 bit,
@@ -14247,7 +14274,7 @@ f114:
   if !(ok && (ra == 67)) { goto f115 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t67\t\tST9+ 8/16 bit,")
-  out = append(out, "ST9+ 8/16 bit,")
+  m("ST9+ 8/16 bit,")
   goto s0
 f115:
   // >18	leshort		68		ST7 8 bit,
@@ -14256,7 +14283,7 @@ f115:
   if !(ok && (ra == 68)) { goto f116 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t68\t\tST7 8 bit,")
-  out = append(out, "ST7 8 bit,")
+  m("ST7 8 bit,")
   goto s0
 f116:
   // >18	leshort		69		MC68HC16,
@@ -14265,7 +14292,7 @@ f116:
   if !(ok && (ra == 69)) { goto f117 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t69\t\tMC68HC16,")
-  out = append(out, "MC68HC16,")
+  m("MC68HC16,")
   goto s0
 f117:
   // >18	leshort		70		MC68HC11,
@@ -14274,7 +14301,7 @@ f117:
   if !(ok && (ra == 70)) { goto f118 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t70\t\tMC68HC11,")
-  out = append(out, "MC68HC11,")
+  m("MC68HC11,")
   goto s0
 f118:
   // >18	leshort		71		MC68HC08,
@@ -14283,7 +14310,7 @@ f118:
   if !(ok && (ra == 71)) { goto f119 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t71\t\tMC68HC08,")
-  out = append(out, "MC68HC08,")
+  m("MC68HC08,")
   goto s0
 f119:
   // >18	leshort		72		MC68HC05,
@@ -14292,7 +14319,7 @@ f119:
   if !(ok && (ra == 72)) { goto f120 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t72\t\tMC68HC05,")
-  out = append(out, "MC68HC05,")
+  m("MC68HC05,")
   goto s0
 f120:
   // >18	leshort		73		SGI SVx or Cray NV1,
@@ -14301,7 +14328,7 @@ f120:
   if !(ok && (ra == 73)) { goto f121 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t73\t\tSGI SVx or Cray NV1,")
-  out = append(out, "SGI SVx or Cray NV1,")
+  m("SGI SVx or Cray NV1,")
   goto s0
 f121:
   // >18	leshort		74		ST19 8 bit,
@@ -14310,7 +14337,7 @@ f121:
   if !(ok && (ra == 74)) { goto f122 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t74\t\tST19 8 bit,")
-  out = append(out, "ST19 8 bit,")
+  m("ST19 8 bit,")
   goto s0
 f122:
   // >18	leshort		75		Digital VAX,
@@ -14319,7 +14346,7 @@ f122:
   if !(ok && (ra == 75)) { goto f123 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t75\t\tDigital VAX,")
-  out = append(out, "Digital VAX,")
+  m("Digital VAX,")
   goto s0
 f123:
   // >18	leshort		76		Axis cris,
@@ -14328,7 +14355,7 @@ f123:
   if !(ok && (ra == 76)) { goto f124 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t76\t\tAxis cris,")
-  out = append(out, "Axis cris,")
+  m("Axis cris,")
   goto s0
 f124:
   // >18	leshort		77		Infineon 32-bit embedded,
@@ -14337,7 +14364,7 @@ f124:
   if !(ok && (ra == 77)) { goto f125 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t77\t\tInfineon 32-bit embedded,")
-  out = append(out, "Infineon 32-bit embedded,")
+  m("Infineon 32-bit embedded,")
   goto s0
 f125:
   // >18	leshort		78		Element 14 64-bit DSP,
@@ -14346,7 +14373,7 @@ f125:
   if !(ok && (ra == 78)) { goto f126 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t78\t\tElement 14 64-bit DSP,")
-  out = append(out, "Element 14 64-bit DSP,")
+  m("Element 14 64-bit DSP,")
   goto s0
 f126:
   // >18	leshort		79		LSI Logic 16-bit DSP,
@@ -14355,7 +14382,7 @@ f126:
   if !(ok && (ra == 79)) { goto f127 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t79\t\tLSI Logic 16-bit DSP,")
-  out = append(out, "LSI Logic 16-bit DSP,")
+  m("LSI Logic 16-bit DSP,")
   goto s0
 f127:
   // >18	leshort		80		MMIX,
@@ -14364,7 +14391,7 @@ f127:
   if !(ok && (ra == 80)) { goto f128 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t80\t\tMMIX,")
-  out = append(out, "MMIX,")
+  m("MMIX,")
   goto s0
 f128:
   // >18	leshort		81		Harvard machine-independent,
@@ -14373,7 +14400,7 @@ f128:
   if !(ok && (ra == 81)) { goto f129 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t81\t\tHarvard machine-independent,")
-  out = append(out, "Harvard machine-independent,")
+  m("Harvard machine-independent,")
   goto s0
 f129:
   // >18	leshort		82		SiTera Prism,
@@ -14382,7 +14409,7 @@ f129:
   if !(ok && (ra == 82)) { goto f130 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t82\t\tSiTera Prism,")
-  out = append(out, "SiTera Prism,")
+  m("SiTera Prism,")
   goto s0
 f130:
   // >18	leshort		83		Atmel AVR 8-bit,
@@ -14391,7 +14418,7 @@ f130:
   if !(ok && (ra == 83)) { goto f131 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t83\t\tAtmel AVR 8-bit,")
-  out = append(out, "Atmel AVR 8-bit,")
+  m("Atmel AVR 8-bit,")
   goto s0
 f131:
   // >18	leshort		84		Fujitsu FR30,
@@ -14400,7 +14427,7 @@ f131:
   if !(ok && (ra == 84)) { goto f132 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t84\t\tFujitsu FR30,")
-  out = append(out, "Fujitsu FR30,")
+  m("Fujitsu FR30,")
   goto s0
 f132:
   // >18	leshort		85		Mitsubishi D10V,
@@ -14409,7 +14436,7 @@ f132:
   if !(ok && (ra == 85)) { goto f133 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t85\t\tMitsubishi D10V,")
-  out = append(out, "Mitsubishi D10V,")
+  m("Mitsubishi D10V,")
   goto s0
 f133:
   // >18	leshort		86		Mitsubishi D30V,
@@ -14418,7 +14445,7 @@ f133:
   if !(ok && (ra == 86)) { goto f134 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t86\t\tMitsubishi D30V,")
-  out = append(out, "Mitsubishi D30V,")
+  m("Mitsubishi D30V,")
   goto s0
 f134:
   // >18	leshort		87		NEC v850,
@@ -14427,7 +14454,7 @@ f134:
   if !(ok && (ra == 87)) { goto f135 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t87\t\tNEC v850,")
-  out = append(out, "NEC v850,")
+  m("NEC v850,")
   goto s0
 f135:
   // >18	leshort		88		Renesas M32R,
@@ -14436,7 +14463,7 @@ f135:
   if !(ok && (ra == 88)) { goto f136 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t88\t\tRenesas M32R,")
-  out = append(out, "Renesas M32R,")
+  m("Renesas M32R,")
   goto s0
 f136:
   // >18	leshort		89		Matsushita MN10300,
@@ -14445,7 +14472,7 @@ f136:
   if !(ok && (ra == 89)) { goto f137 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t89\t\tMatsushita MN10300,")
-  out = append(out, "Matsushita MN10300,")
+  m("Matsushita MN10300,")
   goto s0
 f137:
   // >18	leshort		90		Matsushita MN10200,
@@ -14454,7 +14481,7 @@ f137:
   if !(ok && (ra == 90)) { goto f138 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t90\t\tMatsushita MN10200,")
-  out = append(out, "Matsushita MN10200,")
+  m("Matsushita MN10200,")
   goto s0
 f138:
   // >18	leshort		91		picoJava,
@@ -14463,7 +14490,7 @@ f138:
   if !(ok && (ra == 91)) { goto f139 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t91\t\tpicoJava,")
-  out = append(out, "picoJava,")
+  m("picoJava,")
   goto s0
 f139:
   // >18	leshort		92		OpenRISC,
@@ -14472,7 +14499,7 @@ f139:
   if !(ok && (ra == 92)) { goto f140 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t92\t\tOpenRISC,")
-  out = append(out, "OpenRISC,")
+  m("OpenRISC,")
   goto s0
 f140:
   // >18	leshort		93		ARC Cores Tangent-A5,
@@ -14481,7 +14508,7 @@ f140:
   if !(ok && (ra == 93)) { goto f141 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t93\t\tARC Cores Tangent-A5,")
-  out = append(out, "ARC Cores Tangent-A5,")
+  m("ARC Cores Tangent-A5,")
   goto s0
 f141:
   // >18	leshort		94		Tensilica Xtensa,
@@ -14490,7 +14517,7 @@ f141:
   if !(ok && (ra == 94)) { goto f142 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t94\t\tTensilica Xtensa,")
-  out = append(out, "Tensilica Xtensa,")
+  m("Tensilica Xtensa,")
   goto s0
 f142:
   // >18	leshort		95		Alphamosaic VideoCore,
@@ -14499,7 +14526,7 @@ f142:
   if !(ok && (ra == 95)) { goto f143 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t95\t\tAlphamosaic VideoCore,")
-  out = append(out, "Alphamosaic VideoCore,")
+  m("Alphamosaic VideoCore,")
   goto s0
 f143:
   // >18	leshort		96		Thompson Multimedia,
@@ -14508,7 +14535,7 @@ f143:
   if !(ok && (ra == 96)) { goto f144 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t96\t\tThompson Multimedia,")
-  out = append(out, "Thompson Multimedia,")
+  m("Thompson Multimedia,")
   goto s0
 f144:
   // >18	leshort		97		NatSemi 32k,
@@ -14517,7 +14544,7 @@ f144:
   if !(ok && (ra == 97)) { goto f145 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t97\t\tNatSemi 32k,")
-  out = append(out, "NatSemi 32k,")
+  m("NatSemi 32k,")
   goto s0
 f145:
   // >18	leshort		98		Tenor Network TPC,
@@ -14526,7 +14553,7 @@ f145:
   if !(ok && (ra == 98)) { goto f146 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t98\t\tTenor Network TPC,")
-  out = append(out, "Tenor Network TPC,")
+  m("Tenor Network TPC,")
   goto s0
 f146:
   // >18	leshort		99		Trebia SNP 1000,
@@ -14535,7 +14562,7 @@ f146:
   if !(ok && (ra == 99)) { goto f147 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t99\t\tTrebia SNP 1000,")
-  out = append(out, "Trebia SNP 1000,")
+  m("Trebia SNP 1000,")
   goto s0
 f147:
   // >18	leshort		100		STMicroelectronics ST200,
@@ -14544,7 +14571,7 @@ f147:
   if !(ok && (ra == 100)) { goto f148 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t100\t\tSTMicroelectronics ST200,")
-  out = append(out, "STMicroelectronics ST200,")
+  m("STMicroelectronics ST200,")
   goto s0
 f148:
   // >18	leshort		101		Ubicom IP2022,
@@ -14553,7 +14580,7 @@ f148:
   if !(ok && (ra == 101)) { goto f149 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t101\t\tUbicom IP2022,")
-  out = append(out, "Ubicom IP2022,")
+  m("Ubicom IP2022,")
   goto s0
 f149:
   // >18	leshort		102		MAX Processor,
@@ -14562,7 +14589,7 @@ f149:
   if !(ok && (ra == 102)) { goto f150 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t102\t\tMAX Processor,")
-  out = append(out, "MAX Processor,")
+  m("MAX Processor,")
   goto s0
 f150:
   // >18	leshort		103		NatSemi CompactRISC,
@@ -14571,7 +14598,7 @@ f150:
   if !(ok && (ra == 103)) { goto f151 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t103\t\tNatSemi CompactRISC,")
-  out = append(out, "NatSemi CompactRISC,")
+  m("NatSemi CompactRISC,")
   goto s0
 f151:
   // >18	leshort		104		Fujitsu F2MC16,
@@ -14580,7 +14607,7 @@ f151:
   if !(ok && (ra == 104)) { goto f152 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t104\t\tFujitsu F2MC16,")
-  out = append(out, "Fujitsu F2MC16,")
+  m("Fujitsu F2MC16,")
   goto s0
 f152:
   // >18	leshort		105		TI msp430,
@@ -14589,7 +14616,7 @@ f152:
   if !(ok && (ra == 105)) { goto f153 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t105\t\tTI msp430,")
-  out = append(out, "TI msp430,")
+  m("TI msp430,")
   goto s0
 f153:
   // >18	leshort		106		Analog Devices Blackfin,
@@ -14598,7 +14625,7 @@ f153:
   if !(ok && (ra == 106)) { goto f154 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t106\t\tAnalog Devices Blackfin,")
-  out = append(out, "Analog Devices Blackfin,")
+  m("Analog Devices Blackfin,")
   goto s0
 f154:
   // >18	leshort		107		S1C33 Family of Seiko Epson,
@@ -14607,7 +14634,7 @@ f154:
   if !(ok && (ra == 107)) { goto f155 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t107\t\tS1C33 Family of Seiko Epson,")
-  out = append(out, "S1C33 Family of Seiko Epson,")
+  m("S1C33 Family of Seiko Epson,")
   goto s0
 f155:
   // >18	leshort		108		Sharp embedded,
@@ -14616,7 +14643,7 @@ f155:
   if !(ok && (ra == 108)) { goto f156 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t108\t\tSharp embedded,")
-  out = append(out, "Sharp embedded,")
+  m("Sharp embedded,")
   goto s0
 f156:
   // >18	leshort		109		Arca RISC,
@@ -14625,7 +14652,7 @@ f156:
   if !(ok && (ra == 109)) { goto f157 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t109\t\tArca RISC,")
-  out = append(out, "Arca RISC,")
+  m("Arca RISC,")
   goto s0
 f157:
   // >18	leshort		110		PKU-Unity Ltd.,
@@ -14634,7 +14661,7 @@ f157:
   if !(ok && (ra == 110)) { goto f158 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t110\t\tPKU-Unity Ltd.,")
-  out = append(out, "PKU-Unity Ltd.,")
+  m("PKU-Unity Ltd.,")
   goto s0
 f158:
   // >18	leshort		111		eXcess: 16/32/64-bit,
@@ -14643,7 +14670,7 @@ f158:
   if !(ok && (ra == 111)) { goto f159 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t111\t\teXcess: 16/32/64-bit,")
-  out = append(out, "eXcess: 16/32/64-bit,")
+  m("eXcess: 16/32/64-bit,")
   goto s0
 f159:
   // >18	leshort		112		Icera Deep Execution Processor,
@@ -14652,7 +14679,7 @@ f159:
   if !(ok && (ra == 112)) { goto f160 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t112\t\tIcera Deep Execution Processor,")
-  out = append(out, "Icera Deep Execution Processor,")
+  m("Icera Deep Execution Processor,")
   goto s0
 f160:
   // >18	leshort		113		Altera Nios II,
@@ -14661,7 +14688,7 @@ f160:
   if !(ok && (ra == 113)) { goto f161 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t113\t\tAltera Nios II,")
-  out = append(out, "Altera Nios II,")
+  m("Altera Nios II,")
   goto s0
 f161:
   // >18	leshort		114		NatSemi CRX,
@@ -14670,7 +14697,7 @@ f161:
   if !(ok && (ra == 114)) { goto f162 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t114\t\tNatSemi CRX,")
-  out = append(out, "NatSemi CRX,")
+  m("NatSemi CRX,")
   goto s0
 f162:
   // >18	leshort		115		Motorola XGATE,
@@ -14679,7 +14706,7 @@ f162:
   if !(ok && (ra == 115)) { goto f163 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t115\t\tMotorola XGATE,")
-  out = append(out, "Motorola XGATE,")
+  m("Motorola XGATE,")
   goto s0
 f163:
   // >18	leshort		116		Infineon C16x/XC16x,
@@ -14688,7 +14715,7 @@ f163:
   if !(ok && (ra == 116)) { goto f164 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t116\t\tInfineon C16x/XC16x,")
-  out = append(out, "Infineon C16x/XC16x,")
+  m("Infineon C16x/XC16x,")
   goto s0
 f164:
   // >18	leshort		117		Renesas M16C series,
@@ -14697,7 +14724,7 @@ f164:
   if !(ok && (ra == 117)) { goto f165 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t117\t\tRenesas M16C series,")
-  out = append(out, "Renesas M16C series,")
+  m("Renesas M16C series,")
   goto s0
 f165:
   // >18	leshort		118		Microchip dsPIC30F,
@@ -14706,7 +14733,7 @@ f165:
   if !(ok && (ra == 118)) { goto f166 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t118\t\tMicrochip dsPIC30F,")
-  out = append(out, "Microchip dsPIC30F,")
+  m("Microchip dsPIC30F,")
   goto s0
 f166:
   // >18	leshort		119		Freescale RISC core,
@@ -14715,7 +14742,7 @@ f166:
   if !(ok && (ra == 119)) { goto f167 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t119\t\tFreescale RISC core,")
-  out = append(out, "Freescale RISC core,")
+  m("Freescale RISC core,")
   goto s0
 f167:
   // >18	leshort		120		Renesas M32C series,
@@ -14724,7 +14751,7 @@ f167:
   if !(ok && (ra == 120)) { goto f168 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t120\t\tRenesas M32C series,")
-  out = append(out, "Renesas M32C series,")
+  m("Renesas M32C series,")
   goto s0
 f168:
   // >18	leshort		131		Altium TSK3000 core,
@@ -14733,7 +14760,7 @@ f168:
   if !(ok && (ra == 131)) { goto f169 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t131\t\tAltium TSK3000 core,")
-  out = append(out, "Altium TSK3000 core,")
+  m("Altium TSK3000 core,")
   goto s0
 f169:
   // >18	leshort		132		Freescale RS08,
@@ -14742,7 +14769,7 @@ f169:
   if !(ok && (ra == 132)) { goto f170 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t132\t\tFreescale RS08,")
-  out = append(out, "Freescale RS08,")
+  m("Freescale RS08,")
   goto s0
 f170:
   // >18	leshort		134		Cyan Technology eCOG2,
@@ -14751,7 +14778,7 @@ f170:
   if !(ok && (ra == 134)) { goto f171 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t134\t\tCyan Technology eCOG2,")
-  out = append(out, "Cyan Technology eCOG2,")
+  m("Cyan Technology eCOG2,")
   goto s0
 f171:
   // >18	leshort		135		Sunplus S+core7 RISC,
@@ -14760,7 +14787,7 @@ f171:
   if !(ok && (ra == 135)) { goto f172 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t135\t\tSunplus S+core7 RISC,")
-  out = append(out, "Sunplus S+core7 RISC,")
+  m("Sunplus S+core7 RISC,")
   goto s0
 f172:
   // >18	leshort		136		New Japan Radio (NJR) 24-bit DSP,
@@ -14769,7 +14796,7 @@ f172:
   if !(ok && (ra == 136)) { goto f173 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t136\t\tNew Japan Radio (NJR) 24-bit DSP,")
-  out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
+  m("New Japan Radio (NJR) 24-bit DSP,")
   goto s0
 f173:
   // >18	leshort		137		Broadcom VideoCore III,
@@ -14778,7 +14805,7 @@ f173:
   if !(ok && (ra == 137)) { goto f174 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t137\t\tBroadcom VideoCore III,")
-  out = append(out, "Broadcom VideoCore III,")
+  m("Broadcom VideoCore III,")
   goto s0
 f174:
   // >18	leshort		138		LatticeMico32,
@@ -14787,7 +14814,7 @@ f174:
   if !(ok && (ra == 138)) { goto f175 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t138\t\tLatticeMico32,")
-  out = append(out, "LatticeMico32,")
+  m("LatticeMico32,")
   goto s0
 f175:
   // >18	leshort		139		Seiko Epson C17 family,
@@ -14796,7 +14823,7 @@ f175:
   if !(ok && (ra == 139)) { goto f176 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t139\t\tSeiko Epson C17 family,")
-  out = append(out, "Seiko Epson C17 family,")
+  m("Seiko Epson C17 family,")
   goto s0
 f176:
   // >18	leshort		140		TI TMS320C6000 DSP family,
@@ -14805,7 +14832,7 @@ f176:
   if !(ok && (ra == 140)) { goto f177 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t140\t\tTI TMS320C6000 DSP family,")
-  out = append(out, "TI TMS320C6000 DSP family,")
+  m("TI TMS320C6000 DSP family,")
   goto s0
 f177:
   // >18	leshort		141		TI TMS320C2000 DSP family,
@@ -14814,7 +14841,7 @@ f177:
   if !(ok && (ra == 141)) { goto f178 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t141\t\tTI TMS320C2000 DSP family,")
-  out = append(out, "TI TMS320C2000 DSP family,")
+  m("TI TMS320C2000 DSP family,")
   goto s0
 f178:
   // >18	leshort		142		TI TMS320C55x DSP family,
@@ -14823,7 +14850,7 @@ f178:
   if !(ok && (ra == 142)) { goto f179 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t142\t\tTI TMS320C55x DSP family,")
-  out = append(out, "TI TMS320C55x DSP family,")
+  m("TI TMS320C55x DSP family,")
   goto s0
 f179:
   // >18	leshort		160		STMicroelectronics 64bit VLIW DSP,
@@ -14832,7 +14859,7 @@ f179:
   if !(ok && (ra == 160)) { goto f180 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t160\t\tSTMicroelectronics 64bit VLIW DSP,")
-  out = append(out, "STMicroelectronics 64bit VLIW DSP,")
+  m("STMicroelectronics 64bit VLIW DSP,")
   goto s0
 f180:
   // >18	leshort		161		Cypress M8C,
@@ -14841,7 +14868,7 @@ f180:
   if !(ok && (ra == 161)) { goto f181 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t161\t\tCypress M8C,")
-  out = append(out, "Cypress M8C,")
+  m("Cypress M8C,")
   goto s0
 f181:
   // >18	leshort		162		Renesas R32C series,
@@ -14850,7 +14877,7 @@ f181:
   if !(ok && (ra == 162)) { goto f182 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t162\t\tRenesas R32C series,")
-  out = append(out, "Renesas R32C series,")
+  m("Renesas R32C series,")
   goto s0
 f182:
   // >18	leshort		163		NXP TriMedia family,
@@ -14859,7 +14886,7 @@ f182:
   if !(ok && (ra == 163)) { goto f183 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t163\t\tNXP TriMedia family,")
-  out = append(out, "NXP TriMedia family,")
+  m("NXP TriMedia family,")
   goto s0
 f183:
   // >18	leshort		164		QUALCOMM DSP6,
@@ -14868,7 +14895,7 @@ f183:
   if !(ok && (ra == 164)) { goto f184 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t164\t\tQUALCOMM DSP6,")
-  out = append(out, "QUALCOMM DSP6,")
+  m("QUALCOMM DSP6,")
   goto s0
 f184:
   // >18	leshort		165		Intel 8051 and variants,
@@ -14877,7 +14904,7 @@ f184:
   if !(ok && (ra == 165)) { goto f185 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t165\t\tIntel 8051 and variants,")
-  out = append(out, "Intel 8051 and variants,")
+  m("Intel 8051 and variants,")
   goto s0
 f185:
   // >18	leshort		166		STMicroelectronics STxP7x family,
@@ -14886,7 +14913,7 @@ f185:
   if !(ok && (ra == 166)) { goto f186 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t166\t\tSTMicroelectronics STxP7x family,")
-  out = append(out, "STMicroelectronics STxP7x family,")
+  m("STMicroelectronics STxP7x family,")
   goto s0
 f186:
   // >18	leshort		167		Andes embedded RISC,
@@ -14895,7 +14922,7 @@ f186:
   if !(ok && (ra == 167)) { goto f187 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t167\t\tAndes embedded RISC,")
-  out = append(out, "Andes embedded RISC,")
+  m("Andes embedded RISC,")
   goto s0
 f187:
   // >18	leshort		168		Cyan eCOG1X family,
@@ -14904,7 +14931,7 @@ f187:
   if !(ok && (ra == 168)) { goto f188 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t168\t\tCyan eCOG1X family,")
-  out = append(out, "Cyan eCOG1X family,")
+  m("Cyan eCOG1X family,")
   goto s0
 f188:
   // >18	leshort		169		Dallas MAXQ30,
@@ -14913,7 +14940,7 @@ f188:
   if !(ok && (ra == 169)) { goto f189 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t169\t\tDallas MAXQ30,")
-  out = append(out, "Dallas MAXQ30,")
+  m("Dallas MAXQ30,")
   goto s0
 f189:
   // >18	leshort		170		New Japan Radio (NJR) 16-bit DSP,
@@ -14922,7 +14949,7 @@ f189:
   if !(ok && (ra == 170)) { goto f190 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t170\t\tNew Japan Radio (NJR) 16-bit DSP,")
-  out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
+  m("New Japan Radio (NJR) 16-bit DSP,")
   goto s0
 f190:
   // >18	leshort		171		M2000 Reconfigurable RISC,
@@ -14931,7 +14958,7 @@ f190:
   if !(ok && (ra == 171)) { goto f191 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t171\t\tM2000 Reconfigurable RISC,")
-  out = append(out, "M2000 Reconfigurable RISC,")
+  m("M2000 Reconfigurable RISC,")
   goto s0
 f191:
   // >18	leshort		172		Cray NV2 vector architecture,
@@ -14940,7 +14967,7 @@ f191:
   if !(ok && (ra == 172)) { goto f192 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t172\t\tCray NV2 vector architecture,")
-  out = append(out, "Cray NV2 vector architecture,")
+  m("Cray NV2 vector architecture,")
   goto s0
 f192:
   // >18	leshort		173		Renesas RX family,
@@ -14949,7 +14976,7 @@ f192:
   if !(ok && (ra == 173)) { goto f193 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t173\t\tRenesas RX family,")
-  out = append(out, "Renesas RX family,")
+  m("Renesas RX family,")
   goto s0
 f193:
   // >18	leshort		174		META,
@@ -14958,7 +14985,7 @@ f193:
   if !(ok && (ra == 174)) { goto f194 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t174\t\tMETA,")
-  out = append(out, "META,")
+  m("META,")
   goto s0
 f194:
   // >18	leshort		175		MCST Elbrus,
@@ -14967,7 +14994,7 @@ f194:
   if !(ok && (ra == 175)) { goto f195 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t175\t\tMCST Elbrus,")
-  out = append(out, "MCST Elbrus,")
+  m("MCST Elbrus,")
   goto s0
 f195:
   // >18	leshort		176		Cyan Technology eCOG16 family,
@@ -14976,7 +15003,7 @@ f195:
   if !(ok && (ra == 176)) { goto f196 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t176\t\tCyan Technology eCOG16 family,")
-  out = append(out, "Cyan Technology eCOG16 family,")
+  m("Cyan Technology eCOG16 family,")
   goto s0
 f196:
   // >18	leshort		177		NatSemi CompactRISC,
@@ -14985,7 +15012,7 @@ f196:
   if !(ok && (ra == 177)) { goto f197 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t177\t\tNatSemi CompactRISC,")
-  out = append(out, "NatSemi CompactRISC,")
+  m("NatSemi CompactRISC,")
   goto s0
 f197:
   // >18	leshort		178		Freescale Extended Time Processing Unit,
@@ -14994,7 +15021,7 @@ f197:
   if !(ok && (ra == 178)) { goto f198 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t178\t\tFreescale Extended Time Processing Unit,")
-  out = append(out, "Freescale Extended Time Processing Unit,")
+  m("Freescale Extended Time Processing Unit,")
   goto s0
 f198:
   // >18	leshort		179		Infineon SLE9X,
@@ -15003,7 +15030,7 @@ f198:
   if !(ok && (ra == 179)) { goto f199 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t179\t\tInfineon SLE9X,")
-  out = append(out, "Infineon SLE9X,")
+  m("Infineon SLE9X,")
   goto s0
 f199:
   // >18	leshort		180		Intel L1OM,
@@ -15012,7 +15039,7 @@ f199:
   if !(ok && (ra == 180)) { goto f200 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t180\t\tIntel L1OM,")
-  out = append(out, "Intel L1OM,")
+  m("Intel L1OM,")
   goto s0
 f200:
   // >18	leshort		181		Intel K1OM,
@@ -15021,7 +15048,7 @@ f200:
   if !(ok && (ra == 181)) { goto f201 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t181\t\tIntel K1OM,")
-  out = append(out, "Intel K1OM,")
+  m("Intel K1OM,")
   goto s0
 f201:
   // >18	leshort		183		ARM aarch64,
@@ -15030,7 +15057,7 @@ f201:
   if !(ok && (ra == 183)) { goto f202 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t183\t\tARM aarch64,")
-  out = append(out, "ARM aarch64,")
+  m("ARM aarch64,")
   goto s0
 f202:
   // >18	leshort		185		Atmel 32-bit family,
@@ -15039,7 +15066,7 @@ f202:
   if !(ok && (ra == 185)) { goto f203 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t185\t\tAtmel 32-bit family,")
-  out = append(out, "Atmel 32-bit family,")
+  m("Atmel 32-bit family,")
   goto s0
 f203:
   // >18	leshort		186		STMicroeletronics STM8 8-bit,
@@ -15048,7 +15075,7 @@ f203:
   if !(ok && (ra == 186)) { goto f204 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t186\t\tSTMicroeletronics STM8 8-bit,")
-  out = append(out, "STMicroeletronics STM8 8-bit,")
+  m("STMicroeletronics STM8 8-bit,")
   goto s0
 f204:
   // >18	leshort		187		Tilera TILE64,
@@ -15057,7 +15084,7 @@ f204:
   if !(ok && (ra == 187)) { goto f205 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t187\t\tTilera TILE64,")
-  out = append(out, "Tilera TILE64,")
+  m("Tilera TILE64,")
   goto s0
 f205:
   // >18	leshort		188		Tilera TILEPro,
@@ -15066,7 +15093,7 @@ f205:
   if !(ok && (ra == 188)) { goto f206 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t188\t\tTilera TILEPro,")
-  out = append(out, "Tilera TILEPro,")
+  m("Tilera TILEPro,")
   goto s0
 f206:
   // >18	leshort		189		Xilinx MicroBlaze 32-bit RISC,
@@ -15075,7 +15102,7 @@ f206:
   if !(ok && (ra == 189)) { goto f207 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t189\t\tXilinx MicroBlaze 32-bit RISC,")
-  out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
+  m("Xilinx MicroBlaze 32-bit RISC,")
   goto s0
 f207:
   // >18	leshort		190		NVIDIA CUDA architecture,
@@ -15084,7 +15111,7 @@ f207:
   if !(ok && (ra == 190)) { goto f208 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t190\t\tNVIDIA CUDA architecture,")
-  out = append(out, "NVIDIA CUDA architecture,")
+  m("NVIDIA CUDA architecture,")
   goto s0
 f208:
   // >18	leshort		191		Tilera TILE-Gx,
@@ -15093,7 +15120,7 @@ f208:
   if !(ok && (ra == 191)) { goto f209 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t191\t\tTilera TILE-Gx,")
-  out = append(out, "Tilera TILE-Gx,")
+  m("Tilera TILE-Gx,")
   goto s0
 f209:
   // >18	leshort		197		Renesas RL78 family,
@@ -15102,7 +15129,7 @@ f209:
   if !(ok && (ra == 197)) { goto f210 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t197\t\tRenesas RL78 family,")
-  out = append(out, "Renesas RL78 family,")
+  m("Renesas RL78 family,")
   goto s0
 f210:
   // >18	leshort		199		Renesas 78K0R,
@@ -15111,7 +15138,7 @@ f210:
   if !(ok && (ra == 199)) { goto f211 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t199\t\tRenesas 78K0R,")
-  out = append(out, "Renesas 78K0R,")
+  m("Renesas 78K0R,")
   goto s0
 f211:
   // >18	leshort		0x1057		AVR (unofficial),
@@ -15120,7 +15147,7 @@ f211:
   if !(ok && (ra == 4183)) { goto f212 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x1057\t\tAVR (unofficial),")
-  out = append(out, "AVR (unofficial),")
+  m("AVR (unofficial),")
   goto s0
 f212:
   // >18	leshort		0x1059		MSP430 (unofficial),
@@ -15129,7 +15156,7 @@ f212:
   if !(ok && (ra == 4185)) { goto f213 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x1059\t\tMSP430 (unofficial),")
-  out = append(out, "MSP430 (unofficial),")
+  m("MSP430 (unofficial),")
   goto s0
 f213:
   // >18	leshort		0x1223		Adapteva Epiphany (unofficial),
@@ -15138,7 +15165,7 @@ f213:
   if !(ok && (ra == 4643)) { goto f214 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x1223\t\tAdapteva Epiphany (unofficial),")
-  out = append(out, "Adapteva Epiphany (unofficial),")
+  m("Adapteva Epiphany (unofficial),")
   goto s0
 f214:
   // >18	leshort		0x2530		Morpho MT (unofficial),
@@ -15147,7 +15174,7 @@ f214:
   if !(ok && (ra == 9520)) { goto f215 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x2530\t\tMorpho MT (unofficial),")
-  out = append(out, "Morpho MT (unofficial),")
+  m("Morpho MT (unofficial),")
   goto s0
 f215:
   // >18	leshort		0x3330		FR30 (unofficial),
@@ -15156,7 +15183,7 @@ f215:
   if !(ok && (ra == 13104)) { goto f216 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x3330\t\tFR30 (unofficial),")
-  out = append(out, "FR30 (unofficial),")
+  m("FR30 (unofficial),")
   goto s0
 f216:
   // >18	leshort		0x3426		OpenRISC (obsolete),
@@ -15165,7 +15192,7 @@ f216:
   if !(ok && (ra == 13350)) { goto f217 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x3426\t\tOpenRISC (obsolete),")
-  out = append(out, "OpenRISC (obsolete),")
+  m("OpenRISC (obsolete),")
   goto s0
 f217:
   // >18	leshort		0x4688		Infineon C166 (unofficial),
@@ -15174,7 +15201,7 @@ f217:
   if !(ok && (ra == 18056)) { goto f218 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x4688\t\tInfineon C166 (unofficial),")
-  out = append(out, "Infineon C166 (unofficial),")
+  m("Infineon C166 (unofficial),")
   goto s0
 f218:
   // >18	leshort		0x5441		Cygnus FRV (unofficial),
@@ -15183,7 +15210,7 @@ f218:
   if !(ok && (ra == 21569)) { goto f219 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x5441\t\tCygnus FRV (unofficial),")
-  out = append(out, "Cygnus FRV (unofficial),")
+  m("Cygnus FRV (unofficial),")
   goto s0
 f219:
   // >18	leshort		0x5aa5		DLX (unofficial),
@@ -15192,7 +15219,7 @@ f219:
   if !(ok && (ra == 23205)) { goto f220 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x5aa5\t\tDLX (unofficial),")
-  out = append(out, "DLX (unofficial),")
+  m("DLX (unofficial),")
   goto s0
 f220:
   // >18	leshort		0x7650		Cygnus D10V (unofficial),
@@ -15201,7 +15228,7 @@ f220:
   if !(ok && (ra == 30288)) { goto f221 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x7650\t\tCygnus D10V (unofficial),")
-  out = append(out, "Cygnus D10V (unofficial),")
+  m("Cygnus D10V (unofficial),")
   goto s0
 f221:
   // >18	leshort		0x7676		Cygnus D30V (unofficial),
@@ -15210,7 +15237,7 @@ f221:
   if !(ok && (ra == 30326)) { goto f222 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x7676\t\tCygnus D30V (unofficial),")
-  out = append(out, "Cygnus D30V (unofficial),")
+  m("Cygnus D30V (unofficial),")
   goto s0
 f222:
   // >18	leshort		0x8217		Ubicom IP2xxx (unofficial),
@@ -15219,7 +15246,7 @@ f222:
   if !(ok && (ra == 33303)) { goto f223 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x8217\t\tUbicom IP2xxx (unofficial),")
-  out = append(out, "Ubicom IP2xxx (unofficial),")
+  m("Ubicom IP2xxx (unofficial),")
   goto s0
 f223:
   // >18	leshort		0x8472		OpenRISC (obsolete),
@@ -15228,7 +15255,7 @@ f223:
   if !(ok && (ra == 33906)) { goto f224 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x8472\t\tOpenRISC (obsolete),")
-  out = append(out, "OpenRISC (obsolete),")
+  m("OpenRISC (obsolete),")
   goto s0
 f224:
   // >18	leshort		0x9025		Cygnus PowerPC (unofficial),
@@ -15237,7 +15264,7 @@ f224:
   if !(ok && (ra == 36901)) { goto f225 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9025\t\tCygnus PowerPC (unofficial),")
-  out = append(out, "Cygnus PowerPC (unofficial),")
+  m("Cygnus PowerPC (unofficial),")
   goto s0
 f225:
   // >18	leshort		0x9026		Alpha (unofficial),
@@ -15246,7 +15273,7 @@ f225:
   if !(ok && (ra == 36902)) { goto f226 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9026\t\tAlpha (unofficial),")
-  out = append(out, "Alpha (unofficial),")
+  m("Alpha (unofficial),")
   goto s0
 f226:
   // >18	leshort		0x9041		Cygnus M32R (unofficial),
@@ -15255,7 +15282,7 @@ f226:
   if !(ok && (ra == 36929)) { goto f227 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9041\t\tCygnus M32R (unofficial),")
-  out = append(out, "Cygnus M32R (unofficial),")
+  m("Cygnus M32R (unofficial),")
   goto s0
 f227:
   // >18	leshort		0x9080		Cygnus V850 (unofficial),
@@ -15264,7 +15291,7 @@ f227:
   if !(ok && (ra == 36992)) { goto f228 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9080\t\tCygnus V850 (unofficial),")
-  out = append(out, "Cygnus V850 (unofficial),")
+  m("Cygnus V850 (unofficial),")
   goto s0
 f228:
   // >18	leshort		0xa390		IBM S/390 (obsolete),
@@ -15273,7 +15300,7 @@ f228:
   if !(ok && (ra == 41872)) { goto f229 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xa390\t\tIBM S/390 (obsolete),")
-  out = append(out, "IBM S/390 (obsolete),")
+  m("IBM S/390 (obsolete),")
   goto s0
 f229:
   // >18	leshort		0xabc7		Old Xtensa (unofficial),
@@ -15282,7 +15309,7 @@ f229:
   if !(ok && (ra == 43975)) { goto f230 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xabc7\t\tOld Xtensa (unofficial),")
-  out = append(out, "Old Xtensa (unofficial),")
+  m("Old Xtensa (unofficial),")
   goto s0
 f230:
   // >18	leshort		0xad45		xstormy16 (unofficial),
@@ -15291,7 +15318,7 @@ f230:
   if !(ok && (ra == 44357)) { goto f231 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xad45\t\txstormy16 (unofficial),")
-  out = append(out, "xstormy16 (unofficial),")
+  m("xstormy16 (unofficial),")
   goto s0
 f231:
   // >18	leshort		0xbaab		Old MicroBlaze (unofficial),,
@@ -15300,7 +15327,7 @@ f231:
   if !(ok && (ra == 47787)) { goto f232 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xbaab\t\tOld MicroBlaze (unofficial),,")
-  out = append(out, "Old MicroBlaze (unofficial),,")
+  m("Old MicroBlaze (unofficial),,")
   goto s0
 f232:
   // >18	leshort		0xbeef		Cygnus MN10300 (unofficial),
@@ -15309,7 +15336,7 @@ f232:
   if !(ok && (ra == 48879)) { goto f233 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xbeef\t\tCygnus MN10300 (unofficial),")
-  out = append(out, "Cygnus MN10300 (unofficial),")
+  m("Cygnus MN10300 (unofficial),")
   goto s0
 f233:
   // >18	leshort		0xdead		Cygnus MN10200 (unofficial),
@@ -15318,7 +15345,7 @@ f233:
   if !(ok && (ra == 57005)) { goto f234 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xdead\t\tCygnus MN10200 (unofficial),")
-  out = append(out, "Cygnus MN10200 (unofficial),")
+  m("Cygnus MN10200 (unofficial),")
   goto s0
 f234:
   // >18	leshort		0xf00d		Toshiba MeP (unofficial),
@@ -15327,7 +15354,7 @@ f234:
   if !(ok && (ra == 61453)) { goto f235 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xf00d\t\tToshiba MeP (unofficial),")
-  out = append(out, "Toshiba MeP (unofficial),")
+  m("Toshiba MeP (unofficial),")
   goto s0
 f235:
   // >18	leshort		0xfeb0		Renesas M32C (unofficial),
@@ -15336,7 +15363,7 @@ f235:
   if !(ok && (ra == 65200)) { goto f236 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfeb0\t\tRenesas M32C (unofficial),")
-  out = append(out, "Renesas M32C (unofficial),")
+  m("Renesas M32C (unofficial),")
   goto s0
 f236:
   // >18	leshort		0xfeba		Vitesse IQ2000 (unofficial),
@@ -15345,7 +15372,7 @@ f236:
   if !(ok && (ra == 65210)) { goto f237 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfeba\t\tVitesse IQ2000 (unofficial),")
-  out = append(out, "Vitesse IQ2000 (unofficial),")
+  m("Vitesse IQ2000 (unofficial),")
   goto s0
 f237:
   // >18	leshort		0xfebb		NIOS (unofficial),
@@ -15354,7 +15381,7 @@ f237:
   if !(ok && (ra == 65211)) { goto f238 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfebb\t\tNIOS (unofficial),")
-  out = append(out, "NIOS (unofficial),")
+  m("NIOS (unofficial),")
   goto s0
 f238:
   // >18	leshort		0xfeed		Moxie (unofficial),
@@ -15363,7 +15390,7 @@ f238:
   if !(ok && (ra == 65261)) { goto f239 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfeed\t\tMoxie (unofficial),")
-  out = append(out, "Moxie (unofficial),")
+  m("Moxie (unofficial),")
   goto s0
 f239:
   // >18	default		x
@@ -15375,7 +15402,7 @@ f239:
   off = pof + 18
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>18\tleshort\t\tx\t\t*unknown arch 0x%x*")
-  out = append(out, "*unknown arch 0x%x*")
+  m("*unknown arch 0x%x*")
   goto s240
 s240:
   goto s0
@@ -15386,7 +15413,7 @@ f240:
   if !(ok && (ra == 0)) { goto f242 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t0\t\tinvalid version")
-  out = append(out, "invalid version")
+  m("invalid version")
   goto s0
 f242:
   // >20	lelong		1		version 1
@@ -15395,7 +15422,7 @@ f242:
   if !(ok && (ra == 1)) { goto f243 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t1\t\tversion 1")
-  out = append(out, "version 1")
+  m("version 1")
   goto s0
 f243:
 s0:
@@ -15412,6 +15439,9 @@ func IdentifyElfLe__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		elf-le
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\telf-le")
@@ -15421,7 +15451,7 @@ func IdentifyElfLe__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 0)) { goto f1 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t0\t\tno file type,")
-  out = append(out, "no file type,")
+  m("no file type,")
   goto s0
 f1:
   // >16	leshort		1		relocatable,
@@ -15430,7 +15460,7 @@ f1:
   if !(ok && (ra == 1)) { goto f2 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t1\t\trelocatable,")
-  out = append(out, "relocatable,")
+  m("relocatable,")
   goto s0
 f2:
   // >16	leshort		2		executable,
@@ -15439,7 +15469,7 @@ f2:
   if !(ok && (ra == 2)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t2\t\texecutable,")
-  out = append(out, "executable,")
+  m("executable,")
   goto s0
 f3:
   // >16	leshort		3		shared object,
@@ -15448,7 +15478,7 @@ f3:
   if !(ok && (ra == 3)) { goto f4 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t3\t\tshared object,")
-  out = append(out, "shared object,")
+  m("shared object,")
   goto s0
 f4:
   // >16	leshort		4		core file
@@ -15457,7 +15487,7 @@ f4:
   if !(ok && (ra == 4)) { goto f5 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t4\t\tcore file")
-  out = append(out, "core file")
+  m("core file")
   goto s0
 f5:
   // >16	leshort		&0xff00		processor-specific,
@@ -15466,7 +15496,7 @@ f5:
   if !(ok && (ra == 65280)) { goto f6 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">16\tleshort\t\t&0xff00\t\tprocessor-specific,")
-  out = append(out, "processor-specific,")
+  m("processor-specific,")
   goto s0
 f6:
   // >18	clear		x
@@ -15482,7 +15512,7 @@ f7:
   if !(ok && (ra == 0)) { goto f8 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0\t\tno machine,")
-  out = append(out, "no machine,")
+  m("no machine,")
   goto s0
 f8:
   // >18	leshort		1		AT&T WE32100,
@@ -15491,7 +15521,7 @@ f8:
   if !(ok && (ra == 1)) { goto f9 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t1\t\tAT&T WE32100,")
-  out = append(out, "AT&T WE32100,")
+  m("AT&T WE32100,")
   goto s0
 f9:
   // >18	leshort		2		SPARC,
@@ -15500,7 +15530,7 @@ f9:
   if !(ok && (ra == 2)) { goto f10 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t2\t\tSPARC,")
-  out = append(out, "SPARC,")
+  m("SPARC,")
   goto s0
 f10:
   // >18	leshort		3		Intel 80386,
@@ -15509,7 +15539,7 @@ f10:
   if !(ok && (ra == 3)) { goto f11 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t3\t\tIntel 80386,")
-  out = append(out, "Intel 80386,")
+  m("Intel 80386,")
   goto s0
 f11:
   // >18	leshort		4		Motorola m68k,
@@ -15518,7 +15548,7 @@ f11:
   if !(ok && (ra == 4)) { goto f12 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t4\t\tMotorola m68k,")
-  out = append(out, "Motorola m68k,")
+  m("Motorola m68k,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -15531,7 +15561,7 @@ f11:
   if !(ok && (ra == 16777216)) { goto f14 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x01000000\t68000,")
-  out = append(out, "68000,")
+  m("68000,")
   goto s13
 f14:
   // >>>36	lelong		&0x00810000	CPU32,
@@ -15540,7 +15570,7 @@ f14:
   if !(ok && (ra == 8454144)) { goto f15 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x00810000\tCPU32,")
-  out = append(out, "CPU32,")
+  m("CPU32,")
   goto s13
 f15:
   // >>>36	lelong		0		68020,
@@ -15549,7 +15579,7 @@ f15:
   if !(ok && (ra == 0)) { goto f16 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t0\t\t68020,")
-  out = append(out, "68020,")
+  m("68020,")
   goto s13
 f16:
 s13:
@@ -15564,7 +15594,7 @@ f12:
   if !(ok && (ra == 5)) { goto f17 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t5\t\tMotorola m88k,")
-  out = append(out, "Motorola m88k,")
+  m("Motorola m88k,")
   goto s0
 f17:
   // >18	leshort		6		Intel 80486,
@@ -15573,7 +15603,7 @@ f17:
   if !(ok && (ra == 6)) { goto f18 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t6\t\tIntel 80486,")
-  out = append(out, "Intel 80486,")
+  m("Intel 80486,")
   goto s0
 f18:
   // >18	leshort		7		Intel 80860,
@@ -15582,7 +15612,7 @@ f18:
   if !(ok && (ra == 7)) { goto f19 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t7\t\tIntel 80860,")
-  out = append(out, "Intel 80860,")
+  m("Intel 80860,")
   goto s0
 f19:
   // >18	leshort		8		MIPS,
@@ -15591,7 +15621,7 @@ f19:
   if !(ok && (ra == 8)) { goto f20 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t8\t\tMIPS,")
-  out = append(out, "MIPS,")
+  m("MIPS,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -15604,7 +15634,7 @@ f19:
   if !(ok && (ra == 32)) { goto f22 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x20\t\tN32")
-  out = append(out, "N32")
+  m("N32")
   goto s21
 f22:
 s21:
@@ -15619,7 +15649,7 @@ f20:
   if !(ok && (ra == 10)) { goto f23 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t10\t\tMIPS,")
-  out = append(out, "MIPS,")
+  m("MIPS,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -15632,7 +15662,7 @@ f20:
   if !(ok && (ra == 32)) { goto f25 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x20\t\tN32")
-  out = append(out, "N32")
+  m("N32")
   goto s24
 f25:
 s24:
@@ -15659,7 +15689,7 @@ f23:
   if !(ok && (ra&4026531840 == 0)) { goto f28 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x00000000\tMIPS-I")
-  out = append(out, "MIPS-I")
+  m("MIPS-I")
   goto s27
 f28:
   // >>>36  lelong&0xf0000000	0x10000000	MIPS-II
@@ -15668,7 +15698,7 @@ f28:
   if !(ok && (ra&4026531840 == 268435456)) { goto f29 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x10000000\tMIPS-II")
-  out = append(out, "MIPS-II")
+  m("MIPS-II")
   goto s27
 f29:
   // >>>36  lelong&0xf0000000	0x20000000	MIPS-III
@@ -15677,7 +15707,7 @@ f29:
   if !(ok && (ra&4026531840 == 536870912)) { goto f30 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x20000000\tMIPS-III")
-  out = append(out, "MIPS-III")
+  m("MIPS-III")
   goto s27
 f30:
   // >>>36  lelong&0xf0000000	0x30000000	MIPS-IV
@@ -15686,7 +15716,7 @@ f30:
   if !(ok && (ra&4026531840 == 805306368)) { goto f31 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x30000000\tMIPS-IV")
-  out = append(out, "MIPS-IV")
+  m("MIPS-IV")
   goto s27
 f31:
   // >>>36  lelong&0xf0000000	0x40000000	MIPS-V
@@ -15695,7 +15725,7 @@ f31:
   if !(ok && (ra&4026531840 == 1073741824)) { goto f32 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x40000000\tMIPS-V")
-  out = append(out, "MIPS-V")
+  m("MIPS-V")
   goto s27
 f32:
   // >>>36  lelong&0xf0000000	0x50000000	MIPS32
@@ -15704,7 +15734,7 @@ f32:
   if !(ok && (ra&4026531840 == 1342177280)) { goto f33 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x50000000\tMIPS32")
-  out = append(out, "MIPS32")
+  m("MIPS32")
   goto s27
 f33:
   // >>>36  lelong&0xf0000000	0x60000000	MIPS64
@@ -15713,7 +15743,7 @@ f33:
   if !(ok && (ra&4026531840 == 1610612736)) { goto f34 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x60000000\tMIPS64")
-  out = append(out, "MIPS64")
+  m("MIPS64")
   goto s27
 f34:
   // >>>36  lelong&0xf0000000	0x70000000	MIPS32 rel2
@@ -15722,7 +15752,7 @@ f34:
   if !(ok && (ra&4026531840 == 1879048192)) { goto f35 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x70000000\tMIPS32 rel2")
-  out = append(out, "MIPS32 rel2")
+  m("MIPS32 rel2")
   goto s27
 f35:
   // >>>36  lelong&0xf0000000	0x80000000	MIPS64 rel2
@@ -15731,7 +15761,7 @@ f35:
   if !(ok && (ra&4026531840 == 2147483648)) { goto f36 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36  lelong&0xf0000000\t0x80000000\tMIPS64 rel2")
-  out = append(out, "MIPS64 rel2")
+  m("MIPS64 rel2")
   goto s27
 f36:
 s27:
@@ -15749,7 +15779,7 @@ f27:
   if !(ok && (ra&4026531840 == 0)) { goto f38 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x00000000\tMIPS-I")
-  out = append(out, "MIPS-I")
+  m("MIPS-I")
   goto s37
 f38:
   // >>>48  lelong&0xf0000000	0x10000000	MIPS-II
@@ -15758,7 +15788,7 @@ f38:
   if !(ok && (ra&4026531840 == 268435456)) { goto f39 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x10000000\tMIPS-II")
-  out = append(out, "MIPS-II")
+  m("MIPS-II")
   goto s37
 f39:
   // >>>48  lelong&0xf0000000	0x20000000	MIPS-III
@@ -15767,7 +15797,7 @@ f39:
   if !(ok && (ra&4026531840 == 536870912)) { goto f40 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x20000000\tMIPS-III")
-  out = append(out, "MIPS-III")
+  m("MIPS-III")
   goto s37
 f40:
   // >>>48  lelong&0xf0000000	0x30000000	MIPS-IV
@@ -15776,7 +15806,7 @@ f40:
   if !(ok && (ra&4026531840 == 805306368)) { goto f41 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x30000000\tMIPS-IV")
-  out = append(out, "MIPS-IV")
+  m("MIPS-IV")
   goto s37
 f41:
   // >>>48  lelong&0xf0000000	0x40000000	MIPS-V
@@ -15785,7 +15815,7 @@ f41:
   if !(ok && (ra&4026531840 == 1073741824)) { goto f42 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x40000000\tMIPS-V")
-  out = append(out, "MIPS-V")
+  m("MIPS-V")
   goto s37
 f42:
   // >>>48  lelong&0xf0000000	0x50000000	MIPS32
@@ -15794,7 +15824,7 @@ f42:
   if !(ok && (ra&4026531840 == 1342177280)) { goto f43 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x50000000\tMIPS32")
-  out = append(out, "MIPS32")
+  m("MIPS32")
   goto s37
 f43:
   // >>>48  lelong&0xf0000000	0x60000000	MIPS64
@@ -15803,7 +15833,7 @@ f43:
   if !(ok && (ra&4026531840 == 1610612736)) { goto f44 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x60000000\tMIPS64")
-  out = append(out, "MIPS64")
+  m("MIPS64")
   goto s37
 f44:
   // >>>48  lelong&0xf0000000	0x70000000	MIPS32 rel2
@@ -15812,7 +15842,7 @@ f44:
   if !(ok && (ra&4026531840 == 1879048192)) { goto f45 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x70000000\tMIPS32 rel2")
-  out = append(out, "MIPS32 rel2")
+  m("MIPS32 rel2")
   goto s37
 f45:
   // >>>48  lelong&0xf0000000	0x80000000	MIPS64 rel2
@@ -15821,7 +15851,7 @@ f45:
   if !(ok && (ra&4026531840 == 2147483648)) { goto f46 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48  lelong&0xf0000000\t0x80000000\tMIPS64 rel2")
-  out = append(out, "MIPS64 rel2")
+  m("MIPS64 rel2")
   goto s37
 f46:
 s37:
@@ -15836,7 +15866,7 @@ f26:
   if !(ok && (ra == 9)) { goto f47 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t9\t\tAmdahl,")
-  out = append(out, "Amdahl,")
+  m("Amdahl,")
   goto s0
 f47:
   // >18	leshort		10		MIPS (deprecated),
@@ -15845,7 +15875,7 @@ f47:
   if !(ok && (ra == 10)) { goto f48 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t10\t\tMIPS (deprecated),")
-  out = append(out, "MIPS (deprecated),")
+  m("MIPS (deprecated),")
   goto s0
 f48:
   // >18	leshort		11		RS6000,
@@ -15854,7 +15884,7 @@ f48:
   if !(ok && (ra == 11)) { goto f49 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t11\t\tRS6000,")
-  out = append(out, "RS6000,")
+  m("RS6000,")
   goto s0
 f49:
   // >18	leshort		15		PA-RISC,
@@ -15863,7 +15893,7 @@ f49:
   if !(ok && (ra == 15)) { goto f50 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t15\t\tPA-RISC,")
-  out = append(out, "PA-RISC,")
+  m("PA-RISC,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -15876,7 +15906,7 @@ f49:
   if !(ok && (ra == 532)) { goto f52 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>38\tleshort\t\t0x0214\t\t2.0")
-  out = append(out, "2.0")
+  m("2.0")
   goto s51
 f52:
   // >>>36	leshort		&0x0008		(LP64)
@@ -15885,7 +15915,7 @@ f52:
   if !(ok && (ra == 8)) { goto f53 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>36\tleshort\t\t&0x0008\t\t(LP64)")
-  out = append(out, "(LP64)")
+  m("(LP64)")
   goto s51
 f53:
 s51:
@@ -15903,7 +15933,7 @@ f51:
   if !(ok && (ra == 532)) { goto f55 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>50\tleshort\t\t0x0214\t\t2.0")
-  out = append(out, "2.0")
+  m("2.0")
   goto s54
 f55:
   // >>>48	leshort		&0x0008		(LP64)
@@ -15912,7 +15942,7 @@ f55:
   if !(ok && (ra == 8)) { goto f56 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>48\tleshort\t\t&0x0008\t\t(LP64)")
-  out = append(out, "(LP64)")
+  m("(LP64)")
   goto s54
 f56:
 s54:
@@ -15927,7 +15957,7 @@ f50:
   if !(ok && (ra == 16)) { goto f57 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t16\t\tnCUBE,")
-  out = append(out, "nCUBE,")
+  m("nCUBE,")
   goto s0
 f57:
   // >18	leshort		17		Fujitsu VPP500,
@@ -15936,7 +15966,7 @@ f57:
   if !(ok && (ra == 17)) { goto f58 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t17\t\tFujitsu VPP500,")
-  out = append(out, "Fujitsu VPP500,")
+  m("Fujitsu VPP500,")
   goto s0
 f58:
   // >18	leshort		18		SPARC32PLUS,
@@ -15945,7 +15975,7 @@ f58:
   if !(ok && (ra == 18)) { goto f59 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t18\t\tSPARC32PLUS,")
-  out = append(out, "SPARC32PLUS,")
+  m("SPARC32PLUS,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -15958,7 +15988,7 @@ f58:
   if !(ok && (ra&16776960 == 256)) { goto f61 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000100\tV8+ Required,")
-  out = append(out, "V8+ Required,")
+  m("V8+ Required,")
   goto s60
 f61:
   // >>>36	lelong&0xffff00	0x000200	Sun UltraSPARC1 Extensions Required,
@@ -15967,7 +15997,7 @@ f61:
   if !(ok && (ra&16776960 == 512)) { goto f62 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000200\tSun UltraSPARC1 Extensions Required,")
-  out = append(out, "Sun UltraSPARC1 Extensions Required,")
+  m("Sun UltraSPARC1 Extensions Required,")
   goto s60
 f62:
   // >>>36	lelong&0xffff00	0x000400	HaL R1 Extensions Required,
@@ -15976,7 +16006,7 @@ f62:
   if !(ok && (ra&16776960 == 1024)) { goto f63 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000400\tHaL R1 Extensions Required,")
-  out = append(out, "HaL R1 Extensions Required,")
+  m("HaL R1 Extensions Required,")
   goto s60
 f63:
   // >>>36	lelong&0xffff00	0x000800	Sun UltraSPARC3 Extensions Required,
@@ -15985,7 +16015,7 @@ f63:
   if !(ok && (ra&16776960 == 2048)) { goto f64 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xffff00\t0x000800\tSun UltraSPARC3 Extensions Required,")
-  out = append(out, "Sun UltraSPARC3 Extensions Required,")
+  m("Sun UltraSPARC3 Extensions Required,")
   goto s60
 f64:
 s60:
@@ -16000,7 +16030,7 @@ f59:
   if !(ok && (ra == 19)) { goto f65 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t19\t\tIntel 80960,")
-  out = append(out, "Intel 80960,")
+  m("Intel 80960,")
   goto s0
 f65:
   // >18	leshort		20		PowerPC or cisco 4500,
@@ -16009,7 +16039,7 @@ f65:
   if !(ok && (ra == 20)) { goto f66 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t20\t\tPowerPC or cisco 4500,")
-  out = append(out, "PowerPC or cisco 4500,")
+  m("PowerPC or cisco 4500,")
   goto s0
 f66:
   // >18	leshort		21		64-bit PowerPC or cisco 7500,
@@ -16018,7 +16048,7 @@ f66:
   if !(ok && (ra == 21)) { goto f67 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t21\t\t64-bit PowerPC or cisco 7500,")
-  out = append(out, "64-bit PowerPC or cisco 7500,")
+  m("64-bit PowerPC or cisco 7500,")
   goto s0
 f67:
   // >18	leshort		22		IBM S/390,
@@ -16027,7 +16057,7 @@ f67:
   if !(ok && (ra == 22)) { goto f68 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t22\t\tIBM S/390,")
-  out = append(out, "IBM S/390,")
+  m("IBM S/390,")
   goto s0
 f68:
   // >18	leshort		23		Cell SPU,
@@ -16036,7 +16066,7 @@ f68:
   if !(ok && (ra == 23)) { goto f69 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t23\t\tCell SPU,")
-  out = append(out, "Cell SPU,")
+  m("Cell SPU,")
   goto s0
 f69:
   // >18	leshort		24		cisco SVIP,
@@ -16045,7 +16075,7 @@ f69:
   if !(ok && (ra == 24)) { goto f70 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t24\t\tcisco SVIP,")
-  out = append(out, "cisco SVIP,")
+  m("cisco SVIP,")
   goto s0
 f70:
   // >18	leshort		25		cisco 7200,
@@ -16054,7 +16084,7 @@ f70:
   if !(ok && (ra == 25)) { goto f71 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t25\t\tcisco 7200,")
-  out = append(out, "cisco 7200,")
+  m("cisco 7200,")
   goto s0
 f71:
   // >18	leshort		36		NEC V800 or cisco 12000,
@@ -16063,7 +16093,7 @@ f71:
   if !(ok && (ra == 36)) { goto f72 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t36\t\tNEC V800 or cisco 12000,")
-  out = append(out, "NEC V800 or cisco 12000,")
+  m("NEC V800 or cisco 12000,")
   goto s0
 f72:
   // >18	leshort		37		Fujitsu FR20,
@@ -16072,7 +16102,7 @@ f72:
   if !(ok && (ra == 37)) { goto f73 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t37\t\tFujitsu FR20,")
-  out = append(out, "Fujitsu FR20,")
+  m("Fujitsu FR20,")
   goto s0
 f73:
   // >18	leshort		38		TRW RH-32,
@@ -16081,7 +16111,7 @@ f73:
   if !(ok && (ra == 38)) { goto f74 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t38\t\tTRW RH-32,")
-  out = append(out, "TRW RH-32,")
+  m("TRW RH-32,")
   goto s0
 f74:
   // >18	leshort		39		Motorola RCE,
@@ -16090,7 +16120,7 @@ f74:
   if !(ok && (ra == 39)) { goto f75 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t39\t\tMotorola RCE,")
-  out = append(out, "Motorola RCE,")
+  m("Motorola RCE,")
   goto s0
 f75:
   // >18	leshort		40		ARM,
@@ -16099,7 +16129,7 @@ f75:
   if !(ok && (ra == 40)) { goto f76 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t40\t\tARM,")
-  out = append(out, "ARM,")
+  m("ARM,")
   // >>4	byte		1
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -16112,7 +16142,7 @@ f75:
   if !(ok && (ra&4278190080 == 67108864)) { goto f78 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xff000000\t0x04000000\tEABI4")
-  out = append(out, "EABI4")
+  m("EABI4")
   goto s77
 f78:
   // >>>36	lelong&0xff000000	0x05000000	EABI5
@@ -16121,7 +16151,7 @@ f78:
   if !(ok && (ra&4278190080 == 83886080)) { goto f79 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong&0xff000000\t0x05000000\tEABI5")
-  out = append(out, "EABI5")
+  m("EABI5")
   goto s77
 f79:
   // >>>36	lelong		&0x00800000	BE8
@@ -16130,7 +16160,7 @@ f79:
   if !(ok && (ra == 8388608)) { goto f80 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x00800000\tBE8")
-  out = append(out, "BE8")
+  m("BE8")
   goto s77
 f80:
   // >>>36	lelong		&0x00400000	LE8
@@ -16139,7 +16169,7 @@ f80:
   if !(ok && (ra == 4194304)) { goto f81 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>36\tlelong\t\t&0x00400000\tLE8")
-  out = append(out, "LE8")
+  m("LE8")
   goto s77
 f81:
 s77:
@@ -16154,7 +16184,7 @@ f76:
   if !(ok && (ra == 41)) { goto f82 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t41\t\tAlpha,")
-  out = append(out, "Alpha,")
+  m("Alpha,")
   goto s0
 f82:
   // >18	leshort		42		Renesas SH,
@@ -16163,7 +16193,7 @@ f82:
   if !(ok && (ra == 42)) { goto f83 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t42\t\tRenesas SH,")
-  out = append(out, "Renesas SH,")
+  m("Renesas SH,")
   goto s0
 f83:
   // >18	leshort		43		SPARC V9,
@@ -16172,7 +16202,7 @@ f83:
   if !(ok && (ra == 43)) { goto f84 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t43\t\tSPARC V9,")
-  out = append(out, "SPARC V9,")
+  m("SPARC V9,")
   // >>4	byte		2
   off = pof + 4
   ra, ok = f1b(tb, off)
@@ -16185,7 +16215,7 @@ f83:
   if !(ok && (ra&16776960 == 512)) { goto f86 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0xffff00\t0x000200\tSun UltraSPARC1 Extensions Required,")
-  out = append(out, "Sun UltraSPARC1 Extensions Required,")
+  m("Sun UltraSPARC1 Extensions Required,")
   goto s85
 f86:
   // >>>48	lelong&0xffff00	0x000400	HaL R1 Extensions Required,
@@ -16194,7 +16224,7 @@ f86:
   if !(ok && (ra&16776960 == 1024)) { goto f87 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0xffff00\t0x000400\tHaL R1 Extensions Required,")
-  out = append(out, "HaL R1 Extensions Required,")
+  m("HaL R1 Extensions Required,")
   goto s85
 f87:
   // >>>48	lelong&0xffff00	0x000800	Sun UltraSPARC3 Extensions Required,
@@ -16203,7 +16233,7 @@ f87:
   if !(ok && (ra&16776960 == 2048)) { goto f88 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0xffff00\t0x000800\tSun UltraSPARC3 Extensions Required,")
-  out = append(out, "Sun UltraSPARC3 Extensions Required,")
+  m("Sun UltraSPARC3 Extensions Required,")
   goto s85
 f88:
   // >>>48	lelong&0x3	0		total store ordering,
@@ -16212,7 +16242,7 @@ f88:
   if !(ok && (ra&3 == 0)) { goto f89 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0x3\t0\t\ttotal store ordering,")
-  out = append(out, "total store ordering,")
+  m("total store ordering,")
   goto s85
 f89:
   // >>>48	lelong&0x3	1		partial store ordering,
@@ -16221,7 +16251,7 @@ f89:
   if !(ok && (ra&3 == 1)) { goto f90 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0x3\t1\t\tpartial store ordering,")
-  out = append(out, "partial store ordering,")
+  m("partial store ordering,")
   goto s85
 f90:
   // >>>48	lelong&0x3	2		relaxed memory ordering,
@@ -16230,7 +16260,7 @@ f90:
   if !(ok && (ra&3 == 2)) { goto f91 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>48\tlelong&0x3\t2\t\trelaxed memory ordering,")
-  out = append(out, "relaxed memory ordering,")
+  m("relaxed memory ordering,")
   goto s85
 f91:
 s85:
@@ -16245,7 +16275,7 @@ f84:
   if !(ok && (ra == 44)) { goto f92 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t44\t\tSiemens Tricore Embedded Processor,")
-  out = append(out, "Siemens Tricore Embedded Processor,")
+  m("Siemens Tricore Embedded Processor,")
   goto s0
 f92:
   // >18	leshort		45		Argonaut RISC Core, Argonaut Technologies Inc.,
@@ -16254,7 +16284,7 @@ f92:
   if !(ok && (ra == 45)) { goto f93 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t45\t\tArgonaut RISC Core, Argonaut Technologies Inc.,")
-  out = append(out, "Argonaut RISC Core, Argonaut Technologies Inc.,")
+  m("Argonaut RISC Core, Argonaut Technologies Inc.,")
   goto s0
 f93:
   // >18	leshort		46		Renesas H8/300,
@@ -16263,7 +16293,7 @@ f93:
   if !(ok && (ra == 46)) { goto f94 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t46\t\tRenesas H8/300,")
-  out = append(out, "Renesas H8/300,")
+  m("Renesas H8/300,")
   goto s0
 f94:
   // >18	leshort		47		Renesas H8/300H,
@@ -16272,7 +16302,7 @@ f94:
   if !(ok && (ra == 47)) { goto f95 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t47\t\tRenesas H8/300H,")
-  out = append(out, "Renesas H8/300H,")
+  m("Renesas H8/300H,")
   goto s0
 f95:
   // >18	leshort		48		Renesas H8S,
@@ -16281,7 +16311,7 @@ f95:
   if !(ok && (ra == 48)) { goto f96 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t48\t\tRenesas H8S,")
-  out = append(out, "Renesas H8S,")
+  m("Renesas H8S,")
   goto s0
 f96:
   // >18	leshort		49		Renesas H8/500,
@@ -16290,7 +16320,7 @@ f96:
   if !(ok && (ra == 49)) { goto f97 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t49\t\tRenesas H8/500,")
-  out = append(out, "Renesas H8/500,")
+  m("Renesas H8/500,")
   goto s0
 f97:
   // >18	leshort		50		IA-64,
@@ -16299,7 +16329,7 @@ f97:
   if !(ok && (ra == 50)) { goto f98 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t50\t\tIA-64,")
-  out = append(out, "IA-64,")
+  m("IA-64,")
   goto s0
 f98:
   // >18	leshort		51		Stanford MIPS-X,
@@ -16308,7 +16338,7 @@ f98:
   if !(ok && (ra == 51)) { goto f99 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t51\t\tStanford MIPS-X,")
-  out = append(out, "Stanford MIPS-X,")
+  m("Stanford MIPS-X,")
   goto s0
 f99:
   // >18	leshort		52		Motorola Coldfire,
@@ -16317,7 +16347,7 @@ f99:
   if !(ok && (ra == 52)) { goto f100 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t52\t\tMotorola Coldfire,")
-  out = append(out, "Motorola Coldfire,")
+  m("Motorola Coldfire,")
   goto s0
 f100:
   // >18	leshort		53		Motorola M68HC12,
@@ -16326,7 +16356,7 @@ f100:
   if !(ok && (ra == 53)) { goto f101 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t53\t\tMotorola M68HC12,")
-  out = append(out, "Motorola M68HC12,")
+  m("Motorola M68HC12,")
   goto s0
 f101:
   // >18	leshort		54		Fujitsu MMA,
@@ -16335,7 +16365,7 @@ f101:
   if !(ok && (ra == 54)) { goto f102 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t54\t\tFujitsu MMA,")
-  out = append(out, "Fujitsu MMA,")
+  m("Fujitsu MMA,")
   goto s0
 f102:
   // >18	leshort		55		Siemens PCP,
@@ -16344,7 +16374,7 @@ f102:
   if !(ok && (ra == 55)) { goto f103 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t55\t\tSiemens PCP,")
-  out = append(out, "Siemens PCP,")
+  m("Siemens PCP,")
   goto s0
 f103:
   // >18	leshort		56		Sony nCPU,
@@ -16353,7 +16383,7 @@ f103:
   if !(ok && (ra == 56)) { goto f104 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t56\t\tSony nCPU,")
-  out = append(out, "Sony nCPU,")
+  m("Sony nCPU,")
   goto s0
 f104:
   // >18	leshort		57		Denso NDR1,
@@ -16362,7 +16392,7 @@ f104:
   if !(ok && (ra == 57)) { goto f105 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t57\t\tDenso NDR1,")
-  out = append(out, "Denso NDR1,")
+  m("Denso NDR1,")
   goto s0
 f105:
   // >18	leshort		58		Start*Core,
@@ -16371,7 +16401,7 @@ f105:
   if !(ok && (ra == 58)) { goto f106 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t58\t\tStart*Core,")
-  out = append(out, "Start*Core,")
+  m("Start*Core,")
   goto s0
 f106:
   // >18	leshort		59		Toyota ME16,
@@ -16380,7 +16410,7 @@ f106:
   if !(ok && (ra == 59)) { goto f107 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t59\t\tToyota ME16,")
-  out = append(out, "Toyota ME16,")
+  m("Toyota ME16,")
   goto s0
 f107:
   // >18	leshort		60		ST100,
@@ -16389,7 +16419,7 @@ f107:
   if !(ok && (ra == 60)) { goto f108 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t60\t\tST100,")
-  out = append(out, "ST100,")
+  m("ST100,")
   goto s0
 f108:
   // >18	leshort		61		Tinyj emb.,
@@ -16398,7 +16428,7 @@ f108:
   if !(ok && (ra == 61)) { goto f109 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t61\t\tTinyj emb.,")
-  out = append(out, "Tinyj emb.,")
+  m("Tinyj emb.,")
   goto s0
 f109:
   // >18	leshort		62		x86-64,
@@ -16407,7 +16437,7 @@ f109:
   if !(ok && (ra == 62)) { goto f110 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t62\t\tx86-64,")
-  out = append(out, "x86-64,")
+  m("x86-64,")
   goto s0
 f110:
   // >18	leshort		63		Sony DSP,
@@ -16416,7 +16446,7 @@ f110:
   if !(ok && (ra == 63)) { goto f111 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t63\t\tSony DSP,")
-  out = append(out, "Sony DSP,")
+  m("Sony DSP,")
   goto s0
 f111:
   // >18	leshort		64		DEC PDP-10,
@@ -16425,7 +16455,7 @@ f111:
   if !(ok && (ra == 64)) { goto f112 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t64\t\tDEC PDP-10,")
-  out = append(out, "DEC PDP-10,")
+  m("DEC PDP-10,")
   goto s0
 f112:
   // >18	leshort		65		DEC PDP-11,
@@ -16434,7 +16464,7 @@ f112:
   if !(ok && (ra == 65)) { goto f113 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t65\t\tDEC PDP-11,")
-  out = append(out, "DEC PDP-11,")
+  m("DEC PDP-11,")
   goto s0
 f113:
   // >18	leshort		66		FX66,
@@ -16443,7 +16473,7 @@ f113:
   if !(ok && (ra == 66)) { goto f114 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t66\t\tFX66,")
-  out = append(out, "FX66,")
+  m("FX66,")
   goto s0
 f114:
   // >18	leshort		67		ST9+ 8/16 bit,
@@ -16452,7 +16482,7 @@ f114:
   if !(ok && (ra == 67)) { goto f115 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t67\t\tST9+ 8/16 bit,")
-  out = append(out, "ST9+ 8/16 bit,")
+  m("ST9+ 8/16 bit,")
   goto s0
 f115:
   // >18	leshort		68		ST7 8 bit,
@@ -16461,7 +16491,7 @@ f115:
   if !(ok && (ra == 68)) { goto f116 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t68\t\tST7 8 bit,")
-  out = append(out, "ST7 8 bit,")
+  m("ST7 8 bit,")
   goto s0
 f116:
   // >18	leshort		69		MC68HC16,
@@ -16470,7 +16500,7 @@ f116:
   if !(ok && (ra == 69)) { goto f117 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t69\t\tMC68HC16,")
-  out = append(out, "MC68HC16,")
+  m("MC68HC16,")
   goto s0
 f117:
   // >18	leshort		70		MC68HC11,
@@ -16479,7 +16509,7 @@ f117:
   if !(ok && (ra == 70)) { goto f118 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t70\t\tMC68HC11,")
-  out = append(out, "MC68HC11,")
+  m("MC68HC11,")
   goto s0
 f118:
   // >18	leshort		71		MC68HC08,
@@ -16488,7 +16518,7 @@ f118:
   if !(ok && (ra == 71)) { goto f119 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t71\t\tMC68HC08,")
-  out = append(out, "MC68HC08,")
+  m("MC68HC08,")
   goto s0
 f119:
   // >18	leshort		72		MC68HC05,
@@ -16497,7 +16527,7 @@ f119:
   if !(ok && (ra == 72)) { goto f120 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t72\t\tMC68HC05,")
-  out = append(out, "MC68HC05,")
+  m("MC68HC05,")
   goto s0
 f120:
   // >18	leshort		73		SGI SVx or Cray NV1,
@@ -16506,7 +16536,7 @@ f120:
   if !(ok && (ra == 73)) { goto f121 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t73\t\tSGI SVx or Cray NV1,")
-  out = append(out, "SGI SVx or Cray NV1,")
+  m("SGI SVx or Cray NV1,")
   goto s0
 f121:
   // >18	leshort		74		ST19 8 bit,
@@ -16515,7 +16545,7 @@ f121:
   if !(ok && (ra == 74)) { goto f122 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t74\t\tST19 8 bit,")
-  out = append(out, "ST19 8 bit,")
+  m("ST19 8 bit,")
   goto s0
 f122:
   // >18	leshort		75		Digital VAX,
@@ -16524,7 +16554,7 @@ f122:
   if !(ok && (ra == 75)) { goto f123 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t75\t\tDigital VAX,")
-  out = append(out, "Digital VAX,")
+  m("Digital VAX,")
   goto s0
 f123:
   // >18	leshort		76		Axis cris,
@@ -16533,7 +16563,7 @@ f123:
   if !(ok && (ra == 76)) { goto f124 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t76\t\tAxis cris,")
-  out = append(out, "Axis cris,")
+  m("Axis cris,")
   goto s0
 f124:
   // >18	leshort		77		Infineon 32-bit embedded,
@@ -16542,7 +16572,7 @@ f124:
   if !(ok && (ra == 77)) { goto f125 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t77\t\tInfineon 32-bit embedded,")
-  out = append(out, "Infineon 32-bit embedded,")
+  m("Infineon 32-bit embedded,")
   goto s0
 f125:
   // >18	leshort		78		Element 14 64-bit DSP,
@@ -16551,7 +16581,7 @@ f125:
   if !(ok && (ra == 78)) { goto f126 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t78\t\tElement 14 64-bit DSP,")
-  out = append(out, "Element 14 64-bit DSP,")
+  m("Element 14 64-bit DSP,")
   goto s0
 f126:
   // >18	leshort		79		LSI Logic 16-bit DSP,
@@ -16560,7 +16590,7 @@ f126:
   if !(ok && (ra == 79)) { goto f127 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t79\t\tLSI Logic 16-bit DSP,")
-  out = append(out, "LSI Logic 16-bit DSP,")
+  m("LSI Logic 16-bit DSP,")
   goto s0
 f127:
   // >18	leshort		80		MMIX,
@@ -16569,7 +16599,7 @@ f127:
   if !(ok && (ra == 80)) { goto f128 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t80\t\tMMIX,")
-  out = append(out, "MMIX,")
+  m("MMIX,")
   goto s0
 f128:
   // >18	leshort		81		Harvard machine-independent,
@@ -16578,7 +16608,7 @@ f128:
   if !(ok && (ra == 81)) { goto f129 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t81\t\tHarvard machine-independent,")
-  out = append(out, "Harvard machine-independent,")
+  m("Harvard machine-independent,")
   goto s0
 f129:
   // >18	leshort		82		SiTera Prism,
@@ -16587,7 +16617,7 @@ f129:
   if !(ok && (ra == 82)) { goto f130 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t82\t\tSiTera Prism,")
-  out = append(out, "SiTera Prism,")
+  m("SiTera Prism,")
   goto s0
 f130:
   // >18	leshort		83		Atmel AVR 8-bit,
@@ -16596,7 +16626,7 @@ f130:
   if !(ok && (ra == 83)) { goto f131 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t83\t\tAtmel AVR 8-bit,")
-  out = append(out, "Atmel AVR 8-bit,")
+  m("Atmel AVR 8-bit,")
   goto s0
 f131:
   // >18	leshort		84		Fujitsu FR30,
@@ -16605,7 +16635,7 @@ f131:
   if !(ok && (ra == 84)) { goto f132 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t84\t\tFujitsu FR30,")
-  out = append(out, "Fujitsu FR30,")
+  m("Fujitsu FR30,")
   goto s0
 f132:
   // >18	leshort		85		Mitsubishi D10V,
@@ -16614,7 +16644,7 @@ f132:
   if !(ok && (ra == 85)) { goto f133 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t85\t\tMitsubishi D10V,")
-  out = append(out, "Mitsubishi D10V,")
+  m("Mitsubishi D10V,")
   goto s0
 f133:
   // >18	leshort		86		Mitsubishi D30V,
@@ -16623,7 +16653,7 @@ f133:
   if !(ok && (ra == 86)) { goto f134 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t86\t\tMitsubishi D30V,")
-  out = append(out, "Mitsubishi D30V,")
+  m("Mitsubishi D30V,")
   goto s0
 f134:
   // >18	leshort		87		NEC v850,
@@ -16632,7 +16662,7 @@ f134:
   if !(ok && (ra == 87)) { goto f135 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t87\t\tNEC v850,")
-  out = append(out, "NEC v850,")
+  m("NEC v850,")
   goto s0
 f135:
   // >18	leshort		88		Renesas M32R,
@@ -16641,7 +16671,7 @@ f135:
   if !(ok && (ra == 88)) { goto f136 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t88\t\tRenesas M32R,")
-  out = append(out, "Renesas M32R,")
+  m("Renesas M32R,")
   goto s0
 f136:
   // >18	leshort		89		Matsushita MN10300,
@@ -16650,7 +16680,7 @@ f136:
   if !(ok && (ra == 89)) { goto f137 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t89\t\tMatsushita MN10300,")
-  out = append(out, "Matsushita MN10300,")
+  m("Matsushita MN10300,")
   goto s0
 f137:
   // >18	leshort		90		Matsushita MN10200,
@@ -16659,7 +16689,7 @@ f137:
   if !(ok && (ra == 90)) { goto f138 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t90\t\tMatsushita MN10200,")
-  out = append(out, "Matsushita MN10200,")
+  m("Matsushita MN10200,")
   goto s0
 f138:
   // >18	leshort		91		picoJava,
@@ -16668,7 +16698,7 @@ f138:
   if !(ok && (ra == 91)) { goto f139 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t91\t\tpicoJava,")
-  out = append(out, "picoJava,")
+  m("picoJava,")
   goto s0
 f139:
   // >18	leshort		92		OpenRISC,
@@ -16677,7 +16707,7 @@ f139:
   if !(ok && (ra == 92)) { goto f140 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t92\t\tOpenRISC,")
-  out = append(out, "OpenRISC,")
+  m("OpenRISC,")
   goto s0
 f140:
   // >18	leshort		93		ARC Cores Tangent-A5,
@@ -16686,7 +16716,7 @@ f140:
   if !(ok && (ra == 93)) { goto f141 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t93\t\tARC Cores Tangent-A5,")
-  out = append(out, "ARC Cores Tangent-A5,")
+  m("ARC Cores Tangent-A5,")
   goto s0
 f141:
   // >18	leshort		94		Tensilica Xtensa,
@@ -16695,7 +16725,7 @@ f141:
   if !(ok && (ra == 94)) { goto f142 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t94\t\tTensilica Xtensa,")
-  out = append(out, "Tensilica Xtensa,")
+  m("Tensilica Xtensa,")
   goto s0
 f142:
   // >18	leshort		95		Alphamosaic VideoCore,
@@ -16704,7 +16734,7 @@ f142:
   if !(ok && (ra == 95)) { goto f143 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t95\t\tAlphamosaic VideoCore,")
-  out = append(out, "Alphamosaic VideoCore,")
+  m("Alphamosaic VideoCore,")
   goto s0
 f143:
   // >18	leshort		96		Thompson Multimedia,
@@ -16713,7 +16743,7 @@ f143:
   if !(ok && (ra == 96)) { goto f144 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t96\t\tThompson Multimedia,")
-  out = append(out, "Thompson Multimedia,")
+  m("Thompson Multimedia,")
   goto s0
 f144:
   // >18	leshort		97		NatSemi 32k,
@@ -16722,7 +16752,7 @@ f144:
   if !(ok && (ra == 97)) { goto f145 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t97\t\tNatSemi 32k,")
-  out = append(out, "NatSemi 32k,")
+  m("NatSemi 32k,")
   goto s0
 f145:
   // >18	leshort		98		Tenor Network TPC,
@@ -16731,7 +16761,7 @@ f145:
   if !(ok && (ra == 98)) { goto f146 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t98\t\tTenor Network TPC,")
-  out = append(out, "Tenor Network TPC,")
+  m("Tenor Network TPC,")
   goto s0
 f146:
   // >18	leshort		99		Trebia SNP 1000,
@@ -16740,7 +16770,7 @@ f146:
   if !(ok && (ra == 99)) { goto f147 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t99\t\tTrebia SNP 1000,")
-  out = append(out, "Trebia SNP 1000,")
+  m("Trebia SNP 1000,")
   goto s0
 f147:
   // >18	leshort		100		STMicroelectronics ST200,
@@ -16749,7 +16779,7 @@ f147:
   if !(ok && (ra == 100)) { goto f148 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t100\t\tSTMicroelectronics ST200,")
-  out = append(out, "STMicroelectronics ST200,")
+  m("STMicroelectronics ST200,")
   goto s0
 f148:
   // >18	leshort		101		Ubicom IP2022,
@@ -16758,7 +16788,7 @@ f148:
   if !(ok && (ra == 101)) { goto f149 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t101\t\tUbicom IP2022,")
-  out = append(out, "Ubicom IP2022,")
+  m("Ubicom IP2022,")
   goto s0
 f149:
   // >18	leshort		102		MAX Processor,
@@ -16767,7 +16797,7 @@ f149:
   if !(ok && (ra == 102)) { goto f150 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t102\t\tMAX Processor,")
-  out = append(out, "MAX Processor,")
+  m("MAX Processor,")
   goto s0
 f150:
   // >18	leshort		103		NatSemi CompactRISC,
@@ -16776,7 +16806,7 @@ f150:
   if !(ok && (ra == 103)) { goto f151 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t103\t\tNatSemi CompactRISC,")
-  out = append(out, "NatSemi CompactRISC,")
+  m("NatSemi CompactRISC,")
   goto s0
 f151:
   // >18	leshort		104		Fujitsu F2MC16,
@@ -16785,7 +16815,7 @@ f151:
   if !(ok && (ra == 104)) { goto f152 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t104\t\tFujitsu F2MC16,")
-  out = append(out, "Fujitsu F2MC16,")
+  m("Fujitsu F2MC16,")
   goto s0
 f152:
   // >18	leshort		105		TI msp430,
@@ -16794,7 +16824,7 @@ f152:
   if !(ok && (ra == 105)) { goto f153 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t105\t\tTI msp430,")
-  out = append(out, "TI msp430,")
+  m("TI msp430,")
   goto s0
 f153:
   // >18	leshort		106		Analog Devices Blackfin,
@@ -16803,7 +16833,7 @@ f153:
   if !(ok && (ra == 106)) { goto f154 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t106\t\tAnalog Devices Blackfin,")
-  out = append(out, "Analog Devices Blackfin,")
+  m("Analog Devices Blackfin,")
   goto s0
 f154:
   // >18	leshort		107		S1C33 Family of Seiko Epson,
@@ -16812,7 +16842,7 @@ f154:
   if !(ok && (ra == 107)) { goto f155 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t107\t\tS1C33 Family of Seiko Epson,")
-  out = append(out, "S1C33 Family of Seiko Epson,")
+  m("S1C33 Family of Seiko Epson,")
   goto s0
 f155:
   // >18	leshort		108		Sharp embedded,
@@ -16821,7 +16851,7 @@ f155:
   if !(ok && (ra == 108)) { goto f156 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t108\t\tSharp embedded,")
-  out = append(out, "Sharp embedded,")
+  m("Sharp embedded,")
   goto s0
 f156:
   // >18	leshort		109		Arca RISC,
@@ -16830,7 +16860,7 @@ f156:
   if !(ok && (ra == 109)) { goto f157 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t109\t\tArca RISC,")
-  out = append(out, "Arca RISC,")
+  m("Arca RISC,")
   goto s0
 f157:
   // >18	leshort		110		PKU-Unity Ltd.,
@@ -16839,7 +16869,7 @@ f157:
   if !(ok && (ra == 110)) { goto f158 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t110\t\tPKU-Unity Ltd.,")
-  out = append(out, "PKU-Unity Ltd.,")
+  m("PKU-Unity Ltd.,")
   goto s0
 f158:
   // >18	leshort		111		eXcess: 16/32/64-bit,
@@ -16848,7 +16878,7 @@ f158:
   if !(ok && (ra == 111)) { goto f159 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t111\t\teXcess: 16/32/64-bit,")
-  out = append(out, "eXcess: 16/32/64-bit,")
+  m("eXcess: 16/32/64-bit,")
   goto s0
 f159:
   // >18	leshort		112		Icera Deep Execution Processor,
@@ -16857,7 +16887,7 @@ f159:
   if !(ok && (ra == 112)) { goto f160 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t112\t\tIcera Deep Execution Processor,")
-  out = append(out, "Icera Deep Execution Processor,")
+  m("Icera Deep Execution Processor,")
   goto s0
 f160:
   // >18	leshort		113		Altera Nios II,
@@ -16866,7 +16896,7 @@ f160:
   if !(ok && (ra == 113)) { goto f161 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t113\t\tAltera Nios II,")
-  out = append(out, "Altera Nios II,")
+  m("Altera Nios II,")
   goto s0
 f161:
   // >18	leshort		114		NatSemi CRX,
@@ -16875,7 +16905,7 @@ f161:
   if !(ok && (ra == 114)) { goto f162 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t114\t\tNatSemi CRX,")
-  out = append(out, "NatSemi CRX,")
+  m("NatSemi CRX,")
   goto s0
 f162:
   // >18	leshort		115		Motorola XGATE,
@@ -16884,7 +16914,7 @@ f162:
   if !(ok && (ra == 115)) { goto f163 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t115\t\tMotorola XGATE,")
-  out = append(out, "Motorola XGATE,")
+  m("Motorola XGATE,")
   goto s0
 f163:
   // >18	leshort		116		Infineon C16x/XC16x,
@@ -16893,7 +16923,7 @@ f163:
   if !(ok && (ra == 116)) { goto f164 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t116\t\tInfineon C16x/XC16x,")
-  out = append(out, "Infineon C16x/XC16x,")
+  m("Infineon C16x/XC16x,")
   goto s0
 f164:
   // >18	leshort		117		Renesas M16C series,
@@ -16902,7 +16932,7 @@ f164:
   if !(ok && (ra == 117)) { goto f165 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t117\t\tRenesas M16C series,")
-  out = append(out, "Renesas M16C series,")
+  m("Renesas M16C series,")
   goto s0
 f165:
   // >18	leshort		118		Microchip dsPIC30F,
@@ -16911,7 +16941,7 @@ f165:
   if !(ok && (ra == 118)) { goto f166 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t118\t\tMicrochip dsPIC30F,")
-  out = append(out, "Microchip dsPIC30F,")
+  m("Microchip dsPIC30F,")
   goto s0
 f166:
   // >18	leshort		119		Freescale RISC core,
@@ -16920,7 +16950,7 @@ f166:
   if !(ok && (ra == 119)) { goto f167 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t119\t\tFreescale RISC core,")
-  out = append(out, "Freescale RISC core,")
+  m("Freescale RISC core,")
   goto s0
 f167:
   // >18	leshort		120		Renesas M32C series,
@@ -16929,7 +16959,7 @@ f167:
   if !(ok && (ra == 120)) { goto f168 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t120\t\tRenesas M32C series,")
-  out = append(out, "Renesas M32C series,")
+  m("Renesas M32C series,")
   goto s0
 f168:
   // >18	leshort		131		Altium TSK3000 core,
@@ -16938,7 +16968,7 @@ f168:
   if !(ok && (ra == 131)) { goto f169 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t131\t\tAltium TSK3000 core,")
-  out = append(out, "Altium TSK3000 core,")
+  m("Altium TSK3000 core,")
   goto s0
 f169:
   // >18	leshort		132		Freescale RS08,
@@ -16947,7 +16977,7 @@ f169:
   if !(ok && (ra == 132)) { goto f170 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t132\t\tFreescale RS08,")
-  out = append(out, "Freescale RS08,")
+  m("Freescale RS08,")
   goto s0
 f170:
   // >18	leshort		134		Cyan Technology eCOG2,
@@ -16956,7 +16986,7 @@ f170:
   if !(ok && (ra == 134)) { goto f171 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t134\t\tCyan Technology eCOG2,")
-  out = append(out, "Cyan Technology eCOG2,")
+  m("Cyan Technology eCOG2,")
   goto s0
 f171:
   // >18	leshort		135		Sunplus S+core7 RISC,
@@ -16965,7 +16995,7 @@ f171:
   if !(ok && (ra == 135)) { goto f172 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t135\t\tSunplus S+core7 RISC,")
-  out = append(out, "Sunplus S+core7 RISC,")
+  m("Sunplus S+core7 RISC,")
   goto s0
 f172:
   // >18	leshort		136		New Japan Radio (NJR) 24-bit DSP,
@@ -16974,7 +17004,7 @@ f172:
   if !(ok && (ra == 136)) { goto f173 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t136\t\tNew Japan Radio (NJR) 24-bit DSP,")
-  out = append(out, "New Japan Radio (NJR) 24-bit DSP,")
+  m("New Japan Radio (NJR) 24-bit DSP,")
   goto s0
 f173:
   // >18	leshort		137		Broadcom VideoCore III,
@@ -16983,7 +17013,7 @@ f173:
   if !(ok && (ra == 137)) { goto f174 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t137\t\tBroadcom VideoCore III,")
-  out = append(out, "Broadcom VideoCore III,")
+  m("Broadcom VideoCore III,")
   goto s0
 f174:
   // >18	leshort		138		LatticeMico32,
@@ -16992,7 +17022,7 @@ f174:
   if !(ok && (ra == 138)) { goto f175 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t138\t\tLatticeMico32,")
-  out = append(out, "LatticeMico32,")
+  m("LatticeMico32,")
   goto s0
 f175:
   // >18	leshort		139		Seiko Epson C17 family,
@@ -17001,7 +17031,7 @@ f175:
   if !(ok && (ra == 139)) { goto f176 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t139\t\tSeiko Epson C17 family,")
-  out = append(out, "Seiko Epson C17 family,")
+  m("Seiko Epson C17 family,")
   goto s0
 f176:
   // >18	leshort		140		TI TMS320C6000 DSP family,
@@ -17010,7 +17040,7 @@ f176:
   if !(ok && (ra == 140)) { goto f177 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t140\t\tTI TMS320C6000 DSP family,")
-  out = append(out, "TI TMS320C6000 DSP family,")
+  m("TI TMS320C6000 DSP family,")
   goto s0
 f177:
   // >18	leshort		141		TI TMS320C2000 DSP family,
@@ -17019,7 +17049,7 @@ f177:
   if !(ok && (ra == 141)) { goto f178 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t141\t\tTI TMS320C2000 DSP family,")
-  out = append(out, "TI TMS320C2000 DSP family,")
+  m("TI TMS320C2000 DSP family,")
   goto s0
 f178:
   // >18	leshort		142		TI TMS320C55x DSP family,
@@ -17028,7 +17058,7 @@ f178:
   if !(ok && (ra == 142)) { goto f179 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t142\t\tTI TMS320C55x DSP family,")
-  out = append(out, "TI TMS320C55x DSP family,")
+  m("TI TMS320C55x DSP family,")
   goto s0
 f179:
   // >18	leshort		160		STMicroelectronics 64bit VLIW DSP,
@@ -17037,7 +17067,7 @@ f179:
   if !(ok && (ra == 160)) { goto f180 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t160\t\tSTMicroelectronics 64bit VLIW DSP,")
-  out = append(out, "STMicroelectronics 64bit VLIW DSP,")
+  m("STMicroelectronics 64bit VLIW DSP,")
   goto s0
 f180:
   // >18	leshort		161		Cypress M8C,
@@ -17046,7 +17076,7 @@ f180:
   if !(ok && (ra == 161)) { goto f181 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t161\t\tCypress M8C,")
-  out = append(out, "Cypress M8C,")
+  m("Cypress M8C,")
   goto s0
 f181:
   // >18	leshort		162		Renesas R32C series,
@@ -17055,7 +17085,7 @@ f181:
   if !(ok && (ra == 162)) { goto f182 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t162\t\tRenesas R32C series,")
-  out = append(out, "Renesas R32C series,")
+  m("Renesas R32C series,")
   goto s0
 f182:
   // >18	leshort		163		NXP TriMedia family,
@@ -17064,7 +17094,7 @@ f182:
   if !(ok && (ra == 163)) { goto f183 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t163\t\tNXP TriMedia family,")
-  out = append(out, "NXP TriMedia family,")
+  m("NXP TriMedia family,")
   goto s0
 f183:
   // >18	leshort		164		QUALCOMM DSP6,
@@ -17073,7 +17103,7 @@ f183:
   if !(ok && (ra == 164)) { goto f184 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t164\t\tQUALCOMM DSP6,")
-  out = append(out, "QUALCOMM DSP6,")
+  m("QUALCOMM DSP6,")
   goto s0
 f184:
   // >18	leshort		165		Intel 8051 and variants,
@@ -17082,7 +17112,7 @@ f184:
   if !(ok && (ra == 165)) { goto f185 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t165\t\tIntel 8051 and variants,")
-  out = append(out, "Intel 8051 and variants,")
+  m("Intel 8051 and variants,")
   goto s0
 f185:
   // >18	leshort		166		STMicroelectronics STxP7x family,
@@ -17091,7 +17121,7 @@ f185:
   if !(ok && (ra == 166)) { goto f186 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t166\t\tSTMicroelectronics STxP7x family,")
-  out = append(out, "STMicroelectronics STxP7x family,")
+  m("STMicroelectronics STxP7x family,")
   goto s0
 f186:
   // >18	leshort		167		Andes embedded RISC,
@@ -17100,7 +17130,7 @@ f186:
   if !(ok && (ra == 167)) { goto f187 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t167\t\tAndes embedded RISC,")
-  out = append(out, "Andes embedded RISC,")
+  m("Andes embedded RISC,")
   goto s0
 f187:
   // >18	leshort		168		Cyan eCOG1X family,
@@ -17109,7 +17139,7 @@ f187:
   if !(ok && (ra == 168)) { goto f188 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t168\t\tCyan eCOG1X family,")
-  out = append(out, "Cyan eCOG1X family,")
+  m("Cyan eCOG1X family,")
   goto s0
 f188:
   // >18	leshort		169		Dallas MAXQ30,
@@ -17118,7 +17148,7 @@ f188:
   if !(ok && (ra == 169)) { goto f189 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t169\t\tDallas MAXQ30,")
-  out = append(out, "Dallas MAXQ30,")
+  m("Dallas MAXQ30,")
   goto s0
 f189:
   // >18	leshort		170		New Japan Radio (NJR) 16-bit DSP,
@@ -17127,7 +17157,7 @@ f189:
   if !(ok && (ra == 170)) { goto f190 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t170\t\tNew Japan Radio (NJR) 16-bit DSP,")
-  out = append(out, "New Japan Radio (NJR) 16-bit DSP,")
+  m("New Japan Radio (NJR) 16-bit DSP,")
   goto s0
 f190:
   // >18	leshort		171		M2000 Reconfigurable RISC,
@@ -17136,7 +17166,7 @@ f190:
   if !(ok && (ra == 171)) { goto f191 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t171\t\tM2000 Reconfigurable RISC,")
-  out = append(out, "M2000 Reconfigurable RISC,")
+  m("M2000 Reconfigurable RISC,")
   goto s0
 f191:
   // >18	leshort		172		Cray NV2 vector architecture,
@@ -17145,7 +17175,7 @@ f191:
   if !(ok && (ra == 172)) { goto f192 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t172\t\tCray NV2 vector architecture,")
-  out = append(out, "Cray NV2 vector architecture,")
+  m("Cray NV2 vector architecture,")
   goto s0
 f192:
   // >18	leshort		173		Renesas RX family,
@@ -17154,7 +17184,7 @@ f192:
   if !(ok && (ra == 173)) { goto f193 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t173\t\tRenesas RX family,")
-  out = append(out, "Renesas RX family,")
+  m("Renesas RX family,")
   goto s0
 f193:
   // >18	leshort		174		META,
@@ -17163,7 +17193,7 @@ f193:
   if !(ok && (ra == 174)) { goto f194 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t174\t\tMETA,")
-  out = append(out, "META,")
+  m("META,")
   goto s0
 f194:
   // >18	leshort		175		MCST Elbrus,
@@ -17172,7 +17202,7 @@ f194:
   if !(ok && (ra == 175)) { goto f195 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t175\t\tMCST Elbrus,")
-  out = append(out, "MCST Elbrus,")
+  m("MCST Elbrus,")
   goto s0
 f195:
   // >18	leshort		176		Cyan Technology eCOG16 family,
@@ -17181,7 +17211,7 @@ f195:
   if !(ok && (ra == 176)) { goto f196 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t176\t\tCyan Technology eCOG16 family,")
-  out = append(out, "Cyan Technology eCOG16 family,")
+  m("Cyan Technology eCOG16 family,")
   goto s0
 f196:
   // >18	leshort		177		NatSemi CompactRISC,
@@ -17190,7 +17220,7 @@ f196:
   if !(ok && (ra == 177)) { goto f197 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t177\t\tNatSemi CompactRISC,")
-  out = append(out, "NatSemi CompactRISC,")
+  m("NatSemi CompactRISC,")
   goto s0
 f197:
   // >18	leshort		178		Freescale Extended Time Processing Unit,
@@ -17199,7 +17229,7 @@ f197:
   if !(ok && (ra == 178)) { goto f198 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t178\t\tFreescale Extended Time Processing Unit,")
-  out = append(out, "Freescale Extended Time Processing Unit,")
+  m("Freescale Extended Time Processing Unit,")
   goto s0
 f198:
   // >18	leshort		179		Infineon SLE9X,
@@ -17208,7 +17238,7 @@ f198:
   if !(ok && (ra == 179)) { goto f199 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t179\t\tInfineon SLE9X,")
-  out = append(out, "Infineon SLE9X,")
+  m("Infineon SLE9X,")
   goto s0
 f199:
   // >18	leshort		180		Intel L1OM,
@@ -17217,7 +17247,7 @@ f199:
   if !(ok && (ra == 180)) { goto f200 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t180\t\tIntel L1OM,")
-  out = append(out, "Intel L1OM,")
+  m("Intel L1OM,")
   goto s0
 f200:
   // >18	leshort		181		Intel K1OM,
@@ -17226,7 +17256,7 @@ f200:
   if !(ok && (ra == 181)) { goto f201 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t181\t\tIntel K1OM,")
-  out = append(out, "Intel K1OM,")
+  m("Intel K1OM,")
   goto s0
 f201:
   // >18	leshort		183		ARM aarch64,
@@ -17235,7 +17265,7 @@ f201:
   if !(ok && (ra == 183)) { goto f202 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t183\t\tARM aarch64,")
-  out = append(out, "ARM aarch64,")
+  m("ARM aarch64,")
   goto s0
 f202:
   // >18	leshort		185		Atmel 32-bit family,
@@ -17244,7 +17274,7 @@ f202:
   if !(ok && (ra == 185)) { goto f203 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t185\t\tAtmel 32-bit family,")
-  out = append(out, "Atmel 32-bit family,")
+  m("Atmel 32-bit family,")
   goto s0
 f203:
   // >18	leshort		186		STMicroeletronics STM8 8-bit,
@@ -17253,7 +17283,7 @@ f203:
   if !(ok && (ra == 186)) { goto f204 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t186\t\tSTMicroeletronics STM8 8-bit,")
-  out = append(out, "STMicroeletronics STM8 8-bit,")
+  m("STMicroeletronics STM8 8-bit,")
   goto s0
 f204:
   // >18	leshort		187		Tilera TILE64,
@@ -17262,7 +17292,7 @@ f204:
   if !(ok && (ra == 187)) { goto f205 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t187\t\tTilera TILE64,")
-  out = append(out, "Tilera TILE64,")
+  m("Tilera TILE64,")
   goto s0
 f205:
   // >18	leshort		188		Tilera TILEPro,
@@ -17271,7 +17301,7 @@ f205:
   if !(ok && (ra == 188)) { goto f206 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t188\t\tTilera TILEPro,")
-  out = append(out, "Tilera TILEPro,")
+  m("Tilera TILEPro,")
   goto s0
 f206:
   // >18	leshort		189		Xilinx MicroBlaze 32-bit RISC,
@@ -17280,7 +17310,7 @@ f206:
   if !(ok && (ra == 189)) { goto f207 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t189\t\tXilinx MicroBlaze 32-bit RISC,")
-  out = append(out, "Xilinx MicroBlaze 32-bit RISC,")
+  m("Xilinx MicroBlaze 32-bit RISC,")
   goto s0
 f207:
   // >18	leshort		190		NVIDIA CUDA architecture,
@@ -17289,7 +17319,7 @@ f207:
   if !(ok && (ra == 190)) { goto f208 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t190\t\tNVIDIA CUDA architecture,")
-  out = append(out, "NVIDIA CUDA architecture,")
+  m("NVIDIA CUDA architecture,")
   goto s0
 f208:
   // >18	leshort		191		Tilera TILE-Gx,
@@ -17298,7 +17328,7 @@ f208:
   if !(ok && (ra == 191)) { goto f209 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t191\t\tTilera TILE-Gx,")
-  out = append(out, "Tilera TILE-Gx,")
+  m("Tilera TILE-Gx,")
   goto s0
 f209:
   // >18	leshort		197		Renesas RL78 family,
@@ -17307,7 +17337,7 @@ f209:
   if !(ok && (ra == 197)) { goto f210 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t197\t\tRenesas RL78 family,")
-  out = append(out, "Renesas RL78 family,")
+  m("Renesas RL78 family,")
   goto s0
 f210:
   // >18	leshort		199		Renesas 78K0R,
@@ -17316,7 +17346,7 @@ f210:
   if !(ok && (ra == 199)) { goto f211 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t199\t\tRenesas 78K0R,")
-  out = append(out, "Renesas 78K0R,")
+  m("Renesas 78K0R,")
   goto s0
 f211:
   // >18	leshort		0x1057		AVR (unofficial),
@@ -17325,7 +17355,7 @@ f211:
   if !(ok && (ra == 4183)) { goto f212 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x1057\t\tAVR (unofficial),")
-  out = append(out, "AVR (unofficial),")
+  m("AVR (unofficial),")
   goto s0
 f212:
   // >18	leshort		0x1059		MSP430 (unofficial),
@@ -17334,7 +17364,7 @@ f212:
   if !(ok && (ra == 4185)) { goto f213 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x1059\t\tMSP430 (unofficial),")
-  out = append(out, "MSP430 (unofficial),")
+  m("MSP430 (unofficial),")
   goto s0
 f213:
   // >18	leshort		0x1223		Adapteva Epiphany (unofficial),
@@ -17343,7 +17373,7 @@ f213:
   if !(ok && (ra == 4643)) { goto f214 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x1223\t\tAdapteva Epiphany (unofficial),")
-  out = append(out, "Adapteva Epiphany (unofficial),")
+  m("Adapteva Epiphany (unofficial),")
   goto s0
 f214:
   // >18	leshort		0x2530		Morpho MT (unofficial),
@@ -17352,7 +17382,7 @@ f214:
   if !(ok && (ra == 9520)) { goto f215 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x2530\t\tMorpho MT (unofficial),")
-  out = append(out, "Morpho MT (unofficial),")
+  m("Morpho MT (unofficial),")
   goto s0
 f215:
   // >18	leshort		0x3330		FR30 (unofficial),
@@ -17361,7 +17391,7 @@ f215:
   if !(ok && (ra == 13104)) { goto f216 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x3330\t\tFR30 (unofficial),")
-  out = append(out, "FR30 (unofficial),")
+  m("FR30 (unofficial),")
   goto s0
 f216:
   // >18	leshort		0x3426		OpenRISC (obsolete),
@@ -17370,7 +17400,7 @@ f216:
   if !(ok && (ra == 13350)) { goto f217 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x3426\t\tOpenRISC (obsolete),")
-  out = append(out, "OpenRISC (obsolete),")
+  m("OpenRISC (obsolete),")
   goto s0
 f217:
   // >18	leshort		0x4688		Infineon C166 (unofficial),
@@ -17379,7 +17409,7 @@ f217:
   if !(ok && (ra == 18056)) { goto f218 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x4688\t\tInfineon C166 (unofficial),")
-  out = append(out, "Infineon C166 (unofficial),")
+  m("Infineon C166 (unofficial),")
   goto s0
 f218:
   // >18	leshort		0x5441		Cygnus FRV (unofficial),
@@ -17388,7 +17418,7 @@ f218:
   if !(ok && (ra == 21569)) { goto f219 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x5441\t\tCygnus FRV (unofficial),")
-  out = append(out, "Cygnus FRV (unofficial),")
+  m("Cygnus FRV (unofficial),")
   goto s0
 f219:
   // >18	leshort		0x5aa5		DLX (unofficial),
@@ -17397,7 +17427,7 @@ f219:
   if !(ok && (ra == 23205)) { goto f220 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x5aa5\t\tDLX (unofficial),")
-  out = append(out, "DLX (unofficial),")
+  m("DLX (unofficial),")
   goto s0
 f220:
   // >18	leshort		0x7650		Cygnus D10V (unofficial),
@@ -17406,7 +17436,7 @@ f220:
   if !(ok && (ra == 30288)) { goto f221 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x7650\t\tCygnus D10V (unofficial),")
-  out = append(out, "Cygnus D10V (unofficial),")
+  m("Cygnus D10V (unofficial),")
   goto s0
 f221:
   // >18	leshort		0x7676		Cygnus D30V (unofficial),
@@ -17415,7 +17445,7 @@ f221:
   if !(ok && (ra == 30326)) { goto f222 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x7676\t\tCygnus D30V (unofficial),")
-  out = append(out, "Cygnus D30V (unofficial),")
+  m("Cygnus D30V (unofficial),")
   goto s0
 f222:
   // >18	leshort		0x8217		Ubicom IP2xxx (unofficial),
@@ -17424,7 +17454,7 @@ f222:
   if !(ok && (ra == 33303)) { goto f223 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x8217\t\tUbicom IP2xxx (unofficial),")
-  out = append(out, "Ubicom IP2xxx (unofficial),")
+  m("Ubicom IP2xxx (unofficial),")
   goto s0
 f223:
   // >18	leshort		0x8472		OpenRISC (obsolete),
@@ -17433,7 +17463,7 @@ f223:
   if !(ok && (ra == 33906)) { goto f224 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x8472\t\tOpenRISC (obsolete),")
-  out = append(out, "OpenRISC (obsolete),")
+  m("OpenRISC (obsolete),")
   goto s0
 f224:
   // >18	leshort		0x9025		Cygnus PowerPC (unofficial),
@@ -17442,7 +17472,7 @@ f224:
   if !(ok && (ra == 36901)) { goto f225 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9025\t\tCygnus PowerPC (unofficial),")
-  out = append(out, "Cygnus PowerPC (unofficial),")
+  m("Cygnus PowerPC (unofficial),")
   goto s0
 f225:
   // >18	leshort		0x9026		Alpha (unofficial),
@@ -17451,7 +17481,7 @@ f225:
   if !(ok && (ra == 36902)) { goto f226 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9026\t\tAlpha (unofficial),")
-  out = append(out, "Alpha (unofficial),")
+  m("Alpha (unofficial),")
   goto s0
 f226:
   // >18	leshort		0x9041		Cygnus M32R (unofficial),
@@ -17460,7 +17490,7 @@ f226:
   if !(ok && (ra == 36929)) { goto f227 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9041\t\tCygnus M32R (unofficial),")
-  out = append(out, "Cygnus M32R (unofficial),")
+  m("Cygnus M32R (unofficial),")
   goto s0
 f227:
   // >18	leshort		0x9080		Cygnus V850 (unofficial),
@@ -17469,7 +17499,7 @@ f227:
   if !(ok && (ra == 36992)) { goto f228 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0x9080\t\tCygnus V850 (unofficial),")
-  out = append(out, "Cygnus V850 (unofficial),")
+  m("Cygnus V850 (unofficial),")
   goto s0
 f228:
   // >18	leshort		0xa390		IBM S/390 (obsolete),
@@ -17478,7 +17508,7 @@ f228:
   if !(ok && (ra == 41872)) { goto f229 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xa390\t\tIBM S/390 (obsolete),")
-  out = append(out, "IBM S/390 (obsolete),")
+  m("IBM S/390 (obsolete),")
   goto s0
 f229:
   // >18	leshort		0xabc7		Old Xtensa (unofficial),
@@ -17487,7 +17517,7 @@ f229:
   if !(ok && (ra == 43975)) { goto f230 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xabc7\t\tOld Xtensa (unofficial),")
-  out = append(out, "Old Xtensa (unofficial),")
+  m("Old Xtensa (unofficial),")
   goto s0
 f230:
   // >18	leshort		0xad45		xstormy16 (unofficial),
@@ -17496,7 +17526,7 @@ f230:
   if !(ok && (ra == 44357)) { goto f231 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xad45\t\txstormy16 (unofficial),")
-  out = append(out, "xstormy16 (unofficial),")
+  m("xstormy16 (unofficial),")
   goto s0
 f231:
   // >18	leshort		0xbaab		Old MicroBlaze (unofficial),,
@@ -17505,7 +17535,7 @@ f231:
   if !(ok && (ra == 47787)) { goto f232 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xbaab\t\tOld MicroBlaze (unofficial),,")
-  out = append(out, "Old MicroBlaze (unofficial),,")
+  m("Old MicroBlaze (unofficial),,")
   goto s0
 f232:
   // >18	leshort		0xbeef		Cygnus MN10300 (unofficial),
@@ -17514,7 +17544,7 @@ f232:
   if !(ok && (ra == 48879)) { goto f233 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xbeef\t\tCygnus MN10300 (unofficial),")
-  out = append(out, "Cygnus MN10300 (unofficial),")
+  m("Cygnus MN10300 (unofficial),")
   goto s0
 f233:
   // >18	leshort		0xdead		Cygnus MN10200 (unofficial),
@@ -17523,7 +17553,7 @@ f233:
   if !(ok && (ra == 57005)) { goto f234 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xdead\t\tCygnus MN10200 (unofficial),")
-  out = append(out, "Cygnus MN10200 (unofficial),")
+  m("Cygnus MN10200 (unofficial),")
   goto s0
 f234:
   // >18	leshort		0xf00d		Toshiba MeP (unofficial),
@@ -17532,7 +17562,7 @@ f234:
   if !(ok && (ra == 61453)) { goto f235 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xf00d\t\tToshiba MeP (unofficial),")
-  out = append(out, "Toshiba MeP (unofficial),")
+  m("Toshiba MeP (unofficial),")
   goto s0
 f235:
   // >18	leshort		0xfeb0		Renesas M32C (unofficial),
@@ -17541,7 +17571,7 @@ f235:
   if !(ok && (ra == 65200)) { goto f236 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfeb0\t\tRenesas M32C (unofficial),")
-  out = append(out, "Renesas M32C (unofficial),")
+  m("Renesas M32C (unofficial),")
   goto s0
 f236:
   // >18	leshort		0xfeba		Vitesse IQ2000 (unofficial),
@@ -17550,7 +17580,7 @@ f236:
   if !(ok && (ra == 65210)) { goto f237 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfeba\t\tVitesse IQ2000 (unofficial),")
-  out = append(out, "Vitesse IQ2000 (unofficial),")
+  m("Vitesse IQ2000 (unofficial),")
   goto s0
 f237:
   // >18	leshort		0xfebb		NIOS (unofficial),
@@ -17559,7 +17589,7 @@ f237:
   if !(ok && (ra == 65211)) { goto f238 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfebb\t\tNIOS (unofficial),")
-  out = append(out, "NIOS (unofficial),")
+  m("NIOS (unofficial),")
   goto s0
 f238:
   // >18	leshort		0xfeed		Moxie (unofficial),
@@ -17568,7 +17598,7 @@ f238:
   if !(ok && (ra == 65261)) { goto f239 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">18\tleshort\t\t0xfeed\t\tMoxie (unofficial),")
-  out = append(out, "Moxie (unofficial),")
+  m("Moxie (unofficial),")
   goto s0
 f239:
   // >18	default		x
@@ -17580,7 +17610,7 @@ f239:
   off = pof + 18
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>18\tleshort\t\tx\t\t*unknown arch 0x%x*")
-  out = append(out, "*unknown arch 0x%x*")
+  m("*unknown arch 0x%x*")
   goto s240
 s240:
   goto s0
@@ -17591,7 +17621,7 @@ f240:
   if !(ok && (ra == 0)) { goto f242 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t0\t\tinvalid version")
-  out = append(out, "invalid version")
+  m("invalid version")
   goto s0
 f242:
   // >20	lelong		1		version 1
@@ -17600,7 +17630,7 @@ f242:
   if !(ok && (ra == 1)) { goto f243 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">20\tlelong\t\t1\t\tversion 1")
-  out = append(out, "version 1")
+  m("version 1")
   goto s0
 f243:
 s0:
@@ -17617,6 +17647,9 @@ func IdentifyIcoEntry(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		ico-entry
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tico-entry")
@@ -17624,7 +17657,7 @@ func IdentifyIcoEntry(tb []byte, pof i8) ([]string, error) {
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\t\t\tuse\tcur-ico-entry")
   goto s0
@@ -17634,7 +17667,7 @@ func IdentifyIcoEntry(tb []byte, pof i8) ([]string, error) {
   if !(ok && (i8(i2(ra)) > 1)) { goto f2 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort\t>1\t\\b, %d planes")
-  out = append(out, "\\b, %d planes")
+  m("\\b, %d planes")
   goto s0
 f2:
   // >6	uleshort	>1	\b, %d bits/pixel
@@ -17643,7 +17676,7 @@ f2:
   if !(ok && (i8(i2(ra)) > 1)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">6\tuleshort\t>1\t\\b, %d bits/pixel")
-  out = append(out, "\\b, %d bits/pixel")
+  m("\\b, %d bits/pixel")
   goto s0
 f3:
 s0:
@@ -17660,6 +17693,9 @@ func IdentifyIcoEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		ico-entry
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tico-entry")
@@ -17667,7 +17703,7 @@ func IdentifyIcoEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   off = pof + 0
   {
     ss, _ := IdentifyCurIcoEntry(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\t\t\tuse\tcur-ico-entry")
   goto s0
@@ -17677,7 +17713,7 @@ func IdentifyIcoEntry__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (i8(i2(ra)) > 1)) { goto f2 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort\t>1\t\\b, %d planes")
-  out = append(out, "\\b, %d planes")
+  m("\\b, %d planes")
   goto s0
 f2:
   // >6	uleshort	>1	\b, %d bits/pixel
@@ -17686,7 +17722,7 @@ f2:
   if !(ok && (i8(i2(ra)) > 1)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">6\tuleshort\t>1\t\\b, %d bits/pixel")
-  out = append(out, "\\b, %d bits/pixel")
+  m("\\b, %d bits/pixel")
   goto s0
 f3:
 s0:
@@ -17703,6 +17739,9 @@ func IdentifyLotusCells(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		lotus-cells
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tlotus-cells")
@@ -17712,7 +17751,7 @@ func IdentifyLotusCells(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 100665344)) { goto f1 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0\tubelong\t0x06000800\t\\b, cell range")
-  out = append(out, "\\b, cell range")
+  m("\\b, cell range")
   // >>4	ulong		!0
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -17723,13 +17762,13 @@ func IdentifyLotusCells(tb []byte, pof i8) ([]string, error) {
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s2
   // >>>6	uleshort	x	\b%d-
   off = pof + 6
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\tx\t\\b%d-")
-  out = append(out, "\\b%d-")
+  m("\\b%d-")
   goto s2
 s2:
   goto s1
@@ -17738,13 +17777,13 @@ f2:
   off = pof + 8
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>8\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s1
   // >>10	uleshort	x	\b%d
   off = pof + 10
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>10\tuleshort\tx\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s1
 s1:
   goto s0
@@ -17763,6 +17802,9 @@ func IdentifyLotusCells__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		lotus-cells
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tlotus-cells")
@@ -17772,7 +17814,7 @@ func IdentifyLotusCells__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 100665344)) { goto f1 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0\tubelong\t0x06000800\t\\b, cell range")
-  out = append(out, "\\b, cell range")
+  m("\\b, cell range")
   // >>4	ulong		!0
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -17783,13 +17825,13 @@ func IdentifyLotusCells__Swapped(tb []byte, pof i8) ([]string, error) {
   off = pof + 4
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s2
   // >>>6	uleshort	x	\b%d-
   off = pof + 6
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>6\tuleshort\tx\t\\b%d-")
-  out = append(out, "\\b%d-")
+  m("\\b%d-")
   goto s2
 s2:
   goto s1
@@ -17798,13 +17840,13 @@ f2:
   off = pof + 8
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>8\tuleshort\tx\t\\b%d,")
-  out = append(out, "\\b%d,")
+  m("\\b%d,")
   goto s1
   // >>10	uleshort	x	\b%d
   off = pof + 10
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>10\tuleshort\tx\t\\b%d")
-  out = append(out, "\\b%d")
+  m("\\b%d")
   goto s1
 s1:
   goto s0
@@ -17823,24 +17865,27 @@ func IdentifyMachO(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		mach-o		\b [
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tmach-o\t\t\\b [")
-  out = append(out, "\\b [")
+  m("\\b [")
   // >0	use		mach-o-cpu	\b
   off = pof + 0
   {
     ss, _ := IdentifyMachOCpu(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\tmach-o-cpu\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s0
   // >0	belong		x		\b]
   off = pof + 0
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0\tbelong\t\tx\t\t\\b]")
-  out = append(out, "\\b]")
+  m("\\b]")
   goto s0
 s0:
   goto end
@@ -17856,24 +17901,27 @@ func IdentifyMachO__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		mach-o		\b [
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tmach-o\t\t\\b [")
-  out = append(out, "\\b [")
+  m("\\b [")
   // >0	use		mach-o-cpu	\b
   off = pof + 0
   {
     ss, _ := IdentifyMachOCpu(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">0\tuse\t\tmach-o-cpu\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   goto s0
   // >0	belong		x		\b]
   off = pof + 0
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">0\tbelong\t\tx\t\t\\b]")
-  out = append(out, "\\b]")
+  m("\\b]")
   goto s0
 s0:
   goto end
@@ -17889,6 +17937,9 @@ func IdentifyMachOBe(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		mach-o-be
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tmach-o-be")
@@ -17898,14 +17949,14 @@ func IdentifyMachOBe(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 207)) { goto f1 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\tbyte\t\t0xcf\t\t64-bit")
-  out = append(out, "64-bit")
+  m("64-bit")
   goto s0
 f1:
   // >4	use		mach-o-cpu
   off = pof + 4
   {
     ss, _ := IdentifyMachOCpu(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">4\tuse\t\tmach-o-cpu")
   goto s0
@@ -17915,7 +17966,7 @@ f1:
   if !(ok && (ra == 1)) { goto f3 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t1\t\tobject")
-  out = append(out, "object")
+  m("object")
   goto s0
 f3:
   // >12	belong		2		executable
@@ -17924,7 +17975,7 @@ f3:
   if !(ok && (ra == 2)) { goto f4 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t2\t\texecutable")
-  out = append(out, "executable")
+  m("executable")
   goto s0
 f4:
   // >12	belong		3		fixed virtual memory shared library
@@ -17933,7 +17984,7 @@ f4:
   if !(ok && (ra == 3)) { goto f5 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t3\t\tfixed virtual memory shared library")
-  out = append(out, "fixed virtual memory shared library")
+  m("fixed virtual memory shared library")
   goto s0
 f5:
   // >12	belong		4		core
@@ -17942,7 +17993,7 @@ f5:
   if !(ok && (ra == 4)) { goto f6 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t4\t\tcore")
-  out = append(out, "core")
+  m("core")
   goto s0
 f6:
   // >12	belong		5		preload executable
@@ -17951,7 +18002,7 @@ f6:
   if !(ok && (ra == 5)) { goto f7 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t5\t\tpreload executable")
-  out = append(out, "preload executable")
+  m("preload executable")
   goto s0
 f7:
   // >12	belong		6		dynamically linked shared library
@@ -17960,7 +18011,7 @@ f7:
   if !(ok && (ra == 6)) { goto f8 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t6\t\tdynamically linked shared library")
-  out = append(out, "dynamically linked shared library")
+  m("dynamically linked shared library")
   goto s0
 f8:
   // >12	belong		7		dynamic linker
@@ -17969,7 +18020,7 @@ f8:
   if !(ok && (ra == 7)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t7\t\tdynamic linker")
-  out = append(out, "dynamic linker")
+  m("dynamic linker")
   goto s0
 f9:
   // >12	belong		8		bundle
@@ -17978,7 +18029,7 @@ f9:
   if !(ok && (ra == 8)) { goto f10 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t8\t\tbundle")
-  out = append(out, "bundle")
+  m("bundle")
   goto s0
 f10:
   // >12	belong		9		dynamically linked shared library stub
@@ -17987,7 +18038,7 @@ f10:
   if !(ok && (ra == 9)) { goto f11 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t9\t\tdynamically linked shared library stub")
-  out = append(out, "dynamically linked shared library stub")
+  m("dynamically linked shared library stub")
   goto s0
 f11:
   // >12	belong		10		dSYM companion file
@@ -17996,7 +18047,7 @@ f11:
   if !(ok && (ra == 10)) { goto f12 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t10\t\tdSYM companion file")
-  out = append(out, "dSYM companion file")
+  m("dSYM companion file")
   goto s0
 f12:
   // >12	belong		11		kext bundle
@@ -18005,7 +18056,7 @@ f12:
   if !(ok && (ra == 11)) { goto f13 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t11\t\tkext bundle")
-  out = append(out, "kext bundle")
+  m("kext bundle")
   goto s0
 f13:
   // >12	belong		>11
@@ -18018,7 +18069,7 @@ f13:
   off = pof + 12
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>12\tbelong\t\tx\t\tfiletype=%ld")
-  out = append(out, "filetype=%ld")
+  m("filetype=%ld")
   goto s14
 s14:
   goto s0
@@ -18037,6 +18088,9 @@ func IdentifyMachOBe__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name		mach-o-be
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\t\tmach-o-be")
@@ -18046,14 +18100,14 @@ func IdentifyMachOBe__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra == 207)) { goto f1 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\tbyte\t\t0xcf\t\t64-bit")
-  out = append(out, "64-bit")
+  m("64-bit")
   goto s0
 f1:
   // >4	use		mach-o-cpu
   off = pof + 4
   {
     ss, _ := IdentifyMachOCpu(tb, off)
-    out = append(out, ss...)
+    m(ss...)
   }
   fmt.Printf("matched rule: %s\n", ">4\tuse\t\tmach-o-cpu")
   goto s0
@@ -18063,7 +18117,7 @@ f1:
   if !(ok && (ra == 1)) { goto f3 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t1\t\tobject")
-  out = append(out, "object")
+  m("object")
   goto s0
 f3:
   // >12	belong		2		executable
@@ -18072,7 +18126,7 @@ f3:
   if !(ok && (ra == 2)) { goto f4 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t2\t\texecutable")
-  out = append(out, "executable")
+  m("executable")
   goto s0
 f4:
   // >12	belong		3		fixed virtual memory shared library
@@ -18081,7 +18135,7 @@ f4:
   if !(ok && (ra == 3)) { goto f5 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t3\t\tfixed virtual memory shared library")
-  out = append(out, "fixed virtual memory shared library")
+  m("fixed virtual memory shared library")
   goto s0
 f5:
   // >12	belong		4		core
@@ -18090,7 +18144,7 @@ f5:
   if !(ok && (ra == 4)) { goto f6 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t4\t\tcore")
-  out = append(out, "core")
+  m("core")
   goto s0
 f6:
   // >12	belong		5		preload executable
@@ -18099,7 +18153,7 @@ f6:
   if !(ok && (ra == 5)) { goto f7 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t5\t\tpreload executable")
-  out = append(out, "preload executable")
+  m("preload executable")
   goto s0
 f7:
   // >12	belong		6		dynamically linked shared library
@@ -18108,7 +18162,7 @@ f7:
   if !(ok && (ra == 6)) { goto f8 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t6\t\tdynamically linked shared library")
-  out = append(out, "dynamically linked shared library")
+  m("dynamically linked shared library")
   goto s0
 f8:
   // >12	belong		7		dynamic linker
@@ -18117,7 +18171,7 @@ f8:
   if !(ok && (ra == 7)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t7\t\tdynamic linker")
-  out = append(out, "dynamic linker")
+  m("dynamic linker")
   goto s0
 f9:
   // >12	belong		8		bundle
@@ -18126,7 +18180,7 @@ f9:
   if !(ok && (ra == 8)) { goto f10 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t8\t\tbundle")
-  out = append(out, "bundle")
+  m("bundle")
   goto s0
 f10:
   // >12	belong		9		dynamically linked shared library stub
@@ -18135,7 +18189,7 @@ f10:
   if !(ok && (ra == 9)) { goto f11 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t9\t\tdynamically linked shared library stub")
-  out = append(out, "dynamically linked shared library stub")
+  m("dynamically linked shared library stub")
   goto s0
 f11:
   // >12	belong		10		dSYM companion file
@@ -18144,7 +18198,7 @@ f11:
   if !(ok && (ra == 10)) { goto f12 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t10\t\tdSYM companion file")
-  out = append(out, "dSYM companion file")
+  m("dSYM companion file")
   goto s0
 f12:
   // >12	belong		11		kext bundle
@@ -18153,7 +18207,7 @@ f12:
   if !(ok && (ra == 11)) { goto f13 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">12\tbelong\t\t11\t\tkext bundle")
-  out = append(out, "kext bundle")
+  m("kext bundle")
   goto s0
 f13:
   // >12	belong		>11
@@ -18166,7 +18220,7 @@ f13:
   off = pof + 12
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>12\tbelong\t\tx\t\tfiletype=%ld")
-  out = append(out, "filetype=%ld")
+  m("filetype=%ld")
   goto s14
 s14:
   goto s0
@@ -18185,6 +18239,9 @@ func IdentifyMachOCpu(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name	mach-o-cpu
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\tmach-o-cpu")
@@ -18206,7 +18263,7 @@ func IdentifyMachOCpu(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra&16777215 == 0)) { goto f3 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\tvax")
-  out = append(out, "vax")
+  m("vax")
   goto s2
 f3:
   // >>>4		belong&0x00ffffff	1	vax11/780
@@ -18215,7 +18272,7 @@ f3:
   if !(ok && (ra&16777215 == 1)) { goto f4 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tvax11/780")
-  out = append(out, "vax11/780")
+  m("vax11/780")
   goto s2
 f4:
   // >>>4		belong&0x00ffffff	2	vax11/785
@@ -18224,7 +18281,7 @@ f4:
   if !(ok && (ra&16777215 == 2)) { goto f5 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tvax11/785")
-  out = append(out, "vax11/785")
+  m("vax11/785")
   goto s2
 f5:
   // >>>4		belong&0x00ffffff	3	vax11/750
@@ -18233,7 +18290,7 @@ f5:
   if !(ok && (ra&16777215 == 3)) { goto f6 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\tvax11/750")
-  out = append(out, "vax11/750")
+  m("vax11/750")
   goto s2
 f6:
   // >>>4		belong&0x00ffffff	4	vax11/730
@@ -18242,7 +18299,7 @@ f6:
   if !(ok && (ra&16777215 == 4)) { goto f7 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\tvax11/730")
-  out = append(out, "vax11/730")
+  m("vax11/730")
   goto s2
 f7:
   // >>>4		belong&0x00ffffff	5	uvaxI
@@ -18251,7 +18308,7 @@ f7:
   if !(ok && (ra&16777215 == 5)) { goto f8 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\tuvaxI")
-  out = append(out, "uvaxI")
+  m("uvaxI")
   goto s2
 f8:
   // >>>4		belong&0x00ffffff	6	uvaxII
@@ -18260,7 +18317,7 @@ f8:
   if !(ok && (ra&16777215 == 6)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\tuvaxII")
-  out = append(out, "uvaxII")
+  m("uvaxII")
   goto s2
 f9:
   // >>>4		belong&0x00ffffff	7	vax8200
@@ -18269,7 +18326,7 @@ f9:
   if !(ok && (ra&16777215 == 7)) { goto f10 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\tvax8200")
-  out = append(out, "vax8200")
+  m("vax8200")
   goto s2
 f10:
   // >>>4		belong&0x00ffffff	8	vax8500
@@ -18278,7 +18335,7 @@ f10:
   if !(ok && (ra&16777215 == 8)) { goto f11 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\tvax8500")
-  out = append(out, "vax8500")
+  m("vax8500")
   goto s2
 f11:
   // >>>4		belong&0x00ffffff	9	vax8600
@@ -18287,7 +18344,7 @@ f11:
   if !(ok && (ra&16777215 == 9)) { goto f12 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\tvax8600")
-  out = append(out, "vax8600")
+  m("vax8600")
   goto s2
 f12:
   // >>>4		belong&0x00ffffff	10	vax8650
@@ -18296,7 +18353,7 @@ f12:
   if !(ok && (ra&16777215 == 10)) { goto f13 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\tvax8650")
-  out = append(out, "vax8650")
+  m("vax8650")
   goto s2
 f13:
   // >>>4		belong&0x00ffffff	11	vax8800
@@ -18305,7 +18362,7 @@ f13:
   if !(ok && (ra&16777215 == 11)) { goto f14 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\tvax8800")
-  out = append(out, "vax8800")
+  m("vax8800")
   goto s2
 f14:
   // >>>4		belong&0x00ffffff	12	uvaxIII
@@ -18314,7 +18371,7 @@ f14:
   if !(ok && (ra&16777215 == 12)) { goto f15 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t12\tuvaxIII")
-  out = append(out, "uvaxIII")
+  m("uvaxIII")
   goto s2
 f15:
   // >>>4		belong&0x00ffffff	>12	vax subarchitecture=%ld
@@ -18323,7 +18380,7 @@ f15:
   if !(ok && (i8(i4(ra))&16777215 > 12)) { goto f16 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>12\tvax subarchitecture=%ld")
-  out = append(out, "vax subarchitecture=%ld")
+  m("vax subarchitecture=%ld")
   goto s2
 f16:
 s2:
@@ -18335,7 +18392,7 @@ f2:
   if !(ok && (ra&16777215 == 2)) { goto f17 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t2\tromp")
-  out = append(out, "romp")
+  m("romp")
   goto s1
 f17:
   // >>0	belong&0x00ffffff	3	architecture=3
@@ -18344,7 +18401,7 @@ f17:
   if !(ok && (ra&16777215 == 3)) { goto f18 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t3\tarchitecture=3")
-  out = append(out, "architecture=3")
+  m("architecture=3")
   goto s1
 f18:
   // >>0	belong&0x00ffffff	4	ns32032
@@ -18353,7 +18410,7 @@ f18:
   if !(ok && (ra&16777215 == 4)) { goto f19 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t4\tns32032")
-  out = append(out, "ns32032")
+  m("ns32032")
   goto s1
 f19:
   // >>0	belong&0x00ffffff	5	ns32332
@@ -18362,7 +18419,7 @@ f19:
   if !(ok && (ra&16777215 == 5)) { goto f20 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t5\tns32332")
-  out = append(out, "ns32332")
+  m("ns32332")
   goto s1
 f20:
   // >>0	belong&0x00ffffff	6	m68k
@@ -18371,7 +18428,7 @@ f20:
   if !(ok && (ra&16777215 == 6)) { goto f21 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t6\tm68k")
-  out = append(out, "m68k")
+  m("m68k")
   goto s1
 f21:
   // >>0	belong&0x00ffffff	7
@@ -18386,7 +18443,7 @@ f21:
   if !(ok && (ra&15 == 3)) { goto f23 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t3\t\ti386")
-  out = append(out, "i386")
+  m("i386")
   goto s22
 f23:
   // >>>4	belong&0x0000000f	4		i486
@@ -18395,7 +18452,7 @@ f23:
   if !(ok && (ra&15 == 4)) { goto f24 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t4\t\ti486")
-  out = append(out, "i486")
+  m("i486")
   // >>>>4	belong&0x00fffff0	0
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18410,7 +18467,7 @@ f25:
   if !(ok && (ra&16777200 == 128)) { goto f26 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x80\t\t\\bsx")
-  out = append(out, "\\bsx")
+  m("\\bsx")
   goto s24
 f26:
 s24:
@@ -18422,7 +18479,7 @@ f24:
   if !(ok && (ra&15 == 5)) { goto f27 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t5\t\ti586")
-  out = append(out, "i586")
+  m("i586")
   goto s22
 f27:
   // >>>4	belong&0x0000000f	6
@@ -18437,7 +18494,7 @@ f27:
   if !(ok && (ra&16777200 == 0)) { goto f29 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0\t\tp6")
-  out = append(out, "p6")
+  m("p6")
   goto s28
 f29:
   // >>>>4	belong&0x00fffff0	0x10		pentium_pro
@@ -18446,7 +18503,7 @@ f29:
   if !(ok && (ra&16777200 == 16)) { goto f30 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\tpentium_pro")
-  out = append(out, "pentium_pro")
+  m("pentium_pro")
   goto s28
 f30:
   // >>>>4	belong&0x00fffff0	0x20		pentium_2_m0x20
@@ -18455,7 +18512,7 @@ f30:
   if !(ok && (ra&16777200 == 32)) { goto f31 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x20\t\tpentium_2_m0x20")
-  out = append(out, "pentium_2_m0x20")
+  m("pentium_2_m0x20")
   goto s28
 f31:
   // >>>>4	belong&0x00fffff0	0x30		pentium_2_m3
@@ -18464,7 +18521,7 @@ f31:
   if !(ok && (ra&16777200 == 48)) { goto f32 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x30\t\tpentium_2_m3")
-  out = append(out, "pentium_2_m3")
+  m("pentium_2_m3")
   goto s28
 f32:
   // >>>>4	belong&0x00fffff0	0x40		pentium_2_m0x40
@@ -18473,7 +18530,7 @@ f32:
   if !(ok && (ra&16777200 == 64)) { goto f33 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x40\t\tpentium_2_m0x40")
-  out = append(out, "pentium_2_m0x40")
+  m("pentium_2_m0x40")
   goto s28
 f33:
   // >>>>4	belong&0x00fffff0	0x50		pentium_2_m5
@@ -18482,7 +18539,7 @@ f33:
   if !(ok && (ra&16777200 == 80)) { goto f34 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x50\t\tpentium_2_m5")
-  out = append(out, "pentium_2_m5")
+  m("pentium_2_m5")
   goto s28
 f34:
   // >>>>4	belong&0x00fffff0	>0x50		pentium_2_m0x%lx
@@ -18491,7 +18548,7 @@ f34:
   if !(ok && (i8(i4(ra))&16777200 > 80)) { goto f35 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x50\t\tpentium_2_m0x%lx")
-  out = append(out, "pentium_2_m0x%lx")
+  m("pentium_2_m0x%lx")
   goto s28
 f35:
 s28:
@@ -18503,14 +18560,14 @@ f28:
   if !(ok && (ra&15 == 7)) { goto f36 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t7\t\tceleron")
-  out = append(out, "celeron")
+  m("celeron")
   // >>>>4	belong&0x00fffff0	0x00		\b_m0x%lx
   off = pof + 4
   ra, ok = f4b(tb, off)
   if !(ok && (ra&16777200 == 0)) { goto f37 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x00\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f37:
   // >>>>4	belong&0x00fffff0	0x10		\b_m0x%lx
@@ -18519,7 +18576,7 @@ f37:
   if !(ok && (ra&16777200 == 16)) { goto f38 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f38:
   // >>>>4	belong&0x00fffff0	0x20		\b_m0x%lx
@@ -18528,7 +18585,7 @@ f38:
   if !(ok && (ra&16777200 == 32)) { goto f39 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x20\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f39:
   // >>>>4	belong&0x00fffff0	0x30		\b_m0x%lx
@@ -18537,7 +18594,7 @@ f39:
   if !(ok && (ra&16777200 == 48)) { goto f40 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x30\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f40:
   // >>>>4	belong&0x00fffff0	0x40		\b_m0x%lx
@@ -18546,7 +18603,7 @@ f40:
   if !(ok && (ra&16777200 == 64)) { goto f41 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x40\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f41:
   // >>>>4	belong&0x00fffff0	0x50		\b_m0x%lx
@@ -18555,7 +18612,7 @@ f41:
   if !(ok && (ra&16777200 == 80)) { goto f42 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x50\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f42:
   // >>>>4	belong&0x00fffff0	0x60
@@ -18572,7 +18629,7 @@ f43:
   if !(ok && (ra&16777200 == 112)) { goto f44 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x70\t\t\\b_mobile")
-  out = append(out, "\\b_mobile")
+  m("\\b_mobile")
   goto s36
 f44:
   // >>>>4	belong&0x00fffff0	>0x70		\b_m0x%lx
@@ -18581,7 +18638,7 @@ f44:
   if !(ok && (i8(i4(ra))&16777200 > 112)) { goto f45 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x70\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f45:
 s36:
@@ -18593,7 +18650,7 @@ f36:
   if !(ok && (ra&15 == 8)) { goto f46 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t8\t\tpentium_3")
-  out = append(out, "pentium_3")
+  m("pentium_3")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18608,7 +18665,7 @@ f47:
   if !(ok && (ra&16777200 == 16)) { goto f48 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_m")
-  out = append(out, "\\b_m")
+  m("\\b_m")
   goto s46
 f48:
   // >>>>4	belong&0x00fffff0	0x20		\b_xeon
@@ -18617,7 +18674,7 @@ f48:
   if !(ok && (ra&16777200 == 32)) { goto f49 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x20\t\t\\b_xeon")
-  out = append(out, "\\b_xeon")
+  m("\\b_xeon")
   goto s46
 f49:
   // >>>>4	belong&0x00fffff0	>0x20		\b_m0x%lx
@@ -18626,7 +18683,7 @@ f49:
   if !(ok && (i8(i4(ra))&16777200 > 32)) { goto f50 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x20\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s46
 f50:
 s46:
@@ -18638,7 +18695,7 @@ f46:
   if !(ok && (ra&15 == 9)) { goto f51 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t9\t\tpentiumM")
-  out = append(out, "pentiumM")
+  m("pentiumM")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18653,7 +18710,7 @@ f52:
   if !(ok && (i8(i4(ra))&16777200 > 0)) { goto f53 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x00\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s51
 f53:
 s51:
@@ -18665,7 +18722,7 @@ f51:
   if !(ok && (ra&15 == 10)) { goto f54 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t10\t\tpentium_4")
-  out = append(out, "pentium_4")
+  m("pentium_4")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18680,7 +18737,7 @@ f55:
   if !(ok && (ra&16777200 == 16)) { goto f56 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_m")
-  out = append(out, "\\b_m")
+  m("\\b_m")
   goto s54
 f56:
   // >>>>4	belong&0x00fffff0	>0x10		\b_m0x%lx
@@ -18689,7 +18746,7 @@ f56:
   if !(ok && (i8(i4(ra))&16777200 > 16)) { goto f57 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s54
 f57:
 s54:
@@ -18701,7 +18758,7 @@ f54:
   if !(ok && (ra&15 == 11)) { goto f58 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t11\t\titanium")
-  out = append(out, "itanium")
+  m("itanium")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18716,7 +18773,7 @@ f59:
   if !(ok && (ra&16777200 == 16)) { goto f60 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_2")
-  out = append(out, "\\b_2")
+  m("\\b_2")
   goto s58
 f60:
   // >>>>4	belong&0x00fffff0	>0x10		\b_m0x%lx
@@ -18725,7 +18782,7 @@ f60:
   if !(ok && (i8(i4(ra))&16777200 > 16)) { goto f61 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s58
 f61:
 s58:
@@ -18737,7 +18794,7 @@ f58:
   if !(ok && (ra&15 == 12)) { goto f62 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t12\t\txeon")
-  out = append(out, "xeon")
+  m("xeon")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18752,7 +18809,7 @@ f63:
   if !(ok && (ra&16777200 == 16)) { goto f64 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_mp")
-  out = append(out, "\\b_mp")
+  m("\\b_mp")
   goto s62
 f64:
   // >>>>4	belong&0x00fffff0	>0x10		\b_m0x%lx
@@ -18761,7 +18818,7 @@ f64:
   if !(ok && (i8(i4(ra))&16777200 > 16)) { goto f65 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s62
 f65:
 s62:
@@ -18773,7 +18830,7 @@ f62:
   if !(ok && (i8(i4(ra))&15 > 12)) { goto f66 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t>12\t\tia32 family=%ld")
-  out = append(out, "ia32 family=%ld")
+  m("ia32 family=%ld")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18788,7 +18845,7 @@ f67:
   if !(ok && (i8(i4(ra))&16777200 > 0)) { goto f68 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x00\t\tmodel=%lx")
-  out = append(out, "model=%lx")
+  m("model=%lx")
   goto s66
 f68:
 s66:
@@ -18803,14 +18860,14 @@ f22:
   if !(ok && (ra&16777215 == 8)) { goto f69 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t8\tmips")
-  out = append(out, "mips")
+  m("mips")
   // >>>4		belong&0x00ffffff	1	R2300
   off = pof + 4
   ra, ok = f4b(tb, off)
   if !(ok && (ra&16777215 == 1)) { goto f70 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tR2300")
-  out = append(out, "R2300")
+  m("R2300")
   goto s69
 f70:
   // >>>4		belong&0x00ffffff	2	R2600
@@ -18819,7 +18876,7 @@ f70:
   if !(ok && (ra&16777215 == 2)) { goto f71 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tR2600")
-  out = append(out, "R2600")
+  m("R2600")
   goto s69
 f71:
   // >>>4		belong&0x00ffffff	3	R2800
@@ -18828,7 +18885,7 @@ f71:
   if !(ok && (ra&16777215 == 3)) { goto f72 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\tR2800")
-  out = append(out, "R2800")
+  m("R2800")
   goto s69
 f72:
   // >>>4		belong&0x00ffffff	4	R2000a
@@ -18837,7 +18894,7 @@ f72:
   if !(ok && (ra&16777215 == 4)) { goto f73 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\tR2000a")
-  out = append(out, "R2000a")
+  m("R2000a")
   goto s69
 f73:
   // >>>4		belong&0x00ffffff	5	R2000
@@ -18846,7 +18903,7 @@ f73:
   if !(ok && (ra&16777215 == 5)) { goto f74 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\tR2000")
-  out = append(out, "R2000")
+  m("R2000")
   goto s69
 f74:
   // >>>4		belong&0x00ffffff	6	R3000a
@@ -18855,7 +18912,7 @@ f74:
   if !(ok && (ra&16777215 == 6)) { goto f75 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\tR3000a")
-  out = append(out, "R3000a")
+  m("R3000a")
   goto s69
 f75:
   // >>>4		belong&0x00ffffff	7	R3000
@@ -18864,7 +18921,7 @@ f75:
   if !(ok && (ra&16777215 == 7)) { goto f76 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\tR3000")
-  out = append(out, "R3000")
+  m("R3000")
   goto s69
 f76:
   // >>>4		belong&0x00ffffff	>7	subarchitecture=%ld
@@ -18873,7 +18930,7 @@ f76:
   if !(ok && (i8(i4(ra))&16777215 > 7)) { goto f77 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>7\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s69
 f77:
 s69:
@@ -18885,7 +18942,7 @@ f69:
   if !(ok && (ra&16777215 == 9)) { goto f78 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t9\tns32532")
-  out = append(out, "ns32532")
+  m("ns32532")
   goto s1
 f78:
   // >>0	belong&0x00ffffff	10	mc98000
@@ -18894,7 +18951,7 @@ f78:
   if !(ok && (ra&16777215 == 10)) { goto f79 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t10\tmc98000")
-  out = append(out, "mc98000")
+  m("mc98000")
   goto s1
 f79:
   // >>0	belong&0x00ffffff	11	hppa
@@ -18903,14 +18960,14 @@ f79:
   if !(ok && (ra&16777215 == 11)) { goto f80 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t11\thppa")
-  out = append(out, "hppa")
+  m("hppa")
   // >>>4		belong&0x00ffffff	0	7100
   off = pof + 4
   ra, ok = f4b(tb, off)
   if !(ok && (ra&16777215 == 0)) { goto f81 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\t7100")
-  out = append(out, "7100")
+  m("7100")
   goto s80
 f81:
   // >>>4		belong&0x00ffffff	1	7100LC
@@ -18919,7 +18976,7 @@ f81:
   if !(ok && (ra&16777215 == 1)) { goto f82 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\t7100LC")
-  out = append(out, "7100LC")
+  m("7100LC")
   goto s80
 f82:
   // >>>4		belong&0x00ffffff	>1	subarchitecture=%ld
@@ -18928,7 +18985,7 @@ f82:
   if !(ok && (i8(i4(ra))&16777215 > 1)) { goto f83 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>1\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s80
 f83:
 s80:
@@ -18940,7 +18997,7 @@ f80:
   if !(ok && (ra&16777215 == 12)) { goto f84 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t12\tarm")
-  out = append(out, "arm")
+  m("arm")
   // >>>4		belong&0x00ffffff	0
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -18955,7 +19012,7 @@ f85:
   if !(ok && (ra&16777215 == 1)) { goto f86 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f86:
   // >>>4		belong&0x00ffffff	2	subarchitecture=%ld
@@ -18964,7 +19021,7 @@ f86:
   if !(ok && (ra&16777215 == 2)) { goto f87 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f87:
   // >>>4		belong&0x00ffffff	3	subarchitecture=%ld
@@ -18973,7 +19030,7 @@ f87:
   if !(ok && (ra&16777215 == 3)) { goto f88 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f88:
   // >>>4		belong&0x00ffffff	4	subarchitecture=%ld
@@ -18982,7 +19039,7 @@ f88:
   if !(ok && (ra&16777215 == 4)) { goto f89 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f89:
   // >>>4		belong&0x00ffffff	5	\b_v4t
@@ -18991,7 +19048,7 @@ f89:
   if !(ok && (ra&16777215 == 5)) { goto f90 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\t\\b_v4t")
-  out = append(out, "\\b_v4t")
+  m("\\b_v4t")
   goto s84
 f90:
   // >>>4		belong&0x00ffffff	6	\b_v6
@@ -19000,7 +19057,7 @@ f90:
   if !(ok && (ra&16777215 == 6)) { goto f91 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\t\\b_v6")
-  out = append(out, "\\b_v6")
+  m("\\b_v6")
   goto s84
 f91:
   // >>>4		belong&0x00ffffff	7	\b_v5tej
@@ -19009,7 +19066,7 @@ f91:
   if !(ok && (ra&16777215 == 7)) { goto f92 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\t\\b_v5tej")
-  out = append(out, "\\b_v5tej")
+  m("\\b_v5tej")
   goto s84
 f92:
   // >>>4		belong&0x00ffffff	8	\b_xscale
@@ -19018,7 +19075,7 @@ f92:
   if !(ok && (ra&16777215 == 8)) { goto f93 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\t\\b_xscale")
-  out = append(out, "\\b_xscale")
+  m("\\b_xscale")
   goto s84
 f93:
   // >>>4		belong&0x00ffffff	9	\b_v7
@@ -19027,7 +19084,7 @@ f93:
   if !(ok && (ra&16777215 == 9)) { goto f94 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\t\\b_v7")
-  out = append(out, "\\b_v7")
+  m("\\b_v7")
   goto s84
 f94:
   // >>>4		belong&0x00ffffff	10	\b_v7f
@@ -19036,7 +19093,7 @@ f94:
   if !(ok && (ra&16777215 == 10)) { goto f95 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\t\\b_v7f")
-  out = append(out, "\\b_v7f")
+  m("\\b_v7f")
   goto s84
 f95:
   // >>>4		belong&0x00ffffff	11	subarchitecture=%ld
@@ -19045,7 +19102,7 @@ f95:
   if !(ok && (ra&16777215 == 11)) { goto f96 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f96:
   // >>>4		belong&0x00ffffff	12	\b_v7k
@@ -19054,7 +19111,7 @@ f96:
   if !(ok && (ra&16777215 == 12)) { goto f97 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t12\t\\b_v7k")
-  out = append(out, "\\b_v7k")
+  m("\\b_v7k")
   goto s84
 f97:
   // >>>4		belong&0x00ffffff	>12	subarchitecture=%ld
@@ -19063,7 +19120,7 @@ f97:
   if !(ok && (i8(i4(ra))&16777215 > 12)) { goto f98 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>12\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f98:
 s84:
@@ -19081,7 +19138,7 @@ f84:
   if !(ok && (ra&16777215 == 0)) { goto f100 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\tmc88000")
-  out = append(out, "mc88000")
+  m("mc88000")
   goto s99
 f100:
   // >>>4		belong&0x00ffffff	1	mc88100
@@ -19090,7 +19147,7 @@ f100:
   if !(ok && (ra&16777215 == 1)) { goto f101 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tmc88100")
-  out = append(out, "mc88100")
+  m("mc88100")
   goto s99
 f101:
   // >>>4		belong&0x00ffffff	2	mc88110
@@ -19099,7 +19156,7 @@ f101:
   if !(ok && (ra&16777215 == 2)) { goto f102 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tmc88110")
-  out = append(out, "mc88110")
+  m("mc88110")
   goto s99
 f102:
   // >>>4		belong&0x00ffffff	>2	mc88000 subarchitecture=%ld
@@ -19108,7 +19165,7 @@ f102:
   if !(ok && (i8(i4(ra))&16777215 > 2)) { goto f103 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>2\tmc88000 subarchitecture=%ld")
-  out = append(out, "mc88000 subarchitecture=%ld")
+  m("mc88000 subarchitecture=%ld")
   goto s99
 f103:
 s99:
@@ -19120,7 +19177,7 @@ f99:
   if !(ok && (ra&16777215 == 14)) { goto f104 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t14\tsparc")
-  out = append(out, "sparc")
+  m("sparc")
   goto s1
 f104:
   // >>0	belong&0x00ffffff	15	i860g
@@ -19129,7 +19186,7 @@ f104:
   if !(ok && (ra&16777215 == 15)) { goto f105 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t15\ti860g")
-  out = append(out, "i860g")
+  m("i860g")
   goto s1
 f105:
   // >>0	belong&0x00ffffff	16	alpha
@@ -19138,7 +19195,7 @@ f105:
   if !(ok && (ra&16777215 == 16)) { goto f106 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t16\talpha")
-  out = append(out, "alpha")
+  m("alpha")
   goto s1
 f106:
   // >>0	belong&0x00ffffff	17	rs6000
@@ -19147,7 +19204,7 @@ f106:
   if !(ok && (ra&16777215 == 17)) { goto f107 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t17\trs6000")
-  out = append(out, "rs6000")
+  m("rs6000")
   goto s1
 f107:
   // >>0	belong&0x00ffffff	18	ppc
@@ -19156,7 +19213,7 @@ f107:
   if !(ok && (ra&16777215 == 18)) { goto f108 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t18\tppc")
-  out = append(out, "ppc")
+  m("ppc")
   // >>>4		belong&0x00ffffff	0
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -19171,7 +19228,7 @@ f109:
   if !(ok && (ra&16777215 == 1)) { goto f110 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\t\\b_601")
-  out = append(out, "\\b_601")
+  m("\\b_601")
   goto s108
 f110:
   // >>>4		belong&0x00ffffff	2	\b_602
@@ -19180,7 +19237,7 @@ f110:
   if !(ok && (ra&16777215 == 2)) { goto f111 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\t\\b_602")
-  out = append(out, "\\b_602")
+  m("\\b_602")
   goto s108
 f111:
   // >>>4		belong&0x00ffffff	3	\b_603
@@ -19189,7 +19246,7 @@ f111:
   if !(ok && (ra&16777215 == 3)) { goto f112 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\t\\b_603")
-  out = append(out, "\\b_603")
+  m("\\b_603")
   goto s108
 f112:
   // >>>4		belong&0x00ffffff	4	\b_603e
@@ -19198,7 +19255,7 @@ f112:
   if !(ok && (ra&16777215 == 4)) { goto f113 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\t\\b_603e")
-  out = append(out, "\\b_603e")
+  m("\\b_603e")
   goto s108
 f113:
   // >>>4		belong&0x00ffffff	5	\b_603ev
@@ -19207,7 +19264,7 @@ f113:
   if !(ok && (ra&16777215 == 5)) { goto f114 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\t\\b_603ev")
-  out = append(out, "\\b_603ev")
+  m("\\b_603ev")
   goto s108
 f114:
   // >>>4		belong&0x00ffffff	6	\b_604
@@ -19216,7 +19273,7 @@ f114:
   if !(ok && (ra&16777215 == 6)) { goto f115 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\t\\b_604")
-  out = append(out, "\\b_604")
+  m("\\b_604")
   goto s108
 f115:
   // >>>4		belong&0x00ffffff	7	\b_604e
@@ -19225,7 +19282,7 @@ f115:
   if !(ok && (ra&16777215 == 7)) { goto f116 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\t\\b_604e")
-  out = append(out, "\\b_604e")
+  m("\\b_604e")
   goto s108
 f116:
   // >>>4		belong&0x00ffffff	8	\b_620
@@ -19234,7 +19291,7 @@ f116:
   if !(ok && (ra&16777215 == 8)) { goto f117 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\t\\b_620")
-  out = append(out, "\\b_620")
+  m("\\b_620")
   goto s108
 f117:
   // >>>4		belong&0x00ffffff	9	\b_650
@@ -19243,7 +19300,7 @@ f117:
   if !(ok && (ra&16777215 == 9)) { goto f118 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\t\\b_650")
-  out = append(out, "\\b_650")
+  m("\\b_650")
   goto s108
 f118:
   // >>>4		belong&0x00ffffff	10	\b_7400
@@ -19252,7 +19309,7 @@ f118:
   if !(ok && (ra&16777215 == 10)) { goto f119 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\t\\b_7400")
-  out = append(out, "\\b_7400")
+  m("\\b_7400")
   goto s108
 f119:
   // >>>4		belong&0x00ffffff	11	\b_7450
@@ -19261,7 +19318,7 @@ f119:
   if !(ok && (ra&16777215 == 11)) { goto f120 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\t\\b_7450")
-  out = append(out, "\\b_7450")
+  m("\\b_7450")
   goto s108
 f120:
   // >>>4		belong&0x00ffffff	100	\b_970
@@ -19270,7 +19327,7 @@ f120:
   if !(ok && (ra&16777215 == 100)) { goto f121 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t100\t\\b_970")
-  out = append(out, "\\b_970")
+  m("\\b_970")
   goto s108
 f121:
   // >>>4		belong&0x00ffffff	>100	subarchitecture=%ld
@@ -19279,7 +19336,7 @@ f121:
   if !(ok && (i8(i4(ra))&16777215 > 100)) { goto f122 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>100\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s108
 f122:
 s108:
@@ -19291,7 +19348,7 @@ f108:
   if !(ok && (i8(i4(ra))&16777215 > 18)) { goto f123 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t>18\tarchitecture=%ld")
-  out = append(out, "architecture=%ld")
+  m("architecture=%ld")
   goto s1
 f123:
 s1:
@@ -19309,7 +19366,7 @@ f1:
   if !(ok && (ra&16777215 == 0)) { goto f125 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t0\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f125:
   // >>0	belong&0x00ffffff	1	64-bit architecture=%ld
@@ -19318,7 +19375,7 @@ f125:
   if !(ok && (ra&16777215 == 1)) { goto f126 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t1\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f126:
   // >>0	belong&0x00ffffff	2	64-bit architecture=%ld
@@ -19327,7 +19384,7 @@ f126:
   if !(ok && (ra&16777215 == 2)) { goto f127 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t2\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f127:
   // >>0	belong&0x00ffffff	3	64-bit architecture=%ld
@@ -19336,7 +19393,7 @@ f127:
   if !(ok && (ra&16777215 == 3)) { goto f128 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t3\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f128:
   // >>0	belong&0x00ffffff	4	64-bit architecture=%ld
@@ -19345,7 +19402,7 @@ f128:
   if !(ok && (ra&16777215 == 4)) { goto f129 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t4\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f129:
   // >>0	belong&0x00ffffff	5	64-bit architecture=%ld
@@ -19354,7 +19411,7 @@ f129:
   if !(ok && (ra&16777215 == 5)) { goto f130 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t5\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f130:
   // >>0	belong&0x00ffffff	6	64-bit architecture=%ld
@@ -19363,7 +19420,7 @@ f130:
   if !(ok && (ra&16777215 == 6)) { goto f131 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t6\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f131:
   // >>0	belong&0x00ffffff	7	x86_64
@@ -19372,14 +19429,14 @@ f131:
   if !(ok && (ra&16777215 == 7)) { goto f132 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t7\tx86_64")
-  out = append(out, "x86_64")
+  m("x86_64")
   // >>>4		belong&0x00ffffff	0	subarchitecture=%ld
   off = pof + 4
   ra, ok = f4b(tb, off)
   if !(ok && (ra&16777215 == 0)) { goto f133 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f133:
   // >>>4		belong&0x00ffffff	1	subarchitecture=%ld
@@ -19388,7 +19445,7 @@ f133:
   if !(ok && (ra&16777215 == 1)) { goto f134 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f134:
   // >>>4		belong&0x00ffffff	2	subarchitecture=%ld
@@ -19397,7 +19454,7 @@ f134:
   if !(ok && (ra&16777215 == 2)) { goto f135 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f135:
   // >>>4		belong&0x00ffffff	3
@@ -19414,7 +19471,7 @@ f136:
   if !(ok && (ra&16777215 == 4)) { goto f137 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\t\\b_arch1")
-  out = append(out, "\\b_arch1")
+  m("\\b_arch1")
   goto s132
 f137:
   // >>>4		belong&0x00ffffff	>4	subarchitecture=%ld
@@ -19423,7 +19480,7 @@ f137:
   if !(ok && (i8(i4(ra))&16777215 > 4)) { goto f138 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>4\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f138:
 s132:
@@ -19435,7 +19492,7 @@ f132:
   if !(ok && (ra&16777215 == 8)) { goto f139 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t8\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f139:
   // >>0	belong&0x00ffffff	9	64-bit architecture=%ld
@@ -19444,7 +19501,7 @@ f139:
   if !(ok && (ra&16777215 == 9)) { goto f140 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t9\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f140:
   // >>0	belong&0x00ffffff	10	64-bit architecture=%ld
@@ -19453,7 +19510,7 @@ f140:
   if !(ok && (ra&16777215 == 10)) { goto f141 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t10\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f141:
   // >>0	belong&0x00ffffff	11	64-bit architecture=%ld
@@ -19462,7 +19519,7 @@ f141:
   if !(ok && (ra&16777215 == 11)) { goto f142 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t11\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f142:
   // >>0	belong&0x00ffffff	12	64-bit architecture=%ld
@@ -19471,7 +19528,7 @@ f142:
   if !(ok && (ra&16777215 == 12)) { goto f143 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t12\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f143:
   // >>0	belong&0x00ffffff	13	64-bit architecture=%ld
@@ -19480,7 +19537,7 @@ f143:
   if !(ok && (ra&16777215 == 13)) { goto f144 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t13\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f144:
   // >>0	belong&0x00ffffff	14	64-bit architecture=%ld
@@ -19489,7 +19546,7 @@ f144:
   if !(ok && (ra&16777215 == 14)) { goto f145 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t14\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f145:
   // >>0	belong&0x00ffffff	15	64-bit architecture=%ld
@@ -19498,7 +19555,7 @@ f145:
   if !(ok && (ra&16777215 == 15)) { goto f146 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t15\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f146:
   // >>0	belong&0x00ffffff	16	64-bit architecture=%ld
@@ -19507,7 +19564,7 @@ f146:
   if !(ok && (ra&16777215 == 16)) { goto f147 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t16\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f147:
   // >>0	belong&0x00ffffff	17	64-bit architecture=%ld
@@ -19516,7 +19573,7 @@ f147:
   if !(ok && (ra&16777215 == 17)) { goto f148 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t17\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f148:
   // >>0	belong&0x00ffffff	18	ppc64
@@ -19525,7 +19582,7 @@ f148:
   if !(ok && (ra&16777215 == 18)) { goto f149 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t18\tppc64")
-  out = append(out, "ppc64")
+  m("ppc64")
   // >>>4		belong&0x00ffffff	0
   off = pof + 4
   ra, ok = f4b(tb, off)
@@ -19540,7 +19597,7 @@ f150:
   if !(ok && (ra&16777215 == 1)) { goto f151 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\t\t\\b_601")
-  out = append(out, "\\b_601")
+  m("\\b_601")
   goto s149
 f151:
   // >>>4		belong&0x00ffffff	2		\b_602
@@ -19549,7 +19606,7 @@ f151:
   if !(ok && (ra&16777215 == 2)) { goto f152 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\t\t\\b_602")
-  out = append(out, "\\b_602")
+  m("\\b_602")
   goto s149
 f152:
   // >>>4		belong&0x00ffffff	3		\b_603
@@ -19558,7 +19615,7 @@ f152:
   if !(ok && (ra&16777215 == 3)) { goto f153 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\t\t\\b_603")
-  out = append(out, "\\b_603")
+  m("\\b_603")
   goto s149
 f153:
   // >>>4		belong&0x00ffffff	4		\b_603e
@@ -19567,7 +19624,7 @@ f153:
   if !(ok && (ra&16777215 == 4)) { goto f154 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\t\t\\b_603e")
-  out = append(out, "\\b_603e")
+  m("\\b_603e")
   goto s149
 f154:
   // >>>4		belong&0x00ffffff	5		\b_603ev
@@ -19576,7 +19633,7 @@ f154:
   if !(ok && (ra&16777215 == 5)) { goto f155 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\t\t\\b_603ev")
-  out = append(out, "\\b_603ev")
+  m("\\b_603ev")
   goto s149
 f155:
   // >>>4		belong&0x00ffffff	6		\b_604
@@ -19585,7 +19642,7 @@ f155:
   if !(ok && (ra&16777215 == 6)) { goto f156 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\t\t\\b_604")
-  out = append(out, "\\b_604")
+  m("\\b_604")
   goto s149
 f156:
   // >>>4		belong&0x00ffffff	7		\b_604e
@@ -19594,7 +19651,7 @@ f156:
   if !(ok && (ra&16777215 == 7)) { goto f157 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\t\t\\b_604e")
-  out = append(out, "\\b_604e")
+  m("\\b_604e")
   goto s149
 f157:
   // >>>4		belong&0x00ffffff	8		\b_620
@@ -19603,7 +19660,7 @@ f157:
   if !(ok && (ra&16777215 == 8)) { goto f158 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\t\t\\b_620")
-  out = append(out, "\\b_620")
+  m("\\b_620")
   goto s149
 f158:
   // >>>4		belong&0x00ffffff	9		\b_650
@@ -19612,7 +19669,7 @@ f158:
   if !(ok && (ra&16777215 == 9)) { goto f159 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\t\t\\b_650")
-  out = append(out, "\\b_650")
+  m("\\b_650")
   goto s149
 f159:
   // >>>4		belong&0x00ffffff	10		\b_7400
@@ -19621,7 +19678,7 @@ f159:
   if !(ok && (ra&16777215 == 10)) { goto f160 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\t\t\\b_7400")
-  out = append(out, "\\b_7400")
+  m("\\b_7400")
   goto s149
 f160:
   // >>>4		belong&0x00ffffff	11		\b_7450
@@ -19630,7 +19687,7 @@ f160:
   if !(ok && (ra&16777215 == 11)) { goto f161 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\t\t\\b_7450")
-  out = append(out, "\\b_7450")
+  m("\\b_7450")
   goto s149
 f161:
   // >>>4		belong&0x00ffffff	100		\b_970
@@ -19639,7 +19696,7 @@ f161:
   if !(ok && (ra&16777215 == 100)) { goto f162 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t100\t\t\\b_970")
-  out = append(out, "\\b_970")
+  m("\\b_970")
   goto s149
 f162:
   // >>>4		belong&0x00ffffff	>100		subarchitecture=%ld
@@ -19648,7 +19705,7 @@ f162:
   if !(ok && (i8(i4(ra))&16777215 > 100)) { goto f163 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>100\t\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s149
 f163:
 s149:
@@ -19660,7 +19717,7 @@ f149:
   if !(ok && (i8(i4(ra))&16777215 > 18)) { goto f164 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t>18\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f164:
 s124:
@@ -19680,6 +19737,9 @@ func IdentifyMachOCpu__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0	name	mach-o-cpu
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0\tname\tmach-o-cpu")
@@ -19701,7 +19761,7 @@ func IdentifyMachOCpu__Swapped(tb []byte, pof i8) ([]string, error) {
   if !(ok && (ra&16777215 == 0)) { goto f3 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\tvax")
-  out = append(out, "vax")
+  m("vax")
   goto s2
 f3:
   // >>>4		belong&0x00ffffff	1	vax11/780
@@ -19710,7 +19770,7 @@ f3:
   if !(ok && (ra&16777215 == 1)) { goto f4 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tvax11/780")
-  out = append(out, "vax11/780")
+  m("vax11/780")
   goto s2
 f4:
   // >>>4		belong&0x00ffffff	2	vax11/785
@@ -19719,7 +19779,7 @@ f4:
   if !(ok && (ra&16777215 == 2)) { goto f5 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tvax11/785")
-  out = append(out, "vax11/785")
+  m("vax11/785")
   goto s2
 f5:
   // >>>4		belong&0x00ffffff	3	vax11/750
@@ -19728,7 +19788,7 @@ f5:
   if !(ok && (ra&16777215 == 3)) { goto f6 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\tvax11/750")
-  out = append(out, "vax11/750")
+  m("vax11/750")
   goto s2
 f6:
   // >>>4		belong&0x00ffffff	4	vax11/730
@@ -19737,7 +19797,7 @@ f6:
   if !(ok && (ra&16777215 == 4)) { goto f7 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\tvax11/730")
-  out = append(out, "vax11/730")
+  m("vax11/730")
   goto s2
 f7:
   // >>>4		belong&0x00ffffff	5	uvaxI
@@ -19746,7 +19806,7 @@ f7:
   if !(ok && (ra&16777215 == 5)) { goto f8 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\tuvaxI")
-  out = append(out, "uvaxI")
+  m("uvaxI")
   goto s2
 f8:
   // >>>4		belong&0x00ffffff	6	uvaxII
@@ -19755,7 +19815,7 @@ f8:
   if !(ok && (ra&16777215 == 6)) { goto f9 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\tuvaxII")
-  out = append(out, "uvaxII")
+  m("uvaxII")
   goto s2
 f9:
   // >>>4		belong&0x00ffffff	7	vax8200
@@ -19764,7 +19824,7 @@ f9:
   if !(ok && (ra&16777215 == 7)) { goto f10 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\tvax8200")
-  out = append(out, "vax8200")
+  m("vax8200")
   goto s2
 f10:
   // >>>4		belong&0x00ffffff	8	vax8500
@@ -19773,7 +19833,7 @@ f10:
   if !(ok && (ra&16777215 == 8)) { goto f11 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\tvax8500")
-  out = append(out, "vax8500")
+  m("vax8500")
   goto s2
 f11:
   // >>>4		belong&0x00ffffff	9	vax8600
@@ -19782,7 +19842,7 @@ f11:
   if !(ok && (ra&16777215 == 9)) { goto f12 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\tvax8600")
-  out = append(out, "vax8600")
+  m("vax8600")
   goto s2
 f12:
   // >>>4		belong&0x00ffffff	10	vax8650
@@ -19791,7 +19851,7 @@ f12:
   if !(ok && (ra&16777215 == 10)) { goto f13 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\tvax8650")
-  out = append(out, "vax8650")
+  m("vax8650")
   goto s2
 f13:
   // >>>4		belong&0x00ffffff	11	vax8800
@@ -19800,7 +19860,7 @@ f13:
   if !(ok && (ra&16777215 == 11)) { goto f14 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\tvax8800")
-  out = append(out, "vax8800")
+  m("vax8800")
   goto s2
 f14:
   // >>>4		belong&0x00ffffff	12	uvaxIII
@@ -19809,7 +19869,7 @@ f14:
   if !(ok && (ra&16777215 == 12)) { goto f15 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t12\tuvaxIII")
-  out = append(out, "uvaxIII")
+  m("uvaxIII")
   goto s2
 f15:
   // >>>4		belong&0x00ffffff	>12	vax subarchitecture=%ld
@@ -19818,7 +19878,7 @@ f15:
   if !(ok && (i8(i4(ra))&16777215 > 12)) { goto f16 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>12\tvax subarchitecture=%ld")
-  out = append(out, "vax subarchitecture=%ld")
+  m("vax subarchitecture=%ld")
   goto s2
 f16:
 s2:
@@ -19830,7 +19890,7 @@ f2:
   if !(ok && (ra&16777215 == 2)) { goto f17 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t2\tromp")
-  out = append(out, "romp")
+  m("romp")
   goto s1
 f17:
   // >>0	belong&0x00ffffff	3	architecture=3
@@ -19839,7 +19899,7 @@ f17:
   if !(ok && (ra&16777215 == 3)) { goto f18 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t3\tarchitecture=3")
-  out = append(out, "architecture=3")
+  m("architecture=3")
   goto s1
 f18:
   // >>0	belong&0x00ffffff	4	ns32032
@@ -19848,7 +19908,7 @@ f18:
   if !(ok && (ra&16777215 == 4)) { goto f19 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t4\tns32032")
-  out = append(out, "ns32032")
+  m("ns32032")
   goto s1
 f19:
   // >>0	belong&0x00ffffff	5	ns32332
@@ -19857,7 +19917,7 @@ f19:
   if !(ok && (ra&16777215 == 5)) { goto f20 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t5\tns32332")
-  out = append(out, "ns32332")
+  m("ns32332")
   goto s1
 f20:
   // >>0	belong&0x00ffffff	6	m68k
@@ -19866,7 +19926,7 @@ f20:
   if !(ok && (ra&16777215 == 6)) { goto f21 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t6\tm68k")
-  out = append(out, "m68k")
+  m("m68k")
   goto s1
 f21:
   // >>0	belong&0x00ffffff	7
@@ -19881,7 +19941,7 @@ f21:
   if !(ok && (ra&15 == 3)) { goto f23 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t3\t\ti386")
-  out = append(out, "i386")
+  m("i386")
   goto s22
 f23:
   // >>>4	belong&0x0000000f	4		i486
@@ -19890,7 +19950,7 @@ f23:
   if !(ok && (ra&15 == 4)) { goto f24 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t4\t\ti486")
-  out = append(out, "i486")
+  m("i486")
   // >>>>4	belong&0x00fffff0	0
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -19905,7 +19965,7 @@ f25:
   if !(ok && (ra&16777200 == 128)) { goto f26 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x80\t\t\\bsx")
-  out = append(out, "\\bsx")
+  m("\\bsx")
   goto s24
 f26:
 s24:
@@ -19917,7 +19977,7 @@ f24:
   if !(ok && (ra&15 == 5)) { goto f27 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t5\t\ti586")
-  out = append(out, "i586")
+  m("i586")
   goto s22
 f27:
   // >>>4	belong&0x0000000f	6
@@ -19932,7 +19992,7 @@ f27:
   if !(ok && (ra&16777200 == 0)) { goto f29 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0\t\tp6")
-  out = append(out, "p6")
+  m("p6")
   goto s28
 f29:
   // >>>>4	belong&0x00fffff0	0x10		pentium_pro
@@ -19941,7 +20001,7 @@ f29:
   if !(ok && (ra&16777200 == 16)) { goto f30 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\tpentium_pro")
-  out = append(out, "pentium_pro")
+  m("pentium_pro")
   goto s28
 f30:
   // >>>>4	belong&0x00fffff0	0x20		pentium_2_m0x20
@@ -19950,7 +20010,7 @@ f30:
   if !(ok && (ra&16777200 == 32)) { goto f31 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x20\t\tpentium_2_m0x20")
-  out = append(out, "pentium_2_m0x20")
+  m("pentium_2_m0x20")
   goto s28
 f31:
   // >>>>4	belong&0x00fffff0	0x30		pentium_2_m3
@@ -19959,7 +20019,7 @@ f31:
   if !(ok && (ra&16777200 == 48)) { goto f32 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x30\t\tpentium_2_m3")
-  out = append(out, "pentium_2_m3")
+  m("pentium_2_m3")
   goto s28
 f32:
   // >>>>4	belong&0x00fffff0	0x40		pentium_2_m0x40
@@ -19968,7 +20028,7 @@ f32:
   if !(ok && (ra&16777200 == 64)) { goto f33 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x40\t\tpentium_2_m0x40")
-  out = append(out, "pentium_2_m0x40")
+  m("pentium_2_m0x40")
   goto s28
 f33:
   // >>>>4	belong&0x00fffff0	0x50		pentium_2_m5
@@ -19977,7 +20037,7 @@ f33:
   if !(ok && (ra&16777200 == 80)) { goto f34 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x50\t\tpentium_2_m5")
-  out = append(out, "pentium_2_m5")
+  m("pentium_2_m5")
   goto s28
 f34:
   // >>>>4	belong&0x00fffff0	>0x50		pentium_2_m0x%lx
@@ -19986,7 +20046,7 @@ f34:
   if !(ok && (i8(i4(ra))&16777200 > 80)) { goto f35 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x50\t\tpentium_2_m0x%lx")
-  out = append(out, "pentium_2_m0x%lx")
+  m("pentium_2_m0x%lx")
   goto s28
 f35:
 s28:
@@ -19998,14 +20058,14 @@ f28:
   if !(ok && (ra&15 == 7)) { goto f36 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t7\t\tceleron")
-  out = append(out, "celeron")
+  m("celeron")
   // >>>>4	belong&0x00fffff0	0x00		\b_m0x%lx
   off = pof + 4
   ra, ok = f4l(tb, off)
   if !(ok && (ra&16777200 == 0)) { goto f37 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x00\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f37:
   // >>>>4	belong&0x00fffff0	0x10		\b_m0x%lx
@@ -20014,7 +20074,7 @@ f37:
   if !(ok && (ra&16777200 == 16)) { goto f38 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f38:
   // >>>>4	belong&0x00fffff0	0x20		\b_m0x%lx
@@ -20023,7 +20083,7 @@ f38:
   if !(ok && (ra&16777200 == 32)) { goto f39 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x20\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f39:
   // >>>>4	belong&0x00fffff0	0x30		\b_m0x%lx
@@ -20032,7 +20092,7 @@ f39:
   if !(ok && (ra&16777200 == 48)) { goto f40 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x30\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f40:
   // >>>>4	belong&0x00fffff0	0x40		\b_m0x%lx
@@ -20041,7 +20101,7 @@ f40:
   if !(ok && (ra&16777200 == 64)) { goto f41 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x40\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f41:
   // >>>>4	belong&0x00fffff0	0x50		\b_m0x%lx
@@ -20050,7 +20110,7 @@ f41:
   if !(ok && (ra&16777200 == 80)) { goto f42 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x50\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f42:
   // >>>>4	belong&0x00fffff0	0x60
@@ -20067,7 +20127,7 @@ f43:
   if !(ok && (ra&16777200 == 112)) { goto f44 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x70\t\t\\b_mobile")
-  out = append(out, "\\b_mobile")
+  m("\\b_mobile")
   goto s36
 f44:
   // >>>>4	belong&0x00fffff0	>0x70		\b_m0x%lx
@@ -20076,7 +20136,7 @@ f44:
   if !(ok && (i8(i4(ra))&16777200 > 112)) { goto f45 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x70\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s36
 f45:
 s36:
@@ -20088,7 +20148,7 @@ f36:
   if !(ok && (ra&15 == 8)) { goto f46 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t8\t\tpentium_3")
-  out = append(out, "pentium_3")
+  m("pentium_3")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20103,7 +20163,7 @@ f47:
   if !(ok && (ra&16777200 == 16)) { goto f48 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_m")
-  out = append(out, "\\b_m")
+  m("\\b_m")
   goto s46
 f48:
   // >>>>4	belong&0x00fffff0	0x20		\b_xeon
@@ -20112,7 +20172,7 @@ f48:
   if !(ok && (ra&16777200 == 32)) { goto f49 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x20\t\t\\b_xeon")
-  out = append(out, "\\b_xeon")
+  m("\\b_xeon")
   goto s46
 f49:
   // >>>>4	belong&0x00fffff0	>0x20		\b_m0x%lx
@@ -20121,7 +20181,7 @@ f49:
   if !(ok && (i8(i4(ra))&16777200 > 32)) { goto f50 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x20\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s46
 f50:
 s46:
@@ -20133,7 +20193,7 @@ f46:
   if !(ok && (ra&15 == 9)) { goto f51 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t9\t\tpentiumM")
-  out = append(out, "pentiumM")
+  m("pentiumM")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20148,7 +20208,7 @@ f52:
   if !(ok && (i8(i4(ra))&16777200 > 0)) { goto f53 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x00\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s51
 f53:
 s51:
@@ -20160,7 +20220,7 @@ f51:
   if !(ok && (ra&15 == 10)) { goto f54 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t10\t\tpentium_4")
-  out = append(out, "pentium_4")
+  m("pentium_4")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20175,7 +20235,7 @@ f55:
   if !(ok && (ra&16777200 == 16)) { goto f56 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_m")
-  out = append(out, "\\b_m")
+  m("\\b_m")
   goto s54
 f56:
   // >>>>4	belong&0x00fffff0	>0x10		\b_m0x%lx
@@ -20184,7 +20244,7 @@ f56:
   if !(ok && (i8(i4(ra))&16777200 > 16)) { goto f57 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s54
 f57:
 s54:
@@ -20196,7 +20256,7 @@ f54:
   if !(ok && (ra&15 == 11)) { goto f58 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t11\t\titanium")
-  out = append(out, "itanium")
+  m("itanium")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20211,7 +20271,7 @@ f59:
   if !(ok && (ra&16777200 == 16)) { goto f60 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_2")
-  out = append(out, "\\b_2")
+  m("\\b_2")
   goto s58
 f60:
   // >>>>4	belong&0x00fffff0	>0x10		\b_m0x%lx
@@ -20220,7 +20280,7 @@ f60:
   if !(ok && (i8(i4(ra))&16777200 > 16)) { goto f61 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s58
 f61:
 s58:
@@ -20232,7 +20292,7 @@ f58:
   if !(ok && (ra&15 == 12)) { goto f62 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t12\t\txeon")
-  out = append(out, "xeon")
+  m("xeon")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20247,7 +20307,7 @@ f63:
   if !(ok && (ra&16777200 == 16)) { goto f64 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t0x10\t\t\\b_mp")
-  out = append(out, "\\b_mp")
+  m("\\b_mp")
   goto s62
 f64:
   // >>>>4	belong&0x00fffff0	>0x10		\b_m0x%lx
@@ -20256,7 +20316,7 @@ f64:
   if !(ok && (i8(i4(ra))&16777200 > 16)) { goto f65 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x10\t\t\\b_m0x%lx")
-  out = append(out, "\\b_m0x%lx")
+  m("\\b_m0x%lx")
   goto s62
 f65:
 s62:
@@ -20268,7 +20328,7 @@ f62:
   if !(ok && (i8(i4(ra))&15 > 12)) { goto f66 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\tbelong&0x0000000f\t>12\t\tia32 family=%ld")
-  out = append(out, "ia32 family=%ld")
+  m("ia32 family=%ld")
   // >>>>4	belong&0x00fffff0	0x00
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20283,7 +20343,7 @@ f67:
   if !(ok && (i8(i4(ra))&16777200 > 0)) { goto f68 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>>4\tbelong&0x00fffff0\t>0x00\t\tmodel=%lx")
-  out = append(out, "model=%lx")
+  m("model=%lx")
   goto s66
 f68:
 s66:
@@ -20298,14 +20358,14 @@ f22:
   if !(ok && (ra&16777215 == 8)) { goto f69 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t8\tmips")
-  out = append(out, "mips")
+  m("mips")
   // >>>4		belong&0x00ffffff	1	R2300
   off = pof + 4
   ra, ok = f4l(tb, off)
   if !(ok && (ra&16777215 == 1)) { goto f70 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tR2300")
-  out = append(out, "R2300")
+  m("R2300")
   goto s69
 f70:
   // >>>4		belong&0x00ffffff	2	R2600
@@ -20314,7 +20374,7 @@ f70:
   if !(ok && (ra&16777215 == 2)) { goto f71 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tR2600")
-  out = append(out, "R2600")
+  m("R2600")
   goto s69
 f71:
   // >>>4		belong&0x00ffffff	3	R2800
@@ -20323,7 +20383,7 @@ f71:
   if !(ok && (ra&16777215 == 3)) { goto f72 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\tR2800")
-  out = append(out, "R2800")
+  m("R2800")
   goto s69
 f72:
   // >>>4		belong&0x00ffffff	4	R2000a
@@ -20332,7 +20392,7 @@ f72:
   if !(ok && (ra&16777215 == 4)) { goto f73 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\tR2000a")
-  out = append(out, "R2000a")
+  m("R2000a")
   goto s69
 f73:
   // >>>4		belong&0x00ffffff	5	R2000
@@ -20341,7 +20401,7 @@ f73:
   if !(ok && (ra&16777215 == 5)) { goto f74 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\tR2000")
-  out = append(out, "R2000")
+  m("R2000")
   goto s69
 f74:
   // >>>4		belong&0x00ffffff	6	R3000a
@@ -20350,7 +20410,7 @@ f74:
   if !(ok && (ra&16777215 == 6)) { goto f75 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\tR3000a")
-  out = append(out, "R3000a")
+  m("R3000a")
   goto s69
 f75:
   // >>>4		belong&0x00ffffff	7	R3000
@@ -20359,7 +20419,7 @@ f75:
   if !(ok && (ra&16777215 == 7)) { goto f76 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\tR3000")
-  out = append(out, "R3000")
+  m("R3000")
   goto s69
 f76:
   // >>>4		belong&0x00ffffff	>7	subarchitecture=%ld
@@ -20368,7 +20428,7 @@ f76:
   if !(ok && (i8(i4(ra))&16777215 > 7)) { goto f77 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>7\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s69
 f77:
 s69:
@@ -20380,7 +20440,7 @@ f69:
   if !(ok && (ra&16777215 == 9)) { goto f78 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t9\tns32532")
-  out = append(out, "ns32532")
+  m("ns32532")
   goto s1
 f78:
   // >>0	belong&0x00ffffff	10	mc98000
@@ -20389,7 +20449,7 @@ f78:
   if !(ok && (ra&16777215 == 10)) { goto f79 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t10\tmc98000")
-  out = append(out, "mc98000")
+  m("mc98000")
   goto s1
 f79:
   // >>0	belong&0x00ffffff	11	hppa
@@ -20398,14 +20458,14 @@ f79:
   if !(ok && (ra&16777215 == 11)) { goto f80 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t11\thppa")
-  out = append(out, "hppa")
+  m("hppa")
   // >>>4		belong&0x00ffffff	0	7100
   off = pof + 4
   ra, ok = f4l(tb, off)
   if !(ok && (ra&16777215 == 0)) { goto f81 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\t7100")
-  out = append(out, "7100")
+  m("7100")
   goto s80
 f81:
   // >>>4		belong&0x00ffffff	1	7100LC
@@ -20414,7 +20474,7 @@ f81:
   if !(ok && (ra&16777215 == 1)) { goto f82 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\t7100LC")
-  out = append(out, "7100LC")
+  m("7100LC")
   goto s80
 f82:
   // >>>4		belong&0x00ffffff	>1	subarchitecture=%ld
@@ -20423,7 +20483,7 @@ f82:
   if !(ok && (i8(i4(ra))&16777215 > 1)) { goto f83 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>1\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s80
 f83:
 s80:
@@ -20435,7 +20495,7 @@ f80:
   if !(ok && (ra&16777215 == 12)) { goto f84 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t12\tarm")
-  out = append(out, "arm")
+  m("arm")
   // >>>4		belong&0x00ffffff	0
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20450,7 +20510,7 @@ f85:
   if !(ok && (ra&16777215 == 1)) { goto f86 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f86:
   // >>>4		belong&0x00ffffff	2	subarchitecture=%ld
@@ -20459,7 +20519,7 @@ f86:
   if !(ok && (ra&16777215 == 2)) { goto f87 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f87:
   // >>>4		belong&0x00ffffff	3	subarchitecture=%ld
@@ -20468,7 +20528,7 @@ f87:
   if !(ok && (ra&16777215 == 3)) { goto f88 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f88:
   // >>>4		belong&0x00ffffff	4	subarchitecture=%ld
@@ -20477,7 +20537,7 @@ f88:
   if !(ok && (ra&16777215 == 4)) { goto f89 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f89:
   // >>>4		belong&0x00ffffff	5	\b_v4t
@@ -20486,7 +20546,7 @@ f89:
   if !(ok && (ra&16777215 == 5)) { goto f90 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\t\\b_v4t")
-  out = append(out, "\\b_v4t")
+  m("\\b_v4t")
   goto s84
 f90:
   // >>>4		belong&0x00ffffff	6	\b_v6
@@ -20495,7 +20555,7 @@ f90:
   if !(ok && (ra&16777215 == 6)) { goto f91 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\t\\b_v6")
-  out = append(out, "\\b_v6")
+  m("\\b_v6")
   goto s84
 f91:
   // >>>4		belong&0x00ffffff	7	\b_v5tej
@@ -20504,7 +20564,7 @@ f91:
   if !(ok && (ra&16777215 == 7)) { goto f92 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\t\\b_v5tej")
-  out = append(out, "\\b_v5tej")
+  m("\\b_v5tej")
   goto s84
 f92:
   // >>>4		belong&0x00ffffff	8	\b_xscale
@@ -20513,7 +20573,7 @@ f92:
   if !(ok && (ra&16777215 == 8)) { goto f93 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\t\\b_xscale")
-  out = append(out, "\\b_xscale")
+  m("\\b_xscale")
   goto s84
 f93:
   // >>>4		belong&0x00ffffff	9	\b_v7
@@ -20522,7 +20582,7 @@ f93:
   if !(ok && (ra&16777215 == 9)) { goto f94 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\t\\b_v7")
-  out = append(out, "\\b_v7")
+  m("\\b_v7")
   goto s84
 f94:
   // >>>4		belong&0x00ffffff	10	\b_v7f
@@ -20531,7 +20591,7 @@ f94:
   if !(ok && (ra&16777215 == 10)) { goto f95 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\t\\b_v7f")
-  out = append(out, "\\b_v7f")
+  m("\\b_v7f")
   goto s84
 f95:
   // >>>4		belong&0x00ffffff	11	subarchitecture=%ld
@@ -20540,7 +20600,7 @@ f95:
   if !(ok && (ra&16777215 == 11)) { goto f96 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f96:
   // >>>4		belong&0x00ffffff	12	\b_v7k
@@ -20549,7 +20609,7 @@ f96:
   if !(ok && (ra&16777215 == 12)) { goto f97 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t12\t\\b_v7k")
-  out = append(out, "\\b_v7k")
+  m("\\b_v7k")
   goto s84
 f97:
   // >>>4		belong&0x00ffffff	>12	subarchitecture=%ld
@@ -20558,7 +20618,7 @@ f97:
   if !(ok && (i8(i4(ra))&16777215 > 12)) { goto f98 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>12\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s84
 f98:
 s84:
@@ -20576,7 +20636,7 @@ f84:
   if !(ok && (ra&16777215 == 0)) { goto f100 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\tmc88000")
-  out = append(out, "mc88000")
+  m("mc88000")
   goto s99
 f100:
   // >>>4		belong&0x00ffffff	1	mc88100
@@ -20585,7 +20645,7 @@ f100:
   if !(ok && (ra&16777215 == 1)) { goto f101 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tmc88100")
-  out = append(out, "mc88100")
+  m("mc88100")
   goto s99
 f101:
   // >>>4		belong&0x00ffffff	2	mc88110
@@ -20594,7 +20654,7 @@ f101:
   if !(ok && (ra&16777215 == 2)) { goto f102 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tmc88110")
-  out = append(out, "mc88110")
+  m("mc88110")
   goto s99
 f102:
   // >>>4		belong&0x00ffffff	>2	mc88000 subarchitecture=%ld
@@ -20603,7 +20663,7 @@ f102:
   if !(ok && (i8(i4(ra))&16777215 > 2)) { goto f103 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>2\tmc88000 subarchitecture=%ld")
-  out = append(out, "mc88000 subarchitecture=%ld")
+  m("mc88000 subarchitecture=%ld")
   goto s99
 f103:
 s99:
@@ -20615,7 +20675,7 @@ f99:
   if !(ok && (ra&16777215 == 14)) { goto f104 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t14\tsparc")
-  out = append(out, "sparc")
+  m("sparc")
   goto s1
 f104:
   // >>0	belong&0x00ffffff	15	i860g
@@ -20624,7 +20684,7 @@ f104:
   if !(ok && (ra&16777215 == 15)) { goto f105 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t15\ti860g")
-  out = append(out, "i860g")
+  m("i860g")
   goto s1
 f105:
   // >>0	belong&0x00ffffff	16	alpha
@@ -20633,7 +20693,7 @@ f105:
   if !(ok && (ra&16777215 == 16)) { goto f106 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t16\talpha")
-  out = append(out, "alpha")
+  m("alpha")
   goto s1
 f106:
   // >>0	belong&0x00ffffff	17	rs6000
@@ -20642,7 +20702,7 @@ f106:
   if !(ok && (ra&16777215 == 17)) { goto f107 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t17\trs6000")
-  out = append(out, "rs6000")
+  m("rs6000")
   goto s1
 f107:
   // >>0	belong&0x00ffffff	18	ppc
@@ -20651,7 +20711,7 @@ f107:
   if !(ok && (ra&16777215 == 18)) { goto f108 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t18\tppc")
-  out = append(out, "ppc")
+  m("ppc")
   // >>>4		belong&0x00ffffff	0
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -20666,7 +20726,7 @@ f109:
   if !(ok && (ra&16777215 == 1)) { goto f110 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\t\\b_601")
-  out = append(out, "\\b_601")
+  m("\\b_601")
   goto s108
 f110:
   // >>>4		belong&0x00ffffff	2	\b_602
@@ -20675,7 +20735,7 @@ f110:
   if !(ok && (ra&16777215 == 2)) { goto f111 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\t\\b_602")
-  out = append(out, "\\b_602")
+  m("\\b_602")
   goto s108
 f111:
   // >>>4		belong&0x00ffffff	3	\b_603
@@ -20684,7 +20744,7 @@ f111:
   if !(ok && (ra&16777215 == 3)) { goto f112 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\t\\b_603")
-  out = append(out, "\\b_603")
+  m("\\b_603")
   goto s108
 f112:
   // >>>4		belong&0x00ffffff	4	\b_603e
@@ -20693,7 +20753,7 @@ f112:
   if !(ok && (ra&16777215 == 4)) { goto f113 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\t\\b_603e")
-  out = append(out, "\\b_603e")
+  m("\\b_603e")
   goto s108
 f113:
   // >>>4		belong&0x00ffffff	5	\b_603ev
@@ -20702,7 +20762,7 @@ f113:
   if !(ok && (ra&16777215 == 5)) { goto f114 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\t\\b_603ev")
-  out = append(out, "\\b_603ev")
+  m("\\b_603ev")
   goto s108
 f114:
   // >>>4		belong&0x00ffffff	6	\b_604
@@ -20711,7 +20771,7 @@ f114:
   if !(ok && (ra&16777215 == 6)) { goto f115 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\t\\b_604")
-  out = append(out, "\\b_604")
+  m("\\b_604")
   goto s108
 f115:
   // >>>4		belong&0x00ffffff	7	\b_604e
@@ -20720,7 +20780,7 @@ f115:
   if !(ok && (ra&16777215 == 7)) { goto f116 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\t\\b_604e")
-  out = append(out, "\\b_604e")
+  m("\\b_604e")
   goto s108
 f116:
   // >>>4		belong&0x00ffffff	8	\b_620
@@ -20729,7 +20789,7 @@ f116:
   if !(ok && (ra&16777215 == 8)) { goto f117 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\t\\b_620")
-  out = append(out, "\\b_620")
+  m("\\b_620")
   goto s108
 f117:
   // >>>4		belong&0x00ffffff	9	\b_650
@@ -20738,7 +20798,7 @@ f117:
   if !(ok && (ra&16777215 == 9)) { goto f118 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\t\\b_650")
-  out = append(out, "\\b_650")
+  m("\\b_650")
   goto s108
 f118:
   // >>>4		belong&0x00ffffff	10	\b_7400
@@ -20747,7 +20807,7 @@ f118:
   if !(ok && (ra&16777215 == 10)) { goto f119 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\t\\b_7400")
-  out = append(out, "\\b_7400")
+  m("\\b_7400")
   goto s108
 f119:
   // >>>4		belong&0x00ffffff	11	\b_7450
@@ -20756,7 +20816,7 @@ f119:
   if !(ok && (ra&16777215 == 11)) { goto f120 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\t\\b_7450")
-  out = append(out, "\\b_7450")
+  m("\\b_7450")
   goto s108
 f120:
   // >>>4		belong&0x00ffffff	100	\b_970
@@ -20765,7 +20825,7 @@ f120:
   if !(ok && (ra&16777215 == 100)) { goto f121 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t100\t\\b_970")
-  out = append(out, "\\b_970")
+  m("\\b_970")
   goto s108
 f121:
   // >>>4		belong&0x00ffffff	>100	subarchitecture=%ld
@@ -20774,7 +20834,7 @@ f121:
   if !(ok && (i8(i4(ra))&16777215 > 100)) { goto f122 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>100\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s108
 f122:
 s108:
@@ -20786,7 +20846,7 @@ f108:
   if !(ok && (i8(i4(ra))&16777215 > 18)) { goto f123 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t>18\tarchitecture=%ld")
-  out = append(out, "architecture=%ld")
+  m("architecture=%ld")
   goto s1
 f123:
 s1:
@@ -20804,7 +20864,7 @@ f1:
   if !(ok && (ra&16777215 == 0)) { goto f125 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t0\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f125:
   // >>0	belong&0x00ffffff	1	64-bit architecture=%ld
@@ -20813,7 +20873,7 @@ f125:
   if !(ok && (ra&16777215 == 1)) { goto f126 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t1\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f126:
   // >>0	belong&0x00ffffff	2	64-bit architecture=%ld
@@ -20822,7 +20882,7 @@ f126:
   if !(ok && (ra&16777215 == 2)) { goto f127 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t2\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f127:
   // >>0	belong&0x00ffffff	3	64-bit architecture=%ld
@@ -20831,7 +20891,7 @@ f127:
   if !(ok && (ra&16777215 == 3)) { goto f128 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t3\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f128:
   // >>0	belong&0x00ffffff	4	64-bit architecture=%ld
@@ -20840,7 +20900,7 @@ f128:
   if !(ok && (ra&16777215 == 4)) { goto f129 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t4\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f129:
   // >>0	belong&0x00ffffff	5	64-bit architecture=%ld
@@ -20849,7 +20909,7 @@ f129:
   if !(ok && (ra&16777215 == 5)) { goto f130 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t5\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f130:
   // >>0	belong&0x00ffffff	6	64-bit architecture=%ld
@@ -20858,7 +20918,7 @@ f130:
   if !(ok && (ra&16777215 == 6)) { goto f131 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t6\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f131:
   // >>0	belong&0x00ffffff	7	x86_64
@@ -20867,14 +20927,14 @@ f131:
   if !(ok && (ra&16777215 == 7)) { goto f132 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t7\tx86_64")
-  out = append(out, "x86_64")
+  m("x86_64")
   // >>>4		belong&0x00ffffff	0	subarchitecture=%ld
   off = pof + 4
   ra, ok = f4l(tb, off)
   if !(ok && (ra&16777215 == 0)) { goto f133 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t0\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f133:
   // >>>4		belong&0x00ffffff	1	subarchitecture=%ld
@@ -20883,7 +20943,7 @@ f133:
   if !(ok && (ra&16777215 == 1)) { goto f134 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f134:
   // >>>4		belong&0x00ffffff	2	subarchitecture=%ld
@@ -20892,7 +20952,7 @@ f134:
   if !(ok && (ra&16777215 == 2)) { goto f135 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f135:
   // >>>4		belong&0x00ffffff	3
@@ -20909,7 +20969,7 @@ f136:
   if !(ok && (ra&16777215 == 4)) { goto f137 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\t\\b_arch1")
-  out = append(out, "\\b_arch1")
+  m("\\b_arch1")
   goto s132
 f137:
   // >>>4		belong&0x00ffffff	>4	subarchitecture=%ld
@@ -20918,7 +20978,7 @@ f137:
   if !(ok && (i8(i4(ra))&16777215 > 4)) { goto f138 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>4\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s132
 f138:
 s132:
@@ -20930,7 +20990,7 @@ f132:
   if !(ok && (ra&16777215 == 8)) { goto f139 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t8\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f139:
   // >>0	belong&0x00ffffff	9	64-bit architecture=%ld
@@ -20939,7 +20999,7 @@ f139:
   if !(ok && (ra&16777215 == 9)) { goto f140 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t9\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f140:
   // >>0	belong&0x00ffffff	10	64-bit architecture=%ld
@@ -20948,7 +21008,7 @@ f140:
   if !(ok && (ra&16777215 == 10)) { goto f141 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t10\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f141:
   // >>0	belong&0x00ffffff	11	64-bit architecture=%ld
@@ -20957,7 +21017,7 @@ f141:
   if !(ok && (ra&16777215 == 11)) { goto f142 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t11\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f142:
   // >>0	belong&0x00ffffff	12	64-bit architecture=%ld
@@ -20966,7 +21026,7 @@ f142:
   if !(ok && (ra&16777215 == 12)) { goto f143 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t12\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f143:
   // >>0	belong&0x00ffffff	13	64-bit architecture=%ld
@@ -20975,7 +21035,7 @@ f143:
   if !(ok && (ra&16777215 == 13)) { goto f144 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t13\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f144:
   // >>0	belong&0x00ffffff	14	64-bit architecture=%ld
@@ -20984,7 +21044,7 @@ f144:
   if !(ok && (ra&16777215 == 14)) { goto f145 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t14\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f145:
   // >>0	belong&0x00ffffff	15	64-bit architecture=%ld
@@ -20993,7 +21053,7 @@ f145:
   if !(ok && (ra&16777215 == 15)) { goto f146 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t15\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f146:
   // >>0	belong&0x00ffffff	16	64-bit architecture=%ld
@@ -21002,7 +21062,7 @@ f146:
   if !(ok && (ra&16777215 == 16)) { goto f147 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t16\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f147:
   // >>0	belong&0x00ffffff	17	64-bit architecture=%ld
@@ -21011,7 +21071,7 @@ f147:
   if !(ok && (ra&16777215 == 17)) { goto f148 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t17\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f148:
   // >>0	belong&0x00ffffff	18	ppc64
@@ -21020,7 +21080,7 @@ f148:
   if !(ok && (ra&16777215 == 18)) { goto f149 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t18\tppc64")
-  out = append(out, "ppc64")
+  m("ppc64")
   // >>>4		belong&0x00ffffff	0
   off = pof + 4
   ra, ok = f4l(tb, off)
@@ -21035,7 +21095,7 @@ f150:
   if !(ok && (ra&16777215 == 1)) { goto f151 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t1\t\t\\b_601")
-  out = append(out, "\\b_601")
+  m("\\b_601")
   goto s149
 f151:
   // >>>4		belong&0x00ffffff	2		\b_602
@@ -21044,7 +21104,7 @@ f151:
   if !(ok && (ra&16777215 == 2)) { goto f152 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t2\t\t\\b_602")
-  out = append(out, "\\b_602")
+  m("\\b_602")
   goto s149
 f152:
   // >>>4		belong&0x00ffffff	3		\b_603
@@ -21053,7 +21113,7 @@ f152:
   if !(ok && (ra&16777215 == 3)) { goto f153 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t3\t\t\\b_603")
-  out = append(out, "\\b_603")
+  m("\\b_603")
   goto s149
 f153:
   // >>>4		belong&0x00ffffff	4		\b_603e
@@ -21062,7 +21122,7 @@ f153:
   if !(ok && (ra&16777215 == 4)) { goto f154 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t4\t\t\\b_603e")
-  out = append(out, "\\b_603e")
+  m("\\b_603e")
   goto s149
 f154:
   // >>>4		belong&0x00ffffff	5		\b_603ev
@@ -21071,7 +21131,7 @@ f154:
   if !(ok && (ra&16777215 == 5)) { goto f155 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t5\t\t\\b_603ev")
-  out = append(out, "\\b_603ev")
+  m("\\b_603ev")
   goto s149
 f155:
   // >>>4		belong&0x00ffffff	6		\b_604
@@ -21080,7 +21140,7 @@ f155:
   if !(ok && (ra&16777215 == 6)) { goto f156 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t6\t\t\\b_604")
-  out = append(out, "\\b_604")
+  m("\\b_604")
   goto s149
 f156:
   // >>>4		belong&0x00ffffff	7		\b_604e
@@ -21089,7 +21149,7 @@ f156:
   if !(ok && (ra&16777215 == 7)) { goto f157 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t7\t\t\\b_604e")
-  out = append(out, "\\b_604e")
+  m("\\b_604e")
   goto s149
 f157:
   // >>>4		belong&0x00ffffff	8		\b_620
@@ -21098,7 +21158,7 @@ f157:
   if !(ok && (ra&16777215 == 8)) { goto f158 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t8\t\t\\b_620")
-  out = append(out, "\\b_620")
+  m("\\b_620")
   goto s149
 f158:
   // >>>4		belong&0x00ffffff	9		\b_650
@@ -21107,7 +21167,7 @@ f158:
   if !(ok && (ra&16777215 == 9)) { goto f159 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t9\t\t\\b_650")
-  out = append(out, "\\b_650")
+  m("\\b_650")
   goto s149
 f159:
   // >>>4		belong&0x00ffffff	10		\b_7400
@@ -21116,7 +21176,7 @@ f159:
   if !(ok && (ra&16777215 == 10)) { goto f160 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t10\t\t\\b_7400")
-  out = append(out, "\\b_7400")
+  m("\\b_7400")
   goto s149
 f160:
   // >>>4		belong&0x00ffffff	11		\b_7450
@@ -21125,7 +21185,7 @@ f160:
   if !(ok && (ra&16777215 == 11)) { goto f161 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t11\t\t\\b_7450")
-  out = append(out, "\\b_7450")
+  m("\\b_7450")
   goto s149
 f161:
   // >>>4		belong&0x00ffffff	100		\b_970
@@ -21134,7 +21194,7 @@ f161:
   if !(ok && (ra&16777215 == 100)) { goto f162 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t100\t\t\\b_970")
-  out = append(out, "\\b_970")
+  m("\\b_970")
   goto s149
 f162:
   // >>>4		belong&0x00ffffff	>100		subarchitecture=%ld
@@ -21143,7 +21203,7 @@ f162:
   if !(ok && (i8(i4(ra))&16777215 > 100)) { goto f163 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>>4\t\tbelong&0x00ffffff\t>100\t\tsubarchitecture=%ld")
-  out = append(out, "subarchitecture=%ld")
+  m("subarchitecture=%ld")
   goto s149
 f163:
 s149:
@@ -21155,7 +21215,7 @@ f149:
   if !(ok && (i8(i4(ra))&16777215 > 18)) { goto f164 }
   gof = off + 4
   fmt.Printf("matched rule: %s\n", ">>0\tbelong&0x00ffffff\t>18\t64-bit architecture=%ld")
-  out = append(out, "64-bit architecture=%ld")
+  m("64-bit architecture=%ld")
   goto s124
 f164:
 s124:
@@ -21175,6 +21235,9 @@ func IdentifyMsdosCom(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0       name    msdos-com
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0       name    msdos-com")
@@ -21182,7 +21245,7 @@ func IdentifyMsdosCom(tb []byte, pof i8) ([]string, error) {
   off = pof + 0
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0  byte        x               DOS executable (COM)")
-  out = append(out, "DOS executable (COM)")
+  m("DOS executable (COM)")
   goto s0
   // >6	string		SFX\ of\ LHarc	\b, %s
   off = pof + 6
@@ -21192,7 +21255,7 @@ func IdentifyMsdosCom(tb []byte, pof i8) ([]string, error) {
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">6\tstring\t\tSFX\\ of\\ LHarc\t\\b, %s")
-  out = append(out, "\\b, %s")
+  m("\\b, %s")
   goto s0
 f2:
   // >0x1FE leshort	0xAA55		    \b, boot code
@@ -21201,7 +21264,7 @@ f2:
   if !(ok && (ra == 43605)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">0x1FE leshort\t0xAA55\t\t    \\b, boot code")
-  out = append(out, "\\b, boot code")
+  m("\\b, boot code")
   goto s0
 f3:
   // >85	string		UPX		        \b, UPX compressed
@@ -21212,7 +21275,7 @@ f3:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">85\tstring\t\tUPX\t\t        \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s0
 f4:
   // >4	string		\ $ARX		    \b, ARX self-extracting archive
@@ -21223,7 +21286,7 @@ f4:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t\t\\ $ARX\t\t    \\b, ARX self-extracting archive")
-  out = append(out, "\\b, ARX self-extracting archive")
+  m("\\b, ARX self-extracting archive")
   goto s0
 f5:
   // >4	string		\ $LHarc	    \b, LHarc self-extracting archive
@@ -21234,7 +21297,7 @@ f5:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t\t\\ $LHarc\t    \\b, LHarc self-extracting archive")
-  out = append(out, "\\b, LHarc self-extracting archive")
+  m("\\b, LHarc self-extracting archive")
   goto s0
 f6:
   // >0x20e string	SFX\ by\ LARC	\b, LARC self-extracting archive
@@ -21245,7 +21308,7 @@ f6:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x20e string\tSFX\\ by\\ LARC\t\\b, LARC self-extracting archive")
-  out = append(out, "\\b, LARC self-extracting archive")
+  m("\\b, LARC self-extracting archive")
   goto s0
 f7:
 s0:
@@ -21262,6 +21325,9 @@ func IdentifyMsdosCom__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0       name    msdos-com
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0       name    msdos-com")
@@ -21269,7 +21335,7 @@ func IdentifyMsdosCom__Swapped(tb []byte, pof i8) ([]string, error) {
   off = pof + 0
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0  byte        x               DOS executable (COM)")
-  out = append(out, "DOS executable (COM)")
+  m("DOS executable (COM)")
   goto s0
   // >6	string		SFX\ of\ LHarc	\b, %s
   off = pof + 6
@@ -21279,7 +21345,7 @@ func IdentifyMsdosCom__Swapped(tb []byte, pof i8) ([]string, error) {
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">6\tstring\t\tSFX\\ of\\ LHarc\t\\b, %s")
-  out = append(out, "\\b, %s")
+  m("\\b, %s")
   goto s0
 f2:
   // >0x1FE leshort	0xAA55		    \b, boot code
@@ -21288,7 +21354,7 @@ f2:
   if !(ok && (ra == 43605)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">0x1FE leshort\t0xAA55\t\t    \\b, boot code")
-  out = append(out, "\\b, boot code")
+  m("\\b, boot code")
   goto s0
 f3:
   // >85	string		UPX		        \b, UPX compressed
@@ -21299,7 +21365,7 @@ f3:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">85\tstring\t\tUPX\t\t        \\b, UPX compressed")
-  out = append(out, "\\b, UPX compressed")
+  m("\\b, UPX compressed")
   goto s0
 f4:
   // >4	string		\ $ARX		    \b, ARX self-extracting archive
@@ -21310,7 +21376,7 @@ f4:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t\t\\ $ARX\t\t    \\b, ARX self-extracting archive")
-  out = append(out, "\\b, ARX self-extracting archive")
+  m("\\b, ARX self-extracting archive")
   goto s0
 f5:
   // >4	string		\ $LHarc	    \b, LHarc self-extracting archive
@@ -21321,7 +21387,7 @@ f5:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">4\tstring\t\t\\ $LHarc\t    \\b, LHarc self-extracting archive")
-  out = append(out, "\\b, LHarc self-extracting archive")
+  m("\\b, LHarc self-extracting archive")
   goto s0
 f6:
   // >0x20e string	SFX\ by\ LARC	\b, LARC self-extracting archive
@@ -21332,7 +21398,7 @@ f6:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">0x20e string\tSFX\\ by\\ LARC\t\\b, LARC self-extracting archive")
-  out = append(out, "\\b, LARC self-extracting archive")
+  m("\\b, LARC self-extracting archive")
   goto s0
 f7:
 s0:
@@ -21349,10 +21415,13 @@ func IdentifyMsdosDriver(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0       name    			msdos-driver		DOS executable (
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0       name    \t\t\tmsdos-driver\t\tDOS executable (")
-  out = append(out, "DOS executable (")
+  m("DOS executable (")
   // >40	search/7			UPX!			\bUPX compressed
   off = pof + 40
   {
@@ -21361,7 +21430,7 @@ func IdentifyMsdosDriver(tb []byte, pof i8) ([]string, error) {
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">40\tsearch/7\t\t\tUPX!\t\t\t\\bUPX compressed")
-  out = append(out, "\\bUPX compressed")
+  m("\\bUPX compressed")
   goto s0
 f1:
   // >4	uleshort&0x8000			0x0000			\bblock device driver
@@ -21370,7 +21439,7 @@ f1:
   if !(ok && (ra&32768 == 0)) { goto f2 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000\t\t\t\\bblock device driver")
-  out = append(out, "\\bblock device driver")
+  m("\\bblock device driver")
   goto s0
 f2:
   // >4	uleshort&0x8000			0x8000			\b
@@ -21379,14 +21448,14 @@ f2:
   if !(ok && (ra&32768 == 32768)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   // >>4	uleshort&0x0008			0x0008			\bclock
   off = pof + 4
   ra, ok = f2l(tb, off)
   if !(ok && (ra&8 == 8)) { goto f4 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0008\t\t\t0x0008\t\t\t\\bclock")
-  out = append(out, "\\bclock")
+  m("\\bclock")
   goto s3
 f4:
   // >>4	uleshort&0x0010			0x0010			\bfast
@@ -21395,7 +21464,7 @@ f4:
   if !(ok && (ra&16 == 16)) { goto f5 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0010\t\t\t0x0010\t\t\t\\bfast")
-  out = append(out, "\\bfast")
+  m("\\bfast")
   goto s3
 f5:
   // >>4	uleshort&0x0003			>0			\bstandard
@@ -21404,14 +21473,14 @@ f5:
   if !(ok && (i8(i2(ra))&3 > 0)) { goto f6 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0003\t\t\t>0\t\t\t\\bstandard")
-  out = append(out, "\\bstandard")
+  m("\\bstandard")
   // >>>4	uleshort&0x0001			0x0001			\binput
   off = pof + 4
   ra, ok = f2l(tb, off)
   if !(ok && (ra&1 == 1)) { goto f7 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0001\t\t\t0x0001\t\t\t\\binput")
-  out = append(out, "\\binput")
+  m("\\binput")
   goto s6
 f7:
   // >>>4	uleshort&0x0003			0x0003			\b/
@@ -21420,7 +21489,7 @@ f7:
   if !(ok && (ra&3 == 3)) { goto f8 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0003\t\t\t0x0003\t\t\t\\b/")
-  out = append(out, "\\b/")
+  m("\\b/")
   goto s6
 f8:
   // >>>4	uleshort&0x0002			0x0002			\boutput
@@ -21429,7 +21498,7 @@ f8:
   if !(ok && (ra&2 == 2)) { goto f9 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\boutput")
-  out = append(out, "\\boutput")
+  m("\\boutput")
   goto s6
 f9:
 s6:
@@ -21441,7 +21510,7 @@ f6:
   if !(ok && (ra&32768 == 32768)) { goto f10 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\bcharacter device driver")
-  out = append(out, "\\bcharacter device driver")
+  m("\\bcharacter device driver")
   goto s3
 f10:
 s3:
@@ -21472,7 +21541,7 @@ f12:
   if !(ok && (i8(i1(ra)) > 46)) { goto f14 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t>0x2E\t\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   // >>>>10		ubyte			>0x20
   off = pof + 10
   ra, ok = f1l(tb, off)
@@ -21491,7 +21560,7 @@ f12:
   if !(ok && (ra != 42)) { goto f17 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>10\tubyte\t\t\t!0x2A\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s16
 f17:
 s16:
@@ -21512,7 +21581,7 @@ f15:
   if !(ok && (ra != 46)) { goto f19 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>11\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s18
 f19:
 s18:
@@ -21536,7 +21605,7 @@ f18:
   if !(ok && (ra != 46)) { goto f22 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>12\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s21
 f22:
 s21:
@@ -21560,7 +21629,7 @@ f14:
   if !(ok && (ra != 46)) { goto f24 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>13\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s23
 f24:
   // >>>>14		ubyte			>0x20
@@ -21575,7 +21644,7 @@ f24:
   if !(ok && (ra != 46)) { goto f26 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>14\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s25
 f26:
 s25:
@@ -21593,7 +21662,7 @@ f25:
   if !(ok && (ra != 46)) { goto f28 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>15\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s27
 f28:
 s27:
@@ -21617,7 +21686,7 @@ f27:
   if !(ok && (i8(i1(ra)) < 203)) { goto f31 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>16\tubyte\t\t\t<0xCB\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s30
 f31:
 s30:
@@ -21644,7 +21713,7 @@ f29:
   if !(ok && (i8(i1(ra)) < 144)) { goto f34 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>17\tubyte\t\t\t<0x90\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s33
 f34:
 s33:
@@ -21670,7 +21739,7 @@ f23:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>22\t\tstring\t\t\t>\\056\t\t\t%-.6s")
-  out = append(out, "%-.6s")
+  m("%-.6s")
   goto s35
 f36:
 s35:
@@ -21693,7 +21762,7 @@ s11:
   if !(ok && (ra&2 == 2)) { goto f38 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\b,32-bit sector-")
-  out = append(out, "\\b,32-bit sector-")
+  m("\\b,32-bit sector-")
   goto s37
 f38:
 s37:
@@ -21705,7 +21774,7 @@ f37:
   if !(ok && (ra&64 == 64)) { goto f39 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0040\t\t\t0x0040\t\t\t\\b,IOCTL-")
-  out = append(out, "\\b,IOCTL-")
+  m("\\b,IOCTL-")
   goto s0
 f39:
   // >4	uleshort&0x0800			0x0800			\b,close media-
@@ -21714,7 +21783,7 @@ f39:
   if !(ok && (ra&2048 == 2048)) { goto f40 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0800\t\t\t0x0800\t\t\t\\b,close media-")
-  out = append(out, "\\b,close media-")
+  m("\\b,close media-")
   goto s0
 f40:
   // >4	uleshort&0x8000			0x8000
@@ -21729,7 +21798,7 @@ f40:
   if !(ok && (ra&8192 == 8192)) { goto f42 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x2000\t\t\t0x2000\t\t\t\\b,until busy-")
-  out = append(out, "\\b,until busy-")
+  m("\\b,until busy-")
   goto s41
 f42:
 s41:
@@ -21741,7 +21810,7 @@ f41:
   if !(ok && (ra&16384 == 16384)) { goto f43 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x4000\t\t\t0x4000\t\t\t\\b,control strings-")
-  out = append(out, "\\b,control strings-")
+  m("\\b,control strings-")
   goto s0
 f43:
   // >4	uleshort&0x8000			0x8000
@@ -21756,7 +21825,7 @@ f43:
   if !(ok && (i8(i2(ra))&26688 > 0)) { goto f45 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x6840\t\t\t>0\t\t\t\\bsupport")
-  out = append(out, "\\bsupport")
+  m("\\bsupport")
   goto s44
 f45:
 s44:
@@ -21774,7 +21843,7 @@ f44:
   if !(ok && (i8(i2(ra))&18498 > 0)) { goto f47 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x4842\t\t\t>0\t\t\t\\bsupport")
-  out = append(out, "\\bsupport")
+  m("\\bsupport")
   goto s46
 f47:
 s46:
@@ -21784,7 +21853,7 @@ f46:
   off = pof + 0
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx\t\t\t\\b)")
-  out = append(out, "\\b)")
+  m("\\b)")
   goto s0
 s0:
   goto end
@@ -21800,10 +21869,13 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pof i8) ([]string, error) {
   var rb u8; rb &= rb
   var ok bool; ok = !!ok
 
+  m := func (args... string) {
+    out = append(out, args...)
+  }
   // 0       name    			msdos-driver		DOS executable (
   off = pof + 0
   fmt.Printf("matched rule: %s\n", "0       name    \t\t\tmsdos-driver\t\tDOS executable (")
-  out = append(out, "DOS executable (")
+  m("DOS executable (")
   // >40	search/7			UPX!			\bUPX compressed
   off = pof + 40
   {
@@ -21812,7 +21884,7 @@ func IdentifyMsdosDriver__Swapped(tb []byte, pof i8) ([]string, error) {
     gof = off + ml + 4
   }
   fmt.Printf("matched rule: %s\n", ">40\tsearch/7\t\t\tUPX!\t\t\t\\bUPX compressed")
-  out = append(out, "\\bUPX compressed")
+  m("\\bUPX compressed")
   goto s0
 f1:
   // >4	uleshort&0x8000			0x0000			\bblock device driver
@@ -21821,7 +21893,7 @@ f1:
   if !(ok && (ra&32768 == 0)) { goto f2 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x0000\t\t\t\\bblock device driver")
-  out = append(out, "\\bblock device driver")
+  m("\\bblock device driver")
   goto s0
 f2:
   // >4	uleshort&0x8000			0x8000			\b
@@ -21830,14 +21902,14 @@ f2:
   if !(ok && (ra&32768 == 32768)) { goto f3 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   // >>4	uleshort&0x0008			0x0008			\bclock
   off = pof + 4
   ra, ok = f2b(tb, off)
   if !(ok && (ra&8 == 8)) { goto f4 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0008\t\t\t0x0008\t\t\t\\bclock")
-  out = append(out, "\\bclock")
+  m("\\bclock")
   goto s3
 f4:
   // >>4	uleshort&0x0010			0x0010			\bfast
@@ -21846,7 +21918,7 @@ f4:
   if !(ok && (ra&16 == 16)) { goto f5 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0010\t\t\t0x0010\t\t\t\\bfast")
-  out = append(out, "\\bfast")
+  m("\\bfast")
   goto s3
 f5:
   // >>4	uleshort&0x0003			>0			\bstandard
@@ -21855,14 +21927,14 @@ f5:
   if !(ok && (i8(i2(ra))&3 > 0)) { goto f6 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0003\t\t\t>0\t\t\t\\bstandard")
-  out = append(out, "\\bstandard")
+  m("\\bstandard")
   // >>>4	uleshort&0x0001			0x0001			\binput
   off = pof + 4
   ra, ok = f2b(tb, off)
   if !(ok && (ra&1 == 1)) { goto f7 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0001\t\t\t0x0001\t\t\t\\binput")
-  out = append(out, "\\binput")
+  m("\\binput")
   goto s6
 f7:
   // >>>4	uleshort&0x0003			0x0003			\b/
@@ -21871,7 +21943,7 @@ f7:
   if !(ok && (ra&3 == 3)) { goto f8 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0003\t\t\t0x0003\t\t\t\\b/")
-  out = append(out, "\\b/")
+  m("\\b/")
   goto s6
 f8:
   // >>>4	uleshort&0x0002			0x0002			\boutput
@@ -21880,7 +21952,7 @@ f8:
   if !(ok && (ra&2 == 2)) { goto f9 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\boutput")
-  out = append(out, "\\boutput")
+  m("\\boutput")
   goto s6
 f9:
 s6:
@@ -21892,7 +21964,7 @@ f6:
   if !(ok && (ra&32768 == 32768)) { goto f10 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x8000\t\t\t0x8000\t\t\t\\bcharacter device driver")
-  out = append(out, "\\bcharacter device driver")
+  m("\\bcharacter device driver")
   goto s3
 f10:
 s3:
@@ -21923,7 +21995,7 @@ f12:
   if !(ok && (i8(i1(ra)) > 46)) { goto f14 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>12\t\tubyte\t\t\t>0x2E\t\t\t\\b")
-  out = append(out, "\\b")
+  m("\\b")
   // >>>>10		ubyte			>0x20
   off = pof + 10
   ra, ok = f1b(tb, off)
@@ -21942,7 +22014,7 @@ f12:
   if !(ok && (ra != 42)) { goto f17 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>10\tubyte\t\t\t!0x2A\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s16
 f17:
 s16:
@@ -21963,7 +22035,7 @@ f15:
   if !(ok && (ra != 46)) { goto f19 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>11\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s18
 f19:
 s18:
@@ -21987,7 +22059,7 @@ f18:
   if !(ok && (ra != 46)) { goto f22 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>12\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s21
 f22:
 s21:
@@ -22011,7 +22083,7 @@ f14:
   if !(ok && (ra != 46)) { goto f24 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>13\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s23
 f24:
   // >>>>14		ubyte			>0x20
@@ -22026,7 +22098,7 @@ f24:
   if !(ok && (ra != 46)) { goto f26 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>14\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s25
 f26:
 s25:
@@ -22044,7 +22116,7 @@ f25:
   if !(ok && (ra != 46)) { goto f28 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>15\t\tubyte\t\t\t!0x2E\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s27
 f28:
 s27:
@@ -22068,7 +22140,7 @@ f27:
   if !(ok && (i8(i1(ra)) < 203)) { goto f31 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>16\tubyte\t\t\t<0xCB\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s30
 f31:
 s30:
@@ -22095,7 +22167,7 @@ f29:
   if !(ok && (i8(i1(ra)) < 144)) { goto f34 }
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">>>>>>17\tubyte\t\t\t<0x90\t\t\t\\b%c")
-  out = append(out, "\\b%c")
+  m("\\b%c")
   goto s33
 f34:
 s33:
@@ -22121,7 +22193,7 @@ f23:
     gof = off + ml
   }
   fmt.Printf("matched rule: %s\n", ">>>>22\t\tstring\t\t\t>\\056\t\t\t%-.6s")
-  out = append(out, "%-.6s")
+  m("%-.6s")
   goto s35
 f36:
 s35:
@@ -22144,7 +22216,7 @@ s11:
   if !(ok && (ra&2 == 2)) { goto f38 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x0002\t\t\t0x0002\t\t\t\\b,32-bit sector-")
-  out = append(out, "\\b,32-bit sector-")
+  m("\\b,32-bit sector-")
   goto s37
 f38:
 s37:
@@ -22156,7 +22228,7 @@ f37:
   if !(ok && (ra&64 == 64)) { goto f39 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0040\t\t\t0x0040\t\t\t\\b,IOCTL-")
-  out = append(out, "\\b,IOCTL-")
+  m("\\b,IOCTL-")
   goto s0
 f39:
   // >4	uleshort&0x0800			0x0800			\b,close media-
@@ -22165,7 +22237,7 @@ f39:
   if !(ok && (ra&2048 == 2048)) { goto f40 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x0800\t\t\t0x0800\t\t\t\\b,close media-")
-  out = append(out, "\\b,close media-")
+  m("\\b,close media-")
   goto s0
 f40:
   // >4	uleshort&0x8000			0x8000
@@ -22180,7 +22252,7 @@ f40:
   if !(ok && (ra&8192 == 8192)) { goto f42 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x2000\t\t\t0x2000\t\t\t\\b,until busy-")
-  out = append(out, "\\b,until busy-")
+  m("\\b,until busy-")
   goto s41
 f42:
 s41:
@@ -22192,7 +22264,7 @@ f41:
   if !(ok && (ra&16384 == 16384)) { goto f43 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">4\tuleshort&0x4000\t\t\t0x4000\t\t\t\\b,control strings-")
-  out = append(out, "\\b,control strings-")
+  m("\\b,control strings-")
   goto s0
 f43:
   // >4	uleshort&0x8000			0x8000
@@ -22207,7 +22279,7 @@ f43:
   if !(ok && (i8(i2(ra))&26688 > 0)) { goto f45 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x6840\t\t\t>0\t\t\t\\bsupport")
-  out = append(out, "\\bsupport")
+  m("\\bsupport")
   goto s44
 f45:
 s44:
@@ -22225,7 +22297,7 @@ f44:
   if !(ok && (i8(i2(ra))&18498 > 0)) { goto f47 }
   gof = off + 2
   fmt.Printf("matched rule: %s\n", ">>4\tuleshort&0x4842\t\t\t>0\t\t\t\\bsupport")
-  out = append(out, "\\bsupport")
+  m("\\bsupport")
   goto s46
 f47:
 s46:
@@ -22235,7 +22307,7 @@ f46:
   off = pof + 0
   gof = off + 1
   fmt.Printf("matched rule: %s\n", ">0\tubyte\t\t\t\tx\t\t\t\\b)")
-  out = append(out, "\\b)")
+  m("\\b)")
   goto s0
 s0:
   goto end

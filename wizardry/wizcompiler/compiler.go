@@ -159,6 +159,12 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 				emit("var ok bool; ok = !!ok")
 				emit("")
 
+				emit("m := func (args... string) {")
+				withIndent(func() {
+					emit("out = append(out, args...)")
+				})
+				emit("}")
+
 				var emitNode nodeEmitter
 
 				emitNode = func(node *ruleNode, parentNode *ruleNode) {
@@ -298,7 +304,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
 						withScope(func() {
 							emit("ss, _ := Identify%s(tb, off)", pageSymbol(uk.Page, uk.SwapEndian))
-							emit("out = append(out, ss...)")
+							emit("m(ss...)")
 						})
 
 					case wizparser.KindFamilyName:
@@ -314,7 +320,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.Line))
 					}
 					if len(rule.Description) > 0 {
-						emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
+						emit("m(%s)", strconv.Quote(string(rule.Description)))
 					}
 
 					if len(node.children) > 0 {
