@@ -17,8 +17,10 @@ type indentCallback func()
 type ruleNode struct {
 	id       int64
 	rule     wizparser.Rule
-	children []ruleNode
+	children []*ruleNode
 }
+
+type nodeEmitter func(node *ruleNode, parent *ruleNode)
 
 // Compile generates go code from a spellbook
 func Compile(book wizparser.Spellbook) error {
@@ -152,7 +154,9 @@ func Compile(book wizparser.Spellbook) error {
 				emit("var ml i64")  // matchLength
 				emit("")
 
-				emitNode := func(node ruleNode, parentNode *ruleNode) {
+				var emitNode nodeEmitter
+
+				emitNode = func(node *ruleNode, parentNode *ruleNode) {
 					rule := node.rule
 
 					emit("// %s", rule.Line)
@@ -282,9 +286,10 @@ func Compile(book wizparser.Spellbook) error {
 
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
-						emit("ss, _ := Identify%s(tb, off)", pageSymbol(uk.Page, uk.SwapEndian))
-						emit("out = append(out, ss...)")
-						emit("goto %s", failLabel(node))
+						withScope(func() {
+							emit("ss, _ := Identify%s(tb, off)", pageSymbol(uk.Page, uk.SwapEndian))
+							emit("out = append(out, ss...)")
+						})
 
 					default:
 						emit("// uh oh unhandled kind %s", rule.Kind)
@@ -297,12 +302,19 @@ func Compile(book wizparser.Spellbook) error {
 						emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
 					}
 
+					if len(node.children) > 0 {
+						for _, child := range node.children {
+							emitNode(child, node)
+						}
+					}
+
+					emit("if false { goto %s }", failLabel(node))
 					emit("goto %s", succeedLabel(node))
 					emitLabel(succeedLabel(node))
 					if parentNode == nil {
 						emit("goto end")
 					} else {
-						emit("goto %s", succeedLabel(*parentNode))
+						emit("goto %s", succeedLabel(parentNode))
 					}
 					emitLabel(failLabel(node))
 				}
@@ -349,13 +361,13 @@ func quoteNumber(number int64) string {
 	return fmt.Sprintf("0x%x", number)
 }
 
-func treeify(rules []wizparser.Rule) []ruleNode {
-	var rootNodes []ruleNode
-	var nodeStack []ruleNode
+func treeify(rules []wizparser.Rule) []*ruleNode {
+	var rootNodes []*ruleNode
+	var nodeStack []*ruleNode
 	var idSeed int64
 
 	for _, rule := range rules {
-		node := ruleNode{
+		node := &ruleNode{
 			id:   idSeed,
 			rule: rule,
 		}
@@ -375,10 +387,10 @@ func treeify(rules []wizparser.Rule) []ruleNode {
 	return rootNodes
 }
 
-func failLabel(node ruleNode) string {
+func failLabel(node *ruleNode) string {
 	return fmt.Sprintf("f%d", node.id)
 }
 
-func succeedLabel(node ruleNode) string {
+func succeedLabel(node *ruleNode) string {
 	return fmt.Sprintf("s%d", node.id)
 }
