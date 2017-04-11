@@ -156,6 +156,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 				emit("var off i8")             // lookupOffset
 				emit("var ra u8; ra &= ra")
 				emit("var rb u8; rb &= rb")
+				emit("var rA i8; rA &= rA")
 				emit("var ok bool; ok = !!ok")
 				emit("")
 
@@ -280,25 +281,21 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						emit("gof = off + %d", ik.ByteWidth)
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
-						withScope(func() {
-							emit("ml := i8(wizardry.StringTest(tb, int(off), []byte(%s), %d))", strconv.Quote(string(sk.Value)), sk.Flags)
-							canFail = true
-							if sk.Negate {
-								emit("if ml >= 0 { goto %s }", failLabel(node))
-							} else {
-								emit("if ml < 0 { goto %s }", failLabel(node))
-							}
-							emit("gof = off + ml")
-						})
+						emit("rA = i8(wizardry.StringTest(tb, int(off), []byte(%s), %d))", strconv.Quote(string(sk.Value)), sk.Flags)
+						canFail = true
+						if sk.Negate {
+							emit("if rA >= 0 { goto %s }", failLabel(node))
+						} else {
+							emit("if rA < 0 { goto %s }", failLabel(node))
+						}
+						emit("gof = off + rA")
 
 					case wizparser.KindFamilySearch:
-						withScope(func() {
-							sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
-							emit("ml := i8(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
-							canFail = true
-							emit("if ml < 0 { goto %s }", failLabel(node))
-							emit("gof = off + ml + %s", quoteNumber(int64(len(sk.Value))))
-						})
+						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
+						emit("rA = i8(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
+						canFail = true
+						emit("if rA < 0 { goto %s }", failLabel(node))
+						emit("gof = off + rA + %s", quoteNumber(int64(len(sk.Value))))
 
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
