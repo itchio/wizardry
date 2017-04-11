@@ -22,7 +22,7 @@ type ruleNode struct {
 	children []*ruleNode
 }
 
-type nodeEmitter func(node *ruleNode, successLabel string, prevSibling *ruleNode)
+type nodeEmitter func(node *ruleNode, defaultMarker string, prevSibling *ruleNode)
 
 // Compile generates go code from a spellbook
 func Compile(book wizparser.Spellbook, includeStrings bool) error {
@@ -143,6 +143,8 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 		nodes := treeify(book[page])
 
 		for _, swapEndian := range []bool{false, true} {
+			defaultSeed := 0
+
 			emit("func Identify%s(tb []byte, po i8) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
 				emit("var out []string")
@@ -155,6 +157,10 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 				emit("var ka bool; ka = !!ka")
 				emit("var kb bool; kb = !!kb")
 				emit("var kc bool; kc = !!kc")
+				for i := 0; i < 16; i++ {
+					name := fmt.Sprintf("d%x", i)
+					emit("var %s bool; %s = !!%s", name, name, name)
+				}
 				emit("")
 
 				emit("m := func (args... string) {")
@@ -165,7 +171,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 
 				var emitNode nodeEmitter
 
-				emitNode = func(node *ruleNode, successLabel string, prevSiblingNode *ruleNode) {
+				emitNode = func(node *ruleNode, defaultMarker string, prevSiblingNode *ruleNode) {
 					rule := node.rule
 
 					canFail := false
@@ -323,8 +329,21 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 					case wizparser.KindFamilyName:
 						// do nothing, pretty much
 
+					case wizparser.KindFamilyClear:
+						// reset defaultMarker for this level
+						if defaultMarker == "" {
+							panic("compiler error: nil defaultMarker for clear rule")
+						}
+						emit("%s = false", defaultMarker)
+
 					case wizparser.KindFamilyDefault:
-						// just fall through
+						// only succeed if defaultMarker is unset
+						// (so, fail if it's set)
+						if defaultMarker == "" {
+							panic("compiler error: nil defaultMarker for default rule")
+						}
+						canFail = true
+						emit("if %s { goto %s }", defaultMarker, failLabel(node))
 
 					default:
 						emit("// uh oh unhandled kind %s", rule.Kind)
@@ -339,35 +358,39 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						emit("m(%s)", strconv.Quote(string(rule.Description)))
 					}
 
-					numGroups := 0
 					numChildren := len(node.children)
-					if numChildren > 0 {
-						var prevSibling = node
-						for childIndex, child := range node.children {
-							emitNode(child, groupSucceedLabel(node, numGroups), prevSibling)
-							prevSibling = child
+					childDefaultMarker := ""
 
-							if child.rule.Kind.Family == wizparser.KindFamilyDefault && childIndex+1 < numChildren {
-								emitLabel(groupSucceedLabel(node, numGroups))
-								numGroups++
-								prevSibling = nil
+					if numChildren > 0 {
+						for _, child := range node.children {
+							if child.rule.Kind.Family == wizparser.KindFamilyDefault {
+								childDefaultMarker = fmt.Sprintf("d%x", rule.Level)
+								defaultSeed++
+								emit("%s = false", childDefaultMarker)
+								break
 							}
 						}
 
-						emitLabel(groupSucceedLabel(node, numGroups))
+						var prevSibling = node
+						for _, child := range node.children {
+							emitNode(child, childDefaultMarker, prevSibling)
+							prevSibling = child
+						}
 					}
 
-					emit("goto %s", successLabel)
+					if defaultMarker != "" {
+						emit("%s = true", defaultMarker)
+					}
+
 					if canFail {
 						emitLabel(failLabel(node))
 					}
 				}
 
 				for _, node := range nodes {
-					emitNode(node, "end", nil)
+					emitNode(node, "", nil)
 				}
 
-				emitLabel("end")
 				emit("return out, nil")
 			})
 			emit("}")
@@ -435,12 +458,4 @@ func treeify(rules []wizparser.Rule) []*ruleNode {
 
 func failLabel(node *ruleNode) string {
 	return fmt.Sprintf("f%x", node.id)
-}
-
-func succeedLabel(node *ruleNode) string {
-	return fmt.Sprintf("s%x", node.id)
-}
-
-func groupSucceedLabel(node *ruleNode, g int) string {
-	return fmt.Sprintf("%sg%d", succeedLabel(node), g)
 }
