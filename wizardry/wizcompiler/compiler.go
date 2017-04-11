@@ -317,7 +317,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 					}
 
 					if includeStrings {
-						emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.Line))
+						emit("fmt.Printf(\"%%s\\n\", %s)", strconv.Quote(rule.Line))
 					}
 					if len(rule.Description) > 0 {
 						emit("m(%s)", strconv.Quote(string(rule.Description)))
