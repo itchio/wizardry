@@ -226,17 +226,17 @@ func parseStringTestFlags(input []byte, j int) *parsedStringTestFlags {
 	for j < inputSize {
 		switch input[j] {
 		case 'W':
-			result.Flags.CompactWhitespace = true
+			result.Flags |= wizardry.CompactWhitespace
 		case 'w':
-			result.Flags.OptionalBlanks = true
+			result.Flags |= wizardry.OptionalBlanks
 		case 'c':
-			result.Flags.LowerMatchesBoth = true
+			result.Flags |= wizardry.LowerMatchesBoth
 		case 'C':
-			result.Flags.UpperMatchesBoth = true
+			result.Flags |= wizardry.UpperMatchesBoth
 		case 't':
-			result.Flags.ForceText = true
+			result.Flags |= wizardry.ForceText
 		case 'b':
-			result.Flags.ForceBinary = true
+			result.Flags |= wizardry.ForceBinary
 		default:
 			break
 		}

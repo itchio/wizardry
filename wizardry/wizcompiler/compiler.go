@@ -281,7 +281,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
 						withScope(func() {
-							emit("ml := i8(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
+							emit("ml := i8(wizardry.StringTest(tb, int(off), []byte(%s), %d))", strconv.Quote(string(sk.Value)), sk.Flags)
 							canFail = true
 							if sk.Negate {
 								emit("if ml >= 0 { goto %s }", failLabel(node))

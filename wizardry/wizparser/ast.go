@@ -177,7 +177,7 @@ const (
 	// LittleEndian numbers are stored with the least significant byte first
 	LittleEndian Endianness = iota
 	// BigEndian numbers are stored with the most significant byte first
-	BigEndian = iota
+	BigEndian
 )
 
 // Kind describes the type of tests a magic rule performs
@@ -207,13 +207,13 @@ const (
 	// IntegerTestEqual tests that two integers have the same value
 	IntegerTestEqual IntegerTest = iota
 	// IntegerTestNotEqual tests that two integers have different values
-	IntegerTestNotEqual = iota
+	IntegerTestNotEqual
 	// IntegerTestLessThan tests that one integer is less than the other
-	IntegerTestLessThan = iota
+	IntegerTestLessThan
 	// IntegerTestGreaterThan tests that one integer is greater than the other
-	IntegerTestGreaterThan = iota
+	IntegerTestGreaterThan
 	// IntegerTestAnd tests that all the bits in the pattern are set
-	IntegerTestAnd = iota
+	IntegerTestAnd
 )
 
 // StringKind describes how to match a string pattern
@@ -236,17 +236,17 @@ const (
 	// KindFamilyInteger tests numbers for equality, inequality, etc.
 	KindFamilyInteger KindFamily = iota
 	// KindFamilyString looks for a string, with casing and whitespace rules
-	KindFamilyString = iota
+	KindFamilyString
 	// KindFamilySearch looks for a precise string in a slice of the target
-	KindFamilySearch = iota
+	KindFamilySearch
 	// KindFamilyDefault succeeds if no tests succeeded before on that level
-	KindFamilyDefault = iota
+	KindFamilyDefault
 	// KindFamilyClear resets the matched flag for that level
-	KindFamilyClear = iota
+	KindFamilyClear
 	// KindFamilyName always succeeds
-	KindFamilyName = iota
+	KindFamilyName
 	// KindFamilyUse acts like a subroutine call, to peruse another page of rules
-	KindFamilyUse = iota
+	KindFamilyUse
 )
 
 // Offset describes where to look to compare something
@@ -264,7 +264,7 @@ const (
 	// OffsetTypeIndirect is an offset read from somewhere in a file
 	OffsetTypeIndirect OffsetType = iota
 	// OffsetTypeDirect is an offset directly specified by the magic
-	OffsetTypeDirect = iota
+	OffsetTypeDirect
 )
 
 // IndirectOffset indicates where to look in a file to find the real offset
@@ -285,13 +285,13 @@ const (
 	// AdjustmentNone is a no-op
 	AdjustmentNone Adjustment = iota
 	// AdjustmentAdd adds a value
-	AdjustmentAdd = iota
+	AdjustmentAdd
 	// AdjustmentSub subtracts a value
-	AdjustmentSub = iota
+	AdjustmentSub
 	// AdjustmentMul multiplies by a value
-	AdjustmentMul = iota
+	AdjustmentMul
 	// AdjustmentDiv divides by a value
-	AdjustmentDiv = iota
+	AdjustmentDiv
 )
 
 // UseKind describes which page of the spellbook to use, and whether or not to swap endianness
