@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	humanize "github.com/dustin/go-humanize"
 	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
 	"github.com/go-errors/errors"
 )
@@ -24,7 +25,7 @@ type ruleNode struct {
 type nodeEmitter func(node *ruleNode, parent *ruleNode)
 
 // Compile generates go code from a spellbook
-func Compile(book wizparser.Spellbook) error {
+func Compile(book wizparser.Spellbook, includeStrings bool) error {
 	startTime := time.Now()
 
 	wd, err := os.Getwd()
@@ -106,21 +107,21 @@ func Compile(book wizparser.Spellbook) error {
 	emit("var _ wizardry.StringTestFlags")
 	emit("var _ fmt.State")
 
-	emit("var le binary.ByteOrder = binary.LittleEndian")
-	emit("var be binary.ByteOrder = binary.BigEndian")
+	emit("var l binary.ByteOrder = binary.LittleEndian")
+	emit("var b binary.ByteOrder = binary.BigEndian")
 	for _, byteWidth := range []byte{1, 2, 4, 8} {
-		emit("type i%d int%d", byteWidth*8, byteWidth*8)
-		emit("type u%d uint%d", byteWidth*8, byteWidth*8)
+		emit("type i%d int%d", byteWidth, byteWidth*8)
+		emit("type u%d uint%d", byteWidth, byteWidth*8)
 	}
 	emit("")
 
 	for _, byteWidth := range []byte{1, 2, 4, 8} {
 		for _, endianness := range []wizparser.Endianness{wizparser.LittleEndian, wizparser.BigEndian} {
-			retType := fmt.Sprintf("u%d", byteWidth*8)
+			retType := "u8"
 
-			emit("func readU%d%s(tb []byte, off i64) (%s, bool) {", byteWidth*8, endiannessString(endianness, false), retType)
+			emit("func f%d%s(tb []byte, off i8) (%s, bool) {", byteWidth, endiannessString(endianness, false), retType)
 			withIndent(func() {
-				emit("if i64(len(tb)) < off+%d {", byteWidth)
+				emit("if i8(len(tb)) < off+%d {", byteWidth)
 				withIndent(func() {
 					emit("return 0, false")
 				})
@@ -148,12 +149,14 @@ func Compile(book wizparser.Spellbook) error {
 		nodes := treeify(book[page])
 
 		for _, swapEndian := range []bool{false, true} {
-			emit("func Identify%s(tb []byte, pageOff i64) ([]string, error) {", pageSymbol(page, swapEndian))
+			emit("func Identify%s(tb []byte, pof i8) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
 				emit("var out []string")
-				emit("var gof i64") // globalOffset
-				emit("gof &= gof")
-				emit("var off i64") // lookupOffset
+				emit("var gof i8; gof &= gof") // globalOffset
+				emit("var off i8")             // lookupOffset
+				emit("var ra u8; ra &= ra")
+				emit("var rb u8; rb &= rb")
+				emit("var ok bool; ok = !!ok")
 				emit("")
 
 				var emitNode nodeEmitter
@@ -168,54 +171,52 @@ func Compile(book wizparser.Spellbook) error {
 					switch rule.Offset.OffsetType {
 					case wizparser.OffsetTypeDirect:
 						if rule.Offset.IsRelative {
-							emit("off = pageOff + gof + %s", quoteNumber(rule.Offset.Direct))
+							emit("off = pof + gof + %s", quoteNumber(rule.Offset.Direct))
 						} else {
-							emit("off = pageOff + %s", quoteNumber(rule.Offset.Direct))
+							emit("off = pof + %s", quoteNumber(rule.Offset.Direct))
 						}
 					case wizparser.OffsetTypeIndirect:
-						withScope(func() {
-							indirect := rule.Offset.Indirect
+						indirect := rule.Offset.Indirect
 
-							offsetAddress := quoteNumber(indirect.OffsetAddress)
-							if indirect.IsRelative {
-								offsetAddress = fmt.Sprintf("(gof + %s)", offsetAddress)
-							}
+						offsetAddress := quoteNumber(indirect.OffsetAddress)
+						if indirect.IsRelative {
+							offsetAddress = fmt.Sprintf("(gof + %s)", offsetAddress)
+						}
 
-							emit("ra, ok := readU%d%s(tb, %s)",
-								indirect.ByteWidth*8,
+						emit("ra, ok = f%d%s(tb, %s)",
+							indirect.ByteWidth,
+							endiannessString(indirect.Endianness, swapEndian),
+							offsetAddress)
+						canFail = true
+						emit("if !ok { goto %s }", failLabel(node))
+						offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
+
+						if indirect.OffsetAdjustmentIsRelative {
+							offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
+							emit("rb, ok = f%d%s(tb, %s)",
+								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
-								offsetAddress)
-							canFail = true
+								offsetAdjustAddress)
 							emit("if !ok { goto %s }", failLabel(node))
-							offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
+							offsetAdjustValue = "i8(rb)"
+						}
 
-							if indirect.OffsetAdjustmentIsRelative {
-								offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
-								emit("rb, ok := readU%d%s(tb, %s)",
-									indirect.ByteWidth*8,
-									endiannessString(indirect.Endianness, swapEndian),
-									offsetAdjustAddress)
-								emit("if !ok { goto %s }", failLabel(node))
-								offsetAdjustValue = "i64(rb)"
-							}
+						emit("off = i8(ra)")
 
-							emit("off = i64(ra)")
+						switch indirect.OffsetAdjustmentType {
+						case wizparser.AdjustmentAdd:
+							emit("off = off + %s", offsetAdjustValue)
+						case wizparser.AdjustmentDiv:
+							emit("off = off / %s", offsetAdjustValue)
+						case wizparser.AdjustmentMul:
+							emit("off = off * %s", offsetAdjustValue)
+						case wizparser.AdjustmentSub:
+							emit("off = off * %s", quoteNumber(indirect.OffsetAdjustmentValue))
+						}
 
-							switch indirect.OffsetAdjustmentType {
-							case wizparser.AdjustmentAdd:
-								emit("off = off + %s", offsetAdjustValue)
-							case wizparser.AdjustmentDiv:
-								emit("off = off / %s", offsetAdjustValue)
-							case wizparser.AdjustmentMul:
-								emit("off = off * %s", offsetAdjustValue)
-							case wizparser.AdjustmentSub:
-								emit("off = off * %s", quoteNumber(indirect.OffsetAdjustmentValue))
-							}
-
-							if rule.Offset.IsRelative {
-								emit("off += gof")
-							}
-						})
+						if rule.Offset.IsRelative {
+							emit("off += gof")
+						}
 					}
 
 					switch rule.Kind.Family {
@@ -223,60 +224,58 @@ func Compile(book wizparser.Spellbook) error {
 						ik, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
 						if !ik.MatchAny {
-							withScope(func() {
-								emit("iv, ok := readU%d%s(tb, %s)",
-									ik.ByteWidth*8,
-									endiannessString(ik.Endianness, swapEndian),
-									"off",
-								)
+							emit("ra, ok = f%d%s(tb, %s)",
+								ik.ByteWidth,
+								endiannessString(ik.Endianness, swapEndian),
+								"off",
+							)
 
-								lhs := "iv"
+							lhs := "ra"
 
-								operator := "=="
-								switch ik.IntegerTest {
-								case wizparser.IntegerTestEqual:
-									operator = "=="
-								case wizparser.IntegerTestNotEqual:
-									operator = "!="
-								case wizparser.IntegerTestLessThan:
-									operator = "<"
-								case wizparser.IntegerTestGreaterThan:
-									operator = ">"
-								}
+							operator := "=="
+							switch ik.IntegerTest {
+							case wizparser.IntegerTestEqual:
+								operator = "=="
+							case wizparser.IntegerTestNotEqual:
+								operator = "!="
+							case wizparser.IntegerTestLessThan:
+								operator = "<"
+							case wizparser.IntegerTestGreaterThan:
+								operator = ">"
+							}
 
-								if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
-									lhs = fmt.Sprintf("i64(i%d(iv))", ik.ByteWidth*8)
-								} else {
-									lhs = fmt.Sprintf("u64(iv)")
-								}
+							if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
+								lhs = fmt.Sprintf("i8(i%d(ra))", ik.ByteWidth)
+							} else {
+								lhs = fmt.Sprintf("ra")
+							}
 
-								if ik.DoAnd {
-									lhs = fmt.Sprintf("%s&%s", lhs, quoteNumber(int64(ik.AndValue)))
-								}
+							if ik.DoAnd {
+								lhs = fmt.Sprintf("%s&%s", lhs, quoteNumber(int64(ik.AndValue)))
+							}
 
-								switch ik.AdjustmentType {
-								case wizparser.AdjustmentAdd:
-									lhs = fmt.Sprintf("(%s+%s)", lhs, quoteNumber(ik.AdjustmentValue))
-								case wizparser.AdjustmentSub:
-									lhs = fmt.Sprintf("(%s-%s)", lhs, quoteNumber(ik.AdjustmentValue))
-								case wizparser.AdjustmentMul:
-									lhs = fmt.Sprintf("(%s*%s)", lhs, quoteNumber(ik.AdjustmentValue))
-								case wizparser.AdjustmentDiv:
-									lhs = fmt.Sprintf("(%s/%s)", lhs, quoteNumber(ik.AdjustmentValue))
-								}
+							switch ik.AdjustmentType {
+							case wizparser.AdjustmentAdd:
+								lhs = fmt.Sprintf("(%s+%s)", lhs, quoteNumber(ik.AdjustmentValue))
+							case wizparser.AdjustmentSub:
+								lhs = fmt.Sprintf("(%s-%s)", lhs, quoteNumber(ik.AdjustmentValue))
+							case wizparser.AdjustmentMul:
+								lhs = fmt.Sprintf("(%s*%s)", lhs, quoteNumber(ik.AdjustmentValue))
+							case wizparser.AdjustmentDiv:
+								lhs = fmt.Sprintf("(%s/%s)", lhs, quoteNumber(ik.AdjustmentValue))
+							}
 
-								rhs := quoteNumber(ik.Value)
+							rhs := quoteNumber(ik.Value)
 
-								ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, rhs)
-								canFail = true
-								emit("if !(%s) { goto %s }", ruleTest, failLabel(node))
-							})
+							ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, rhs)
+							canFail = true
+							emit("if !(%s) { goto %s }", ruleTest, failLabel(node))
 						}
 						emit("gof = off + %d", ik.ByteWidth)
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
 						withScope(func() {
-							emit("ml := i64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
+							emit("ml := i8(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
 							canFail = true
 							if sk.Negate {
 								emit("if ml >= 0 { goto %s }", failLabel(node))
@@ -289,7 +288,7 @@ func Compile(book wizparser.Spellbook) error {
 					case wizparser.KindFamilySearch:
 						withScope(func() {
 							sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
-							emit("ml := i64(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
+							emit("ml := i8(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
 							canFail = true
 							emit("if ml < 0 { goto %s }", failLabel(node))
 							emit("gof = off + ml + %s", quoteNumber(int64(len(sk.Value))))
@@ -311,7 +310,9 @@ func Compile(book wizparser.Spellbook) error {
 						emit("goto %s", failLabel(node))
 					}
 
-					emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.Line))
+					if includeStrings {
+						emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.Line))
+					}
 					if len(rule.Description) > 0 {
 						emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
 					}
@@ -350,6 +351,9 @@ func Compile(book wizparser.Spellbook) error {
 
 	fmt.Printf("Compiled in %s\n", time.Since(startTime))
 
+	fSize, _ := f.Seek(0, os.SEEK_CUR)
+	fmt.Printf("Generated code is %s\n", humanize.IBytes(uint64(fSize)))
+
 	return nil
 }
 
@@ -368,16 +372,13 @@ func pageSymbol(page string, swapEndian bool) string {
 
 func endiannessString(en wizparser.Endianness, swapEndian bool) string {
 	if en.MaybeSwapped(swapEndian) == wizparser.BigEndian {
-		return "be"
+		return "b"
 	}
-	return "le"
+	return "l"
 }
 
 func quoteNumber(number int64) string {
-	if number < 0 {
-		return fmt.Sprintf("%d", number)
-	}
-	return fmt.Sprintf("0x%x", number)
+	return fmt.Sprintf("%d", number)
 }
 
 func treeify(rules []wizparser.Rule) []*ruleNode {

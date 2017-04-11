@@ -34,8 +34,10 @@ var identifyArgs = struct {
 
 var compileArgs = struct {
 	magdir *string
+	chatty *bool
 }{
 	compileCmd.Arg("magdir", "the folder of magic files to compile").Required().String(),
+	compileCmd.Flag("chatty", "generate prints on every rule match").Bool(),
 }
 
 func main() {
