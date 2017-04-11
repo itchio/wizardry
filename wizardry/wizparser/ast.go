@@ -212,6 +212,8 @@ const (
 	IntegerTestLessThan = iota
 	// IntegerTestGreaterThan tests that one integer is greater than the other
 	IntegerTestGreaterThan = iota
+	// IntegerTestAnd tests that all the bits in the pattern are set
+	IntegerTestAnd = iota
 )
 
 // StringKind describes how to match a string pattern
@@ -241,6 +243,8 @@ const (
 	KindFamilyDefault = iota
 	// KindFamilyClear resets the matched flag for that level
 	KindFamilyClear = iota
+	// KindFamilyName always succeeds
+	KindFamilyName = iota
 	// KindFamilyUse acts like a subroutine call, to peruse another page of rules
 	KindFamilyUse = iota
 )

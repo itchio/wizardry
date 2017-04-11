@@ -360,6 +360,7 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 				ik.IntegerTest = IntegerTestEqual
 
 				k := 0
+
 				switch test[k] {
 				case 'x':
 					ik.MatchAny = true
@@ -375,6 +376,9 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 					k++
 				case '>':
 					ik.IntegerTest = IntegerTestGreaterThan
+					k++
+				case '&':
+					ik.IntegerTest = IntegerTestAnd
 					k++
 				}
 
@@ -448,10 +452,11 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 			case "clear":
 				rule.Kind.Family = KindFamilyClear
 			case "name":
+				rule.Kind.Family = KindFamilyName
+
 				// eyy, new page
 				page = string(test)
 				ctx.Logf("now storing in page %s", page)
-				continue // do not add name rules to rulebook
 			case "use":
 				uk := &UseKind{}
 				rule.Kind.Family = KindFamilyUse
