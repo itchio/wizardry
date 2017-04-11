@@ -94,6 +94,56 @@ func (o Offset) String() string {
 	return s
 }
 
+// Equals returns true if and only if a and b point to exactly the same offset
+func (o Offset) Equals(b Offset) bool {
+	a := o
+
+	if a.IsRelative != b.IsRelative {
+		return false
+	}
+
+	if a.OffsetType != b.OffsetType {
+		return false
+	}
+
+	if a.OffsetType == OffsetTypeDirect {
+		return a.Direct == b.Direct
+	}
+
+	ai := a.Indirect
+	bi := b.Indirect
+
+	if ai.OffsetAddress != bi.OffsetAddress {
+		return false
+	}
+
+	if ai.OffsetAdjustmentType != bi.OffsetAdjustmentType {
+		return false
+	}
+
+	if ai.OffsetAdjustmentIsRelative != bi.OffsetAdjustmentIsRelative {
+		return false
+	}
+
+	if ai.OffsetAdjustmentValue != bi.OffsetAdjustmentValue {
+		return false
+	}
+
+	if ai.Endianness != bi.Endianness {
+		return false
+	}
+
+	if ai.IsRelative != bi.IsRelative {
+		return false
+	}
+
+	if ai.ByteWidth != bi.ByteWidth {
+		return false
+	}
+
+	return true
+}
+
 func (k Kind) String() string {
 	switch k.Family {
 	case KindFamilyInteger:

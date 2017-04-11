@@ -22,7 +22,7 @@ type ruleNode struct {
 	children []*ruleNode
 }
 
-type nodeEmitter func(node *ruleNode, parent *ruleNode)
+type nodeEmitter func(node *ruleNode, successLabel string, prevSibling *ruleNode)
 
 // Compile generates go code from a spellbook
 func Compile(book wizparser.Spellbook, includeStrings bool) error {
@@ -152,7 +152,9 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 				emit("var rb u8; rb &= rb")
 				emit("var rc u8; rc &= rc")
 				emit("var rA i8; rA &= rA")
-				emit("var ok bool; ok = !!ok")
+				emit("var ka bool; ka = !!ka")
+				emit("var kb bool; kb = !!kb")
+				emit("var kc bool; kc = !!kc")
 				emit("")
 
 				emit("m := func (args... string) {")
@@ -163,7 +165,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 
 				var emitNode nodeEmitter
 
-				emitNode = func(node *ruleNode, parentNode *ruleNode) {
+				emitNode = func(node *ruleNode, successLabel string, prevSiblingNode *ruleNode) {
 					rule := node.rule
 
 					canFail := false
@@ -171,6 +173,12 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 					emit("// %s", rule.Line)
 
 					off := ""
+
+					reuseOffset := false
+					if prevSiblingNode != nil {
+						pr := prevSiblingNode.rule
+						reuseOffset = pr.Offset.Equals(rule.Offset)
+					}
 
 					switch rule.Offset.OffsetType {
 					case wizparser.OffsetTypeDirect:
@@ -187,21 +195,23 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 							offsetAddress = fmt.Sprintf("(gf + %s)", offsetAddress)
 						}
 
-						emit("ra, ok = f%d%s(tb, %s)",
-							indirect.ByteWidth,
-							endiannessString(indirect.Endianness, swapEndian),
-							offsetAddress)
+						if !reuseOffset {
+							emit("ra, ka = f%d%s(tb, %s)",
+								indirect.ByteWidth,
+								endiannessString(indirect.Endianness, swapEndian),
+								offsetAddress)
+						}
 						canFail = true
-						emit("if !ok { goto %s }", failLabel(node))
+						emit("if !ka { goto %s }", failLabel(node))
 						offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
 
 						if indirect.OffsetAdjustmentIsRelative {
 							offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
-							emit("rb, ok = f%d%s(tb, %s)",
+							emit("rb, kb = f%d%s(tb, %s)",
 								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAdjustAddress)
-							emit("if !ok { goto %s }", failLabel(node))
+							emit("if !kb { goto %s }", failLabel(node))
 							offsetAdjustValue = "i8(rb)"
 						}
 
@@ -228,11 +238,24 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						ik, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
 						if !ik.MatchAny {
-							emit("rc, ok = f%d%s(tb, %s)",
-								ik.ByteWidth,
-								endiannessString(ik.Endianness, swapEndian),
-								off,
-							)
+							reuseSibling := false
+							if prevSiblingNode != nil {
+								pr := prevSiblingNode.rule
+								if pr.Offset.Equals(rule.Offset) && pr.Kind.Family == wizparser.KindFamilyInteger {
+									pik, _ := pr.Kind.Data.(*wizparser.IntegerKind)
+									if pik.ByteWidth == ik.ByteWidth {
+										reuseSibling = true
+									}
+								}
+							}
+
+							if !reuseSibling {
+								emit("rc, kc = f%d%s(tb, %s)",
+									ik.ByteWidth,
+									endiannessString(ik.Endianness, swapEndian),
+									off,
+								)
+							}
 
 							lhs := "rc"
 
@@ -269,7 +292,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 
 							rhs := quoteNumber(ik.Value)
 
-							ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, rhs)
+							ruleTest := fmt.Sprintf("kc && (%s %s %s)", lhs, operator, rhs)
 							canFail = true
 							emit("if !(%s) { goto %s }", ruleTest, failLabel(node))
 						}
@@ -300,6 +323,9 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 					case wizparser.KindFamilyName:
 						// do nothing, pretty much
 
+					case wizparser.KindFamilyDefault:
+						// just fall through
+
 					default:
 						emit("// uh oh unhandled kind %s", rule.Kind)
 						canFail = true
@@ -313,27 +339,32 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						emit("m(%s)", strconv.Quote(string(rule.Description)))
 					}
 
-					if len(node.children) > 0 {
-						for _, child := range node.children {
-							emitNode(child, node)
+					numGroups := 0
+					numChildren := len(node.children)
+					if numChildren > 0 {
+						var prevSibling = node
+						for childIndex, child := range node.children {
+							emitNode(child, groupSucceedLabel(node, numGroups), prevSibling)
+							prevSibling = child
+
+							if child.rule.Kind.Family == wizparser.KindFamilyDefault && childIndex+1 < numChildren {
+								emitLabel(groupSucceedLabel(node, numGroups))
+								numGroups++
+								prevSibling = nil
+							}
 						}
+
+						emitLabel(groupSucceedLabel(node, numGroups))
 					}
 
-					if len(node.children) > 0 {
-						emitLabel(succeedLabel(node))
-					}
-					if parentNode == nil {
-						emit("goto end")
-					} else {
-						emit("goto %s", succeedLabel(parentNode))
-					}
+					emit("goto %s", successLabel)
 					if canFail {
 						emitLabel(failLabel(node))
 					}
 				}
 
 				for _, node := range nodes {
-					emitNode(node, nil)
+					emitNode(node, "end", nil)
 				}
 
 				emitLabel("end")
@@ -403,9 +434,13 @@ func treeify(rules []wizparser.Rule) []*ruleNode {
 }
 
 func failLabel(node *ruleNode) string {
-	return fmt.Sprintf("f%d", node.id)
+	return fmt.Sprintf("f%x", node.id)
 }
 
 func succeedLabel(node *ruleNode) string {
-	return fmt.Sprintf("s%d", node.id)
+	return fmt.Sprintf("s%x", node.id)
+}
+
+func groupSucceedLabel(node *ruleNode, g int) string {
+	return fmt.Sprintf("%sg%d", succeedLabel(node), g)
 }
