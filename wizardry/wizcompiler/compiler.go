@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
 	"github.com/go-errors/errors"
@@ -24,6 +25,8 @@ type nodeEmitter func(node *ruleNode, parent *ruleNode)
 
 // Compile generates go code from a spellbook
 func Compile(book wizparser.Spellbook) error {
+	startTime := time.Now()
+
 	wd, err := os.Getwd()
 	if err != nil {
 		return errors.Wrap(err, 0)
@@ -151,13 +154,14 @@ func Compile(book wizparser.Spellbook) error {
 				emit("var gof i64") // globalOffset
 				emit("gof &= gof")
 				emit("var off i64") // lookupOffset
-				emit("var ml i64")  // matchLength
 				emit("")
 
 				var emitNode nodeEmitter
 
 				emitNode = func(node *ruleNode, parentNode *ruleNode) {
 					rule := node.rule
+
+					canFail := false
 
 					emit("// %s", rule.Line)
 
@@ -181,6 +185,7 @@ func Compile(book wizparser.Spellbook) error {
 								indirect.ByteWidth*8,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAddress)
+							canFail = true
 							emit("if !ok { goto %s }", failLabel(node))
 							offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
 
@@ -217,9 +222,7 @@ func Compile(book wizparser.Spellbook) error {
 					case wizparser.KindFamilyInteger:
 						ik, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
-						if ik.MatchAny {
-							emit("ml = %d", ik.ByteWidth)
-						} else {
+						if !ik.MatchAny {
 							withScope(func() {
 								emit("iv, ok := readU%d%s(tb, %s)",
 									ik.ByteWidth*8,
@@ -265,24 +268,32 @@ func Compile(book wizparser.Spellbook) error {
 								rhs := quoteNumber(ik.Value)
 
 								ruleTest := fmt.Sprintf("ok && (%s %s %s)", lhs, operator, rhs)
+								canFail = true
 								emit("if !(%s) { goto %s }", ruleTest, failLabel(node))
-								emit("ml = %d", ik.ByteWidth)
 							})
 						}
+						emit("gof = off + %d", ik.ByteWidth)
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
-						emit("ml = i64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
-						if sk.Negate {
-							emit("if ml >= 0 { goto %s }", failLabel(node))
-						} else {
-							emit("if ml < 0 { goto %s }", failLabel(node))
-						}
+						withScope(func() {
+							emit("ml := i64(wizardry.StringTest(tb, int(off), %#v, %#v))", sk.Value, sk.Flags)
+							canFail = true
+							if sk.Negate {
+								emit("if ml >= 0 { goto %s }", failLabel(node))
+							} else {
+								emit("if ml < 0 { goto %s }", failLabel(node))
+							}
+							emit("gof = off + ml")
+						})
 
 					case wizparser.KindFamilySearch:
-						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
-						emit("ml = i64(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
-						emit("if ml < 0 { goto %s }", failLabel(node))
-						emit("ml += %s", quoteNumber(int64(len(sk.Value))))
+						withScope(func() {
+							sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
+							emit("ml := i64(wizardry.SearchTest(tb, int(off), %s, %s))", quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
+							canFail = true
+							emit("if ml < 0 { goto %s }", failLabel(node))
+							emit("gof = off + ml + %s", quoteNumber(int64(len(sk.Value))))
+						})
 
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
@@ -291,13 +302,16 @@ func Compile(book wizparser.Spellbook) error {
 							emit("out = append(out, ss...)")
 						})
 
+					case wizparser.KindFamilyName:
+						// do nothing, pretty much
+
 					default:
 						emit("// uh oh unhandled kind %s", rule.Kind)
+						canFail = true
 						emit("goto %s", failLabel(node))
 					}
 
 					emit("fmt.Printf(\"matched rule: %%s\\n\", %s)", strconv.Quote(rule.Line))
-					emit("gof = off + ml")
 					if len(rule.Description) > 0 {
 						emit("out = append(out, %s)", strconv.Quote(string(rule.Description)))
 					}
@@ -308,15 +322,17 @@ func Compile(book wizparser.Spellbook) error {
 						}
 					}
 
-					emit("if false { goto %s }", failLabel(node))
-					emit("goto %s", succeedLabel(node))
-					emitLabel(succeedLabel(node))
+					if len(node.children) > 0 {
+						emitLabel(succeedLabel(node))
+					}
 					if parentNode == nil {
 						emit("goto end")
 					} else {
 						emit("goto %s", succeedLabel(parentNode))
 					}
-					emitLabel(failLabel(node))
+					if canFail {
+						emitLabel(failLabel(node))
+					}
 				}
 
 				for _, node := range nodes {
@@ -331,6 +347,9 @@ func Compile(book wizparser.Spellbook) error {
 		}
 
 	}
+
+	fmt.Printf("Compiled in %s\n", time.Since(startTime))
+
 	return nil
 }
 
@@ -374,7 +393,6 @@ func treeify(rules []wizparser.Rule) []*ruleNode {
 		idSeed++
 
 		if rule.Level > 0 {
-			fmt.Printf("rule level %d, nodeStack has %d levels - for rule %s\n", rule.Level, len(nodeStack), rule.Line)
 			parent := nodeStack[rule.Level-1]
 			parent.children = append(parent.children, node)
 		} else {
