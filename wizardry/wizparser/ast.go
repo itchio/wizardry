@@ -173,6 +173,13 @@ func (en Endianness) MaybeSwapped(swap bool) Endianness {
 	return en.Swapped()
 }
 
+func (en Endianness) String() string {
+	if en == BigEndian {
+		return "big-endian"
+	}
+	return "little-endian"
+}
+
 const (
 	// LittleEndian numbers are stored with the least significant byte first
 	LittleEndian Endianness = iota

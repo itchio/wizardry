@@ -119,6 +119,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 		for _, endianness := range []wizparser.Endianness{wizparser.LittleEndian, wizparser.BigEndian} {
 			retType := "u8"
 
+			emit("// reads an unsigned %d-bit %s integer", byteWidth*8, endianness)
 			emit("func f%d%s(tb []byte, off i8) (%s, bool) {", byteWidth, endiannessString(endianness, false), retType)
 			withIndent(func() {
 				emit("if i8(len(tb)) < off+%d {", byteWidth)
@@ -128,11 +129,10 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 				emit("}")
 
 				if byteWidth == 1 {
-					emit("pi := %s(tb[off])", retType)
+					emit("return %s(tb[off]), true", retType)
 				} else {
-					emit("pi := %s.Uint%d(tb[off:])", endiannessString(endianness, false), byteWidth*8)
+					emit("return %s(%s.Uint%d(tb[off:])), true", retType, endiannessString(endianness, false), byteWidth*8)
 				}
-				emit("return %s(pi), true", retType)
 			})
 			emit("}")
 			emit("")
