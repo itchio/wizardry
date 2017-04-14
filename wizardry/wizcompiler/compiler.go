@@ -202,10 +202,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 				emit("var ka bool; ka = !!ka")
 				emit("var kb bool; kb = !!kb")
 				emit("var kc bool; kc = !!kc")
-				for i := 0; i < 16; i++ {
-					name := fmt.Sprintf("d%x", i)
-					emit("var %s bool; %s = !!%s", name, name, name)
-				}
+				emit("var d = make([]bool, 32); d[0] = !!d[0]")
 				emit("")
 
 				emit("m := func (args... string) {")
@@ -479,7 +476,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 					if numChildren > 0 {
 						for _, child := range node.children {
 							if child.rule.Kind.Family == wizparser.KindFamilyDefault {
-								childDefaultMarker = fmt.Sprintf("d%x", rule.Level)
+								childDefaultMarker = fmt.Sprintf("d[%d]", rule.Level)
 								defaultSeed++
 								emit("%s = false", childDefaultMarker)
 								break
