@@ -24,6 +24,11 @@ type ruleNode struct {
 
 type nodeEmitter func(node *ruleNode, defaultMarker string, prevSibling *ruleNode)
 
+type PageUsage struct {
+	EmitNormal  bool
+	EmitSwapped bool
+}
+
 // Compile generates go code from a spellbook
 func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 	startTime := time.Now()
@@ -141,11 +146,49 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 	}
 	sort.Strings(pages)
 
+	// look at all rules to see which pages are used, and whether they're used
+	// in normal endianness or swapped endianness
+	usages := make(map[string]*PageUsage)
+	usages[""] = &PageUsage{
+		EmitNormal: true,
+	}
+
+	for _, page := range pages {
+		for _, rule := range book[page] {
+			if rule.Kind.Family == wizparser.KindFamilyUse {
+				uk, _ := rule.Kind.Data.(*wizparser.UseKind)
+				var usage *PageUsage
+				var ok bool
+				if usage, ok = usages[uk.Page]; !ok {
+					usage = &PageUsage{}
+					usages[uk.Page] = usage
+				}
+
+				if uk.SwapEndian {
+					usage.EmitSwapped = true
+				} else {
+					usage.EmitNormal = true
+				}
+			}
+		}
+	}
+
 	for _, page := range pages {
 		nodes := treeify(book[page])
+		usage := usages[page]
 
 		for _, swapEndian := range []bool{false, true} {
 			defaultSeed := 0
+
+			if swapEndian {
+				if !usage.EmitSwapped {
+					continue
+				}
+			} else {
+				if !usage.EmitNormal {
+					continue
+				}
+			}
 
 			emit("func Identify%s(tb []byte, po i8) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
