@@ -31,7 +31,7 @@ func doCompile() error {
 		return errors.Wrap(err, 0)
 	}
 
-	err = wizcompiler.Compile(book, *compileArgs.chatty, *compileArgs.emitComments)
+	err = wizcompiler.Compile(book, *compileArgs.output, *compileArgs.chatty, *compileArgs.emitComments, *compileArgs.pkg)
 	if err != nil {
 		return errors.Wrap(err, 0)
 	}

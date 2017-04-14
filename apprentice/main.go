@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fasterthanlime/wizardry/wizardry/wizbook"
 	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Printf("Usage: wizbooksample TARGET\n")
+		fmt.Printf("Usage: %s TARGET\n", os.Args[0])
 		os.Exit(1)
 	}
 
@@ -26,6 +25,6 @@ func main() {
 		panic(err)
 	}
 
-	res := wizbook.Identify(r, stats.Size(), 0)
+	res := Identify(r, stats.Size(), 0)
 	fmt.Printf("%s: %s\n", target, wizutil.MergeStrings(res))
 }

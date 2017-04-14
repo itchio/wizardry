@@ -34,12 +34,16 @@ var identifyArgs = struct {
 
 var compileArgs = struct {
 	magdir       *string
+	output       *string
 	chatty       *bool
 	emitComments *bool
+	pkg          *string
 }{
 	compileCmd.Arg("magdir", "the folder of magic files to compile").Required().String(),
+	compileCmd.Flag("output", "the go file to generate").Short('o').Required().String(),
 	compileCmd.Flag("chatty", "generate prints on every rule match").Bool(),
 	compileCmd.Flag("emit-comments", "generate comments in the code").Bool(),
+	compileCmd.Flag("package", "go package to generate").Default("main").String(),
 }
 
 func main() {

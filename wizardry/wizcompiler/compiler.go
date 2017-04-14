@@ -3,7 +3,6 @@ package wizcompiler
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -30,22 +29,15 @@ type PageUsage struct {
 }
 
 // Compile generates go code from a spellbook
-func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
+func Compile(book wizparser.Spellbook, output string, chatty bool, emitComments bool, pkg string) error {
 	startTime := time.Now()
 
-	wd, err := os.Getwd()
+	f, err := os.Create(output)
 	if err != nil {
 		return errors.Wrap(err, 0)
 	}
 
-	fullPath := filepath.Join(wd, "wizardry", "wizbook", "book.go")
-
-	f, err := os.Create(fullPath)
-	if err != nil {
-		return errors.Wrap(err, 0)
-	}
-
-	fmt.Println("Generating into:", fullPath)
+	fmt.Println("Generating into:", output)
 
 	defer f.Close()
 
@@ -91,7 +83,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 	emit("// from a set of magic rules. you probably don't want to edit it by hand")
 	emit("")
 
-	emit("package wizbook")
+	emit("package %s", pkg)
 	emit("")
 	emit("import (")
 	withIndent(func() {
