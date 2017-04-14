@@ -480,6 +480,8 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 				}
 
 				for _, node := range nodes {
+					switchify(node)
+
 					emitNode(node, "", nil)
 				}
 
