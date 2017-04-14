@@ -356,7 +356,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						}
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
-						emit("rA = i8(gt(tb, int(%s), []byte(%s), %d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
+						emit("rA = i8(gt(tb, int(%s), %s, %d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
 						canFail = true
 						if sk.Negate {
 							emit("if rA >= 0 { goto %s }", failLabel(node))

@@ -26,7 +26,8 @@ const (
 )
 
 // StringTest looks for a string pattern in target, at given index
-func StringTest(target []byte, targetIndex int, pattern []byte, flags StringTestFlags) int {
+func StringTest(target []byte, targetIndex int, patternString string, flags StringTestFlags) int {
+	pattern := []byte(patternString)
 	targetSize := len(target)
 	patternSize := len(pattern)
 	patternIndex := 0

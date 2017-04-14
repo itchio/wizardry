@@ -201,7 +201,7 @@ func (ctx *InterpretContext) identifyInternal(target []byte, pageOffset int64, p
 		case wizparser.KindFamilyString:
 			sk, _ := rule.Kind.Data.(*wizparser.StringKind)
 
-			matchLen := wizardry.StringTest(target, int(lookupOffset), sk.Value, sk.Flags)
+			matchLen := wizardry.StringTest(target, int(lookupOffset), string(sk.Value), sk.Flags)
 			success = matchLen >= 0
 
 			if sk.Negate {
