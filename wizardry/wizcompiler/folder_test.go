@@ -131,4 +131,40 @@ func Test_Fold(t *testing.T) {
 		assert.EqualValues(t, "x+3+2", node.String())
 		assert.EqualValues(t, "x+5", node.Fold().String())
 	}
+	{
+		node := &BinaryOp{
+			LHS:      &NumberLiteral{3},
+			Operator: OperatorAdd,
+			RHS:      &NumberLiteral{0},
+		}
+		assert.EqualValues(t, "3+0", node.String())
+		assert.EqualValues(t, "3", node.Fold().String())
+	}
+	{
+		node := &BinaryOp{
+			LHS:      &VariableAccess{"x"},
+			Operator: OperatorAdd,
+			RHS:      &NumberLiteral{0},
+		}
+		assert.EqualValues(t, "x+0", node.String())
+		assert.EqualValues(t, "x", node.Fold().String())
+	}
+	{
+		node := &BinaryOp{
+			LHS:      &VariableAccess{"x"},
+			Operator: OperatorSub,
+			RHS:      &NumberLiteral{0},
+		}
+		assert.EqualValues(t, "x-0", node.String())
+		assert.EqualValues(t, "0", node.Fold().String())
+	}
+	{
+		node := &BinaryOp{
+			LHS:      &VariableAccess{"x"},
+			Operator: OperatorMul,
+			RHS:      &NumberLiteral{0},
+		}
+		assert.EqualValues(t, "x*0", node.String())
+		assert.EqualValues(t, "0", node.Fold().String())
+	}
 }

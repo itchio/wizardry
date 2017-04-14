@@ -25,7 +25,7 @@ type ruleNode struct {
 type nodeEmitter func(node *ruleNode, defaultMarker string, prevSibling *ruleNode)
 
 // Compile generates go code from a spellbook
-func Compile(book wizparser.Spellbook, includeStrings bool) error {
+func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 	startTime := time.Now()
 
 	wd, err := os.Getwd()
@@ -176,9 +176,15 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 
 					canFail := false
 
-					emit("// %s", rule.Line)
+					if emitComments {
+						emit("// %s", rule.Line)
+					}
 
-					off := ""
+					// don't bother emitting global offset if no children
+					// with relative addresses
+					emitGlobalOffset := true
+
+					var off Expression
 
 					reuseOffset := false
 					if prevSiblingNode != nil {
@@ -188,10 +194,17 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 
 					switch rule.Offset.OffsetType {
 					case wizparser.OffsetTypeDirect:
+						off = &BinaryOp{
+							LHS:      &VariableAccess{"po"},
+							Operator: OperatorAdd,
+							RHS:      &NumberLiteral{rule.Offset.Direct},
+						}
 						if rule.Offset.IsRelative {
-							off = fmt.Sprintf("po + gf + %s", quoteNumber(rule.Offset.Direct))
-						} else {
-							off = fmt.Sprintf("po + %s", quoteNumber(rule.Offset.Direct))
+							off = &BinaryOp{
+								LHS:      off,
+								Operator: OperatorAdd,
+								RHS:      &VariableAccess{"gf"},
+							}
 						}
 					case wizparser.OffsetTypeIndirect:
 						indirect := rule.Offset.Indirect
@@ -209,7 +222,7 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						}
 						canFail = true
 						emit("if !ka { goto %s }", failLabel(node))
-						offsetAdjustValue := quoteNumber(indirect.OffsetAdjustmentValue)
+						var offsetAdjustValue Expression = &NumberLiteral{indirect.OffsetAdjustmentValue}
 
 						if indirect.OffsetAdjustmentIsRelative {
 							offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
@@ -218,26 +231,48 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAdjustAddress)
 							emit("if !kb { goto %s }", failLabel(node))
-							offsetAdjustValue = "i8(rb)"
+							offsetAdjustValue = &VariableAccess{"i8(rb)"}
 						}
 
-						off = "i8(ra)"
+						off = &VariableAccess{"i8(ra)"}
 
 						switch indirect.OffsetAdjustmentType {
 						case wizparser.AdjustmentAdd:
-							off = fmt.Sprintf("(%s) + %s", off, offsetAdjustValue)
+							off = &BinaryOp{
+								LHS:      off,
+								Operator: OperatorAdd,
+								RHS:      offsetAdjustValue,
+							}
 						case wizparser.AdjustmentSub:
-							off = fmt.Sprintf("(%s) - %s", off, offsetAdjustValue)
+							off = &BinaryOp{
+								LHS:      off,
+								Operator: OperatorSub,
+								RHS:      offsetAdjustValue,
+							}
 						case wizparser.AdjustmentMul:
-							off = fmt.Sprintf("(%s) * %s", off, offsetAdjustValue)
+							off = &BinaryOp{
+								LHS:      off,
+								Operator: OperatorMul,
+								RHS:      offsetAdjustValue,
+							}
 						case wizparser.AdjustmentDiv:
-							off = fmt.Sprintf("(%s) / %s", off, offsetAdjustValue)
+							off = &BinaryOp{
+								LHS:      off,
+								Operator: OperatorDiv,
+								RHS:      offsetAdjustValue,
+							}
 						}
 
 						if rule.Offset.IsRelative {
-							off = fmt.Sprintf("(%s) + gf", off)
+							off = &BinaryOp{
+								LHS:      off,
+								Operator: OperatorAdd,
+								RHS:      &VariableAccess{"gf"},
+							}
 						}
 					}
+
+					off = off.Fold()
 
 					switch rule.Kind.Family {
 					case wizparser.KindFamilyInteger:
@@ -302,7 +337,14 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 							canFail = true
 							emit("if !(%s) { goto %s }", ruleTest, failLabel(node))
 						}
-						emit("gf = %s + %d", off, ik.ByteWidth)
+						if emitGlobalOffset {
+							gfValue := &BinaryOp{
+								LHS:      off,
+								Operator: OperatorAdd,
+								RHS:      &NumberLiteral{int64(ik.ByteWidth)},
+							}
+							emit("gf = %s", gfValue.Fold())
+						}
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
 						emit("rA = i8(wizardry.StringTest(tb, int(%s), []byte(%s), %d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
@@ -312,14 +354,32 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						} else {
 							emit("if rA < 0 { goto %s }", failLabel(node))
 						}
-						emit("gf = %s + rA", off)
+						if emitGlobalOffset {
+							gfValue := &BinaryOp{
+								LHS:      off,
+								Operator: OperatorAdd,
+								RHS:      &VariableAccess{"rA"},
+							}
+							emit("gf = %s", gfValue.Fold())
+						}
 
 					case wizparser.KindFamilySearch:
 						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
 						emit("rA = i8(wizardry.SearchTest(tb, int(%s), %s, %s))", off, quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
 						canFail = true
 						emit("if rA < 0 { goto %s }", failLabel(node))
-						emit("gf = %s + rA + %s", off, quoteNumber(int64(len(sk.Value))))
+						if emitGlobalOffset {
+							gfValue := &BinaryOp{
+								LHS:      off,
+								Operator: OperatorAdd,
+								RHS: &BinaryOp{
+									LHS:      &VariableAccess{"rA"},
+									Operator: OperatorAdd,
+									RHS:      &NumberLiteral{int64(len(sk.Value))},
+								},
+							}
+							emit("gf = %s", gfValue.Fold())
+						}
 
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
@@ -344,14 +404,17 @@ func Compile(book wizparser.Spellbook, includeStrings bool) error {
 						}
 						canFail = true
 						emit("if %s { goto %s }", defaultMarker, failLabel(node))
+						if emitGlobalOffset {
+							emit("gf = %s", off)
+						}
 
 					default:
-						emit("// uh oh unhandled kind %s", rule.Kind)
+						emit("// fixme: unhandled kind %s", rule.Kind)
 						canFail = true
 						emit("goto %s", failLabel(node))
 					}
 
-					if includeStrings {
+					if chatty {
 						emit("fmt.Printf(\"%%s\\n\", %s)", strconv.Quote(rule.Line))
 					}
 					if len(rule.Description) > 0 {

@@ -125,6 +125,35 @@ func (bo *BinaryOp) Fold() Expression {
 	lhs := bo.LHS.Fold()
 	rhs := bo.RHS.Fold()
 
+	if bo.Operator == OperatorAdd {
+		if ln, ok := lhs.(*NumberLiteral); ok && ln.Value == 0 {
+			return rhs
+		}
+		if rn, ok := rhs.(*NumberLiteral); ok && rn.Value == 0 {
+			return lhs
+		}
+	}
+
+	if bo.Operator == OperatorSub {
+		if ln, ok := lhs.(*NumberLiteral); ok && ln.Value == 0 {
+			if rn, ok := rhs.(*NumberLiteral); ok {
+				return &NumberLiteral{-rn.Value}
+			}
+		}
+		if rn, ok := rhs.(*NumberLiteral); ok && rn.Value == 0 {
+			return rhs
+		}
+	}
+
+	if bo.Operator == OperatorMul {
+		if ln, ok := lhs.(*NumberLiteral); ok && ln.Value == 0 {
+			return &NumberLiteral{0}
+		}
+		if rn, ok := rhs.(*NumberLiteral); ok && rn.Value == 0 {
+			return &NumberLiteral{0}
+		}
+	}
+
 	if ln, ok := lhs.(*NumberLiteral); ok {
 		if rn, ok := rhs.(*NumberLiteral); ok {
 			return &NumberLiteral{
