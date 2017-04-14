@@ -195,13 +195,13 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 				emit("var rb uint64; rb&=rb")
 				emit("var rc uint64; rc&=rc")
 				emit("var rA int64; rA&=rA")
-				emit("var ka bool; ka=!!ka")
-				emit("var kb bool; kb=!!kb")
-				emit("var kc bool; kc=!!kc")
+				emit("var k bool; k=!!k")
+				emit("var l bool; l=!!l")
+				emit("var m bool; m=!!m")
 				emit("var d=make([]bool, 32); d[0]=!!d[0]")
 				emit("")
 
-				emit("m:=func (args... string) {")
+				emit("a:=func (args... string) {")
 				withIndent(func() {
 					emit("out=append(out, args...)")
 				})
@@ -264,22 +264,22 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						}
 
 						if !reuseOffset {
-							emit("ra,ka=f%d%s(r,s,%s)",
+							emit("ra,k=f%d%s(r,s,%s)",
 								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAddress)
 						}
 						canFail = true
-						emit("if !ka {goto %s}", failLabel(node))
+						emit("if !k {goto %s}", failLabel(node))
 						var offsetAdjustValue Expression = &NumberLiteral{indirect.OffsetAdjustmentValue}
 
 						if indirect.OffsetAdjustmentIsRelative {
 							offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
-							emit("rb,kb=f%d%s(r,s,%s)",
+							emit("rb,l=f%d%s(r,s,%s)",
 								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAdjustAddress)
-							emit("if !kb {goto %s}", failLabel(node))
+							emit("if !l {goto %s}", failLabel(node))
 							offsetAdjustValue = &VariableAccess{"int64(rb)"}
 						}
 
@@ -340,7 +340,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 							}
 
 							if !reuseSibling {
-								emit("rc,kc=f%d%s(r,s,%s)",
+								emit("rc,m=f%d%s(r,s,%s)",
 									ik.ByteWidth,
 									endiannessString(ik.Endianness, swapEndian),
 									off,
@@ -382,7 +382,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 							rhs := quoteNumber(ik.Value)
 
-							ruleTest := fmt.Sprintf("kc&&(%s%s%s)", lhs, operator, rhs)
+							ruleTest := fmt.Sprintf("m&&%s%s%s", lhs, operator, rhs)
 							canFail = true
 							emit("if !(%s) {goto %s}", ruleTest, failLabel(node))
 						}
@@ -433,7 +433,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
 						emit("ss,_=Identify%s(r,s,%s)", pageSymbol(uk.Page, uk.SwapEndian), off)
-						emit("m(ss...)")
+						emit("a(ss...)")
 
 					case wizparser.KindFamilyName:
 						// do nothing, pretty much
@@ -467,7 +467,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						emit("fmt.Printf(\"%%s\\n\", %s)", strconv.Quote(rule.Line))
 					}
 					if len(rule.Description) > 0 {
-						emit("m(%s)", strconv.Quote(string(rule.Description)))
+						emit("a(%s)", strconv.Quote(string(rule.Description)))
 					}
 
 					numChildren := len(node.children)
