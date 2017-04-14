@@ -107,6 +107,8 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 		emit("type i%d int%d", byteWidth, byteWidth*8)
 		emit("type u%d uint%d", byteWidth, byteWidth*8)
 	}
+	emit("gt := wizardry.StringTest")
+	emit("ht := wizardry.SearchTest")
 	emit("")
 
 	for _, byteWidth := range []byte{1, 2, 4, 8} {
@@ -182,7 +184,14 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 					// don't bother emitting global offset if no children
 					// with relative addresses
-					emitGlobalOffset := true
+					emitGlobalOffset := false
+					for _, child := range node.children {
+						cof := child.rule.Offset
+						if cof.IsRelative || (cof.OffsetType == wizparser.OffsetTypeIndirect && cof.Indirect.IsRelative) {
+							emitGlobalOffset = true
+							break
+						}
+					}
 
 					var off Expression
 
@@ -347,7 +356,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						}
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
-						emit("rA = i8(wizardry.StringTest(tb, int(%s), []byte(%s), %d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
+						emit("rA = i8(gt(tb, int(%s), []byte(%s), %d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
 						canFail = true
 						if sk.Negate {
 							emit("if rA >= 0 { goto %s }", failLabel(node))
@@ -365,7 +374,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 					case wizparser.KindFamilySearch:
 						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
-						emit("rA = i8(wizardry.SearchTest(tb, int(%s), %s, %s))", off, quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
+						emit("rA = i8(ht(tb, int(%s), %s, %s))", off, quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
 						canFail = true
 						emit("if rA < 0 { goto %s }", failLabel(node))
 						if emitGlobalOffset {
