@@ -26,10 +26,6 @@ func main() {
 		panic(err)
 	}
 
-	res, err := wizbook.Identify(r, stats.Size(), 0)
-	if err != nil {
-		panic(err)
-	}
-
+	res := wizbook.Identify(r, stats.Size(), 0)
 	fmt.Printf("%s: %s\n", target, wizutil.MergeStrings(res))
 }

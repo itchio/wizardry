@@ -191,6 +191,9 @@ func (k Kind) String() string {
 		}
 		s += uk.Page
 		return s
+	case KindFamilySwitch:
+		sk, _ := k.Data.(*SwitchKind)
+		return fmt.Sprintf("switch with %d cases", len(sk.Cases))
 	default:
 		return fmt.Sprintf("kind family %d", k.Family)
 	}
@@ -257,6 +260,18 @@ type IntegerKind struct {
 	AdjustmentValue int64
 }
 
+type SwitchKind struct {
+	ByteWidth  int
+	Endianness Endianness
+	Signed     bool
+	Cases      []*SwitchCase
+}
+
+type SwitchCase struct {
+	Value       int64
+	Description []byte
+}
+
 // IntegerTest describes which comparison to perform on an integer
 type IntegerTest int
 
@@ -304,6 +319,11 @@ const (
 	KindFamilyName
 	// KindFamilyUse acts like a subroutine call, to peruse another page of rules
 	KindFamilyUse
+
+	// Compiler additions begin
+
+	// KindFamilySwitch is a series of merged KindFamilyInteger
+	KindFamilySwitch
 )
 
 // Offset describes where to look to compare something

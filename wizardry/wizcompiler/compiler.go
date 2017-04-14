@@ -162,7 +162,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 				}
 			}
 
-			emit("func Identify%s(r io.ReaderAt, s int64, po int64) ([]string, error) {", pageSymbol(page, swapEndian))
+			emit("func Identify%s(r io.ReaderAt, s int64, po int64) []string {", pageSymbol(page, swapEndian))
 			withIndent(func() {
 				emit("var out []string")
 				emit("var ss []string; ss=ss[0:]")
@@ -304,6 +304,25 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 					off = off.Fold()
 
 					switch rule.Kind.Family {
+					case wizparser.KindFamilySwitch:
+						sk, _ := rule.Kind.Data.(*wizparser.SwitchKind)
+
+						emit("rc,m=f%d%s(r,s,%s)",
+							sk.ByteWidth,
+							endiannessString(sk.Endianness, swapEndian),
+							off,
+						)
+
+						canFail = true
+						emit("switch rc {")
+						withIndent(func() {
+							for _, c := range sk.Cases {
+								emit("case %d: a(%s)", c.Value, strconv.Quote(string(c.Description)))
+							}
+							emit("default: {goto %s}", failLabel(node))
+						})
+						emit("}")
+
 					case wizparser.KindFamilyInteger:
 						ik, _ := rule.Kind.Data.(*wizparser.IntegerKind)
 
@@ -341,7 +360,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 								operator = ">"
 							}
 
-							if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
+							if ik.Signed && (ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan) {
 								lhs = fmt.Sprintf("int64(int%d(%s))", ik.ByteWidth*8, lhs)
 							}
 
@@ -412,8 +431,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
-						emit("ss,_=Identify%s(r,s,%s)", pageSymbol(uk.Page, uk.SwapEndian), off)
-						emit("a(ss...)")
+						emit("a(Identify%s(r,s,%s)...)", pageSymbol(uk.Page, uk.SwapEndian), off)
 
 					case wizparser.KindFamilyName:
 						// do nothing, pretty much
@@ -438,7 +456,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						}
 
 					default:
-						emit("// fixme: unhandled kind %s", rule.Kind)
+						emit("// fixme: unhandled %s", rule.Kind)
 						canFail = true
 						emit("goto %s", failLabel(node))
 					}
@@ -485,7 +503,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 					emitNode(node, "", nil)
 				}
 
-				emit("return out,nil")
+				emit("return out")
 			})
 			emit("}")
 			emit("")
