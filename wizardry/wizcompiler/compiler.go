@@ -136,38 +136,14 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 		}
 	}
 
+	// sort pages
 	var pages []string
 	for page := range book {
 		pages = append(pages, page)
 	}
 	sort.Strings(pages)
 
-	// look at all rules to see which pages are used, and whether they're used
-	// in normal endianness or swapped endianness
-	usages := make(map[string]*PageUsage)
-	usages[""] = &PageUsage{
-		EmitNormal: true,
-	}
-
-	for _, page := range pages {
-		for _, rule := range book[page] {
-			if rule.Kind.Family == wizparser.KindFamilyUse {
-				uk, _ := rule.Kind.Data.(*wizparser.UseKind)
-				var usage *PageUsage
-				var ok bool
-				if usage, ok = usages[uk.Page]; !ok {
-					usage = &PageUsage{}
-					usages[uk.Page] = usage
-				}
-
-				if uk.SwapEndian {
-					usage.EmitSwapped = true
-				} else {
-					usage.EmitNormal = true
-				}
-			}
-		}
-	}
+	usages := computePagesUsage(book)
 
 	for _, page := range pages {
 		nodes := treeify(book[page])
@@ -218,8 +194,9 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						emit("// %s", rule.Line)
 					}
 
-					// don't bother emitting global offset if no children
-					// with relative addresses
+					// don't bother emitting global offset if no direct children
+					// have relative offsets. if grandchildren have relative offsets,
+					// they'll be relative to their own parent
 					emitGlobalOffset := false
 					for _, child := range node.children {
 						cof := child.rule.Offset
@@ -231,6 +208,9 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 					var off Expression
 
+					// if the previous node has exactly the same offset,
+					// then we can reuse their offset without having to
+					// recomput it (especially if it's indirect)
 					reuseOffset := false
 					if prevSiblingNode != nil {
 						pr := prevSiblingNode.rule
@@ -541,31 +521,6 @@ func endiannessString(en wizparser.Endianness, swapEndian bool) string {
 
 func quoteNumber(number int64) string {
 	return fmt.Sprintf("%d", number)
-}
-
-func treeify(rules []wizparser.Rule) []*ruleNode {
-	var rootNodes []*ruleNode
-	var nodeStack []*ruleNode
-	var idSeed int64
-
-	for _, rule := range rules {
-		node := &ruleNode{
-			id:   idSeed,
-			rule: rule,
-		}
-		idSeed++
-
-		if rule.Level > 0 {
-			parent := nodeStack[rule.Level-1]
-			parent.children = append(parent.children, node)
-		} else {
-			rootNodes = append(rootNodes, node)
-		}
-
-		nodeStack = append(nodeStack[0:rule.Level], node)
-	}
-
-	return rootNodes
 }
 
 func failLabel(node *ruleNode) string {
