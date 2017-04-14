@@ -135,6 +135,7 @@
 >>>&(0x3c.l+0xf8)	search/0x100	_winzip_ \b, ZIP self-extracting archive (WinZip)
 >>>&(0x3c.l+0xf8)	search/0x100	SharedD \b, Microsoft Installer self-extracting archive
 >>>0x30			string		Inno \b, InnoSetup self-extracting archive
+>>>0    search/0xf000    Inno\ Setup\ Setup\ Data    \b, InnoSetup installer
 
 # Hmm, not a PE but the relocation table is too high for a traditional DOS exe,
 # must be one of the unusual subformats.
