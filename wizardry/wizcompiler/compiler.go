@@ -107,8 +107,8 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 		emit("type i%d int%d", byteWidth, byteWidth*8)
 		emit("type u%d uint%d", byteWidth, byteWidth*8)
 	}
-	emit("gt := wizardry.StringTest")
-	emit("ht := wizardry.SearchTest")
+	emit("var gt = wizardry.StringTest")
+	emit("var ht = wizardry.SearchTest")
 	emit("")
 
 	for _, byteWidth := range []byte{1, 2, 4, 8} {
@@ -230,7 +230,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 								offsetAddress)
 						}
 						canFail = true
-						emit("if !ka { goto %s }", failLabel(node))
+						emit("if !ka {goto %s}", failLabel(node))
 						var offsetAdjustValue Expression = &NumberLiteral{indirect.OffsetAdjustmentValue}
 
 						if indirect.OffsetAdjustmentIsRelative {
@@ -239,7 +239,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAdjustAddress)
-							emit("if !kb { goto %s }", failLabel(node))
+							emit("if !kb {goto %s}", failLabel(node))
 							offsetAdjustValue = &VariableAccess{"i8(rb)"}
 						}
 
@@ -344,7 +344,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 							ruleTest := fmt.Sprintf("kc && (%s %s %s)", lhs, operator, rhs)
 							canFail = true
-							emit("if !(%s) { goto %s }", ruleTest, failLabel(node))
+							emit("if !(%s) {goto %s}", ruleTest, failLabel(node))
 						}
 						if emitGlobalOffset {
 							gfValue := &BinaryOp{
@@ -359,9 +359,9 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						emit("rA = i8(gt(tb, int(%s), %s, %d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
 						canFail = true
 						if sk.Negate {
-							emit("if rA >= 0 { goto %s }", failLabel(node))
+							emit("if rA >= 0 {goto %s}", failLabel(node))
 						} else {
-							emit("if rA < 0 { goto %s }", failLabel(node))
+							emit("if rA < 0 {goto %s}", failLabel(node))
 						}
 						if emitGlobalOffset {
 							gfValue := &BinaryOp{
@@ -376,7 +376,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
 						emit("rA = i8(ht(tb, int(%s), %s, %s))", off, quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
 						canFail = true
-						emit("if rA < 0 { goto %s }", failLabel(node))
+						emit("if rA < 0 {goto %s}", failLabel(node))
 						if emitGlobalOffset {
 							gfValue := &BinaryOp{
 								LHS:      off,
@@ -412,7 +412,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 							panic("compiler error: nil defaultMarker for default rule")
 						}
 						canFail = true
-						emit("if %s { goto %s }", defaultMarker, failLabel(node))
+						emit("if %s {goto %s}", defaultMarker, failLabel(node))
 						if emitGlobalOffset {
 							emit("gf = %s", off)
 						}
