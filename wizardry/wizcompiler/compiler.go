@@ -96,6 +96,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 	emit("import (")
 	withIndent(func() {
 		emit(strconv.Quote("fmt"))
+		emit(strconv.Quote("io"))
 		emit(strconv.Quote("encoding/binary"))
 		emit(strconv.Quote("github.com/fasterthanlime/wizardry/wizardry"))
 	})
@@ -108,33 +109,26 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 	emit("var l binary.ByteOrder=binary.LittleEndian")
 	emit("var b binary.ByteOrder=binary.BigEndian")
-	for _, byteWidth := range []byte{1, 2, 4, 8} {
-		emit("type i%d int%d", byteWidth, byteWidth*8)
-		emit("type u%d uint%d", byteWidth, byteWidth*8)
-	}
 	emit("var gt=wizardry.StringTest")
 	emit("var ht=wizardry.SearchTest")
 	emit("var t=true")
 	emit("var f=false")
+	emit("var tb=make([]byte, 8)")
 	emit("")
 
 	for _, byteWidth := range []byte{1, 2, 4, 8} {
 		for _, endianness := range []wizparser.Endianness{wizparser.LittleEndian, wizparser.BigEndian} {
-			retType := "u8"
+			retType := "uint64"
 
 			emit("// reads an unsigned %d-bit %s integer", byteWidth*8, endianness)
-			emit("func f%d%s(tb []byte, off i8) (%s, bool) {", byteWidth, endiannessString(endianness, false), retType)
+			emit("func f%d%s(r io.ReaderAt, s int64, off int64) (%s, bool) {", byteWidth, endiannessString(endianness, false), retType)
 			withIndent(func() {
-				emit("if i8(len(tb)) < off+%d {", byteWidth)
-				withIndent(func() {
-					emit("return 0, f")
-				})
-				emit("}")
-
+				emit("n,err:=r.ReadAt(tb,int64(off))")
+				emit("if n<%d||err!=nil {return 0,f}", byteWidth)
 				if byteWidth == 1 {
-					emit("return %s(tb[off]), t", retType)
+					emit("return %s(tb[0]),t", retType)
 				} else {
-					emit("return %s(%s.Uint%d(tb[off:])), t", retType, endiannessString(endianness, false), byteWidth*8)
+					emit("return %s(%s.Uint%d(tb)),t", retType, endiannessString(endianness, false), byteWidth*8)
 				}
 			})
 			emit("}")
@@ -192,15 +186,15 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 				}
 			}
 
-			emit("func Identify%s(tb []byte, po i8) ([]string, error) {", pageSymbol(page, swapEndian))
+			emit("func Identify%s(r io.ReaderAt, s int64, po int64) ([]string, error) {", pageSymbol(page, swapEndian))
 			withIndent(func() {
 				emit("var out []string")
 				emit("var ss []string; ss=ss[0:]")
-				emit("var gf i8; gf&=gf") // globalOffset
-				emit("var ra u8; ra&=ra")
-				emit("var rb u8; rb&=rb")
-				emit("var rc u8; rc&=rc")
-				emit("var rA i8; rA&=rA")
+				emit("var gf int64; gf&=gf") // globalOffset
+				emit("var ra uint64; ra&=ra")
+				emit("var rb uint64; rb&=rb")
+				emit("var rc uint64; rc&=rc")
+				emit("var rA int64; rA&=rA")
 				emit("var ka bool; ka=!!ka")
 				emit("var kb bool; kb=!!kb")
 				emit("var kc bool; kc=!!kc")
@@ -270,7 +264,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						}
 
 						if !reuseOffset {
-							emit("ra,ka=f%d%s(tb,%s)",
+							emit("ra,ka=f%d%s(r,s,%s)",
 								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAddress)
@@ -281,15 +275,15 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 						if indirect.OffsetAdjustmentIsRelative {
 							offsetAdjustAddress := fmt.Sprintf("%s + %s", offsetAddress, quoteNumber(indirect.OffsetAdjustmentValue))
-							emit("rb,kb=f%d%s(tb, %s)",
+							emit("rb,kb=f%d%s(r,s,%s)",
 								indirect.ByteWidth,
 								endiannessString(indirect.Endianness, swapEndian),
 								offsetAdjustAddress)
 							emit("if !kb {goto %s}", failLabel(node))
-							offsetAdjustValue = &VariableAccess{"i8(rb)"}
+							offsetAdjustValue = &VariableAccess{"int64(rb)"}
 						}
 
-						off = &VariableAccess{"i8(ra)"}
+						off = &VariableAccess{"int64(ra)"}
 
 						switch indirect.OffsetAdjustmentType {
 						case wizparser.AdjustmentAdd:
@@ -346,7 +340,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 							}
 
 							if !reuseSibling {
-								emit("rc,kc=f%d%s(tb, %s)",
+								emit("rc,kc=f%d%s(r,s,%s)",
 									ik.ByteWidth,
 									endiannessString(ik.Endianness, swapEndian),
 									off,
@@ -368,7 +362,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 							}
 
 							if ik.IntegerTest == wizparser.IntegerTestGreaterThan || ik.IntegerTest == wizparser.IntegerTestLessThan {
-								lhs = fmt.Sprintf("i8(i%d(%s))", ik.ByteWidth, lhs)
+								lhs = fmt.Sprintf("int64(int%d(%s))", ik.ByteWidth*8, lhs)
 							}
 
 							if ik.DoAnd {
@@ -402,7 +396,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 						}
 					case wizparser.KindFamilyString:
 						sk, _ := rule.Kind.Data.(*wizparser.StringKind)
-						emit("rA = i8(gt(tb,int(%s),%s,%d))", off, strconv.Quote(string(sk.Value)), sk.Flags)
+						emit("rA = gt(r,s,%s,%s,%d)", off, strconv.Quote(string(sk.Value)), sk.Flags)
 						canFail = true
 						if sk.Negate {
 							emit("if rA>=0 {goto %s}", failLabel(node))
@@ -420,7 +414,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 					case wizparser.KindFamilySearch:
 						sk, _ := rule.Kind.Data.(*wizparser.SearchKind)
-						emit("rA=i8(ht(tb, int(%s), %s, %s))", off, quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
+						emit("rA=ht(r,s,%s,%s,%s)", off, quoteNumber(int64(sk.MaxLen)), strconv.Quote(string(sk.Value)))
 						canFail = true
 						emit("if rA<0 {goto %s}", failLabel(node))
 						if emitGlobalOffset {
@@ -438,7 +432,7 @@ func Compile(book wizparser.Spellbook, chatty bool, emitComments bool) error {
 
 					case wizparser.KindFamilyUse:
 						uk, _ := rule.Kind.Data.(*wizparser.UseKind)
-						emit("ss,_=Identify%s(tb, %s)", pageSymbol(uk.Page, uk.SwapEndian), off)
+						emit("ss,_=Identify%s(r,s,%s)", pageSymbol(uk.Page, uk.SwapEndian), off)
 						emit("m(ss...)")
 
 					case wizparser.KindFamilyName:

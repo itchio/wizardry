@@ -283,7 +283,7 @@ type StringKind struct {
 // SearchKind describes how to look for a fixed pattern
 type SearchKind struct {
 	Value  []byte
-	MaxLen int
+	MaxLen int64
 }
 
 // KindFamily groups tests in families (all integer tests, for example)

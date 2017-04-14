@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 
 	"github.com/fasterthanlime/wizardry/wizardry/wizbook"
@@ -17,12 +16,17 @@ func main() {
 
 	target := os.Args[1]
 
-	buf, err := ioutil.ReadFile(target)
+	r, err := os.Open(target)
 	if err != nil {
 		panic(err)
 	}
 
-	res, err := wizbook.Identify(buf, 0)
+	stats, err := r.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := wizbook.Identify(r, stats.Size(), 0)
 	if err != nil {
 		panic(err)
 	}

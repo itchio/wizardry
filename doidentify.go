@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/fasterthanlime/wizardry/wizardry/wizinterpreter"
@@ -42,14 +41,7 @@ func doIdentify() error {
 
 	defer targetReader.Close()
 
-	var targetSlice []byte
 	stat, _ := targetReader.Stat()
-	targetSlice = make([]byte, stat.Size())
-
-	n, err := io.ReadFull(targetReader, targetSlice)
-	if err != nil {
-		return errors.Wrap(err, 0)
-	}
 
 	ictx := &wizinterpreter.InterpretContext{
 		Logf: NoLogf,
@@ -60,7 +52,7 @@ func doIdentify() error {
 		ictx.Logf = Logf
 	}
 
-	result, err := ictx.Identify(targetSlice[:n])
+	result, err := ictx.Identify(targetReader, stat.Size())
 	if err != nil {
 		panic(err)
 	}

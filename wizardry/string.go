@@ -1,6 +1,10 @@
 package wizardry
 
-import "github.com/fasterthanlime/wizardry/wizardry/wizutil"
+import (
+	"io"
+
+	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
+)
 
 // StringTestFlags describes how to perform a string test
 type StringTestFlags int64
@@ -26,15 +30,22 @@ const (
 )
 
 // StringTest looks for a string pattern in target, at given index
-func StringTest(target []byte, targetIndex int, patternString string, flags StringTestFlags) int {
+func StringTest(r io.ReaderAt, size int64, targetIndex int64, patternString string, flags StringTestFlags) int64 {
 	pattern := []byte(patternString)
-	targetSize := len(target)
+	buf := make([]byte, 1)
 	patternSize := len(pattern)
 	patternIndex := 0
 
-	for targetIndex < targetSize {
+	for {
 		patternByte := pattern[patternIndex]
-		targetByte := target[targetIndex]
+		n, err := r.ReadAt(buf, int64(targetIndex))
+		if n < 1 {
+			if err != nil && err != io.EOF {
+				return -1
+			}
+			break
+		}
+		targetByte := buf[0]
 
 		matches := patternByte == targetByte
 		if matches {
@@ -59,8 +70,16 @@ func StringTest(target []byte, targetIndex int, patternString string, flags Stri
 
 		if flags&CompactWhitespace > 0 && wizutil.IsWhitespace(targetByte) {
 			// if we had whitespace, skip any whitespace coming after it
-			for targetIndex < targetSize && wizutil.IsWhitespace(target[targetIndex]) {
+			for {
 				targetIndex++
+				n, err := r.ReadAt(buf, int64(targetIndex))
+				if n < 1 || err != nil {
+					break
+				}
+				targetByte := buf[0]
+				if !wizutil.IsWhitespace(targetByte) {
+					break
+				}
 			}
 		}
 

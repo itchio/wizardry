@@ -434,7 +434,7 @@ func (ctx *ParseContext) Parse(magicReader io.Reader, book Spellbook) error {
 					}
 
 					j = parsedLen.NewIndex
-					sk.MaxLen = int(parsedLen.Value)
+					sk.MaxLen = int64(parsedLen.Value)
 				}
 
 				k := 0
