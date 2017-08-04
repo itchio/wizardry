@@ -52,7 +52,9 @@ func doIdentify() error {
 		ictx.Logf = Logf
 	}
 
-	result, err := ictx.Identify(targetReader, stat.Size())
+	sr := wizutil.NewSliceReader(targetReader, 0, stat.Size())
+
+	result, err := ictx.Identify(sr)
 	if err != nil {
 		panic(err)
 	}

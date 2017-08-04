@@ -25,6 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	res := Identify(r, stats.Size(), 0)
+	sr := wizutil.NewSliceReader(r, 0, stats.Size())
+
+	res := Identify(sr, 0)
 	fmt.Printf("%s: %s\n", target, wizutil.MergeStrings(res))
 }
