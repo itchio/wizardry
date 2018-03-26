@@ -5,7 +5,7 @@ import (
 
 	"github.com/fasterthanlime/wizardry/wizardry/wizcompiler"
 	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
-	"github.com/go-errors/errors"
+	"github.com/pkg/errors"
 )
 
 func doCompile() error {
@@ -28,12 +28,12 @@ func doCompile() error {
 	book := make(wizparser.Spellbook)
 	err := pctx.ParseAll(magdir, book)
 	if err != nil {
-		return errors.Wrap(err, 0)
+		return errors.WithStack(err)
 	}
 
 	err = wizcompiler.Compile(book, *compileArgs.output, *compileArgs.chatty, *compileArgs.emitComments, *compileArgs.pkg)
 	if err != nil {
-		return errors.Wrap(err, 0)
+		return errors.WithStack(err)
 	}
 
 	return nil

@@ -5,7 +5,6 @@ import (
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/go-errors/errors"
 	"github.com/itchio/butler/comm"
 )
 
@@ -66,11 +65,6 @@ func main() {
 
 func must(err error) {
 	if err != nil {
-		switch err := err.(type) {
-		case *errors.Error:
-			comm.Die(err.ErrorStack())
-		default:
-			comm.Die(err.Error())
-		}
+		comm.Dief("%+v", err)
 	}
 }

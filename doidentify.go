@@ -7,7 +7,7 @@ import (
 	"github.com/fasterthanlime/wizardry/wizardry/wizinterpreter"
 	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
 	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
-	"github.com/go-errors/errors"
+	"github.com/pkg/errors"
 )
 
 func doIdentify() error {
@@ -30,7 +30,7 @@ func doIdentify() error {
 	book := make(wizparser.Spellbook)
 	err := pctx.ParseAll(magdir, book)
 	if err != nil {
-		return errors.Wrap(err, 0)
+		return errors.WithStack(err)
 	}
 
 	target := *identifyArgs.target
