@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
+	"github.com/itchio/wizardry/wizardry/wizutil"
 )
 
 func main() {

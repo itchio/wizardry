@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/fasterthanlime/wizardry/wizardry/wizcompiler"
-	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
+	"github.com/itchio/wizardry/wizardry/wizcompiler"
+	"github.com/itchio/wizardry/wizardry/wizparser"
 	"github.com/pkg/errors"
 )
 

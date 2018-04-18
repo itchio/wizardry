@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fasterthanlime/wizardry/wizardry/wizinterpreter"
-	"github.com/fasterthanlime/wizardry/wizardry/wizparser"
-	"github.com/fasterthanlime/wizardry/wizardry/wizutil"
+	"github.com/itchio/wizardry/wizardry/wizinterpreter"
+	"github.com/itchio/wizardry/wizardry/wizparser"
+	"github.com/itchio/wizardry/wizardry/wizutil"
 	"github.com/pkg/errors"
 )
 
