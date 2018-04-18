@@ -2,7 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
+
+	"github.com/itchio/wizardry/wizardry/wizparser"
+
+	"github.com/itchio/wizardry/wizardry/wizinterpreter"
 
 	"github.com/itchio/wizardry/wizardry/wizutil"
 )
@@ -27,6 +32,23 @@ func main() {
 
 	sr := wizutil.NewSliceReader(r, 0, stats.Size())
 
-	res := Identify(sr, 0)
+	book := make(wizparser.Spellbook)
+	pc := &wizparser.ParseContext{
+		Logf: log.Printf,
+	}
+	err = pc.ParseAll("Magdir", book)
+	if err != nil {
+		panic(err)
+	}
+
+	ic := &wizinterpreter.InterpretContext{
+		Logf: log.Printf,
+		Book: book,
+	}
+
+	res, err := ic.Identify(sr)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Printf("%s: %s\n", target, wizutil.MergeStrings(res))
 }
