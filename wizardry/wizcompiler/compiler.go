@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	humanize "github.com/dustin/go-humanize"
 	"github.com/itchio/wizardry/wizardry/wizparser"
 	"github.com/pkg/errors"
 )
@@ -506,7 +505,7 @@ func Compile(book wizparser.Spellbook, output string, chatty bool, emitComments 
 	fmt.Printf("Compiled in %s\n", time.Since(startTime))
 
 	fSize, _ := f.Seek(0, os.SEEK_CUR)
-	fmt.Printf("Generated code is %s\n", humanize.IBytes(uint64(fSize)))
+	fmt.Printf("Generated code is %.2f KiB\n", float64(fSize)/1024.0)
 
 	return nil
 }
