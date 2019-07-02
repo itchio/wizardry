@@ -1,11 +1,10 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
-
-	"github.com/itchio/butler/comm"
 )
 
 var (
@@ -65,6 +64,6 @@ func main() {
 
 func must(err error) {
 	if err != nil {
-		comm.Dief("%+v", err)
+		log.Fatalf("%+v", err)
 	}
 }
