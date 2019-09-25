@@ -16,6 +16,11 @@ type ByteView struct {
 // Get returns the byte at index i, or -1 if we
 // failed to read
 func (bv *ByteView) Get(i int64) int {
+	if i < 0 {
+		// yeah that's out of range, don't bother reading
+		return 1
+	}
+
 	if bv.buf == nil {
 		bv.buf = make([]byte, maxBufLen)
 	}
