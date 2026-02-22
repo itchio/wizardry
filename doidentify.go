@@ -12,9 +12,9 @@ import (
 func doIdentify() error {
 	magdir := *identifyArgs.magdir
 
-	NoLogf := func(format string, args ...interface{}) {}
+	NoLogf := func(format string, args ...any) {}
 
-	Logf := func(format string, args ...interface{}) {
+	Logf := func(format string, args ...any) {
 		fmt.Println(fmt.Sprintf(format, args...))
 	}
 

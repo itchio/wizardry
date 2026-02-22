@@ -243,7 +243,7 @@ const (
 // Kind describes the type of tests a magic rule performs
 type Kind struct {
 	Family KindFamily
-	Data   interface{}
+	Data   any
 }
 
 // IntegerKind describes how to perform a test on an integer

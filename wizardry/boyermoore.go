@@ -69,7 +69,7 @@ func MakeStringFinder(pattern string) *StringFinder {
 	// The loop condition is < instead of <= so that the last byte does not
 	// have a zero distance to itself. Finding this byte out of place implies
 	// that it is not in the last position.
-	for i := 0; i < last; i++ {
+	for i := range last {
 		f.badCharSkip[pattern[i]] = int64(last - i)
 	}
 
@@ -85,7 +85,7 @@ func MakeStringFinder(pattern string) *StringFinder {
 		f.goodSuffixSkip[i] = int64(lastPrefix + last - i)
 	}
 	// Second pass: find repeats of pattern's suffix starting from the front.
-	for i := 0; i < last; i++ {
+	for i := range last {
 		lenSuffix := longestCommonSuffix(pattern, pattern[1:i+1])
 		if pattern[i-lenSuffix] != pattern[last-lenSuffix] {
 			// (last-i) is the shift, and lenSuffix is len(suffix).
@@ -144,11 +144,4 @@ func (f *StringFinder) next(sr *wizutil.SliceReader) int64 {
 		i += max(f.badCharSkip[c], f.goodSuffixSkip[j])
 	}
 	return -1
-}
-
-func max(a, b int64) int64 {
-	if a > b {
-		return a
-	}
-	return b
 }

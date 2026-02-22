@@ -13,7 +13,7 @@ import (
 )
 
 // LogFunc prints a debug message
-type LogFunc func(format string, args ...interface{})
+type LogFunc func(format string, args ...any)
 
 // ParseContext holds state for the parser
 type ParseContext struct {

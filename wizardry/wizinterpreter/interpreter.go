@@ -13,7 +13,7 @@ import (
 const MaxLevels = 32
 
 // LogFunc logs something somewhere
-type LogFunc func(format string, args ...interface{})
+type LogFunc func(format string, args ...any)
 
 // InterpretContext holds state for the interpreter
 type InterpretContext struct {

@@ -51,7 +51,7 @@ func Compile(book wizparser.Spellbook, output string, chatty bool, emitComments 
 		indentLevel--
 	}
 
-	emit := func(format string, args ...interface{}) {
+	emit := func(format string, args ...any) {
 		if format != "" {
 			for i := 0; i < indentLevel; i++ {
 				f.Write(oneIndent)
@@ -510,16 +510,16 @@ func Compile(book wizparser.Spellbook, output string, chatty bool, emitComments 
 }
 
 func pageSymbol(page string, swapEndian bool) string {
-	result := ""
+	var result strings.Builder
 	for _, token := range strings.Split(page, "-") {
-		result += strings.Title(token)
+		result.WriteString(strings.Title(token))
 	}
 
 	if swapEndian {
-		result += "__Swapped"
+		result.WriteString("__Swapped")
 	}
 
-	return result
+	return result.String()
 }
 
 func endiannessString(en wizparser.Endianness, swapEndian bool) string {

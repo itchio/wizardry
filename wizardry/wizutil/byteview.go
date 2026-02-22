@@ -52,17 +52,3 @@ func (bv *ByteView) Get(i int64) int {
 	posInBuffer = i - bv.bufOffset
 	return int(bv.buf[posInBuffer])
 }
-
-func min(a, b int64) int64 {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-func max(a, b int64) int64 {
-	if a > b {
-		return a
-	}
-	return b
-}
