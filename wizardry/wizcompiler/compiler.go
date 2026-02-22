@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/itchio/wizardry/wizardry/wizparser"
-	"github.com/pkg/errors"
 )
 
 type indentCallback func()
@@ -33,7 +32,7 @@ func Compile(book wizparser.Spellbook, output string, chatty bool, emitComments 
 
 	f, err := os.Create(output)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	fmt.Println("Generating into:", output)

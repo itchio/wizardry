@@ -7,7 +7,6 @@ import (
 	"github.com/itchio/wizardry/wizardry/wizinterpreter"
 	"github.com/itchio/wizardry/wizardry/wizparser"
 	"github.com/itchio/wizardry/wizardry/wizutil"
-	"github.com/pkg/errors"
 )
 
 func doIdentify() error {
@@ -30,7 +29,7 @@ func doIdentify() error {
 	book := make(wizparser.Spellbook)
 	err := pctx.ParseAll(magdir, book)
 	if err != nil {
-		return errors.WithStack(err)
+		return err
 	}
 
 	target := *identifyArgs.target
