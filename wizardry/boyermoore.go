@@ -5,7 +5,6 @@
 package wizardry
 
 import (
-	"log"
 	"strings"
 
 	"github.com/itchio/wizardry/wizardry/wizutil"
@@ -128,8 +127,7 @@ func (f *StringFinder) next(sr *wizutil.SliceReader) int64 {
 
 			c = bv.Get(i)
 			if c == -1 {
-				// relay errors
-				log.Printf("Read error at %d", i)
+				// short input or read error: treat as no match
 				return -1
 			}
 
