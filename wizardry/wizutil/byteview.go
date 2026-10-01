@@ -22,7 +22,8 @@ func (bv *ByteView) Get(i int64) int {
 	}
 
 	if bv.buf == nil {
-		bv.buf = make([]byte, maxBufLen)
+		// a view is created per test, so size the buffer to the input
+		bv.buf = make([]byte, min(maxBufLen, bv.Input.Size()))
 	}
 
 	// already got it in buf?
@@ -32,7 +33,7 @@ func (bv *ByteView) Get(i int64) int {
 	}
 
 	newOffset := max(0, i-bv.LookBack)
-	newEnd := min(newOffset+maxBufLen-1, bv.Input.Size()-1)
+	newEnd := min(newOffset+int64(len(bv.buf))-1, bv.Input.Size()-1)
 	newBufLen := (newEnd - newOffset) + 1
 	if newBufLen <= 0 {
 		// input isn't big enough
